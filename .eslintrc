@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:import-order/recommended"
+  ],
+  "plugins": [
+    "react",
+    "import-order",
+    "es6-recommended"
+  ],
+  "parserOptions":{
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  }
+}
