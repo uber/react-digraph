@@ -21,6 +21,11 @@
     "react-icons": "^2.2.1"
   },
   "devDependencies": {
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "d3": "^4.1.1",
+    "radium": "^0.18.1",
+    "react-icons": "^2.2.1",
     "babel-cli": "^6.6.5",
     "babel-istanbul": "^0.8.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
