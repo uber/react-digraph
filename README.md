@@ -13,11 +13,11 @@ npm install --save react-digraph
 ## Usage
 
 
-The default export is component called 'GraphView' which provides a multitude of hooks for various graph editing operations and a set of controls for zooming. Typically, it should be wrapped in a higher order component that supplies various callbacks (onCreateNode, onCreateEdge etc...).
+The default export is a component called 'GraphView'; it provides a multitude of hooks for various graph editing operations and a set of controls for zooming. Typically, it should be wrapped in a higher order component that supplies various callbacks (onCreateNode, onCreateEdge etc...).
 
 All nodes and edges can have a type attribute set - nodes also support a subtype attribute. These can be passed to GraphView via the nodeTypes, nodeSubtypes, and edgeTypes props. GraphView will look up the corresponding SVG elements for the node's type/subtype and the edge's type and draw it accordingly. 
 
-GraphView is agnostic about how these types are assigned/used in your application. It is often convenient to combine them into a configuration object that can be referred to elsewhere in the application and used to associate events fired from nodes/edges in the graphView with other actions in the application. Here is an abbreviated example:
+It is often convenient to combine these types into a configuration object that can be referred to elsewhere in the application and used to associate events fired from nodes/edges in the graphView with other actions in the application. Here is an abbreviated example:
 
 ```jsx
 import GraphView from 'react-digraph'
@@ -49,7 +49,8 @@ const GraphConfig =  {
   }
 }
 
-
+const EMPTY_TYPE = "empty"  // Text on empty nodes is positioned differently 
+const NODE_KEY = "id"       // Allows D3 to correctly update DOM
 
 class Graph extends Component {
 
