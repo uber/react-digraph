@@ -1,5 +1,5 @@
 # react-digraph
-
+![Demo](example.gif?raw=true)
 ## Overview
 
 A React component which makes it easy to create a directed graph editor without implementing any of the SVG drawing or event handling logic.
