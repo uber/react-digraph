@@ -12,18 +12,148 @@ npm install --save react-digraph
 
 ## Usage
 
-Import the GraphView component.  
 
-```
-import GraphView from '../components/graph-view.js'
-```
-This provides a multitude of hooks for various graph editing operations and a set of controls for zooming. Typically, it should be wrapped in a higher order component that supplies various callbacks (onCreateNode, onCreateEdge etc...).
+The default export is component called 'GraphView' which provides a multitude of hooks for various graph editing operations and a set of controls for zooming. Typically, it should be wrapped in a higher order component that supplies various callbacks (onCreateNode, onCreateEdge etc...).
 
 All nodes and edges can have a type attribute set - nodes also support a subtype attribute. These can be passed to GraphView via the nodeTypes, nodeSubtypes, and edgeTypes props. GraphView will look up the corresponding SVG elements for the node's type/subtype and the edge's type and draw it accordingly. 
 
-GraphView is agnostic about how these types are assigned/used in your application. It is often convenient to combine them into a configuration object that can be referred to elsewhere in the application and used to associate events fired from nodes/edges in the graphView with other actions in the application.
+GraphView is agnostic about how these types are assigned/used in your application. It is often convenient to combine them into a configuration object that can be referred to elsewhere in the application and used to associate events fired from nodes/edges in the graphView with other actions in the application. Here is an abbreviated example:
 
-For a detailed example, check out src/examples/graph.js, to see it in action. All other props are detailed below.
+```jsx
+import GraphView from 'react-digraph'
+
+
+
+const GraphConfig =  {
+  NodeTypes: {
+    empty: {
+      typeText: "None",
+      shapeId: "#empty",
+      shape: (
+        <symbol viewBox="0 0 100 100" id="empty" key="0">
+          <circle cx="50" cy="50" r="45"></circle>
+        </symbol>
+      )
+    }
+  }, 
+  NodeSubtypes: {}, 
+  EdgeTypes: {
+    emptyEdge: {
+      shapeId: "#emptyEdge",
+      shape: (
+        <symbol viewBox="0 0 50 50" id="emptyEdge" key="0">
+          <circle cx="25" cy="25" r="8" fill="currentColor"> </circle>
+        </symbol>
+      )
+    }
+  }
+}
+
+
+
+class Graph extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      graph: sample,
+      selected: {}
+    }
+  }
+
+  /* Define custom graph editing methods here */
+
+  render() {
+    const nodes = this.state.graph.nodes;
+    const edges = this.state.graph.edges;
+    const selected = this.state.selected;
+
+    const NodeTypes = GraphConfig.NodeTypes;
+    const NodeSubtypes = GraphConfig.NodeSubtypes;
+    const EdgeTypes = GraphConfig.EdgeTypes;
+
+    return (
+      <div id='graph' style={styles.graph}>
+      
+        <GraphView  ref='GraphView'
+                    nodeKey={NODE_KEY}
+                    emptyType={EMPTY_TYPE}
+                    nodes={nodes}
+                    edges={edges}
+                    selected={selected}
+                    nodeTypes={NodeTypes}
+                    nodeSubtypes={NodeSubtypes}
+                    edgeTypes={EdgeTypes}
+                    getViewNode={this.getViewNode}
+                    onSelectNode={this.onSelectNode}
+                    onCreateNode={this.onCreateNode}
+                    onUpdateNode={this.onUpdateNode}
+                    onDeleteNode={this.onDeleteNode}
+                    onSelectEdge={this.onSelectEdge}
+                    onCreateEdge={this.onCreateEdge}
+                    onSwapEdge={this.onSwapEdge}
+                    onDeleteEdge={this.onDeleteEdge}/>
+      </div>
+    );
+  }
+
+}
+```
+
+A typical graph that would be stored in the Graph component's state looks something like this:
+
+```json
+{
+  "nodes": [
+    {
+      "id": 1,
+      "title": "Node A",
+      "x": 258.3976135253906,
+      "y": 331.9783248901367,
+      "type": "empty"
+    },
+    {
+      "id": 2,
+      "title": "Node B",
+      "x": 593.9393920898438,
+      "y": 260.6060791015625,
+      "type": "empty"
+    },
+    {
+      "id": 3,
+      "title": "Node C",
+      "x": 237.5757598876953,
+      "y": 61.81818389892578,
+      "type": "empty"
+    },
+    {
+      "id": 4,
+      "title": "Node C",
+      "x": 600.5757598876953,
+      "y": 600.81818389892578,
+      "type": "empty"
+    }
+  ],
+  "edges": [
+    {
+      "source": 1,
+      "target": 2,
+      "type": "emptyEdge"
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "type": "emptyEdge"
+    }
+  ]
+}
+
+```
+
+
+For a detailed example, check out src/examples/graph.js. 
+To run the example:
 ```
 npm install
 npm run example 
@@ -34,6 +164,8 @@ go to localhost:8000.
 - To add edges, hold shift and click/drag to between nodes.
 - To delete a node or edge, click on it and press delete.
 - Click and drag nodes to change their position.
+
+All props are detailed below.
 
 
 ## Props

@@ -105,6 +105,16 @@ class Graph extends Component {
       selected: {}
     }
 
+    this.getViewNode = this.getViewNode.bind(this);
+    this.onSelectNode = this.onSelectNode.bind(this);
+    this.onCreateNode = this.onCreateNode.bind(this);
+    this.onUpdateNode = this.onUpdateNode.bind(this);
+    this.onDeleteNode = this.onDeleteNode.bind(this);
+    this.onSelectEdge = this.onSelectEdge.bind(this);
+    this.onCreateEdge = this.onCreateEdge.bind(this);
+    this.onSwapEdge = this.onSwapEdge.bind(this);
+    this.onDeleteEdge = this.onDeleteEdge.bind(this);
+
   }
 
   // Helper to find the index of a given node
@@ -261,15 +271,15 @@ class Graph extends Component {
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
-                    getViewNode={this.getViewNode.bind(this)}
-                    onSelectNode={this.onSelectNode.bind(this)}
-                    onCreateNode={this.onCreateNode.bind(this)}
-                    onUpdateNode={this.onUpdateNode.bind(this)}
-                    onDeleteNode={this.onDeleteNode.bind(this)}
-                    onSelectEdge={this.onSelectEdge.bind(this)}
-                    onCreateEdge={this.onCreateEdge.bind(this)}
-                    onSwapEdge={this.onSwapEdge.bind(this)}
-                    onDeleteEdge={this.onDeleteEdge.bind(this)}/>
+                    getViewNode={this.getViewNode}
+                    onSelectNode={this.onSelectNode}
+                    onCreateNode={this.onCreateNode}
+                    onUpdateNode={this.onUpdateNode}
+                    onDeleteNode={this.onDeleteNode}
+                    onSelectEdge={this.onSelectEdge}
+                    onCreateEdge={this.onCreateEdge}
+                    onSwapEdge={this.onSwapEdge}
+                    onDeleteEdge={this.onDeleteEdge}/>
       </div>
     );
   }
