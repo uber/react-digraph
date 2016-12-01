@@ -509,6 +509,8 @@ class GraphView extends Component {
   // assume the click occurred on the arrow
   arrowClicked(d){
 
+    if(event.target.tagName != 'path') return false; // If the handle is clicked
+
     const xycoords = d3.mouse(event.target);
     const target = this.props.getViewNode(d.target);
     const dist = getDistance({x: xycoords[0], y: xycoords[1]}, target);
