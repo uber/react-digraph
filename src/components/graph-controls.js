@@ -61,9 +61,10 @@ function makeStyles(primary){
       color: primary,
       border: `solid 1px lightgray`,
       outline: 'none',
-      padding: 9.5,
-      position: 'relative',
-      bottom: 2
+      position: 'absolute',
+      width: 31,
+      height: 31,
+      top: -3
     }
   }
 }
