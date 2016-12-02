@@ -2,12 +2,23 @@
   "name": "react-digraph",
   "description": "directed graph react component",
   "version": "1.0.5",
-  "author": "",
   "keywords": [
     "uber-library",
     "babel",
-    "es6"
+    "es6",
+    "d3",
+    "react",
+    "graph",
+    "digraph"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uber/react-digraph.git"
+  },
+  "bugs": {
+    "url": "https://github.com/uber/react-digraph/issues/new",
+    "email": "antonb@uber.com"
+  },
   "engines": {
     "node": ">= 0.10.0"
   },
