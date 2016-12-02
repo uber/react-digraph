@@ -345,6 +345,10 @@ class GraphView extends Component {
         } else {
           self.props.onCreateEdge(sourceNode, hoveredNode)
         }
+      } else {
+        if (swapErrBack){
+          swapErrBack()
+        }
       }
     }
   }
@@ -508,6 +512,8 @@ class GraphView extends Component {
   // If the click occurs within a certain radius of edge target,
   // assume the click occurred on the arrow
   arrowClicked(d){
+
+    if(event.target.tagName != 'path') return false; // If the handle is clicked
 
     const xycoords = d3.mouse(event.target);
     const target = this.props.getViewNode(d.target);
@@ -874,8 +880,8 @@ class GraphView extends Component {
 
     const entities = d3.select(this.refs.entities)
 
-    this.renderEdges(entities, edges);
     this.renderNodes(entities, nodes);
+    this.renderEdges(entities, edges);
   }
 
   render() {
