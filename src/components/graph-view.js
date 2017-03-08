@@ -649,7 +649,7 @@ class GraphView extends Component {
 
     var t = d3.zoomIdentity.translate(x, y).scale(k);
 
-    d3.select('svg')
+    d3.select(this.refs.viewWrapper).select('svg')
       .transition()
       .duration(dur)
       .call(this.zoom.transform, t);
