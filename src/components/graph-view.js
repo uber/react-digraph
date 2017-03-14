@@ -32,7 +32,6 @@ import Radium from 'radium';
 import GraphControls from './graph-controls.js'
 
 
-
 // The work area is infinite, but the point grid is fixed
 const gridSize = 40960;
 const gridSpacing = 36;
@@ -45,10 +44,6 @@ const nodeSize = 150;
 const edgeHandleSize = 50;
 const edgeArrowSize = 8;
 const transitionTime = 150; // D3 Enter/Exit duration
-
-// FIXME: This is unreasonably constrained - 
-// but works for the worst case: "WWWWWWWWW".
-const maxTitleChars = 9; // Per line. 
 
 const zoomDelay = 500; // ms
 const zoomDur = 750; // ms
@@ -723,8 +718,8 @@ class GraphView extends Component {
     let d3Node = d3.select(domNode);
     let title = d.title;
 
-    let titleText = title.length < maxTitleChars ? title : 
-      `${title.substring(0, maxTitleChars)}...`;
+    let titleText = title.length <= this.props.maxTitleChars ? title :
+      `${title.substring(0, this.props.maxTitleChars)}...`;
 
     let lineOffset = 18;
     let textOffset = d.type === this.props.emptyType ? -9 : 18;
@@ -991,7 +986,8 @@ GraphView.propTypes = {
   onCreateEdge: React.PropTypes.func.isRequired,
   onSwapEdge: React.PropTypes.func.isRequired,
   canDeleteEdge: React.PropTypes.func,
-  onDeleteEdge: React.PropTypes.func.isRequired
+  onDeleteEdge: React.PropTypes.func.isRequired,
+  maxTitleChars: React.PropTypes.number  // Per line.
 };
 
 GraphView.defaultProps = {
@@ -999,6 +995,7 @@ GraphView.defaultProps = {
   light: '#FFF',
   dark: '#000',
   readOnly: false,
+  maxTitleChars: 9,
   canDeleteNode: () => true,
   canCreateEdge: () => true,
   canDeleteEdge: () => true,
