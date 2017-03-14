@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "keywords": [
     "uber-library",
     "babel",
@@ -65,7 +65,7 @@
     "changelog-minor": "build-changelog --minor",
     "changelog-patch": "build-changelog --patch",
     "cover": "babel-istanbul cover dist/test/index.js --report=text --report=cobertura --report=html",
-    "fast-test": "node dist/test/index.js",
+    "fast-test": "NODE_ENV=test node dist/test/index.js",
     "jenkins-install": "npm install",
     "jenkins-jshint": "npm run lint -- --o=jshint.xml --f=checkstyle",
     "jenkins-test": "npm run jenkins-jshint && (mkdir -p test && npm run cover | tee test/test.js.tap)",
@@ -73,7 +73,7 @@
     "precommit": "npm run lint -s",
     "prefast-test": "npm run prepublish",
     "prepublish": "npm run build",
-    "test": "npm run lint && npm run fast-test",
+    "test": "NODE_ENV=test npm run lint && npm run fast-test",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html"
   }
 }

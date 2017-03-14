@@ -241,10 +241,13 @@ class GraphView extends Component {
     // until componentDidMount. Manually render the first view.
     this.renderView();
 
-    setTimeout(function(){
-      this.handleZoomToFit();
-    }.bind(this), zoomDelay)
-    
+    // It seems Electron/JSDom's mocking of the SVG API is incomplete 
+    // and causes D3 to error out when zooming to fit in tests.
+    if(process.env.NODE_ENV !== "test"){
+      setTimeout(function(){
+        this.handleZoomToFit();
+      }.bind(this), zoomDelay)
+    }
   }
 
   componentWillUnmount() {
@@ -565,12 +568,6 @@ class GraphView extends Component {
   handleZoomToFit() {
     const parent = d3.select(this.refs.viewWrapper).node();
     const entities = d3.select(this.refs.entities).node();
-
-    // If the component is used headlessly (testing, etc...), 
-    // this method is sometimes absent
-    if (typeof entities.getBBox === 'undefined'){ 
-      console.warn("Node has no method called getBBox"); return
-    }
     
     const viewBBox = entities.getBBox();
 
