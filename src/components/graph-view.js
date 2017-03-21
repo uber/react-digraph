@@ -43,7 +43,6 @@ const maxZoom = 1.5;
 const nodeSize = 150;
 const edgeHandleSize = 50;
 const edgeArrowSize = 8;
-const transitionTime = 150; // D3 Enter/Exit duration
 
 const zoomDelay = 500; // ms
 const zoomDur = 750; // ms
@@ -412,10 +411,10 @@ class GraphView extends Component {
     if (this.state.focused) {
       switch (d3.event.key) {
         case "Delete":
-          this.handleDelete()
+          this.handleDelete();
           break;
         case "Backspace":
-          this.handleDelete()
+          this.handleDelete();
           break;
         default:
           break;
@@ -766,17 +765,17 @@ class GraphView extends Component {
 
     newEdges.attr("opacity", 0)
       .transition()
-      .duration(transitionTime)
+      .duration(self.props.transitionTime)
       .attr("opacity", 1);
 
     newEdges.append('path');
     newEdges.append("use");
 
     // Merge 
-    edges.enter().merge(edges)
+    edges.enter().merge(edges);
 
     // Update All
-    entities.selectAll('g.edge')
+    edges
       .each(function(d, i, els) {
 
         let style = self.getEdgeStyle(d, self.props.selected);
@@ -796,7 +795,7 @@ class GraphView extends Component {
   // Renders 'nodes' into entities element
   renderNodes(entities, nodes) {
     var self = this;
-    const nodeKey = this.props.nodeKey
+    const nodeKey = this.props.nodeKey;
 
     // Join Data 
     var nodes = entities.selectAll("g.node").data(nodes, function(d) {
@@ -804,22 +803,22 @@ class GraphView extends Component {
       return d[nodeKey]
     });
 
-    // Animate/Remove Old 
+    // Animate/Remove Old
     nodes.exit()
-      .transition()  
-      .duration(transitionTime)
+      .transition()
+      .duration(self.props.transitionTime)
       .attr("opacity", 0)
       .remove();
 
     // Add New
-    var newNodes = nodes.enter().append("g").classed("node", true)
+    var newNodes = nodes.enter().append("g").classed("node", true);
     
     newNodes.attr("style", this.state.styles.node.baseString)
       .on("mousedown", this.handleNodeMouseDown)
       .on("mouseup", this.handleNodeMouseUp)
       .on("mouseenter", this.handleNodeMouseEnter)
       .on("mouseleave", this.handleNodeMouseLeave)
-      .call(d3.drag().on("start", this.handleNodeDrag))
+      .call(d3.drag().on("start", this.handleNodeDrag));
 
     newNodes.append("use").classed("subtypeShape", true)
         .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
@@ -830,19 +829,19 @@ class GraphView extends Component {
     newNodes
       .attr("opacity", 0)
       .transition()  
-      .duration(transitionTime)
-      .attr("opacity", 1)
+      .duration(self.props.transitionTime)
+      .attr("opacity", 1);
 
     // Merge
     nodes.enter().merge(nodes);
 
     // Update All
-    entities.selectAll('g.node')
+    nodes
       .each(function(d, i, els) {
         let style = self.getNodeStyle(d, self.props.selected);
 
         d3.select(this)
-          .attr("style", style)
+          .attr("style", style);
 
         if(d.subtype){
           d3.select(this).select("use.subtypeShape")
@@ -870,7 +869,7 @@ class GraphView extends Component {
     const view = d3.select(this.refs.view)
       .attr("transform", this.state.viewTransform);
 
-    const entities = d3.select(this.refs.entities)
+    const entities = d3.select(this.refs.entities);
 
     this.renderNodes(entities, nodes);
     this.renderEdges(entities, edges);
@@ -984,7 +983,8 @@ GraphView.propTypes = {
   onSwapEdge: React.PropTypes.func.isRequired,
   canDeleteEdge: React.PropTypes.func,
   onDeleteEdge: React.PropTypes.func.isRequired,
-  maxTitleChars: React.PropTypes.number  // Per line.
+  maxTitleChars: React.PropTypes.number, // Per line.
+  transitionTime: React.PropTypes.number // D3 Enter/Exit duration
 };
 
 GraphView.defaultProps = {
@@ -993,6 +993,7 @@ GraphView.defaultProps = {
   dark: '#000',
   readOnly: false,
   maxTitleChars: 9,
+  transitionTime: 150,
   canDeleteNode: () => true,
   canCreateEdge: () => true,
   canDeleteEdge: () => true,
