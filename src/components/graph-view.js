@@ -198,6 +198,8 @@ class GraphView extends Component {
     this.renderNodes = this.renderNodes.bind(this);
     this.renderView = this.renderView.bind(this);
 
+    let defIndex = -1
+
     this.state = {
       viewTransform: d3.zoomIdentity,
       selectionChanged: false,
@@ -207,13 +209,16 @@ class GraphView extends Component {
       edgeSwapQueue: [],    // Stores nodes to be swapped
       styles: makeStyles(props.primary, props.light, props.dark),
       nodeDefs: Object.keys(props.nodeTypes).map(function(type){
-        return props.nodeTypes[type].shape
+        defIndex += 1;
+        return  React.cloneElement(props.nodeTypes[type].shape, {key: defIndex})
       }),                   // SVG definitions for nodes
       nodeSubtypeDefs: Object.keys(props.nodeSubtypes).map(function(type){
-        return props.nodeSubtypes[type].shape
+        defIndex += 1;
+        return React.cloneElement(props.nodeSubtypes[type].shape, {key: defIndex})
       }),  
       edgeDefs: Object.keys(props.edgeTypes).map(function(type){
-        return props.edgeTypes[type].shape
+        defIndex += 1;
+        return React.cloneElement(props.edgeTypes[type].shape, {key: defIndex})
       })                    // SVG definitions for edges
     };
 
@@ -895,7 +900,8 @@ class GraphView extends Component {
             {this.state.nodeSubtypeDefs}
             {this.state.edgeDefs}
 
-            <marker id="end-arrow" 
+            <marker id="end-arrow"
+                    key="end-arrow"
                     viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
                     refX={`${edgeArrowSize/2}`} 
                     markerWidth={`${edgeArrowSize}`} 
@@ -907,6 +913,7 @@ class GraphView extends Component {
             </marker>
 
             <pattern  id="grid"
+                      key="grid"
                       width={gridSpacing}
                       height={gridSpacing}
                       patternUnits="userSpaceOnUse">
@@ -917,7 +924,7 @@ class GraphView extends Component {
               </circle>
             </pattern>
 
-            <filter id="dropshadow" height="130%">
+            <filter id="dropshadow" key="dropshadow" height="130%">
               <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
               <feOffset dx="2" dy="2" result="offsetblur"/>
               <feComponentTransfer>
