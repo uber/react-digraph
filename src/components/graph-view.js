@@ -717,7 +717,7 @@ class GraphView extends Component {
   // Renders 'node.title' into node element
   renderNodeText(d, domNode) {
     let d3Node = d3.select(domNode);
-    let title = d.title;
+    let title = d.title ? d.title : ' ';
 
     let titleText = title.length <= this.props.maxTitleChars ? title :
       `${title.substring(0, this.props.maxTitleChars)}...`;
