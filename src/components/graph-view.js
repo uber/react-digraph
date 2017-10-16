@@ -779,23 +779,14 @@ class GraphView extends Component {
 
     // Merge 
     edges.enter().merge(edges);
-
+    
     // Update All
     edges
       .each(function(d, i, els) {
-
-        let style = self.getEdgeStyle(d, self.props.selected);
-        let trans = self.getEdgeHandleTransformation(d)
-        d3.select(this)
-          .attr("style", style)
-          .select("use")
-            .attr("xlink:href", function(d){ return self.props.edgeTypes[d.type].shapeId })
-            .attr("width", edgeHandleSize)
-            .attr("height", edgeHandleSize)
-            .attr("transform", trans);
+        self.props.renderEdge(self, this, d, i, els)
       })
-      .select('path')
-        .attr('d', this.getPathDescription);
+      // .select('path')
+      //   .attr('d', this.getPathDescription);
   }
 
   // Renders 'nodes' into entities element
@@ -844,25 +835,9 @@ class GraphView extends Component {
     // Update All
     nodes
       .each(function(d, i, els) {
-        let style = self.getNodeStyle(d, self.props.selected);
-
-        d3.select(this)
-          .attr("style", style);
-
-        if(d.subtype){
-          d3.select(this).select("use.subtypeShape")
-            .attr("xlink:href", function(d){ return self.props.nodeSubtypes[d.subtype].shapeId }); 
-        } else {
-          d3.select(this).select("use.subtypeShape")
-            .attr("xlink:href", function(d){ return null }); 
-        }
-
-        d3.select(this).select("use.shape")
-            .attr("xlink:href", function(d){ return self.props.nodeTypes[d.type].shapeId }); 
-
-        self.renderNodeText(d, this);
+        self.props.renderNode(self, this, d, i, els)
       })
-      .attr('transform', this.getNodeTransformation);
+      
   }
 
   // Renders 'graph' into view element
@@ -978,6 +953,8 @@ GraphView.propTypes = {
   nodeSubtypes: PropTypes.object.isRequired,
   edgeTypes: PropTypes.object.isRequired,
   getViewNode: PropTypes.func.isRequired,
+  renderEdge: PropTypes.func,
+  renderNode: PropTypes.func,
   onSelectNode: PropTypes.func.isRequired,
   onCreateNode: PropTypes.func.isRequired,
   onUpdateNode: PropTypes.func.isRequired,
@@ -1000,6 +977,42 @@ GraphView.defaultProps = {
   readOnly: false,
   maxTitleChars: 9,
   transitionTime: 150,
+  renderEdge: (graphView, domNode, datum, index, elements )=>{
+    let style = graphView.getEdgeStyle(datum, graphView.props.selected);
+    let trans = graphView.getEdgeHandleTransformation(datum)
+    d3.select(domNode)
+      .attr("style", style)
+      .select("use") // TODO: Don't depend on 'use' here...
+        .attr("xlink:href", function(d){ return graphView.props.edgeTypes[d.type].shapeId })
+        .attr("width", edgeHandleSize)
+        .attr("height", edgeHandleSize)
+        .attr("transform", trans);
+    
+    d3.select(domNode)
+      .select('path')
+        .attr('d', graphView.getPathDescription);
+  },
+  renderNode: (graphView, domNode,  datum, index, elements)=>{
+    let style = graphView.getNodeStyle(datum, graphView.props.selected);
+    // TODO: Don't depend on 'use' here...
+    d3.select(domNode)
+      .attr("style", style);
+
+    if(datum.subtype){
+      d3.select(domNode).select("use.subtypeShape")
+        .attr("xlink:href", function(d){ return graphView.props.nodeSubtypes[d.subtype].shapeId }); 
+    } else {
+      d3.select(domNode).select("use.subtypeShape")
+        .attr("xlink:href", function(d){ return null }); 
+    }
+
+    d3.select(domNode).select("use.shape")
+        .attr("xlink:href", function(d){ return graphView.props.nodeTypes[d.type].shapeId }); 
+
+    graphView.renderNodeText(datum, domNode);
+
+    d3.select(domNode).attr('transform', graphView.getNodeTransformation);
+  },
   canDeleteNode: () => true,
   canCreateEdge: () => true,
   canDeleteEdge: () => true,
