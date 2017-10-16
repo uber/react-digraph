@@ -26,10 +26,11 @@
 import React, {
   Component
 } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-
 import Radium from 'radium';
 import GraphControls from './graph-controls.js'
+
 
 
 // The work area is infinite, but the point grid is fixed
@@ -964,34 +965,34 @@ class GraphView extends Component {
 }
 
 GraphView.propTypes = {
-  primary: React.PropTypes.string,
-  light: React.PropTypes.string,
-  dark: React.PropTypes.string,
-  style: React.PropTypes.object,
-  nodeKey: React.PropTypes.string.isRequired,
-  emptyType: React.PropTypes.string.isRequired,
-  nodes: React.PropTypes.array.isRequired,
-  edges: React.PropTypes.array.isRequired,
-  readOnly: React.PropTypes.bool,
-  enableFocus: React.PropTypes.bool,
-  selected: React.PropTypes.object.isRequired,
-  nodeTypes: React.PropTypes.object.isRequired,
-  nodeSubtypes: React.PropTypes.object.isRequired,
-  edgeTypes: React.PropTypes.object.isRequired,
-  getViewNode: React.PropTypes.func.isRequired,
-  onSelectNode: React.PropTypes.func.isRequired,
-  onCreateNode: React.PropTypes.func.isRequired,
-  onUpdateNode: React.PropTypes.func.isRequired,
-  canDeleteNode: React.PropTypes.func,
-  onDeleteNode: React.PropTypes.func.isRequired,
-  onSelectEdge: React.PropTypes.func.isRequired,
-  canCreateEdge: React.PropTypes.func,
-  onCreateEdge: React.PropTypes.func.isRequired,
-  onSwapEdge: React.PropTypes.func.isRequired,
-  canDeleteEdge: React.PropTypes.func,
-  onDeleteEdge: React.PropTypes.func.isRequired,
-  maxTitleChars: React.PropTypes.number, // Per line.
-  transitionTime: React.PropTypes.number // D3 Enter/Exit duration
+  primary: PropTypes.string,
+  light: PropTypes.string,
+  dark: PropTypes.string,
+  style: PropTypes.object,
+  nodeKey: PropTypes.string.isRequired,
+  emptyType: PropTypes.string.isRequired,
+  nodes: PropTypes.array.isRequired,
+  edges: PropTypes.array.isRequired,
+  readOnly: PropTypes.bool,
+  enableFocus: PropTypes.bool,
+  selected: PropTypes.object.isRequired,
+  nodeTypes: PropTypes.object.isRequired,
+  nodeSubtypes: PropTypes.object.isRequired,
+  edgeTypes: PropTypes.object.isRequired,
+  getViewNode: PropTypes.func.isRequired,
+  onSelectNode: PropTypes.func.isRequired,
+  onCreateNode: PropTypes.func.isRequired,
+  onUpdateNode: PropTypes.func.isRequired,
+  canDeleteNode: PropTypes.func,
+  onDeleteNode: PropTypes.func.isRequired,
+  onSelectEdge: PropTypes.func.isRequired,
+  canCreateEdge: PropTypes.func,
+  onCreateEdge: PropTypes.func.isRequired,
+  onSwapEdge: PropTypes.func.isRequired,
+  canDeleteEdge: PropTypes.func,
+  onDeleteEdge: PropTypes.func.isRequired,
+  maxTitleChars: PropTypes.number, // Per line.
+  transitionTime: PropTypes.number // D3 Enter/Exit duration
 };
 
 GraphView.defaultProps = {
