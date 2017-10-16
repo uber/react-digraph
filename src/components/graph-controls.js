@@ -24,6 +24,7 @@
 
 import React, {Component} from 'react';
 import Radium from 'radium';
+import PropTypes from 'prop-types';
 
 // Only old-style imports for react-icons seem to work with gulp
 const FaExpand = require('react-icons/lib/fa/expand');
@@ -133,12 +134,12 @@ class GraphControls extends Component {
 }
 
 GraphControls.propTypes = {
-  primary: React.PropTypes.string,
-  minZoom: React.PropTypes.number,
-  maxZoom: React.PropTypes.number,
-  zoomLevel: React.PropTypes.number.isRequired,
-  zoomToFit: React.PropTypes.func.isRequired,
-  modifyZoom: React.PropTypes.func.isRequired
+  primary: PropTypes.string,
+  minZoom: PropTypes.number,
+  maxZoom: PropTypes.number,
+  zoomLevel: PropTypes.number.isRequired,
+  zoomToFit: PropTypes.func.isRequired,
+  modifyZoom: PropTypes.func.isRequired
 }
 
 GraphControls.defaultProps = {

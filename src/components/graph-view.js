@@ -26,10 +26,11 @@
 import React, {
   Component
 } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-
 import Radium from 'radium';
 import GraphControls from './graph-controls.js'
+
 
 
 // The work area is infinite, but the point grid is fixed
@@ -234,7 +235,7 @@ class GraphView extends Component {
       .on('keydown', this.handleWindowKeydown)
       .on('click', this.handleWindowClicked);
 
-    var svg = d3.select(this.refs.viewWrapper)
+    var svg = d3.select(this.viewWrapper)
       .on("touchstart", this.containZoom)
       .on("touchmove", this.containZoom)
       .on("click", this.handleSvgClicked)
@@ -313,7 +314,7 @@ class GraphView extends Component {
   drawEdge(sourceNode, target, swapErrBack){
     const self = this;
  
-    const dragEdge = d3.select(this.refs.entities).append('svg:path')
+    const dragEdge = d3.select(this.entities).append('svg:path')
 
     dragEdge.attr('class', 'link dragline')
       .attr("style", this.state.styles.edge.selectedString)
@@ -570,8 +571,8 @@ class GraphView extends Component {
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit() {
-    const parent = d3.select(this.refs.viewWrapper).node();
-    const entities = d3.select(this.refs.entities).node();
+    const parent = d3.select(this.viewWrapper).node();
+    const entities = d3.select(this.entities).node();
     
     const viewBBox = entities.getBBox();
 
@@ -614,7 +615,7 @@ class GraphView extends Component {
 
   // Updates current viewTransform with some delta
   modifyZoom(modK=0, modX=0, modY=0, dur=0){
-    const parent = d3.select(this.refs.viewWrapper).node();
+    const parent = d3.select(this.viewWrapper).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
 
@@ -645,7 +646,7 @@ class GraphView extends Component {
 
     var t = d3.zoomIdentity.translate(x, y).scale(k);
 
-    d3.select(this.refs.viewWrapper).select('svg')
+    d3.select(this.viewWrapper).select('svg')
       .transition()
       .duration(dur)
       .call(this.zoom.transform, t);
@@ -871,10 +872,10 @@ class GraphView extends Component {
     var edges = this.props.edges;
 
     // Update the view w/ new zoom/pan
-    const view = d3.select(this.refs.view)
+    const view = d3.select(this.view)
       .attr("transform", this.state.viewTransform);
 
-    const entities = d3.select(this.refs.entities);
+    const entities = d3.select(this.entities);
 
     this.renderNodes(entities, nodes);
     this.renderEdges(entities, edges);
@@ -886,7 +887,7 @@ class GraphView extends Component {
 
     return (
       <div  id='viewWrapper'
-            ref='viewWrapper'
+            ref={(el) => this.viewWrapper = el}
             style={[
               styles.wrapper.base,
               !!this.state.focused && styles.wrapper.focused,
@@ -937,7 +938,7 @@ class GraphView extends Component {
             </filter>
 
           </defs>
-          <g id='view' ref='view'>
+          <g id='view' ref={(el) => this.view = el}>
             <rect className='background'
                   x={-gridSize/4}
                   y={-gridSize/4}
@@ -945,10 +946,8 @@ class GraphView extends Component {
                   height={ gridSize }
                   fill="url(#grid)">
             </rect>
-            <g id='entities' ref='entities'></g>
+            <g id='entities' ref={(el) => this.entities = el}></g>
           </g>
-
-          }
         </svg>
         <GraphControls  primary={this.props.primary}
                         minZoom={minZoom} 
@@ -964,34 +963,34 @@ class GraphView extends Component {
 }
 
 GraphView.propTypes = {
-  primary: React.PropTypes.string,
-  light: React.PropTypes.string,
-  dark: React.PropTypes.string,
-  style: React.PropTypes.object,
-  nodeKey: React.PropTypes.string.isRequired,
-  emptyType: React.PropTypes.string.isRequired,
-  nodes: React.PropTypes.array.isRequired,
-  edges: React.PropTypes.array.isRequired,
-  readOnly: React.PropTypes.bool,
-  enableFocus: React.PropTypes.bool,
-  selected: React.PropTypes.object.isRequired,
-  nodeTypes: React.PropTypes.object.isRequired,
-  nodeSubtypes: React.PropTypes.object.isRequired,
-  edgeTypes: React.PropTypes.object.isRequired,
-  getViewNode: React.PropTypes.func.isRequired,
-  onSelectNode: React.PropTypes.func.isRequired,
-  onCreateNode: React.PropTypes.func.isRequired,
-  onUpdateNode: React.PropTypes.func.isRequired,
-  canDeleteNode: React.PropTypes.func,
-  onDeleteNode: React.PropTypes.func.isRequired,
-  onSelectEdge: React.PropTypes.func.isRequired,
-  canCreateEdge: React.PropTypes.func,
-  onCreateEdge: React.PropTypes.func.isRequired,
-  onSwapEdge: React.PropTypes.func.isRequired,
-  canDeleteEdge: React.PropTypes.func,
-  onDeleteEdge: React.PropTypes.func.isRequired,
-  maxTitleChars: React.PropTypes.number, // Per line.
-  transitionTime: React.PropTypes.number // D3 Enter/Exit duration
+  primary: PropTypes.string,
+  light: PropTypes.string,
+  dark: PropTypes.string,
+  style: PropTypes.object,
+  nodeKey: PropTypes.string.isRequired,
+  emptyType: PropTypes.string.isRequired,
+  nodes: PropTypes.array.isRequired,
+  edges: PropTypes.array.isRequired,
+  readOnly: PropTypes.bool,
+  enableFocus: PropTypes.bool,
+  selected: PropTypes.object.isRequired,
+  nodeTypes: PropTypes.object.isRequired,
+  nodeSubtypes: PropTypes.object.isRequired,
+  edgeTypes: PropTypes.object.isRequired,
+  getViewNode: PropTypes.func.isRequired,
+  onSelectNode: PropTypes.func.isRequired,
+  onCreateNode: PropTypes.func.isRequired,
+  onUpdateNode: PropTypes.func.isRequired,
+  canDeleteNode: PropTypes.func,
+  onDeleteNode: PropTypes.func.isRequired,
+  onSelectEdge: PropTypes.func.isRequired,
+  canCreateEdge: PropTypes.func,
+  onCreateEdge: PropTypes.func.isRequired,
+  onSwapEdge: PropTypes.func.isRequired,
+  canDeleteEdge: PropTypes.func,
+  onDeleteEdge: PropTypes.func.isRequired,
+  maxTitleChars: PropTypes.number, // Per line.
+  transitionTime: PropTypes.number // D3 Enter/Exit duration
 };
 
 GraphView.defaultProps = {
