@@ -235,7 +235,7 @@ class GraphView extends Component {
       .on('keydown', this.handleWindowKeydown)
       .on('click', this.handleWindowClicked);
 
-    var svg = d3.select(this.refs.viewWrapper)
+    var svg = d3.select(this.viewWrapper)
       .on("touchstart", this.containZoom)
       .on("touchmove", this.containZoom)
       .on("click", this.handleSvgClicked)
@@ -314,7 +314,7 @@ class GraphView extends Component {
   drawEdge(sourceNode, target, swapErrBack){
     const self = this;
  
-    const dragEdge = d3.select(this.refs.entities).append('svg:path')
+    const dragEdge = d3.select(this.entities).append('svg:path')
 
     dragEdge.attr('class', 'link dragline')
       .attr("style", this.state.styles.edge.selectedString)
@@ -571,8 +571,8 @@ class GraphView extends Component {
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit() {
-    const parent = d3.select(this.refs.viewWrapper).node();
-    const entities = d3.select(this.refs.entities).node();
+    const parent = d3.select(this.viewWrapper).node();
+    const entities = d3.select(this.entities).node();
     
     const viewBBox = entities.getBBox();
 
@@ -615,7 +615,7 @@ class GraphView extends Component {
 
   // Updates current viewTransform with some delta
   modifyZoom(modK=0, modX=0, modY=0, dur=0){
-    const parent = d3.select(this.refs.viewWrapper).node();
+    const parent = d3.select(this.viewWrapper).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
 
@@ -646,7 +646,7 @@ class GraphView extends Component {
 
     var t = d3.zoomIdentity.translate(x, y).scale(k);
 
-    d3.select(this.refs.viewWrapper).select('svg')
+    d3.select(this.viewWrapper).select('svg')
       .transition()
       .duration(dur)
       .call(this.zoom.transform, t);
@@ -872,10 +872,10 @@ class GraphView extends Component {
     var edges = this.props.edges;
 
     // Update the view w/ new zoom/pan
-    const view = d3.select(this.refs.view)
+    const view = d3.select(this.view)
       .attr("transform", this.state.viewTransform);
 
-    const entities = d3.select(this.refs.entities);
+    const entities = d3.select(this.entities);
 
     this.renderNodes(entities, nodes);
     this.renderEdges(entities, edges);
@@ -887,7 +887,7 @@ class GraphView extends Component {
 
     return (
       <div  id='viewWrapper'
-            ref='viewWrapper'
+            ref={(el) => this.viewWrapper = el}
             style={[
               styles.wrapper.base,
               !!this.state.focused && styles.wrapper.focused,
@@ -938,7 +938,7 @@ class GraphView extends Component {
             </filter>
 
           </defs>
-          <g id='view' ref='view'>
+          <g id='view' ref={(el) => this.view = el}>
             <rect className='background'
                   x={-gridSize/4}
                   y={-gridSize/4}
@@ -946,10 +946,8 @@ class GraphView extends Component {
                   height={ gridSize }
                   fill="url(#grid)">
             </rect>
-            <g id='entities' ref='entities'></g>
+            <g id='entities' ref={(el) => this.entities = el}></g>
           </g>
-
-          }
         </svg>
         <GraphControls  primary={this.props.primary}
                         minZoom={minZoom} 

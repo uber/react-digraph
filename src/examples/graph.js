@@ -262,7 +262,7 @@ class Graph extends Component {
     return (
       <div id='graph' style={styles.graph}>
       
-        <GraphView  ref='GraphView'
+        <GraphView  ref={(el) => this.GraphView = el}
                     nodeKey={NODE_KEY}
                     emptyType={EMPTY_TYPE}
                     nodes={nodes}
