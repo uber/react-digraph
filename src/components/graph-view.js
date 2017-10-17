@@ -758,6 +758,7 @@ class GraphView extends Component {
         // IMPORTANT: this snippet allows D3 to detect updated vs. new data
         return `${d.source}:${d.target}`;
       });
+
     // Remove Old
     edges.exit()
         .remove();
@@ -774,19 +775,13 @@ class GraphView extends Component {
       .duration(self.props.transitionTime)
       .attr("opacity", 1);
 
-    newEdges.append('path');
-    newEdges.append("use");
-
     // Merge 
     edges.enter().merge(edges);
     
     // Update All
-    edges
-      .each(function(d, i, els) {
-        self.props.renderEdge(self, this, d, i, els)
-      })
-      // .select('path')
-      //   .attr('d', this.getPathDescription);
+    edges.each(function(d, i, els) {
+      self.props.renderEdge(self, this, d, i, els)
+    })
   }
 
   // Renders 'nodes' into entities element
@@ -809,19 +804,12 @@ class GraphView extends Component {
 
     // Add New
     var newNodes = nodes.enter().append("g").classed("node", true);
-    
-    newNodes.attr("style", this.state.styles.node.baseString)
-      .on("mousedown", this.handleNodeMouseDown)
+
+    newNodes.on("mousedown", this.handleNodeMouseDown)
       .on("mouseup", this.handleNodeMouseUp)
       .on("mouseenter", this.handleNodeMouseEnter)
       .on("mouseleave", this.handleNodeMouseLeave)
       .call(d3.drag().on("start", this.handleNodeDrag));
-
-    newNodes.append("use").classed("subtypeShape", true)
-        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
-
-    newNodes.append("use").classed("shape", true)
-        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
 
     newNodes
       .attr("opacity", 0)
@@ -856,6 +844,7 @@ class GraphView extends Component {
     this.renderEdges(entities, edges);
   }
 
+
   render() {
     this.renderView();
     const styles = this.state.styles;
@@ -870,57 +859,9 @@ class GraphView extends Component {
             ]}>
         <svg  id='svgRoot' 
               style={styles.svg.base}>
-          <defs>
-
-            {this.state.nodeDefs}
-            {this.state.nodeSubtypeDefs}
-            {this.state.edgeDefs}
-
-            <marker id="end-arrow"
-                    key="end-arrow"
-                    viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
-                    refX={`${edgeArrowSize/2}`} 
-                    markerWidth={`${edgeArrowSize}`} 
-                    markerHeight={`${edgeArrowSize}`} 
-                    orient="auto">
-              <path style={ styles.arrow } 
-                    d={`M0,-${edgeArrowSize/2}L${edgeArrowSize},0L0,${edgeArrowSize/2}`}>
-              </path>
-            </marker>
-
-            <pattern  id="grid"
-                      key="grid"
-                      width={gridSpacing}
-                      height={gridSpacing}
-                      patternUnits="userSpaceOnUse">
-              <circle cx={gridSpacing/2}
-                      cy={gridSpacing/2}
-                      r={gridDot}
-                      fill="lightgray">
-              </circle>
-            </pattern>
-
-            <filter id="dropshadow" key="dropshadow" height="130%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-              <feOffset dx="2" dy="2" result="offsetblur"/>
-              <feComponentTransfer>
-                <feFuncA type="linear" slope="0.1"/>
-              </feComponentTransfer>
-              <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-
-          </defs>
+          { this.props.renderDefs(this) }
           <g id='view' ref={(el) => this.view = el}>
-            <rect className='background'
-                  x={-gridSize/4}
-                  y={-gridSize/4}
-                  width={ gridSize }
-                  height={ gridSize }
-                  fill="url(#grid)">
-            </rect>
+            { this.props.renderBackground(this) }
             <g id='entities' ref={(el) => this.entities = el}></g>
           </g>
         </svg>
@@ -978,11 +919,18 @@ GraphView.defaultProps = {
   maxTitleChars: 9,
   transitionTime: 150,
   renderEdge: (graphView, domNode, datum, index, elements )=>{
+
+    // For new edges, add necessary child domNodes
+    if (!domNode.hasChildNodes()){
+      d3.select(domNode).append("path");
+      d3.select(domNode).append("use");
+    }
+    
     let style = graphView.getEdgeStyle(datum, graphView.props.selected);
     let trans = graphView.getEdgeHandleTransformation(datum)
     d3.select(domNode)
       .attr("style", style)
-      .select("use") // TODO: Don't depend on 'use' here...
+      .select("use")
         .attr("xlink:href", function(d){ return graphView.props.edgeTypes[d.type].shapeId })
         .attr("width", edgeHandleSize)
         .attr("height", edgeHandleSize)
@@ -993,8 +941,17 @@ GraphView.defaultProps = {
         .attr('d', graphView.getPathDescription);
   },
   renderNode: (graphView, domNode,  datum, index, elements)=>{
+    
+    // For new nodes, add necessary child domNodes
+    if (!domNode.hasChildNodes()){
+      d3.select(domNode).append("use").classed("subtypeShape", true)
+        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
+      d3.select(domNode).append("use").classed("shape", true)
+        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
+    }
+
     let style = graphView.getNodeStyle(datum, graphView.props.selected);
-    // TODO: Don't depend on 'use' here...
+
     d3.select(domNode)
       .attr("style", style);
 
@@ -1012,6 +969,66 @@ GraphView.defaultProps = {
     graphView.renderNodeText(datum, domNode);
 
     d3.select(domNode).attr('transform', graphView.getNodeTransformation);
+  },
+  renderDefs: (graphView)=>{
+    const styles = graphView.state.styles 
+
+    return (
+      <defs>
+        {graphView.state.nodeDefs}
+        {graphView.state.nodeSubtypeDefs}
+        {graphView.state.edgeDefs}
+
+        <marker id="end-arrow"
+                key="end-arrow"
+                viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
+                refX={`${edgeArrowSize/2}`} 
+                markerWidth={`${edgeArrowSize}`} 
+                markerHeight={`${edgeArrowSize}`} 
+                orient="auto">
+          <path style={ styles.arrow } 
+                d={`M0,-${edgeArrowSize/2}L${edgeArrowSize},0L0,${edgeArrowSize/2}`}>
+          </path>
+        </marker>
+
+        <pattern  id="grid"
+                  key="grid"
+                  width={gridSpacing}
+                  height={gridSpacing}
+                  patternUnits="userSpaceOnUse">
+          <circle cx={gridSpacing/2}
+                  cy={gridSpacing/2}
+                  r={gridDot}
+                  fill="lightgray">
+          </circle>
+        </pattern>
+
+        <filter id="dropshadow" key="dropshadow" height="130%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+          <feOffset dx="2" dy="2" result="offsetblur"/>
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.1"/>
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+      </defs>
+    )
+  },
+  renderBackground: (graphView)=>{
+    return (
+      <rect className='background'
+        x={-gridSize/4}
+        y={-gridSize/4}
+        width={ gridSize }
+        height={ gridSize }
+        fill="url(#grid)">
+      </rect>
+    )
+
   },
   canDeleteNode: () => true,
   canCreateEdge: () => true,
