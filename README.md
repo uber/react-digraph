@@ -171,34 +171,50 @@ All props are detailed below.
 
 ## Props
 
-| Prop          | Type    | Required  | Notes                                     |
-| ------------- |:-------:| :--------:| :----------------------------------------:|
-| primary       | string  | false     | Primary color.                            |
-| light         | string  | false     | Light color.                              |
-| dark          | string  | false     | Dark color.                               |
-| style         | object  | false     | Style prop for wrapper.                   |
-| nodeKey       | string  | true      | Key for D3 to update nodes(typ. UUID).    |
-| emptyType     | string  | true      | 'Default' node type.                      |
-| nodes         | array   | true      | Array of graph nodes.                     |
-| edges         | array   | true      | Array of graph edges.                     |
-| readOnly      | bool    | false     | Disables all graph editing interactions.  |
-| enableFocus   | bool    | false     | Adds a 'focus' toggle state to GraphView. |
-| selected      | object  | true      | The currently selected graph entity.      |
-| nodeTypes     | object  | true      | Config object of available node types.    |
-| nodeSubtypes  | object  | true      | Config object of available node subtypes. |
-| edgeTypes     | object  | true      | Config object of available edge types.    |
-| getViewNode   | func    | true      | Node getter.                              |
-| onSelectNode  | func    | true      | Called when a node is selected.           |
-| onCreateNode  | func    | true      | Called when a node is created.            |
-| onUpdateNode  | func    | true      | Called when a node is moved.              |
-| canDeleteNode | func    | false     | Called before a node is deleted.          |
-| onDeleteNode  | func    | true      | Called when a node is deleted.            |
-| onSelectEdge  | func    | true      | Called when an edge is selected.          |
-| canCreateEdge | func    | false     | Called before an edge is created.         |
-| onCreateEdge  | func    | true      | Called when an edge is created.           |
-| onSwapEdge    | func    | true      | Called when an edge 'target' is swapped.  |
-| canDeleteEdge | func    | false     | Called before an edge is deleted.         |
-| onDeleteEdge  | func    | true      | Called when an edge is deleted.           |
+| Prop                | Type    | Required  | Notes                                     |
+| --------------------|:-------:| :--------:| :----------------------------------------:|
+| nodeKey             | string  | true      | Key for D3 to update nodes(typ. UUID).    |
+| emptyType           | string  | true      | 'Default' node type.                      |
+| nodes               | array   | true      | Array of graph nodes.                     |
+| edges               | array   | true      | Array of graph edges.                     |
+| selected            | object  | true      | The currently selected graph entity.      |
+| nodeTypes           | object  | true      | Config object of available node types.    |
+| nodeSubtypes        | object  | true      | Config object of available node subtypes. |
+| edgeTypes           | object  | true      | Config object of available edge types.    |
+| getViewNode         | func    | true      | Node getter.                              |
+| onSelectNode        | func    | true      | Called when a node is selected.           |
+| onCreateNode        | func    | true      | Called when a node is created.            |
+| onUpdateNode        | func    | true      | Called when a node is moved.              |
+| onDeleteNode        | func    | true      | Called when a node is deleted.            |
+| onSelectEdge        | func    | true      | Called when an edge is selected.          |
+| onCreateEdge        | func    | true      | Called when an edge is created.           |
+| onSwapEdge          | func    | true      | Called when an edge 'target' is swapped.  |
+| onDeleteEdge        | func    | true      | Called when an edge is deleted.           |
+| canDeleteNode       | func    | false     | Called before a node is deleted.          |
+| canCreateEdge       | func    | false     | Called before an edge is created.         |
+| canDeleteEdge       | func    | false     | Called before an edge is deleted.         |
+| renderEdge          | func    | false     | Called to render edge geometry.           |
+| renderNode          | func    | false     | Called to render node geometry.           |
+| renderDefs          | func    | false     | Called to render svg definitions.         |
+| renderBackground    | func    | false     | Called to render svg background.          |
+| readOnly            | bool    | false     | Disables all graph editing interactions.  |
+| enableFocus         | bool    | false     | Adds a 'focus' toggle state to GraphView. |
+| maxTitleChars       | number  | false     | Truncates node title characters.          |
+| transitionTime      | number  | false     | Fade-in/Fade-out time.                    |
+| primary             | string  | false     | Primary color.                            |
+| light               | string  | false     | Light color.                              |
+| dark                | string  | false     | Dark color.                               |
+| style               | object  | false     | Style prop for wrapper.                   |
+| gridSize            | number  | false     | Overall grid size.                        |
+| gridSpacing         | number  | false     | Grid spacing.                             |
+| gridDot             | number  | false     | Grid dot size.                            |
+| minZoom             | number  | false     | Minimum zoom percentage.                  |
+| maxZoom             | number  | false     | Maximum zoom percentage.                  |
+| nodeSize            | number  | false     | Node bbox size.                           |
+| edgeHandleSize      | number  | false     | Edge handle size.                         |
+| edgeArrowSize       | number  | false     | Edge arrow size.                          |
+| zoomDelay           | number  | false     | Delay before zoom occurs.                 |
+| zoomDur             | number  | false     | Duration of zoom transition.              |
 
 ## Notes
 
