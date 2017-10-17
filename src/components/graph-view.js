@@ -32,23 +32,6 @@ import Radium from 'radium';
 import GraphControls from './graph-controls.js'
 
 
-
-// The work area is infinite, but the point grid is fixed
-const gridSize = 40960;
-const gridSpacing = 36;
-const gridDot = 2;
-
-const minZoom = 0.15;
-const maxZoom = 1.5;
-
-const nodeSize = 150;
-const edgeHandleSize = 50;
-const edgeArrowSize = 8;
-
-const zoomDelay = 500; // ms
-const zoomDur = 750; // ms
-
-
 function styleToString(style){
   return Object.keys(style)
     .map(function(k) {
@@ -208,23 +191,11 @@ class GraphView extends Component {
       readOnly: props.readOnly || false,
       enableFocus: props.enableFocus || false, // Enables focus/unfocus
       edgeSwapQueue: [],    // Stores nodes to be swapped
-      styles: makeStyles(props.primary, props.light, props.dark),
-      nodeDefs: Object.keys(props.nodeTypes).map(function(type){
-        defIndex += 1;
-        return  React.cloneElement(props.nodeTypes[type].shape, {key: defIndex})
-      }),                   // SVG definitions for nodes
-      nodeSubtypeDefs: Object.keys(props.nodeSubtypes).map(function(type){
-        defIndex += 1;
-        return React.cloneElement(props.nodeSubtypes[type].shape, {key: defIndex})
-      }),  
-      edgeDefs: Object.keys(props.edgeTypes).map(function(type){
-        defIndex += 1;
-        return React.cloneElement(props.edgeTypes[type].shape, {key: defIndex})
-      })                    // SVG definitions for edges
+      styles: makeStyles(props.primary, props.light, props.dark)
     };
 
     this.zoom = d3.zoom()
-                  .scaleExtent([minZoom, maxZoom])
+                  .scaleExtent([props.minZoom, props.maxZoom])
                   .on("zoom", this.handleZoom);
   }
 
@@ -251,7 +222,7 @@ class GraphView extends Component {
     if(process.env.NODE_ENV !== "test"){
       setTimeout(function(){
         this.handleZoomToFit();
-      }.bind(this), zoomDelay)
+      }.bind(this), this.props.zoomDelay)
     }
   }
 
@@ -522,7 +493,7 @@ class GraphView extends Component {
     const target = this.props.getViewNode(d.target);
     const dist = getDistance({x: xycoords[0], y: xycoords[1]}, target);
 
-    return dist < nodeSize/2 + edgeArrowSize + 10 // or *2 or ^2?
+    return dist < this.props.nodeSize/2 + this.props.edgeArrowSize + 10 // or *2 or ^2?
   }
 
   handleEdgeDrag(d) {
@@ -595,22 +566,22 @@ class GraphView extends Component {
 
       next.k = .9 / Math.max(dx / width, dy / height);
 
-      if (next.k < minZoom){
-        next.k = minZoom
-      } else if (next.k > maxZoom){
-        next.k = maxZoom
+      if (next.k < this.props.minZoom){
+        next.k = this.props.minZoom
+      } else if (next.k > this.props.maxZoom){
+        next.k = this.props.maxZoom
       }
 
       next.x = width / 2 - next.k * x;
       next.y = height / 2 - next.k * y;
     }
     else{
-      next.k = (minZoom + maxZoom) / 2;
+      next.k = (this.props.minZoom + this.props.maxZoom) / 2;
       next.x = 0
       next.y = 0;
     }
 
-    this.setZoom(next.k, next.x, next.y, zoomDur)
+    this.setZoom(next.k, next.x, next.y, this.props.zoomDur)
   }
 
   // Updates current viewTransform with some delta
@@ -666,7 +637,7 @@ class GraphView extends Component {
     let trg = this.props.getViewNode(edge.target);
 
     if(src && trg){
-      const off = nodeSize/2; // from the center of the node to the perimeter
+      const off = this.props.nodeSize/2; // from the center of the node to the perimeter
 
       const theta = getTheta(src, trg);
 
@@ -687,7 +658,7 @@ class GraphView extends Component {
     let x = origin.x;
     let y = origin.y;
     let theta = getTheta(src, trg)*180/Math.PI;
-    let offset = -edgeHandleSize/2;
+    let offset = -this.props.edgeHandleSize/2;
 
     return `translate(${x}, ${y}) rotate(${theta}) translate(${offset}, ${offset})`
   }
@@ -866,8 +837,8 @@ class GraphView extends Component {
           </g>
         </svg>
         <GraphControls  primary={this.props.primary}
-                        minZoom={minZoom} 
-                        maxZoom={maxZoom} 
+                        minZoom={this.props.minZoom} 
+                        maxZoom={this.props.maxZoom} 
                         zoomLevel={this.state.viewTransform.k} 
                         zoomToFit={this.handleZoomToFit} 
                         modifyZoom={this.modifyZoom}>
@@ -879,45 +850,67 @@ class GraphView extends Component {
 }
 
 GraphView.propTypes = {
-  primary: PropTypes.string,
-  light: PropTypes.string,
-  dark: PropTypes.string,
-  style: PropTypes.object,
   nodeKey: PropTypes.string.isRequired,
   emptyType: PropTypes.string.isRequired,
   nodes: PropTypes.array.isRequired,
   edges: PropTypes.array.isRequired,
-  readOnly: PropTypes.bool,
-  enableFocus: PropTypes.bool,
   selected: PropTypes.object.isRequired,
   nodeTypes: PropTypes.object.isRequired,
   nodeSubtypes: PropTypes.object.isRequired,
   edgeTypes: PropTypes.object.isRequired,
   getViewNode: PropTypes.func.isRequired,
-  renderEdge: PropTypes.func,
-  renderNode: PropTypes.func,
   onSelectNode: PropTypes.func.isRequired,
   onCreateNode: PropTypes.func.isRequired,
   onUpdateNode: PropTypes.func.isRequired,
-  canDeleteNode: PropTypes.func,
   onDeleteNode: PropTypes.func.isRequired,
   onSelectEdge: PropTypes.func.isRequired,
-  canCreateEdge: PropTypes.func,
   onCreateEdge: PropTypes.func.isRequired,
   onSwapEdge: PropTypes.func.isRequired,
-  canDeleteEdge: PropTypes.func,
   onDeleteEdge: PropTypes.func.isRequired,
+  canDeleteNode: PropTypes.func,
+  canCreateEdge: PropTypes.func,
+  canDeleteEdge: PropTypes.func,
+  renderEdge: PropTypes.func,
+  renderNode: PropTypes.func,
+  renderDefs: PropTypes.func,
+  renderBackground: PropTypes.func,
+  readOnly: PropTypes.bool,
+  enableFocus: PropTypes.bool,
   maxTitleChars: PropTypes.number, // Per line.
-  transitionTime: PropTypes.number // D3 Enter/Exit duration
+  transitionTime: PropTypes.number, // D3 Enter/Exit duration
+  primary: PropTypes.string,
+  light: PropTypes.string,
+  dark: PropTypes.string,
+  style: PropTypes.object,
+  gridSize: PropTypes.number, // The point grid is fixed
+  gridSpacing: PropTypes.number, 
+  gridDot: PropTypes.number,
+  minZoom: PropTypes.number,
+  maxZoom: PropTypes.number,
+  nodeSize: PropTypes.number,
+  edgeHandleSize: PropTypes.number,
+  edgeArrowSize: PropTypes.number,
+  zoomDelay: PropTypes.number, // ms
+  zoomDur: PropTypes.number // ms
 };
 
 GraphView.defaultProps = {
-  primary: 'dodgerblue',
-  light: '#FFF',
-  dark: '#000',
   readOnly: false,
   maxTitleChars: 9,
   transitionTime: 150,
+  primary: 'dodgerblue',
+  light: '#FFF',
+  dark: '#000',
+  gridSize: 40960, // The point grid is fixed
+  gridSpacing: 36, 
+  gridDot: 2,
+  minZoom: 0.15,
+  maxZoom: 1.5,
+  nodeSize: 150,
+  edgeHandleSize: 50,
+  edgeArrowSize: 8,
+  zoomDelay: 500,
+  zoomDur: 750,
   renderEdge: (graphView, domNode, datum, index, elements )=>{
 
     // For new edges, add necessary child domNodes
@@ -932,8 +925,8 @@ GraphView.defaultProps = {
       .attr("style", style)
       .select("use")
         .attr("xlink:href", function(d){ return graphView.props.edgeTypes[d.type].shapeId })
-        .attr("width", edgeHandleSize)
-        .attr("height", edgeHandleSize)
+        .attr("width", graphView.props.edgeHandleSize)
+        .attr("height", graphView.props.edgeHandleSize)
         .attr("transform", trans);
     
     d3.select(domNode)
@@ -945,9 +938,15 @@ GraphView.defaultProps = {
     // For new nodes, add necessary child domNodes
     if (!domNode.hasChildNodes()){
       d3.select(domNode).append("use").classed("subtypeShape", true)
-        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
+        .attr("x", -graphView.props.nodeSize/2)
+        .attr("y",  -graphView.props.nodeSize/2)
+        .attr("width", graphView.props.nodeSize)
+        .attr("height", graphView.props.nodeSize);
       d3.select(domNode).append("use").classed("shape", true)
-        .attr("x", -nodeSize/2).attr("y",  -nodeSize/2).attr("width", nodeSize).attr("height", nodeSize);
+        .attr("x", -graphView.props.nodeSize/2)
+        .attr("y",  -graphView.props.nodeSize/2)
+        .attr("width", graphView.props.nodeSize)
+        .attr("height", graphView.props.nodeSize);
     }
 
     let style = graphView.getNodeStyle(datum, graphView.props.selected);
@@ -972,33 +971,50 @@ GraphView.defaultProps = {
   },
   renderDefs: (graphView)=>{
     const styles = graphView.state.styles 
+    const props = graphView.props
+
+    let defIndex = 0
+    let graphConfigDefs = []
+
+    Object.keys(props.nodeTypes).forEach(function(type){
+      defIndex += 1;
+      graphConfigDefs.push(React.cloneElement(props.nodeTypes[type].shape, {key: defIndex}))
+    })
+
+    Object.keys(props.nodeSubtypes).forEach(function(type){
+      defIndex += 1;
+      graphConfigDefs.push(React.cloneElement(props.nodeSubtypes[type].shape, {key: defIndex}))
+    })
+
+    Object.keys(props.edgeTypes).forEach(function(type){
+      defIndex += 1;
+      graphConfigDefs.push(React.cloneElement(props.edgeTypes[type].shape, {key: defIndex}))
+    })
 
     return (
       <defs>
-        {graphView.state.nodeDefs}
-        {graphView.state.nodeSubtypeDefs}
-        {graphView.state.edgeDefs}
+        {graphConfigDefs}
 
         <marker id="end-arrow"
                 key="end-arrow"
-                viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
-                refX={`${edgeArrowSize/2}`} 
-                markerWidth={`${edgeArrowSize}`} 
-                markerHeight={`${edgeArrowSize}`} 
+                viewBox={`0 -${props.edgeArrowSize/2} ${props.edgeArrowSize} ${props.edgeArrowSize}`}
+                refX={`${props.edgeArrowSize/2}`} 
+                markerWidth={`${props.edgeArrowSize}`} 
+                markerHeight={`${props.edgeArrowSize}`} 
                 orient="auto">
           <path style={ styles.arrow } 
-                d={`M0,-${edgeArrowSize/2}L${edgeArrowSize},0L0,${edgeArrowSize/2}`}>
+                d={`M0,-${props.edgeArrowSize/2}L${props.edgeArrowSize},0L0,${props.edgeArrowSize/2}`}>
           </path>
         </marker>
 
         <pattern  id="grid"
                   key="grid"
-                  width={gridSpacing}
-                  height={gridSpacing}
+                  width={props.gridSpacing}
+                  height={props.gridSpacing}
                   patternUnits="userSpaceOnUse">
-          <circle cx={gridSpacing/2}
-                  cy={gridSpacing/2}
-                  r={gridDot}
+          <circle cx={props.gridSpacing/2}
+                  cy={props.gridSpacing/2}
+                  r={props.gridDot}
                   fill="lightgray">
           </circle>
         </pattern>
@@ -1021,14 +1037,13 @@ GraphView.defaultProps = {
   renderBackground: (graphView)=>{
     return (
       <rect className='background'
-        x={-gridSize/4}
-        y={-gridSize/4}
-        width={ gridSize }
-        height={ gridSize }
+        x={-graphView.props.gridSize/4}
+        y={-graphView.props.gridSize/4}
+        width={ graphView.props.gridSize }
+        height={ graphView.props.gridSize }
         fill="url(#grid)">
       </rect>
     )
-
   },
   canDeleteNode: () => true,
   canCreateEdge: () => true,
