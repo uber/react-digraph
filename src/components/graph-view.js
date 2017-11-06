@@ -836,13 +836,15 @@ class GraphView extends Component {
             <g id='entities' ref={(el) => this.entities = el}></g>
           </g>
         </svg>
+        {this.props.graphControls && (
         <GraphControls  primary={this.props.primary}
-                        minZoom={this.props.minZoom} 
-                        maxZoom={this.props.maxZoom} 
-                        zoomLevel={this.state.viewTransform.k} 
-                        zoomToFit={this.handleZoomToFit} 
+                        minZoom={this.props.minZoom}
+                        maxZoom={this.props.maxZoom}
+                        zoomLevel={this.state.viewTransform.k}
+                        zoomToFit={this.handleZoomToFit}
                         modifyZoom={this.modifyZoom}>
         </GraphControls>
+        )}
       </div>
     );
   }
@@ -891,7 +893,8 @@ GraphView.propTypes = {
   edgeHandleSize: PropTypes.number,
   edgeArrowSize: PropTypes.number,
   zoomDelay: PropTypes.number, // ms
-  zoomDur: PropTypes.number // ms
+  zoomDur: PropTypes.number, // ms
+  graphControls: PropTypes.bool,
 };
 
 GraphView.defaultProps = {
@@ -911,6 +914,7 @@ GraphView.defaultProps = {
   edgeArrowSize: 8,
   zoomDelay: 500,
   zoomDur: 750,
+  graphControls: true,
   renderEdge: (graphView, domNode, datum, index, elements )=>{
 
     // For new edges, add necessary child domNodes
