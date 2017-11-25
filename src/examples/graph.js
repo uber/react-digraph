@@ -221,8 +221,12 @@ class Graph extends Component {
       target: targetViewNode[NODE_KEY],
       type: type
     }
-    graph.edges.push(viewEdge);
-    this.setState({graph: graph});
+    
+    // Only add the edge when the source node is not the same as the target
+    if (viewEdge.source !== viewEdge.target) {
+      graph.edges.push(viewEdge);
+      this.setState({graph: graph});
+    }
   }
 
   // Called when an edge is reattached to a different target.
