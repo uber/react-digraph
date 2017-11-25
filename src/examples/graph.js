@@ -104,17 +104,6 @@ class Graph extends Component {
       graph: sample,
       selected: {}
     }
-
-    this.getViewNode = this.getViewNode.bind(this);
-    this.onSelectNode = this.onSelectNode.bind(this);
-    this.onCreateNode = this.onCreateNode.bind(this);
-    this.onUpdateNode = this.onUpdateNode.bind(this);
-    this.onDeleteNode = this.onDeleteNode.bind(this);
-    this.onSelectEdge = this.onSelectEdge.bind(this);
-    this.onCreateEdge = this.onCreateEdge.bind(this);
-    this.onSwapEdge = this.onSwapEdge.bind(this);
-    this.onDeleteEdge = this.onDeleteEdge.bind(this);
-
   }
 
   // Helper to find the index of a given node
@@ -133,7 +122,7 @@ class Graph extends Component {
   }
 
   // Given a nodeKey, return the corresponding node
-  getViewNode(nodeKey) {
+  getViewNode = nodeKey => {
     const searchNode = {};
     searchNode[NODE_KEY] = nodeKey;
     const i = this.getNodeIndex(searchNode);
@@ -146,7 +135,7 @@ class Graph extends Component {
 
   // Called by 'drag' handler, etc.. 
   // to sync updates from D3 with the graph
-  onUpdateNode(viewNode) {
+  onUpdateNode = viewNode => {
     const graph = this.state.graph;
     const i = this.getNodeIndex(viewNode);
 
@@ -155,7 +144,7 @@ class Graph extends Component {
   }
 
   // Node 'mouseUp' handler
-  onSelectNode(viewNode) {
+  onSelectNode = viewNode => {
     // Deselect events will send Null viewNode
     if (!!viewNode){
       this.setState({selected: viewNode});
@@ -165,12 +154,12 @@ class Graph extends Component {
   }
 
   // Edge 'mouseUp' handler
-  onSelectEdge(viewEdge) {
+  onSelectEdge = viewEdge => {
     this.setState({selected: viewEdge});
   }
 
   // Updates the graph with a new node
-  onCreateNode(x,y) {
+  onCreateNode = (x,y) => {
     const graph = this.state.graph;
 
     // This is just an example - any sort of logic 
@@ -192,7 +181,7 @@ class Graph extends Component {
   }
 
   // Deletes a node from the graph
-  onDeleteNode(viewNode) {
+  onDeleteNode = viewNode => {
     const graph = this.state.graph;
     const i = this.getNodeIndex(viewNode);
     graph.nodes.splice(i, 1);
@@ -209,7 +198,7 @@ class Graph extends Component {
   }
 
   // Creates a new node between two edges
-  onCreateEdge(sourceViewNode, targetViewNode){
+  onCreateEdge = (sourceViewNode, targetViewNode) => {
     const graph = this.state.graph;
 
     // This is just an example - any sort of logic 
@@ -226,7 +215,7 @@ class Graph extends Component {
   }
 
   // Called when an edge is reattached to a different target.
-  onSwapEdge(sourceViewNode, targetViewNode, viewEdge){
+  onSwapEdge = (sourceViewNode, targetViewNode, viewEdge) => {
     const graph = this.state.graph;
     const i = this.getEdgeIndex(viewEdge);
     const edge = JSON.parse(JSON.stringify(graph.edges[i]));
@@ -239,7 +228,7 @@ class Graph extends Component {
   }
 
   // Called when an edge is deleted
-  onDeleteEdge(viewEdge){
+  onDeleteEdge = viewEdge => {
     const graph = this.state.graph;
     const i = this.getEdgeIndex(viewEdge);
     graph.edges.splice(i, 1);
