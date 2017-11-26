@@ -57,7 +57,8 @@ function makeStyles(primary){
       position: 'relative',
       top: '6px',
       marginLeft: 5,
-      marginRight: 5
+      marginRight: 5,
+      cursor: 'pointer'
     },
     button: {
       backgroundColor: 'white',
