@@ -49,23 +49,26 @@ function makeStyles(primary){
       color: primary,
       border: `solid 1px lightgray`,
       padding: '6.5px',
-      marginRight: '15px'
+      marginRight: '15px',
+      display: 'inline',
+      borderRadius: '2px'
     },
     slider: {
       position: 'relative',
-      top: 3,
+      top: '6px',
       marginLeft: 5,
-      marginRight: 5
+      marginRight: 5,
+      cursor: 'pointer'
     },
     button: {
       backgroundColor: 'white',
       color: primary,
       border: `solid 1px lightgray`,
       outline: 'none',
-      position: 'absolute',
       width: 31,
       height: 31,
-      top: -3
+      borderRadius: '2px',
+      cursor: 'pointer'
     }
   }
 }
@@ -112,7 +115,7 @@ class GraphControls extends Component {
 
     return (
       <div style={styles.controls} id="GraphControls">
-        <span style={styles.sliderWrapper}>
+        <div style={styles.sliderWrapper}>
           -
           <input 
             id="typeinp" 
@@ -124,7 +127,7 @@ class GraphControls extends Component {
             onChange={this.zoom.bind(this)}
             step="1"/>
           +
-        </span>
+        </div>
         <button style={styles.button} onMouseDown={this.props.zoomToFit}>
           <FaExpand/>
         </button>
