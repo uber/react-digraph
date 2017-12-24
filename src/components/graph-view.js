@@ -781,14 +781,14 @@ class GraphView extends Component {
 
   render() {
     this.renderView();
-    const styles = this.state.styles;
+    const { styles, focused } = this.state;
 
     return (
       <div  id='viewWrapper'
             ref={(el) => this.viewWrapper = el}
             style={[
               styles.wrapper.base,
-              !!this.state.focused && styles.wrapper.focused,
+              !!focused && styles.wrapper.focused,
               this.props.style
             ]}>
         <svg  id='svgRoot'
@@ -939,25 +939,32 @@ GraphView.defaultProps = {
     d3.select(domNode).attr('transform', graphView.getNodeTransformation);
   },
   renderDefs: (graphView) => {
-    const styles = graphView.state.styles
-    const props = graphView.props
+    const { styles } = graphView.state;
+    const {
+      edgeArrowSize,
+      gridSpacing,
+      gridDot,
+      nodeTypes,
+      nodeSubtypes,
+      edgeTypes
+    } = graphView.props;
 
-    let defIndex = 0
-    let graphConfigDefs = []
+    let defIndex = 0;
+    let graphConfigDefs = [];
 
-    Object.keys(props.nodeTypes).forEach(function(type){
+    Object.keys(nodeTypes).forEach(function(type){
       defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(props.nodeTypes[type].shape, {key: defIndex}))
+      graphConfigDefs.push(React.cloneElement(nodeTypes[type].shape, {key: defIndex}))
     })
 
-    Object.keys(props.nodeSubtypes).forEach(function(type){
+    Object.keys(nodeSubtypes).forEach(function(type){
       defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(props.nodeSubtypes[type].shape, {key: defIndex}))
+      graphConfigDefs.push(React.cloneElement(nodeSubtypes[type].shape, {key: defIndex}))
     })
 
-    Object.keys(props.edgeTypes).forEach(function(type){
+    Object.keys(edgeTypes).forEach(function(type){
       defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(props.edgeTypes[type].shape, {key: defIndex}))
+      graphConfigDefs.push(React.cloneElement(edgeTypes[type].shape, {key: defIndex}))
     })
 
     return (
@@ -966,24 +973,24 @@ GraphView.defaultProps = {
 
         <marker id="end-arrow"
                 key="end-arrow"
-                viewBox={`0 -${props.edgeArrowSize/2} ${props.edgeArrowSize} ${props.edgeArrowSize}`}
-                refX={`${props.edgeArrowSize/2}`}
-                markerWidth={`${props.edgeArrowSize}`}
-                markerHeight={`${props.edgeArrowSize}`}
+                viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
+                refX={`${edgeArrowSize/2}`}
+                markerWidth={`${edgeArrowSize}`}
+                markerHeight={`${edgeArrowSize}`}
                 orient="auto">
           <path style={ styles.arrow }
-                d={`M0,-${props.edgeArrowSize/2}L${props.edgeArrowSize},0L0,${props.edgeArrowSize/2}`}>
+                d={`M0,-${edgeArrowSize/2}L${edgeArrowSize},0L0,${edgeArrowSize/2}`}>
           </path>
         </marker>
 
         <pattern  id="grid"
                   key="grid"
-                  width={props.gridSpacing}
-                  height={props.gridSpacing}
+                  width={gridSpacing}
+                  height={gridSpacing}
                   patternUnits="userSpaceOnUse">
-          <circle cx={props.gridSpacing/2}
-                  cy={props.gridSpacing/2}
-                  r={props.gridDot}
+          <circle cx={gridSpacing/2}
+                  cy={gridSpacing/2}
+                  r={gridDot}
                   fill="lightgray">
           </circle>
         </pattern>
