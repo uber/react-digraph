@@ -42,15 +42,17 @@ function makeStyles(primary){
       position: 'absolute',
       bottom: '30px',
       left: '15px',
-      zIndex: 100
+      zIndex: 100,
+      display: 'grid',
+      gridTemplateColumns: 'auto auto',
+      gridGap: '15px',
+      alignItems: 'center'
     },
     sliderWrapper: {
       backgroundColor: 'white',
       color: primary,
       border: `solid 1px lightgray`,
       padding: '6.5px',
-      marginRight: '15px',
-      display: 'inline',
       borderRadius: '2px'
     },
     slider: {
@@ -104,7 +106,7 @@ class GraphControls extends Component {
     let sliderVal = e.target.value;
     let zoomLevelNext = this.sliderToZoom(sliderVal);
     let delta = zoomLevelNext-this.props.zoomLevel;
-    
+
     if( zoomLevelNext <= this.props.maxZoom && zoomLevelNext >= this.props.minZoom){
       this.props.modifyZoom(delta)
     }
@@ -114,16 +116,15 @@ class GraphControls extends Component {
     const styles = this.state.styles;
 
     return (
-      <div style={styles.controls} id="GraphControls">
+      <div style={styles.controls} className="graphControls">
         <div style={styles.sliderWrapper}>
           -
-          <input 
-            id="typeinp" 
+          <input
             type="range"
-            style={styles.slider} 
-            min={this.zoomToSlider(this.props.minZoom)} 
-            max={this.zoomToSlider(this.props.maxZoom)} 
-            value={this.zoomToSlider(this.props.zoomLevel)} 
+            style={styles.slider}
+            min={this.zoomToSlider(this.props.minZoom)}
+            max={this.zoomToSlider(this.props.maxZoom)}
+            value={this.zoomToSlider(this.props.zoomLevel)}
             onChange={this.zoom.bind(this)}
             step="1"/>
           +
