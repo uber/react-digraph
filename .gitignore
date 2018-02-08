@@ -7,6 +7,7 @@ jshint.xml
 jshint-proper.xml
 
 core
+package-lock.json
 npm-debug.log
 
 dist/

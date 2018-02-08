@@ -41,13 +41,13 @@ const NODE_KEY = "id" // Key used to identify nodes
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
 const EMPTY_TYPE = "empty"; // Empty node type
-const SPECIAL_TYPE = "special"; 
+const SPECIAL_TYPE = "special";
 const SPECIAL_CHILD_SUBTYPE = "specialChild";
 const EMPTY_EDGE_TYPE = "emptyEdge";
 const SPECIAL_EDGE_TYPE = "specialEdge";
 
 // NOTE: Edges must have 'source' & 'target' attributes
-// In a more realistic use case, the graph would probably originate 
+// In a more realistic use case, the graph would probably originate
 // elsewhere in the App or be generated from some other state upstream of this component.
 const sample = {
   "nodes": [
@@ -133,7 +133,7 @@ class Graph extends Component {
    * Handlers/Interaction
    */
 
-  // Called by 'drag' handler, etc.. 
+  // Called by 'drag' handler, etc..
   // to sync updates from D3 with the graph
   onUpdateNode = viewNode => {
     const graph = this.state.graph;
@@ -162,7 +162,7 @@ class Graph extends Component {
   onCreateNode = (x,y) => {
     const graph = this.state.graph;
 
-    // This is just an example - any sort of logic 
+    // This is just an example - any sort of logic
     // could be used here to determine node type
     // There is also support for subtypes. (see 'sample' above)
     // The subtype geometry will underlay the 'type' geometry for a node
@@ -188,7 +188,7 @@ class Graph extends Component {
 
     // Delete any connected edges
     const newEdges = graph.edges.filter((edge, i)=>{
-      return  edge.source != viewNode[NODE_KEY] && 
+      return  edge.source != viewNode[NODE_KEY] &&
               edge.target != viewNode[NODE_KEY]
     })
 
@@ -201,7 +201,7 @@ class Graph extends Component {
   onCreateEdge = (sourceViewNode, targetViewNode) => {
     const graph = this.state.graph;
 
-    // This is just an example - any sort of logic 
+    // This is just an example - any sort of logic
     // could be used here to determine edge type
     const type = sourceViewNode.type === SPECIAL_TYPE ? SPECIAL_EDGE_TYPE : EMPTY_EDGE_TYPE;
 
@@ -210,7 +210,7 @@ class Graph extends Component {
       target: targetViewNode[NODE_KEY],
       type: type
     }
-    
+
     // Only add the edge when the source node is not the same as the target
     if (viewEdge.source !== viewEdge.target) {
       graph.edges.push(viewEdge);
@@ -254,25 +254,27 @@ class Graph extends Component {
 
     return (
       <div id='graph' style={styles.graph}>
-      
-        <GraphView  ref={(el) => this.GraphView = el}
-                    nodeKey={NODE_KEY}
-                    emptyType={EMPTY_TYPE}
-                    nodes={nodes}
-                    edges={edges}
-                    selected={selected}
-                    nodeTypes={NodeTypes}
-                    nodeSubtypes={NodeSubtypes}
-                    edgeTypes={EdgeTypes}
-                    getViewNode={this.getViewNode}
-                    onSelectNode={this.onSelectNode}
-                    onCreateNode={this.onCreateNode}
-                    onUpdateNode={this.onUpdateNode}
-                    onDeleteNode={this.onDeleteNode}
-                    onSelectEdge={this.onSelectEdge}
-                    onCreateEdge={this.onCreateEdge}
-                    onSwapEdge={this.onSwapEdge}
-                    onDeleteEdge={this.onDeleteEdge}/>
+
+        <GraphView
+          ref={(el) => this.GraphView = el}
+          nodeKey={NODE_KEY}
+          emptyType={EMPTY_TYPE}
+          nodes={nodes}
+          edges={edges}
+          selected={selected}
+          nodeTypes={NodeTypes}
+          nodeSubtypes={NodeSubtypes}
+          edgeTypes={EdgeTypes}
+          enableFocus={true}
+          getViewNode={this.getViewNode}
+          onSelectNode={this.onSelectNode}
+          onCreateNode={this.onCreateNode}
+          onUpdateNode={this.onUpdateNode}
+          onDeleteNode={this.onDeleteNode}
+          onSelectEdge={this.onSelectEdge}
+          onCreateEdge={this.onCreateEdge}
+          onSwapEdge={this.onSwapEdge}
+          onDeleteEdge={this.onDeleteEdge}/>
       </div>
     );
   }
