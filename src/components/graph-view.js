@@ -396,6 +396,8 @@ class GraphView extends Component {
   }
 
   handleSvgClicked(d, i) {
+    if (d3.event.target.tagName == 'path') return false; // If the handle is clicked
+
     if (this.state.selectingNode) {
       this.setState({
         selectingNode: false
