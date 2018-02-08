@@ -311,11 +311,13 @@ class GraphView extends Component {
         if( swapEdge ){
           if(self.props.canDeleteEdge(swapEdge) && self.canSwap(sourceNode,hoveredNode,swapEdge)){
             self.props.onSwapEdge(sourceNode, hoveredNode, swapEdge)
+            self.renderView()
           } else {
             swapErrBack()
           }
         } else {
           self.props.onCreateEdge(sourceNode, hoveredNode)
+          self.renderView()
         }
       } else {
         if (swapErrBack){
@@ -409,6 +411,7 @@ class GraphView extends Component {
       if (!this.state.readOnly && d3.event.shiftKey) {
         var xycoords = d3.mouse(event.target);
         this.props.onCreateNode(xycoords[0],xycoords[1]);
+        this.renderView()
       }
 
     }
@@ -922,7 +925,6 @@ GraphView.defaultProps = {
   zoomDur: 750,
   graphControls: true,
   renderEdge: (graphView, domNode, datum, index, elements )=>{
-
     // For new edges, add necessary child domNodes
     if (!domNode.hasChildNodes()){
       d3.select(domNode).append("path");
