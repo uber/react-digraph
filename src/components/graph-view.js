@@ -398,7 +398,7 @@ class GraphView extends Component {
   }
 
   handleSvgClicked(d, i) {
-    if (d3.event.target.tagName == 'path') return false; // If the handle is clicked
+    if (this.isPartOfEdge(d3.event.target)) return; // If any part of the edge is clicked, return
 
     if (this.state.selectingNode) {
       this.setState({
@@ -416,6 +416,16 @@ class GraphView extends Component {
 
     }
   }
+
+  isPartOfEdge(element) {
+    while (element != null && element != this.viewWrapper) {
+      if (element.classList.contains("edge")) {
+        return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
+  };
 
   handleNodeMouseDown(d) {
     if (d3.event.defaultPrevented) {
@@ -815,9 +825,6 @@ class GraphView extends Component {
       <div
           className='viewWrapper'
           tabIndex={0}
-          onClick={() => {
-            this.props.onSelectNode(null);
-          }}
           onFocus={() => {
             this.setState({
               focused: true
