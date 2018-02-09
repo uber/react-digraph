@@ -398,7 +398,7 @@ class GraphView extends Component {
   }
 
   handleSvgClicked(d, i) {
-    if (this.isPartOfEdge(d3.event.target)) return false; // If the handle is clicked
+    if (this.isPartOfEdge(d3.event.target)) return; // If any part of the edge is clicked, return
 
     if (this.state.selectingNode) {
       this.setState({
