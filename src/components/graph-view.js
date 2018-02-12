@@ -50,7 +50,8 @@ function makeStyles(primary='dodgerblue', light='white', dark='black', backgroun
         display: 'flex',
         boxShadow: 'none',
         opacity: 0.5,
-        background: background
+        background: background,
+        transition: "opacity 0.167s"
       },
       focused: {
         opacity: 1
@@ -165,9 +166,8 @@ class GraphView extends Component {
   componentDidMount() {
     // Window event listeners for keypresses
     // and to control blur/focus of graph
-    d3.select(window)
-      .on('keydown', this.handleWindowKeydown)
-      .on('click', this.handleWindowClicked);
+    d3.select(this.viewWrapper)
+      .on('keydown', this.handleWrapperKeydown);
 
     var svg = d3.select(this.viewWrapper)
       .on("touchstart", this.containZoom)
@@ -191,9 +191,8 @@ class GraphView extends Component {
 
   componentWillUnmount() {
     // Remove window event listeners
-    d3.select(window)
-      .on('keydown', null)
-      .on('click', null);
+    d3.select(this.viewWrapper)
+      .on('keydown', null);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -276,11 +275,13 @@ class GraphView extends Component {
         if( swapEdge ){
           if(self.props.canDeleteEdge(swapEdge) && self.canSwap(sourceNode,hoveredNode,swapEdge)){
             self.props.onSwapEdge(sourceNode, hoveredNode, swapEdge)
+            self.renderView()
           } else {
             swapErrBack()
           }
         } else {
           self.props.onCreateEdge(sourceNode, hoveredNode)
+          self.renderView()
         }
       } else {
         if (swapErrBack){
@@ -345,39 +346,23 @@ class GraphView extends Component {
     }
   }
 
-  handleWindowKeydown = (d, i) => {
+  handleWrapperKeydown = (d, i) => {
     // Conditionally ignore keypress events on the window
     // if the Graph isn't focused
-    if (this.state.focused) {
-      switch (d3.event.key) {
-        case "Delete":
-          this.handleDelete();
-          break;
-        case "Backspace":
-          this.handleDelete();
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
-  handleWindowClicked = (d, i) => {
-    if (this.state.focused && !event.target.ownerSVGElement){
-      if (this.state.enableFocus){
-        this.setState({
-          focused: false
-        });
-      }
+    switch (d3.event.key) {
+      case "Delete":
+        this.handleDelete();
+        break;
+      case "Backspace":
+        this.handleDelete();
+        break;
+      default:
+        break;
     }
   }
 
   handleSvgClicked = (d, i) => {
-    if (!this.state.focused){
-      this.setState({
-        focused: true
-      })
-    }
+    if (this.isPartOfEdge(d3.event.target)) return; // If any part of the edge is clicked, return
 
     if (this.state.selectingNode) {
       this.setState({
@@ -390,26 +375,44 @@ class GraphView extends Component {
       if (!this.state.readOnly && d3.event.shiftKey) {
         var xycoords = d3.mouse(event.target);
         this.props.onCreateNode(xycoords[0],xycoords[1]);
+        this.renderView()
       }
 
     }
   }
 
+  isPartOfEdge = (element) => {
+    while (element != null && element != this.viewWrapper) {
+      if (element.classList.contains("edge")) {
+        return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
+  }
+
   handleNodeMouseDown = (d) => {
-    if (d3.event.defaultPrevented) return; // dragged
+    if (d3.event.defaultPrevented) {
+      return; // dragged
+    }
+
+    // Prevent d3's default as it changes the focus to the body
+    d3.event.preventDefault();
+    d3.event.stopPropagation();
+    if (document.activeElement != this.viewWrapper) {
+      this.viewWrapper.focus();
+    }
 
     if (d3.event.shiftKey) {
 
       this.setState({
         selectingNode: true,
-        drawingEdge: true,
-        focused: true
+        drawingEdge: true
       })
 
     } else {
       this.setState({
-        selectingNode: true,
-        focused: true
+        selectingNode: true
       })
     }
   }
@@ -471,22 +474,24 @@ class GraphView extends Component {
     }
   }
 
+
   handleEdgeMouseDown = (d) => {
+    // Prevent d3's default as it changes the focus to the body
+    d3.event.preventDefault();
+    d3.event.stopPropagation();
+    if (document.activeElement != this.viewWrapper) {
+      this.viewWrapper.focus();
+    }
 
     if (!this.state.readOnly && this.arrowClicked(d)) {
       this.state.edgeSwapQueue.push(d)  // Set this edge aside for redrawing
       this.setState({
         drawingEdge: true,
-        edgeSwapQueue: this.state.edgeSwapQueue,
-        focused: true
+        edgeSwapQueue: this.state.edgeSwapQueue
       })
     } else{
       this.props.onSelectEdge(d);
-      this.setState({
-        focused: true
-      })
     }
-
   }
 
   // Keeps 'zoom' contained
@@ -784,19 +789,32 @@ class GraphView extends Component {
     const { styles, focused } = this.state;
 
     return (
-      <div  id='viewWrapper'
-            ref={(el) => this.viewWrapper = el}
-            style={[
-              styles.wrapper.base,
-              !!focused && styles.wrapper.focused,
-              this.props.style
-            ]}>
-        <svg  id='svgRoot'
-              style={styles.svg.base}>
+      <div
+          className='viewWrapper'
+          tabIndex={0}
+          onFocus={() => {
+            this.setState({
+              focused: true
+            });
+          }}
+          onBlur={() => {
+            if (this.props.enableFocus) {
+              this.setState({
+                focused: false
+              });
+            }
+          }}
+          ref={(el) => this.viewWrapper = el}
+          style={[
+            styles.wrapper.base,
+            !!focused && styles.wrapper.focused,
+            this.props.style
+          ]}>
+        <svg style={styles.svg.base}>
           { this.props.renderDefs(this) }
-          <g id='view' ref={(el) => this.view = el}>
+          <g className='view' ref={(el) => this.view = el}>
             { this.props.renderBackground(this) }
-            <g id='entities' ref={(el) => this.entities = el}></g>
+            <g className='entities' ref={(el) => this.entities = el}></g>
           </g>
         </svg>
         {this.props.graphControls && (

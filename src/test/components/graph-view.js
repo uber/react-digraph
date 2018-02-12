@@ -198,13 +198,13 @@ const tests = function(){
 
   test('GraphView', t => {
     const wrapper = mount(<GraphView {...mockProps}/>);
-    t.equal(wrapper.find('#viewWrapper').length, 1, 'Renders wrapper');
+    t.equal(wrapper.find('.viewWrapper').length, 1, 'Renders wrapper');
 
-    const view = wrapper.find('#view').render()
+    const view = wrapper.find('.view').render()
     t.equal(view.find('.node').length, 4, 'Renders nodes');
     t.equal(view.find('.edge').length, 2, 'Renders edges');
 
-    const controls = wrapper.find('#GraphControls')
+    const controls = wrapper.find('.graphControls')
     t.equal(controls.length, 1, 'Renders controls');
 
     t.end();
