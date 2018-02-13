@@ -17,19 +17,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-import jsdom from 'jsdom'
+import React from 'react';
 
-const test = require('tape');
-const sinon = require('sinon');
-const React = require('react');
-const mount = require('enzyme').mount;
-const render = require('enzyme').render;
+import Adapter from 'enzyme-adapter-react-16';
+import { configure, mount, render } from 'enzyme';
+import jsdom from 'jsdom';
+import test from 'tape';
+import sinon from 'sinon';
 
-const GraphView = require('../../components/graph-view').default;
+import GraphView from '../../components/graph-view';
 
-const doc = jsdom.jsdom('<!doctype html><html><body></body></html>')
-global.document = doc
-global.window = doc.defaultView
+
+//https://stackoverflow.com/questions/46896639/ensure-a-dom-environment-is-loaded-for-enzyme
+function setUpDomEnvironment() {
+  const { JSDOM } = jsdom;
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  const { window } = dom;
+
+  global.window = window;
+  global.document = window.document;
+  global.navigator = {
+    userAgent: 'node.js',
+  };
+  copyProps(window, global);
+}
+
+function copyProps(src, target) {
+  const props = Object.getOwnPropertyNames(src)
+    .filter(prop => typeof target[prop] === 'undefined')
+    .map(prop => Object.getOwnPropertyDescriptor(src, prop));
+  Object.defineProperties(target, props);
+}
+
+setUpDomEnvironment();
+
+configure({ adapter: new Adapter() })
+
+
 
 const EmptyShape = (
   <symbol viewBox="0 0 100 100" id="empty" key="0">

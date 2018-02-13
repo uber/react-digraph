@@ -1,13 +1,20 @@
 {
-  "extends": [
-    "plugin:react/recommended",
-    "plugin:import-order/recommended"
-  ],
+  "parser": "babel-eslint",
   "plugins": [
     "react",
     "import-order",
     "es6-recommended"
   ],
+  "env": {
+    "browser": true
+  },
+  "extends": [
+    "plugin:import-order/recommended",
+    "plugin:react/recommended"
+  ],
+  "rules": {
+    "react/display-name": 0
+  },
   "parserOptions":{
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true
