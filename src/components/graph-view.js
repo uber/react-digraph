@@ -183,9 +183,11 @@ class GraphView extends Component {
     // It seems Electron/JSDom's mocking of the SVG API is incomplete
     // and causes D3 to error out when zooming to fit in tests.
     if(process.env.NODE_ENV !== "test"){
-      setTimeout(function(){
-        this.handleZoomToFit();
-      }.bind(this), this.props.zoomDelay)
+      setTimeout(() => {
+        if (this.viewWrapper != null) {
+          this.handleZoomToFit();
+        }
+      }, this.props.zoomDelay);
     }
   }
 
