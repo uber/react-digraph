@@ -99,7 +99,8 @@ function makeStyles(primary='dodgerblue', light='white', dark='black', backgroun
         stroke: primary,
         strokeWidth: '2px',
         markerEnd: 'url(#end-arrow)',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        fill: 'none'
       },
       selected: {
         color: primary,
@@ -251,14 +252,30 @@ class GraphView extends Component {
 
     const dragEdge = d3.select(this.entities).append('svg:path')
 
+    // Provides API for curved lines using .curve()
+    // Example: https://bl.ocks.org/d3indepth/64be9fc39a92ef074034e9a8fb29dcce
+    const lineFunc = d3.line()
+      .x(function (d) {
+        return d.x;
+      })
+      .y(function (d) {
+        return d.y;
+      });
+
     dragEdge.attr('class', 'link dragline')
       .attr("style", this.state.styles.edge.selectedString)
-      .attr('d', self.getPathDescriptionStr(sourceNode.x, sourceNode.y, target.x, target.y));
+      .attr('d', lineFunc([
+        { x: sourceNode.x, y: sourceNode.y },
+        { x: d3.event.x, y: d3.event.y }
+      ]));
 
     d3.event.on("drag", dragged).on("end", ended);
 
     function dragged(d) {
-      dragEdge.attr( 'd', self.getPathDescriptionStr(sourceNode.x, sourceNode.y, d3.event.x, d3.event.y ) )
+      dragEdge.attr( 'd', lineFunc([
+        { x: sourceNode.x, y: sourceNode.y },
+        { x: d3.event.x, y: d3.event.y }
+      ]) )
     }
 
     function ended(d) {
