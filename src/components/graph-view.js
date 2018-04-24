@@ -408,7 +408,7 @@ class GraphView extends Component {
       this.props.onSelectNode(null);
 
       if (!this.state.readOnly && d3.event.shiftKey) {
-        var xycoords = d3.mouse(event.target);
+        var xycoords = d3.mouse(d3.event.target);
         this.props.onCreateNode(xycoords[0], xycoords[1]);
         this.renderView();
       }
@@ -472,7 +472,7 @@ class GraphView extends Component {
     // (and mouseup is not fired). This clears the hoverNode state prematurely
     // resulting in swapEdge failing to fire.
     // Detecting & ignoring mouseLeave events that result from drag ending here
-    const fromMouseup = event.which == 1;
+    const fromMouseup = d3.event.which == 1;
     if (this.state.hoveredNode === d && !fromMouseup){
       this.setState({
         hoveredNode: null
@@ -485,9 +485,9 @@ class GraphView extends Component {
   // assume the click occurred on the arrow
   arrowClicked = (d)=> {
 
-    if(event.target.tagName != 'path') return false; // If the handle is clicked
+    if(d3.event.target.tagName != 'path') return false; // If the handle is clicked
 
-    const xycoords = d3.mouse(event.target);
+    const xycoords = d3.mouse(d3.event.target);
     const target = this.props.getViewNode(d.target);
     const dist = getDistance({x: xycoords[0], y: xycoords[1]}, target);
 
@@ -496,9 +496,9 @@ class GraphView extends Component {
 
   handleEdgeDrag = (d) => {
     if(!this.state.readOnly && this.state.drawingEdge ){
-      const edgeDOMNode = event.target.parentElement;
+      const edgeDOMNode = d3.event.target.parentElement;
       const sourceNode = this.props.getViewNode(d.source);
-      const xycoords = d3.mouse(event.target)
+      const xycoords = d3.mouse(d3.event.target)
       const target = {x: xycoords[0], y: xycoords[1]}
 
       this.hideEdge(edgeDOMNode);
