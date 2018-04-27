@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "keywords": [
     "uber-library",
     "babel",
@@ -22,7 +22,7 @@
   "engines": {
     "node": ">= 0.10.0"
   },
-  "licenses": "MIT",
+  "license": "MIT",
   "main": "dist/index.js",
   "peerDependencies": {
     "d3": "^4.1.1",
@@ -64,8 +64,9 @@
   "scripts": {
     "build": "rm -rf dist && babel src -d dist --copy-files -s",
     "build-example": "browserify dist/examples/graph.js > dist/examples/graph-example.js",
+    "build-large-example": "browserify dist/examples/graph-large.js > dist/examples/graph-large-example.js",
     "prebuild-example": "npm run build",
-    "example": "npm run build-example && cd dist/examples && nws -o -p 8000",
+    "example": "npm run build-example && npm run build-large-example && cd dist/examples && nws -o -p 8000",
     "changelog-major": "build-changelog --major",
     "changelog-minor": "build-changelog --minor",
     "changelog-patch": "build-changelog --patch",

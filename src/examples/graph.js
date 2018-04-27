@@ -95,7 +95,7 @@ const sample = {
   ]
 }
 
-class Graph extends Component {
+export class Graph extends Component {
 
   constructor(props) {
     super(props);
