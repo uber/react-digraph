@@ -151,7 +151,6 @@ class GraphView extends Component {
     this.state = {
       viewTransform: d3.zoomIdentity,
       selectionChanged: false,
-      zoomLevelChanged: false,
       focused: true,
       readOnly: props.readOnly || false,
       enableFocus: props.enableFocus || false, // Enables focus/unfocus
@@ -163,7 +162,8 @@ class GraphView extends Component {
                   .scaleExtent([props.minZoom, props.maxZoom])
                   .on("zoom", this.handleZoom);
 
-    this.nodeTimeouts = [];
+    this.nodeTimeouts = {};
+    this.edgeTimeouts = {};
   }
 
   componentDidMount() {
@@ -203,27 +203,25 @@ class GraphView extends Component {
   componentWillReceiveProps(nextProps) {
     let selectionChanged = false;
     let selected = this.props.selected;
+    const newState = {};
 
-    if (selected != nextProps.selected) {
-      selectionChanged = true
+    if (nextProps.selected !== selected) {
+      newState.selected = nextProps.selected;
+      newState.previousSelection = selected;
+      newState.selectionChanged = true;
+
+      let selectionType = null;
+      if (nextProps.selected && nextProps.selected.source){
+        newState.selectionType = 'edge'
+      } else if (nextProps.selected && nextProps.selected[this.props.nodeKey]) {
+        newState.selectionType = 'node'
+      }
+
+      this.setState(newState);
     }
-
-    let selectionType = null;
-    if (nextProps.selected && nextProps.selected.source){
-      selectionType = 'edge'
-    } else if (nextProps.selected && nextProps.selected[this.props.nodeKey]) {
-      selectionType = 'node'
-    }
-
-    this.setState({
-      selectionChanged: selectionChanged,
-      selectionType: selectionType,
-      readOnly: nextProps.readOnly || false,
-      previousSelection: selected
-    });
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     if (this.state.selectionChanged) {
       this.setState({
         selectionChanged: false
@@ -403,16 +401,15 @@ class GraphView extends Component {
     if (this.state.selectingNode) {
       this.setState({
         selectingNode: false
-      })
+      });
     } else {
       this.props.onSelectNode(null);
 
       if (!this.state.readOnly && d3.event.shiftKey) {
-        var xycoords = d3.mouse(event.target);
-        this.props.onCreateNode(xycoords[0], xycoords[1]);
-        this.renderView();
-      }
-
+          var xycoords = d3.mouse(event.target);
+          this.props.onCreateNode(xycoords[0], xycoords[1]);
+          this.renderView();
+        }
     }
   }
 
@@ -446,15 +443,21 @@ class GraphView extends Component {
       })
 
     } else {
+      const previousSelection = this.state.previousSelection;
       this.setState({
-        selectingNode: true
+        selectingNode: true,
+        selectedNode: d,
+        previousSelection
       });
     }
   }
 
   handleNodeMouseUp = (d) => {
-    if(this.state.selectingNode){
+    if (this.state.selectingNode) {
       this.props.onSelectNode(d);
+      this.setState({
+        selectingNode: false
+      });
     }
   }
 
@@ -535,8 +538,7 @@ class GraphView extends Component {
   handleZoom = () => {
     if (this.state.focused) {
       this.setState({
-        viewTransform: d3.event.transform,
-        zoomLevelChanged: true
+        viewTransform: d3.event.transform
       });
     }
   }
@@ -755,10 +757,20 @@ class GraphView extends Component {
     // Merge
     edges.enter().merge(edges);
 
+    function updateEdge(d, i, els) {
+      // setTimeout is used to unblock the browser
+      // clearing the previous render's timeout prevents the browser from being overworked
+      const key = `edgeKey-${d.source}_${d.target}`;
+      if (self.edgeTimeouts[key]) {
+        clearTimeout(self.edgeTimeouts[key]);
+      }
+      self.edgeTimeouts[key] = setTimeout(() => {
+        self.props.renderEdge(self, this, d, i, els)
+      });
+    }
+
     // Update All
-    edges.each(function(d, i, els) {
-      self.props.renderEdge(self, this, d, i, els)
-    })
+    edges.each(updateEdge);
   }
 
   // Renders 'nodes' into entities element
@@ -768,23 +780,31 @@ class GraphView extends Component {
     const parent = this.viewWrapper;
     const viewTransform = this.state.viewTransform;
     const overlap = (300 / viewTransform.k);
-    const zoomLevelChanged = this.state.zoomLevelChanged;
 
     // Join Data
-    var nodes = entities.selectAll("g.node").data(nodes, function(d) {
+    let nodeKeyWarned = false;
+    var nodesSelection = entities.selectAll("g.node").data(nodes, function(d) {
       // IMPORTANT: this snippet allows D3 to detect updated vs. new data
+      if (d[nodeKey] === undefined && !nodeKeyWarned) {
+        console.warn(
+          `Warning: The specified nodeKey '${nodeKey}' cannot be found on a node. \
+          Make sure the nodeKey is accurate and that all nodes contain a property called '${nodeKey}'. \
+          Performance will degrade when there are nodes with an undefined nodeKey or with duplicate keys.`
+        );
+        nodeKeyWarned = true;
+      }
       return d[nodeKey]
     });
 
     // Animate/Remove Old
-    nodes.exit()
+    var removedNodes = nodesSelection.exit()
       .transition()
       .duration(self.props.transitionTime)
       .attr("opacity", 0)
       .remove();
 
     // Add New
-    var newNodes = nodes.enter().append("g").classed("node", true);
+    var newNodes = nodesSelection.enter().append("g").classed("node", true);
 
     newNodes.on("mousedown", this.handleNodeMouseDown)
       .on("mouseup", this.handleNodeMouseUp)
@@ -799,47 +819,78 @@ class GraphView extends Component {
       .attr("opacity", 1);
 
     // Merge
-    nodes.enter().merge(nodes);
+    nodesSelection.enter().merge(nodesSelection);
 
     function updateNode(d, i, els) {
+      const key = `nodeKey-${d[nodeKey]}`;
       // setTimeout is used to unblock the browser
       // clearing the previous render's timeout prevents the browser from being overworked
-      if (self.nodeTimeouts[`nodeKey-${d[nodeKey]}`]) {
-        clearTimeout(self.nodeTimeouts[i]);
+      if (self.nodeTimeouts[key]) {
+        clearTimeout(self.nodeTimeouts[key]);
       }
-      self.nodeTimeouts[`nodeKey-${d[nodeKey]}`] = setTimeout(() => {
+      self.nodeTimeouts[key] = setTimeout(() => {
         self.props.renderNode(self, this, d, i, els)
       });
     }
 
     // Update Selected and Unselected
-    const selected = nodes.filter((d) => {
-      return d === this.props.selected ||
-        d === this.state.previousSelection;
+    // New or Removed
+    const selected = nodesSelection.filter((d) => {
+      return (d === this.props.selected ||
+        d === this.state.previousSelection);
     });
+
+    /*
+      The commented code below would prevent nodes from rendering
+      until they are within the viewport. The problem is that this causes a zoom-to-fit
+      regression. The benefit from the code is that even a gigantic graph is very responsive at first,
+      however as a person zooms out or moves the graph around it would add more nodes.
+      After many nodes are added to the graph the zoom behavior will degrade, and there's no way to
+      remove the existing nodes from the DOM which are outside of the viewport. This degraded performance already
+      exists in the zoom-to-fit scenario for large graphs, since all nodes are rendered and never removed.
+      TODO: figure out if it's possible/worthwhile to remove nodes from the graph that are outside of the viewport
+      TODO: figure out the zoom-to-fit if this is added
+    */
+    // function viewableFilter(d) {
+      // const xPosition = (d.x + viewTransform.x) * viewTransform.k;
+      // const yPosition = (d.y + viewTransform.y) * viewTransform.k;
+      // return xPosition < parent.offsetWidth + overlap &&
+      //   xPosition > 0 - overlap &&
+      //   yPosition < parent.offsetHeight + overlap &&
+      //   yPosition > 0 - overlap;
+    // }
+    // selected.filter(viewableFilter).each(updateNode);
+    // removedNodes.filter(viewableFilter).each(updateNode);
+    // newNodes.filter(viewableFilter).each(updateNode);
+
     selected.each(updateNode);
+    removedNodes.each(updateNode);
+    newNodes.each(updateNode);
 
-    // Update all others when there are no selections or on initial render
-    if (!selected.size() || zoomLevelChanged) {
-      nodes.filter((d) => {
-        const xPosition = (d.x + viewTransform.x) * viewTransform.k;
-        const yPosition = (d.y + viewTransform.y) * viewTransform.k;
-        return (
-          xPosition < parent.offsetWidth + overlap &&
-          xPosition > 0 - overlap &&
-          yPosition < parent.offsetHeight + overlap &&
-          yPosition > 0 - overlap
-        );
-      }).each(updateNode);
-    }
+    const newState = {};
 
-    if (zoomLevelChanged) {
-      setTimeout(() => {
-        this.setState({
-          zoomLevelChanged: false
-        });
-      });
-    }
+    // Update all others
+    // Normally we would want to only render all others on a zoom change,
+    // however sometimes other nodes must be updated on a selection
+    nodesSelection.filter((d) => {
+      const isInSelected = selected.filter((sd) => {
+        return sd === d;
+      }).size();
+      const isInNewNodes = newNodes.filter((nd) => {
+        return nd === d;
+      }).size();
+      const isInRemovedNodes = removedNodes.filter((rd) => {
+        return rd === d;
+      }).size();
+
+      return (
+        // viewableFilter(d) && // see comment above
+        !isInSelected &&
+        !isInNewNodes &&
+        !isInRemovedNodes
+      );
+    }).each(updateNode);
+
   }
 
   // Renders 'graph' into view element
@@ -998,13 +1049,14 @@ GraphView.defaultProps = {
   },
   renderNode: (graphView, domNode, datum, index, elements) => {
     // For new nodes, add necessary child domNodes
+    const selection = d3.select(domNode);
     if (!domNode.hasChildNodes()) {
-      d3.select(domNode).append("use").classed("subtypeShape", true)
+      selection.append("use").classed("subtypeShape", true)
         .attr("x", -graphView.props.nodeSize/2)
         .attr("y",  -graphView.props.nodeSize/2)
         .attr("width", graphView.props.nodeSize)
         .attr("height", graphView.props.nodeSize);
-      d3.select(domNode).append("use").classed("shape", true)
+      selection.append("use").classed("shape", true)
         .attr("x", -graphView.props.nodeSize/2)
         .attr("y",  -graphView.props.nodeSize/2)
         .attr("width", graphView.props.nodeSize)
@@ -1013,23 +1065,25 @@ GraphView.defaultProps = {
 
     let style = graphView.getNodeStyle(datum, graphView.props.selected);
 
-    d3.select(domNode)
+    selection
       .attr("style", style);
 
     if (datum.subtype) {
-      d3.select(domNode).select("use.subtypeShape")
+      selection.select("use.subtypeShape")
         .attr("xlink:href", function (d) { return graphView.props.nodeSubtypes[d.subtype].shapeId });
     } else {
-      d3.select(domNode).select("use.subtypeShape")
+      selection.select("use.subtypeShape")
         .attr("xlink:href", function (d) { return null });
     }
 
-    d3.select(domNode).select("use.shape")
+    selection.select("use.shape")
       .attr("xlink:href", function (d) { return graphView.props.nodeTypes[d.type].shapeId });
+
+    selection.attr('id', `node-${datum[graphView.props.nodeKey]}`);
 
     graphView.renderNodeText(datum, domNode);
 
-    d3.select(domNode).attr('transform', graphView.getNodeTransformation);
+    selection.attr('transform', graphView.getNodeTransformation);
   },
   renderDefs: (graphView) => {
     const { styles } = graphView.state;
