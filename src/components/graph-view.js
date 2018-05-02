@@ -371,11 +371,11 @@ class GraphView extends Component {
     if (this.props.selected) {
       const selected = this.props.selected;
       if (!selected.source && this.props.canDeleteNode(selected)) {
-          this.props.onDeleteNode(selected);
-          this.props.onSelectNode(null);
+        this.props.onDeleteNode(selected);
+        this.props.onSelectNode(null);
       } else if (selected.source && this.props.canDeleteEdge(selected)) {
-          this.props.onDeleteEdge(selected);
-          this.props.onSelectNode(null);
+        this.props.onDeleteEdge(selected);
+        this.props.onSelectNode(null);
       }
     }
   }
@@ -808,6 +808,13 @@ class GraphView extends Component {
 
     newNodes.on("mousedown", this.handleNodeMouseDown)
       .on("mouseup", this.handleNodeMouseUp)
+      .on("click", (d) => {
+        // Force blocking propagation on node click.
+        // It was found that large graphs would handle clicks on the canvas even
+        // though the mouseDown event blocked propagation.
+        d3.event.stopPropagation();
+        d3.event.preventDefault();
+      })
       .on("mouseenter", this.handleNodeMouseEnter)
       .on("mouseleave", this.handleNodeMouseLeave)
       .call(d3.drag().on("start", this.handleNodeDrag));
