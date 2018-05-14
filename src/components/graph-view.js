@@ -152,7 +152,6 @@ class GraphView extends Component {
       viewTransform: d3.zoomIdentity,
       selectionChanged: false,
       focused: true,
-      readOnly: props.readOnly || false,
       enableFocus: props.enableFocus || false, // Enables focus/unfocus
       edgeSwapQueue: [],    // Stores nodes to be swapped
       styles: makeStyles(props.primary, props.light, props.dark, props.background)
@@ -322,7 +321,7 @@ class GraphView extends Component {
 
     let oldSibling = null;
     function dragged(d) {
-      if (self.state.readOnly) return;
+      if (self.props.readOnly) return;
       const selectedNode = d3.select(this);
       if (!oldSibling) {
         oldSibling = this.nextSibling;
@@ -341,7 +340,7 @@ class GraphView extends Component {
     function ended() {
       el.classed("dragging", false);
 
-      if(!self.state.readOnly){
+      if(!self.props.readOnly){
         var d = d3.select(this).datum();
         // Move the node back to the original z-index
         if (oldSibling) {
@@ -358,7 +357,7 @@ class GraphView extends Component {
 
   // Node 'drag' handler
   handleNodeDrag = () => {
-    if(this.state.drawingEdge && !this.state.readOnly){
+    if(this.state.drawingEdge && !this.props.readOnly){
       const target = {x: d3.event.subject.x, y: d3.event.subject.y }
       this.drawEdge(d3.event.subject, target )
     } else {
@@ -367,7 +366,7 @@ class GraphView extends Component {
   }
 
   handleDelete = () => {
-    if (this.state.readOnly) return;
+    if (this.props.readOnly) return;
     if (this.props.selected) {
       const selected = this.props.selected;
       if (!selected.source && this.props.canDeleteNode(selected)) {
@@ -405,7 +404,7 @@ class GraphView extends Component {
     } else {
       this.props.onSelectNode(null);
 
-      if (!this.state.readOnly && d3.event.shiftKey) {
+      if (!this.props.readOnly && d3.event.shiftKey) {
           var xycoords = d3.mouse(event.target);
           this.props.onCreateNode(xycoords[0], xycoords[1]);
           this.renderView();
@@ -498,7 +497,7 @@ class GraphView extends Component {
   }
 
   handleEdgeDrag = (d) => {
-    if(!this.state.readOnly && this.state.drawingEdge ){
+    if(!this.props.readOnly && this.state.drawingEdge ){
       const edgeDOMNode = event.target.parentElement;
       const sourceNode = this.props.getViewNode(d.source);
       const xycoords = d3.mouse(event.target)
@@ -518,7 +517,7 @@ class GraphView extends Component {
       this.viewWrapper.focus();
     }
 
-    if (!this.state.readOnly && this.arrowClicked(d)) {
+    if (!this.props.readOnly && this.arrowClicked(d)) {
       this.state.edgeSwapQueue.push(d)  // Set this edge aside for redrawing
       this.setState({
         drawingEdge: true,
