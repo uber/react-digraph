@@ -25,7 +25,6 @@
   "license": "MIT",
   "main": "dist/index.js",
   "peerDependencies": {
-    "d3": "^4.1.1",
     "radium": "^0.19.5",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
@@ -42,7 +41,6 @@
     "babel-preset-stage-2": "^6.3.0",
     "browserify": "^14.4.0",
     "build-changelog": "^2.1.2",
-    "d3": "^4.1.1",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.14.0",
@@ -81,5 +79,8 @@
     "prepublish": "npm run build",
     "test": "NODE_ENV=test npm run lint && npm run fast-test",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html"
+  },
+  "dependencies": {
+    "d3": "^4.13.0"
   }
 }
