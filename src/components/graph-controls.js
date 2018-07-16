@@ -129,7 +129,7 @@ class GraphControls extends Component {
             step="1"/>
           +
         </div>
-        <button style={styles.button} onMouseDown={this.props.zoomToFit}>
+        <button type="button" style={styles.button} onMouseDown={this.props.zoomToFit}>
           <FaExpand/>
         </button>
       </div>
