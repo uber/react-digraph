@@ -15,19 +15,24 @@
   limitations under the License.
 */
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+import * as React from 'react';
+import Circle from './circle';
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
+type IBackgroundPatternProps = {
+  gridSpacing?: number;
+  gridDotSize?: number;
 };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+
+class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
+  render() {
+    const { gridSpacing, gridDotSize } = this.props;
+
+    return (
+      <pattern id="grid" key="grid" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
+        <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
+      </pattern>
+    );
+  }
+}
+
+export default BackgroundPattern;

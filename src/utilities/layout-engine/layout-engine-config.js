@@ -15,19 +15,15 @@
   limitations under the License.
 */
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+import None from './none';
+import SnapToGrid from './snap-to-grid';
+import VerticalTree from './vertical-tree';
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
+
+export type LayoutEngine = None | SnapToGrid | VerticalTree;
+
+export const LayoutEngines = {
+  None,
+  SnapToGrid,
+  VerticalTree
 };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
