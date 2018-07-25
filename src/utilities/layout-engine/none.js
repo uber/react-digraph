@@ -14,14 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+import { type INode } from '../../components/node';
+import LayoutEngine, { type IPosition } from './layout-engine';
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+class None extends LayoutEngine {
+  calculatePosition(node: IPosition) {
+    return node;
+  }
+}
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+export default None;

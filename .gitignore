@@ -1,5 +1,6 @@
 coverage/
 node_modules/
+dist/hot
 
 # temporary jenkins files
 test/test.js.tap
@@ -10,8 +11,6 @@ core
 package-lock.json
 yarn.lock
 npm-debug.log
-
-dist/
 
 # WebStorm
 .idea
