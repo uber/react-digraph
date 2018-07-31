@@ -15,19 +15,24 @@
   limitations under the License.
 */
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+import * as React from 'react';
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
+type ICircleProps = {
+  gridSpacing?: number;
+  gridDotSize?: number;
 };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+
+class Circle extends React.Component<ICircleProps> {
+  static defaultProps = {
+    gridDotSize: 2,
+    gridSpacing: 36
+  };
+
+  render() {
+    const { gridSpacing, gridDotSize } = this.props;
+
+    return <circle className="circle" cx={(gridSpacing || 0) / 2} cy={(gridSpacing || 0) / 2} r={gridDotSize} />;
+  }
+}
+
+export default Circle;

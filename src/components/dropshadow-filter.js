@@ -15,19 +15,24 @@
   limitations under the License.
 */
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+import * as React from 'react';
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
-};
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+class DropshadowFilter extends React.Component<any> {
+  render() {
+    return (
+      <filter id="dropshadow" key="dropshadow" height="130%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+        <feOffset dx="2" dy="2" result="offsetblur" />
+        <feComponentTransfer>
+          <feFuncA type="linear" slope="0.1" />
+        </feComponentTransfer>
+        <feMerge>
+          <feMergeNode />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    );
+  }
+}
+
+export default DropshadowFilter;

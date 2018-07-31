@@ -15,19 +15,32 @@
   limitations under the License.
 */
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+import * as React from 'react';
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
+type IBackgroundProps = {
+  gridSize?: number;
+  backgroundFillId?: string;
 };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+
+class Background extends React.Component<IBackgroundProps> {
+  static defaultProps = {
+    backgroundFillId: '#grid',
+    gridSize: 40960
+  };
+
+  render() {
+    const { gridSize, backgroundFillId } = this.props;
+    return (
+      <rect
+        className="background"
+        x={-(gridSize || 0) / 4}
+        y={-(gridSize || 0) / 4}
+        width={gridSize}
+        height={gridSize}
+        fill={`url(${backgroundFillId || ''})`}
+      />
+    );
+  }
+}
+
+export default Background;

@@ -14,20 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+import { type INode } from '../../components/node';
+import LayoutEngine from './layout-engine';
 
-import Edge from './components/edge';
-import GraphUtils from './components/graph-util';
-import GraphView from './components/graph-view';
-import Node from './components/node';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
-import BwdlTransformer from './utilities/transformers/bwdl-transformer';
+class None extends LayoutEngine {
+  calculatePosition(node: INode) {
+    return node;
+  }
+}
 
-export const ReactEventChain = {
-  BwdlTransformer,
-  Edge,
-  GraphUtils,
-  GraphView,
-  Node
-};
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+export default None;
