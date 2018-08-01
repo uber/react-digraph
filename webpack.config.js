@@ -7,8 +7,8 @@ module.exports = {
   context: __dirname + '/src',
   entry: {
     main: './index.js',
-    example: './examples/app.js',
-    exampleCss: './examples/app.scss',
+    'examples/example': './examples/app.js',
+    'examples/exampleCss': './examples/app.scss',
     css: './styles/main.scss'
   },
 
@@ -25,7 +25,7 @@ module.exports = {
     hotUpdateMainFilename: 'hot/hot-update.json',
     path: __dirname + '/dist',
     publicPath: '/dist/',
-    library: 'ReactEventChain',
+    library: 'ReactDigraph',
     libraryTarget: 'var' //'commonjs2' // ,
     // libraryExport: 'default'
   },
@@ -114,20 +114,20 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: './examples/**/index.html',
-        to: 'index.html'
+        to: 'examples/index.html'
       },
       {
         from: './examples/**/*.js',
-        to: '[name].js'
+        to: 'examples/[name].js'
       }
     ])
   ],
 
   externals: {
     // TODO: figure out how to deal with externals
-    // react: 'React',
-    // 'react-dom': 'ReactDOM',
-    // d3: 'd3',
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    d3: 'd3',
     tslib: 'tslib'
   }
 };

@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "5.0.0-alpha",
+  "version": "5.0.1-alpha",
   "keywords": [
     "uber-library",
     "babel",
@@ -23,7 +23,7 @@
     "node": ">= 0.10.0"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/main.min.js",
   "peerDependencies": {
     "d3": "^5.5.0",
     "dagre": "^0.8.2",
@@ -98,12 +98,12 @@
     "jenkins-install": "npm install",
     "jenkins-jshint": "npm run lint -- --o=jshint.xml --f=checkstyle",
     "jenkins-test": "npm run jenkins-jshint && npm run test",
-    "live-server": "live-server ./dist --entry-file=./index.html",
+    "live-server": "live-server ./dist/examples --entry-file=./examples/index.html",
     "live-serve": "concurrent \"npm run watch\" \"npm run live-server\"",
     "lint": "eslint src",
     "precommit": "npm run lint -s",
     "prefast-test": "npm run prepublish",
-    "prepublish": "npm run build",
+    "prepublish": "npm run package",
     "serve": "npm run live-serve",
     "test": "jest",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",

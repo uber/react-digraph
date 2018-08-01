@@ -16,7 +16,7 @@ module.exports = {
     chunkFilename: '[name].min.js',
     path: __dirname + '/dist',
     publicPath: '/dist/',
-    library: 'ReactEventChain',
+    library: 'ReactDigraph',
     libraryTarget: 'commonjs2'
   },
 
@@ -84,6 +84,10 @@ module.exports = {
 
   externals: {
     // TODO: figure out how to deal with externals
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    d3: 'd3',
+    tslib: 'tslib'
     // react: {
     //   amd: 'react',
     //   root: 'react',
@@ -98,6 +102,5 @@ module.exports = {
     //   commonjs: 'react-dom',
     //   commonjs2: 'react-dom'
     // },
-    tslib: 'tslib'
   }
 };
