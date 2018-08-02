@@ -1,5 +1,14 @@
-var ReactDigraph =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory(require("d3"), require("react"), require("react-dom"));
+	else if(typeof define === 'function' && define.amd)
+		define(["d3", "react", "react-dom"], factory);
+	else if(typeof exports === 'object')
+		exports["ReactDigraph"] = factory(require("d3"), require("react"), require("react-dom"));
+	else
+		root["ReactDigraph"] = factory(root["d3"], root["React"], root["ReactDOM"]);
+})(window, function(__WEBPACK_EXTERNAL_MODULE_d3__, __WEBPACK_EXTERNAL_MODULE_react__, __WEBPACK_EXTERNAL_MODULE_react_dom__) {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function hotDisposeChunk(chunkId) {
 /******/ 		delete installedChunks[chunkId];
 /******/ 	}
@@ -65,7 +74,7 @@ var ReactDigraph =
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "f9b03526407ea2345de1";
+/******/ 	var hotCurrentHash = "15e5d6c901536d57541c";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -1839,7 +1848,7 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = d3;
+module.exports = __WEBPACK_EXTERNAL_MODULE_d3__;
 
 /***/ }),
 
@@ -1850,7 +1859,7 @@ module.exports = d3;
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = undefined;
+module.exports = __WEBPACK_EXTERNAL_MODULE_react__;
 
 /***/ }),
 
@@ -1861,8 +1870,9 @@ module.exports = undefined;
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = undefined;
+module.exports = __WEBPACK_EXTERNAL_MODULE_react_dom__;
 
 /***/ })
 
 /******/ });
+});

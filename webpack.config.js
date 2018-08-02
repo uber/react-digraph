@@ -26,7 +26,7 @@ module.exports = {
     path: __dirname + '/dist',
     publicPath: '/dist/',
     library: 'ReactDigraph',
-    libraryTarget: 'var' //'commonjs2' // ,
+    libraryTarget: 'umd' //'commonjs2' // ,
     // libraryExport: 'default'
   },
 
