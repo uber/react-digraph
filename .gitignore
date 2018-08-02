@@ -10,8 +10,6 @@ core
 package-lock.json
 npm-debug.log
 
-dist/
-
 # WebStorm
 .idea
 
