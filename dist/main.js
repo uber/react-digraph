@@ -65,7 +65,7 @@ var ReactDigraph =
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "a9acdd1a34d20eef28d5";
+/******/ 	var hotCurrentHash = "f9b03526407ea2345de1";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -1844,24 +1844,24 @@ module.exports = d3;
 /***/ }),
 
 /***/ "react":
-/*!************************!*\
-  !*** external "React" ***!
-  \************************/
+/*!****************************************************************************************************!*\
+  !*** external {"root":"React","commonjs2":"react","commonjs":"react","amd":"react","umd":"react"} ***!
+  \****************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = React;
+module.exports = undefined;
 
 /***/ }),
 
 /***/ "react-dom":
-/*!***************************!*\
-  !*** external "ReactDOM" ***!
-  \***************************/
+/*!***********************************************************************************************************************!*\
+  !*** external {"root":"ReactDOM","commonjs2":"react-dom","commonjs":"react-dom","amd":"react-dom","umd":"react-dom"} ***!
+  \***********************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ReactDOM;
+module.exports = undefined;
 
 /***/ })
 
