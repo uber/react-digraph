@@ -16,7 +16,7 @@ module.exports = {
     chunkFilename: '[name].min.js',
     path: __dirname + '/dist',
     publicPath: '/dist/',
-    library: 'ReactEventChain',
+    library: 'ReactDigraph',
     libraryTarget: 'commonjs2'
   },
 

@@ -25,7 +25,7 @@ module.exports = {
     hotUpdateMainFilename: 'hot/hot-update.json',
     path: __dirname + '/dist',
     publicPath: '/dist/',
-    library: 'ReactEventChain',
+    library: 'ReactDigraph',
     libraryTarget: 'var' //'commonjs2' // ,
     // libraryExport: 'default'
   },

@@ -23,7 +23,7 @@
     "node": ">= 0.10.0"
   },
   "license": "MIT",
-  "main": "dist/main.js",
+  "main": "dist/main.min.js",
   "peerDependencies": {
     "d3": "^5.5.0",
     "dagre": "^0.8.2",
@@ -89,6 +89,8 @@
   },
   "scripts": {
     "build": "webpack",
+    "build:prod": "webpack --config webpack.prod.js",
+    "clean": "rm -rf ./dist",
     "watch": "webpack --watch",
     "build-css": "node-sass --include-path scss src/styles/main.scss dist/styles/main.css && node-sass --include-path scss src/examples/app.scss dist/examples/app.css",
     "changelog-major": "build-changelog --major",
@@ -107,7 +109,7 @@
     "serve": "npm run live-serve",
     "test": "jest",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
-    "package": "npm run lint && npm run test && npm run build && webpack --config webpack.prod.js "
+    "package": "npm run clean && npm run lint && npm run test && npm run build && npm run build:prod"
   },
   "jest": {
     "moduleFileExtensions": [
