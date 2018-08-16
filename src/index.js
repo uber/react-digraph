@@ -22,7 +22,7 @@ import Node from './components/node';
 import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
 import BwdlTransformer from './utilities/transformers/bwdl-transformer';
 
-export const ReactEventChain = {
+export const ReactDigraph = {
   BwdlTransformer,
   Edge,
   GraphUtils,
@@ -30,4 +30,4 @@ export const ReactEventChain = {
   Node
 };
 export type LayoutEngineType = LayoutEngineConfigTypes;
-export default ReactEventChain;
+export default ReactDigraph;

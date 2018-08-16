@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "5.0.0-alpha",
+  "version": "5.0.2-alpha",
   "keywords": [
     "uber-library",
     "babel",
@@ -23,7 +23,7 @@
     "node": ">= 0.10.0"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
   "peerDependencies": {
     "d3": "^5.5.0",
     "dagre": "^0.8.2",
