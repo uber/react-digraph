@@ -212,10 +212,10 @@ class Node extends React.Component<INodeProps, INodeState> {
     return null;
   }
 
-  static getNodeSubtypeXlinkHref(data: INode, nodeSubtypes: any) {
-    if (data.subtype && nodeSubtypes[data.subtype]) {
+  static getNodeSubtypeXlinkHref(data: INode, nodeSubtypes?: any) {
+    if (data.subtype && nodeSubtypes && nodeSubtypes[data.subtype]) {
       return nodeSubtypes[data.subtype].shapeId;
-    } else if (nodeSubtypes.emptyNode) {
+    } else if (nodeSubtypes && nodeSubtypes.emptyNode) {
       return nodeSubtypes.emptyNode.shapeId;
     }
     return null;
