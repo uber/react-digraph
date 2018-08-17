@@ -204,6 +204,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   static getNodeTypeXlinkHref(data: INode, nodeTypes: any) {
+    console.log("-------getNodeTypeXlinkHref", data, data.type, nodeTypes);
     if (data.type && nodeTypes[data.type]) {
       return nodeTypes[data.type].shapeId;
     } else if (nodeTypes.emptyNode) {
@@ -213,6 +214,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   static getNodeSubtypeXlinkHref(data: INode, nodeSubtypes?: any) {
+    console.log("-------getNodeSubtypeXlinkHref", data, data.type, nodeSubtypes);
     if (data.subtype && nodeSubtypes && nodeSubtypes[data.subtype]) {
       return nodeSubtypes[data.subtype].shapeId;
     } else if (nodeSubtypes && nodeSubtypes.emptyNode) {
