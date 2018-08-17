@@ -199,12 +199,8 @@ describe('Node component', () => {
       nodeSubtypes.fake = {
         shapeId: '#blah'
       };
-      output.setProps({
-        data: nodeData,
-        nodeSubtypes
-      });
 
-      const result = output.instance().getNodeSubtypeXlinkHref(nodeData);
+      const result = Node.getNodeSubtypeXlinkHref(nodeData, nodeSubtypes);
       expect(result).toEqual('#blah');
     });
 
@@ -212,16 +208,13 @@ describe('Node component', () => {
       nodeSubtypes.emptyNode = {
         shapeId: '#empty'
       };
-      output.setProps({
-        nodeSubtypes
-      });
 
-      const result = output.instance().getNodeSubtypeXlinkHref(nodeData);
+      const result = Node.getNodeSubtypeXlinkHref(nodeData, nodeSubtypes);
       expect(result).toEqual('#empty');
     });
 
     it('returns null', () => {
-      const result = output.instance().getNodeSubtypeXlinkHref(nodeData);
+      const result = Node.getNodeSubtypeXlinkHref(nodeData, nodeSubtypes);
       expect(result).toEqual(null);
     });
   });
@@ -235,12 +228,8 @@ describe('Node component', () => {
       nodeTypes.fake = {
         shapeId: '#blah'
       };
-      output.setProps({
-        data: nodeData,
-        nodeTypes
-      });
 
-      const result = output.instance().getNodeTypeXlinkHref(nodeData);
+      const result = Node.getNodeTypeXlinkHref(nodeData, nodeTypes);
       expect(result).toEqual('#blah');
     });
 
@@ -248,22 +237,14 @@ describe('Node component', () => {
       nodeTypes.emptyNode = {
         shapeId: '#empty'
       };
-      output.setProps({
-        data: nodeData,
-        nodeTypes
-      });
 
-      const result = output.instance().getNodeTypeXlinkHref(nodeData);
+      const result = Node.getNodeTypeXlinkHref(nodeData, nodeTypes);
       expect(result).toEqual('#empty');
     });
 
     it('returns null', () => {
       delete nodeTypes.emptyNode;
-      output.setProps({
-        data: nodeData,
-        nodeTypes
-      });
-      const result = output.instance().getNodeTypeXlinkHref(nodeData);
+      const result = Node.getNodeTypeXlinkHref(nodeData, nodeTypes);
       expect(result).toEqual(null);
     });
   });

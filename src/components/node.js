@@ -203,8 +203,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     this.props.onNodeMouseLeave(event, this.props.data);
   }
 
-  getNodeTypeXlinkHref(data: INode) {
-    const { nodeTypes } = this.props;
+  static getNodeTypeXlinkHref(data: INode, nodeTypes: any) {
     if (data.type && nodeTypes[data.type]) {
       return nodeTypes[data.type].shapeId;
     } else if (nodeTypes.emptyNode) {
@@ -213,8 +212,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     return null;
   }
 
-  getNodeSubtypeXlinkHref(data: INode) {
-    const { nodeSubtypes } = this.props;
+  static getNodeSubtypeXlinkHref(data: INode, nodeSubtypes: any) {
     if (data.subtype && nodeSubtypes[data.subtype]) {
       return nodeSubtypes[data.subtype].shapeId;
     } else if (nodeSubtypes.emptyNode) {
@@ -224,7 +222,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderShape() {
-    const { renderNode, data, index } = this.props;
+    const { renderNode, data, index, nodeTypes, nodeSubtypes } = this.props;
     const { hovered, selected } = this.state;
     const props = {
       height: this.props.nodeSize || 0,
@@ -247,7 +245,7 @@ class Node extends React.Component<INodeProps, INodeState> {
               y={-props.height / 2}
               width={props.width}
               height={props.height}
-              xlinkHref={this.getNodeSubtypeXlinkHref(data)}
+              xlinkHref={Node.getNodeSubtypeXlinkHref(data, nodeSubtypes)}
             />
           )}
           <use
@@ -257,7 +255,7 @@ class Node extends React.Component<INodeProps, INodeState> {
             y={-props.height / 2}
             width={props.width}
             height={props.height}
-            xlinkHref={this.getNodeTypeXlinkHref(data)}
+            xlinkHref={Node.getNodeTypeXlinkHref(data, nodeTypes)}
           />
         </g>
       );
