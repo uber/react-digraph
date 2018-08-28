@@ -77,7 +77,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
 
         <DropshadowFilter />
 
-        {this.props.renderDefs && this.props.renderDefs()}
+        {/* {this.props.renderDefs && this.props.renderDefs()} */}
       </defs>
     );
   }
