@@ -52,8 +52,8 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
   }
 
   static processGraphConfigDefs(typesObj: any, graphConfigDefs: any) {
-    Object.keys(typesObj).forEach((type, index) => {
-      graphConfigDefs.push(React.cloneElement(typesObj[type].shape, { key: `${typesObj[type].shapeId}-${index}` }));
+    Object.keys(typesObj).forEach((type) => {
+      graphConfigDefs.push(React.cloneElement(typesObj[type].shape, { key: `${typesObj[type].shapeId}-${graphConfigDefs.length + 1}` }));
     });
   }
 
