@@ -199,7 +199,7 @@ class GraphView extends Component {
       .on('keydown', null);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     let selectionChanged = false;
     let selected = this.props.selected;
     const newState = {};
