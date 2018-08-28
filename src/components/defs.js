@@ -53,7 +53,8 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
 
   static processGraphConfigDefs(typesObj: any, graphConfigDefs: any) {
     Object.keys(typesObj).forEach((type) => {
-      graphConfigDefs.push(React.cloneElement(typesObj[type].shape, { key: `${typesObj[type].shapeId}-${graphConfigDefs.length + 1}` }));
+      const safeId = typesObj[type].shapeId ? typesObj[type].shapeId.replace('#', '') : 'graphdef';
+      graphConfigDefs.push(React.cloneElement(typesObj[type].shape, { key: `${safeId}-${graphConfigDefs.length + 1}` }));
     });
   }
 
@@ -77,7 +78,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
 
         <DropshadowFilter />
 
-        {/* {this.props.renderDefs && this.props.renderDefs()} */}
+        {this.props.renderDefs && this.props.renderDefs()}
       </defs>
     );
   }

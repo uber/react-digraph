@@ -57,7 +57,7 @@ describe('Circle component', () => {
       expect(output.find(BackgroundPattern).props().gridDotSize).toEqual(3);
     });
 
-    xit('uses the renderDefs prop callback', () => {
+    it('uses the renderDefs prop callback', () => {
       output.setProps({
         renderDefs: () => {
           return (<ellipse id="renderDefsEllipse" />);

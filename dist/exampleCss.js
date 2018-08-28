@@ -65,7 +65,7 @@ var ReactDigraph =
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "27f6b4b693af8c8e9cce";
+/******/ 	var hotCurrentHash = "c5281c12a9c692ff7707";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
