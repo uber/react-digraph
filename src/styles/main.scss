@@ -40,7 +40,7 @@ $background-color: #f9f9f9;
 
   .node {
     > .shape {
-      > use {
+      > use.node {
         color: $primary-color;
         stroke: $dark-color;
         fill: $light-color;
