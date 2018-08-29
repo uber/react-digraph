@@ -55,7 +55,7 @@ type IGraphViewState = {
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static defaultProps = {
-    canCreateEdge: () => true,
+    canCreateEdge: (startNode?:any, endNode?:any) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
     edgeArrowSize: 8,
@@ -540,7 +540,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         edgesMap &&
         hoveredNodeData !== edgeEndNode &&
         canCreateEdge &&
-        canCreateEdge() &&
+        canCreateEdge(hoveredNodeData[nodeKey], edgeEndNode) &&
         !edgesMap[mapId1] &&
         !edgesMap[mapId2]
       ) {
