@@ -39,7 +39,7 @@ $background-color: #f9f9f9;
   }
 
   .node {
-    > .shape {
+    .shape {
       > use.node {
         color: $primary-color;
         stroke: $dark-color;

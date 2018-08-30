@@ -75,9 +75,9 @@ describe('Node component', () => {
       expect(output.props().className).toEqual('node emptyNode');
       expect(output.props().transform).toEqual('translate(5, 10)');
 
-      const nodeShape = output.find('.node-shape-container > use');
+      const nodeShape = output.find('.shape > use');
       expect(nodeShape.props()['data-index']).toEqual(0);
-      expect(nodeShape.props().className).toEqual('shape');
+      expect(nodeShape.props().className).toEqual('node');
       expect(nodeShape.props().x).toEqual(-50);
       expect(nodeShape.props().y).toEqual(-50);
       expect(nodeShape.props().width).toEqual(100);
@@ -92,7 +92,7 @@ describe('Node component', () => {
       const event = {
         test: true
       };
-      output.find('.node').props().onMouseOver(event);
+      output.find('g.node').props().onMouseOver(event);
       expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData, true);
     });
 
@@ -103,7 +103,7 @@ describe('Node component', () => {
       output.setState({
         hovered: true
       });
-      output.find('.node').props().onMouseOut(event);
+      output.find('g.node').props().onMouseOut(event);
       expect(onNodeMouseLeave).toHaveBeenCalledWith(event, nodeData);
       expect(output.state().hovered).toEqual(false);
     });
@@ -153,17 +153,17 @@ describe('Node component', () => {
     it('returns a node shape without a subtype', () => {
       const result: ShallowWrapper<any, any> = shallow(output.instance().renderShape());
       expect(renderNode).not.toHaveBeenCalledWith();
-      expect(result.props().className).toEqual('node-shape-container');
+      expect(result.props().className).toEqual('shape');
       expect(result.props().height).toEqual(100);
       expect(result.props().width).toEqual(100);
 
-      const nodeShape = result.find('.shape');
+      const nodeShape = result.find('.node');
       const nodeSubtypeShape = result.find('.subtype-shape');
       expect(nodeShape.length).toEqual(1);
       expect(nodeSubtypeShape.length).toEqual(0);
 
       expect(nodeShape.props()['data-index']).toEqual(0);
-      expect(nodeShape.props().className).toEqual('shape');
+      expect(nodeShape.props().className).toEqual('node');
       expect(nodeShape.props().x).toEqual(-50);
       expect(nodeShape.props().y).toEqual(-50);
       expect(nodeShape.props().width).toEqual(100);

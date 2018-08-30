@@ -228,8 +228,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       height: this.props.nodeSize || 0,
       width: this.props.nodeSize || 0
     };
-    const nodeShapeContainerClassName = GraphUtils.classNames('node-shape-container');
-    const nodeClassName = GraphUtils.classNames('shape', { selected, hovered });
+    const nodeShapeContainerClassName = GraphUtils.classNames('shape');
+    const nodeClassName = GraphUtils.classNames('node', { selected, hovered });
     const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', { selected: this.state.selected });
     if (renderNode) {
       // Originally: graphView, domNode, datum, index, elements.
