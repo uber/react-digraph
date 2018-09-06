@@ -27,8 +27,8 @@ import Radium from 'radium';
 import PropTypes from 'prop-types';
 
 // Only old-style imports for react-icons seem to work with gulp
-const FaExpand = require('react-icons/lib/fa/expand');
-const FaInfoCircle = require('react-icons/lib/fa/info-circle');
+import {FaExpand} from 'react-icons/fa';
+import {FaInfoCircle} from 'react-icons/fa';
 
 
 
