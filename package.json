@@ -85,6 +85,7 @@
     "react-icons": "^2.2.1",
     "react-router-dom": "^4.3.1",
     "regenerator-runtime": "^0.12.0",
+    "rimraf": "^2.6.2",
     "sass-loader": "^7.0.3",
     "sinon": "^4.0.1",
     "source-map-loader": "^0.2.3",
@@ -96,7 +97,7 @@
   "scripts": {
     "build": "webpack",
     "build:prod": "webpack --config webpack.prod.js",
-    "clean": "rm -rf ./dist",
+    "clean": "rimraf ./dist",
     "watch": "webpack --watch",
     "build-css": "node-sass --include-path scss src/styles/main.scss dist/styles/main.css && node-sass --include-path scss src/examples/app.scss dist/examples/app.css",
     "changelog-major": "build-changelog --major",
