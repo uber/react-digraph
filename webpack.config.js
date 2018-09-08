@@ -61,7 +61,6 @@ module.exports = {
             loader: 'babel-loader',
             options: {
               babelrc: true,
-              // presets: ['es2015']
             }
           },
           // Need to run the react preset first to strip flow annotations
