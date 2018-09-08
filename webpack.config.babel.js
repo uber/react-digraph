@@ -1,8 +1,8 @@
-const path = require('path');
-const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+import path from 'path';
+import {HotModuleReplacementPlugin, WatchIgnorePlugin}  from 'webpack';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-module.exports = {
+export default {
   mode: 'development',
   context: __dirname + '/src',
   entry: {
@@ -109,8 +109,8 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.WatchIgnorePlugin([/\.d\.ts$/]),
-    new webpack.HotModuleReplacementPlugin(),
+    new WatchIgnorePlugin([/\.d\.ts$/]),
+    new HotModuleReplacementPlugin(),
     new CopyWebpackPlugin([
       {
         from: './examples/**/index.html',

@@ -1,8 +1,8 @@
-const path = require('path');
-const webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+import path from 'path';
+import {DefinePlugin} from 'webpack';
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 
-module.exports = {
+export default {
   mode: 'production',
   devtool: 'source-map',
   context: __dirname + '/src',
@@ -80,7 +80,7 @@ module.exports = {
     new UglifyJSPlugin({
       sourceMap: true
     }),
-    new webpack.DefinePlugin({
+    new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
     })
   ],
