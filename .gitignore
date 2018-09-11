@@ -1,5 +1,6 @@
 coverage/
 node_modules/
+dist/hot
 
 # temporary jenkins files
 test/test.js.tap

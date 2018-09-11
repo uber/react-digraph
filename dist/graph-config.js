@@ -27,11 +27,12 @@ export const NODE_KEY = 'id'; // Key used to identify nodes
 // so this has to be passed in if that behavior is desired.
 export const EMPTY_TYPE = 'empty'; // Empty node type
 export const SPECIAL_TYPE = 'special';
+export const SKINNY_TYPE = 'skinny';
 export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
 
-export const nodeTypes = [EMPTY_TYPE, SPECIAL_TYPE];
+export const nodeTypes = [EMPTY_TYPE, SPECIAL_TYPE, SKINNY_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
 const EmptyShape = (
@@ -43,6 +44,12 @@ const EmptyShape = (
 const SpecialShape = (
   <symbol viewBox="0 0 100 100" id="special">
     <rect transform="translate(50) rotate(45)" width="70" height="70" />
+  </symbol>
+);
+
+const SkinnyShape = (
+  <symbol viewBox="0 0 70 35" id="skinny">
+    <rect width="70" height="40" />
   </symbol>
 );
 
@@ -91,6 +98,11 @@ export default {
       shape: SpecialShape,
       shapeId: '#special',
       typeText: 'Special'
+    },
+    skinny: {
+      shape: SkinnyShape,
+      shapeId: '#skinny',
+      typeText: 'Skinny'
     }
   }
 };

@@ -17,6 +17,7 @@
 
 import * as d3 from 'd3';
 import * as React from 'react';
+import * as lineIntersect from 'line-intersect';
 import GraphUtils from './graph-util';
 import { type INode } from './node';
 
@@ -41,11 +42,12 @@ type IEdgeProps = {
   sourceNode: INode | null;
   targetNode: INode | ITargetPosition;
   isSelected: boolean;
+  nodeKey: string;
 };
 
 class Edge extends React.Component<IEdgeProps> {
   static defaultProps = {
-    edgeHandleSize: 70,
+    edgeHandleSize: 50,
     isSelected: false
   };
 
@@ -60,6 +62,14 @@ class Edge extends React.Component<IEdgeProps> {
     const yComp = pt2.y - pt1.y;
     const theta = Math.atan2(yComp, xComp);
     return theta;
+  }
+
+  static getDegrees (radians: number) {
+    return radians * (180 / Math.PI);
+  }
+
+  static getRadians(degrees: number) {
+    return (degrees / 180) * Math.PI;
   }
 
   static getDistance(pt1: any, pt2: any) {
@@ -79,13 +89,74 @@ class Edge extends React.Component<IEdgeProps> {
       })(srcTrgDataArray);
   }
 
-  static calculateOffset(nodeSize: any, src: any, trg: any) {
-    const off = nodeSize / 2; // from the center of the node to the perimeter
+  static calculateOffset(nodeSize: any, src: any, trg: any, nodeKey: string) {
+    const response = {
+      xOff: 0,
+      yOff: 0,
+      intersect: null
+    };
     const theta = Edge.getTheta(src, trg);
+    const slope = (src.y - trg.y) / (src.x - trg.x);
 
-    const xOff = off * Math.cos(theta);
-    const yOff = off * Math.sin(theta);
-    return { xOff, yOff };
+    let off = nodeSize / 2; // from the center of the node to the perimeter
+    response.xOff = off * Math.cos(theta);
+    response.yOff = off * Math.sin(theta);
+
+    const srcNode = document.querySelector(`#node-${src[nodeKey]} use.node`);
+    const trgNode = document.querySelector(`#node-${trg[nodeKey]} use.node`);
+
+    // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
+    if (trgNode && trgNode.getAttributeNS) {
+      const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+      if (xlinkHref) {
+        const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
+        if (defSvgRectElement) {
+          // it's a rectangle
+
+          const defEndArrowElement: any = document.querySelector(`defs>marker>.arrow`);
+
+          const arrowSize = defEndArrowElement.getBoundingClientRect();
+          const clientRect = defSvgRectElement.getBoundingClientRect();
+
+          const w = clientRect.width;
+          const h = clientRect.height;
+
+          const top = trg.y - h / 2;
+          const bottom = trg.y + h / 2;
+          const left = trg.x - w / 2;
+          const right = trg.x + w / 2;
+
+          const topIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, right, top);
+          const rightIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, right, top, right, bottom);
+          const bottomIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, bottom, right, bottom);
+          const leftIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, left, bottom);
+
+          const multiplier = (nodeSize / w) / 2;
+
+          if (topIntersect.type !== 'none' && topIntersect.point != null) {
+            // intersects the top line at topIntersect.point{x, y}
+            response.xOff = trg.x - topIntersect.point.x;
+            response.yOff = trg.y - topIntersect.point.y + h / 2 + arrowSize.height;
+            response.intersect = topIntersect.point;
+          } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
+            response.xOff = trg.x - rightIntersect.point.x - w / 2 - arrowSize.height - arrowSize.height / 1.5;
+            response.yOff = trg.y - rightIntersect.point.y;
+            response.intersect = rightIntersect.point;
+          } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
+            response.xOff = trg.x - bottomIntersect.point.x;
+            response.yOff = trg.y - bottomIntersect.point.y - h / 2 - arrowSize.height - arrowSize.height / 1.5;
+            response.intersect = bottomIntersect.point;
+          } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
+            response.xOff = trg.x - leftIntersect.point.x + w / 2 + arrowSize.height + arrowSize.height / 1.5;
+            response.yOff = trg.y - leftIntersect.point.y;
+            response.intersect = leftIntersect.point;
+          }
+          // otherwise no intersection, do nothing and treat it like a circle.
+        }
+      }
+    }
+
+    return response;
   }
 
   static getXlinkHref(edgeTypes: any, data: any) {
@@ -105,12 +176,20 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   getEdgeHandleTranslation = () => {
-    const src = this.props.sourceNode;
-    const trg = this.props.targetNode;
+    const { nodeSize, nodeKey, sourceNode, targetNode, data } = this.props;
 
-    const origin = Edge.getMidpoint(src, trg);
-    const x = origin.x;
-    const y = origin.y;
+    let pathDescription = this.getPathDescription(data);
+
+    pathDescription = pathDescription.replace(/^M/, '');
+    pathDescription = pathDescription.replace(/L/, ',');
+    const pathDescriptionArr = pathDescription.split(',');
+
+    // [0] = src x, [1] = src y
+    // [2] = trg x, [3] = trg y
+    const diffX = parseFloat(pathDescriptionArr[2]) - parseFloat(pathDescriptionArr[0]);
+    const diffY = parseFloat(pathDescriptionArr[3]) - parseFloat(pathDescriptionArr[1]);
+    const x = parseFloat(pathDescriptionArr[0]) + diffX / 2;
+    const y = parseFloat(pathDescriptionArr[1]) + diffY / 2;
 
     return `translate(${x}, ${y})`;
   }
@@ -140,19 +219,28 @@ class Edge extends React.Component<IEdgeProps> {
   getPathDescription(edge: any) {
     const src = this.props.sourceNode || {};
     const trg = this.props.targetNode;
+    const { nodeKey, nodeSize } = this.props;
 
-    const off = Edge.calculateOffset(this.props.nodeSize || 0, src, trg);
-    const { xOff, yOff } = off;
-    return Edge.lineFunction([
+    // To calculate the offset for a specific node we use that node as the third parameter
+    // and the accompanying node as the second parameter, representing where the line
+    // comes from and where it's going to. Don't think of a line as a one-way arrow, but rather
+    // a connection between two points. In this case, to obtain the offsets for the src we
+    // write trg first, then src second. Vice versa to get the offsets for trg.
+    const srcOff = Edge.calculateOffset(nodeSize || 0, trg, src, nodeKey);
+    const trgOff = Edge.calculateOffset(nodeSize || 0, src, trg, nodeKey);
+
+    const linePoints = [
       {
-        x: src.x + xOff,
-        y: src.y + yOff
+        x: src.x - srcOff.xOff,
+        y: src.y - srcOff.yOff
       },
       {
-        x: trg.x - xOff,
-        y: trg.y - yOff
+        x: trg.x - trgOff.xOff,
+        y: trg.y - trgOff.yOff
       }
-    ]);
+    ];
+
+    return Edge.lineFunction(linePoints);
   }
 
   renderHandleText(data: any) {

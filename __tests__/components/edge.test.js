@@ -64,9 +64,9 @@ describe('Edge component', () => {
 
       const use = output.find('use').first();
       expect(use.props().xlinkHref).toEqual('blah');
-      expect(use.props().width).toEqual(70);
-      expect(use.props().height).toEqual(70);
-      expect(use.props().transform).toEqual('translate(55, 110) rotate(63.43494882292201) translate(-35, -35)');
+      expect(use.props().width).toEqual(50);
+      expect(use.props().height).toEqual(50);
+      expect(use.props().transform).toEqual('translate(55, 110) rotate(63.43494882292201) translate(-25, -25)');
 
       const handleText = output.find('text').first();
       expect(handleText.props().className).toEqual('edge-text');
@@ -119,7 +119,7 @@ describe('Edge component', () => {
   describe('getEdgeHandleTransformation method', () => {
     it('returns a translation, rotation, and offset', () => {
       const handleTransformation = output.instance().getEdgeHandleTransformation(data);
-      expect(handleTransformation).toEqual('translate(55, 110) rotate(63.43494882292201) translate(-35, -35)');
+      expect(handleTransformation).toEqual('translate(55, 110) rotate(63.43494882292201) translate(-25, -25)');
     });
   });
 
@@ -138,7 +138,7 @@ describe('Edge component', () => {
   describe('getEdgeHandleOffsetTranslation method', () => {
     it('returns an offset translation', () => {
       const handleOffset = output.instance().getEdgeHandleOffsetTranslation();
-      expect(handleOffset).toEqual('translate(-35, -35)');
+      expect(handleOffset).toEqual('translate(-25, -25)');
     });
 
     it('returns an offset translation when the handleSize is not set', () => {

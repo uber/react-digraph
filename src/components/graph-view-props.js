@@ -42,7 +42,7 @@ export type IGraphViewProps = {
   showGraphControls?: boolean;
   zoomDelay?: number;
   zoomDur?: number;
-  canCreateEdge?: () => boolean;
+  canCreateEdge?: (startNode?:any, endNode?:any) => boolean;
   canDeleteEdge?: (selected: any) => boolean;
   canDeleteNode?: (selected: any) => boolean;
   onCopySelected?: () => void;

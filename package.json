@@ -25,11 +25,8 @@
   "license": "MIT",
   "main": "dist/main.min.js",
   "peerDependencies": {
-    "d3": "^5.5.0",
-    "dagre": "^0.8.2",
     "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "react-icons": "^2.2.1"
+    "react-dom": "^16.4.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
@@ -143,5 +140,11 @@
     "moduleNameMapper": {
       "\\.(scss)$": "<rootDir>/__mocks__/styles.mock.js"
     }
+  },
+  "dependencies": {
+    "line-intersect": "^2.1.1",
+    "d3": "^5.5.0",
+    "react-icons": "^2.2.1",
+    "dagre": "^0.8.2"
   }
 }

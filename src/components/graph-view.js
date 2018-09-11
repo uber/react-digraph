@@ -707,11 +707,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   dragEdge(draggedEdge?: IEdge) {
-    const { nodeSize } = this.props;
+    const { nodeSize, nodeKey } = this.props;
     draggedEdge = draggedEdge || this.state.draggedEdge;
     if (!draggedEdge) {
       return;
     }
+
     const mouseCoordinates = d3.mouse(this.selectedView.node());
     const mouseX = mouseCoordinates[0];
     const mouseY = mouseCoordinates[1];
@@ -719,7 +720,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       x: mouseX,
       y: mouseY
     };
-    const off = Edge.calculateOffset(nodeSize, (this.getNodeById(draggedEdge.source): any).node, targetPosition);
+    const off = Edge.calculateOffset(nodeSize, (this.getNodeById(draggedEdge.source): any).node, targetPosition, nodeKey);
     targetPosition.x += off.xOff;
     targetPosition.y += off.yOff;
     this.syncRenderEdge({ source: draggedEdge.source, targetPosition });
@@ -983,15 +984,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const targetNodeMapNode = this.getNodeById(edge.target);
     const targetNode = targetNodeMapNode ? this.state.nodes[targetNodeMapNode.originalArrIndex] : null;
     const targetPosition = edge.targetPosition;
+    const { edgeTypes, edgeHandleSize, nodeSize, nodeKey} = this.props;
 
     return (
       <Edge
         data={edge}
-        edgeTypes={this.props.edgeTypes}
-        edgeHandleSize={this.props.edgeHandleSize}
-        nodeSize={this.props.nodeSize}
+        edgeTypes={edgeTypes}
+        edgeHandleSize={edgeHandleSize}
+        nodeSize={nodeSize}
         sourceNode={sourceNode}
         targetNode={targetNode || targetPosition}
+        nodeKey={nodeKey}
         isSelected={this.isEdgeSelected(edge)}
       />
     );
