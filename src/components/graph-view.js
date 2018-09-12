@@ -974,6 +974,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
+    console.log("----renderNodes", this.state.nodes);
+
     this.state.nodes.forEach((node, i) => {
       this.asyncRenderNode(node, i);
     });
@@ -1080,6 +1082,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   render() {
+    console.log("react-digraph render");
     const { edgeArrowSize, gridSpacing, gridDotSize, nodeTypes, nodeSubtypes, edgeTypes, renderDefs } = this.props;
     return (
       <div className="view-wrapper" ref={(el) => (this.viewWrapper = el)}>
