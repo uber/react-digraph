@@ -142,7 +142,7 @@ class Edge extends React.Component<IEdgeProps> {
             response.yOff = trg.y - topIntersect.point.y + arrowSize.height; // + h / 2 ;
             response.intersect = topIntersect.point;
           } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
-            response.xOff = trg.x - rightIntersect.point.x - arrowSize.height - arrowSize.height / 1.5; // - w / 2
+            response.xOff = trg.x - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
             response.yOff = trg.y - rightIntersect.point.y;
             response.intersect = rightIntersect.point;
           } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
@@ -150,7 +150,7 @@ class Edge extends React.Component<IEdgeProps> {
             response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
             response.intersect = bottomIntersect.point;
           } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
-            response.xOff = trg.x - leftIntersect.point.x + arrowSize.height + arrowSize.height / 1.5; // + w / 2
+            response.xOff = trg.x - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
             response.yOff = trg.y - leftIntersect.point.y;
             response.intersect = leftIntersect.point;
           }
