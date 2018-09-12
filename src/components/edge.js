@@ -105,15 +105,12 @@ class Edge extends React.Component<IEdgeProps> {
     const srcNode = document.querySelector(`#node-${src[nodeKey]} use.node`);
     const trgNode = document.querySelector(`#node-${trg[nodeKey]} use.node`);
 
-    console.log('------------------------', trgNode);
 
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
     if (trgNode && trgNode.getAttributeNS) {
       const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-      console.log(xlinkHref);
       if (xlinkHref) {
         const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
-        console.log(defSvgRectElement);
         if (defSvgRectElement) {
           // it's a rectangle
           console.log("it's a rectangle");
@@ -138,23 +135,19 @@ class Edge extends React.Component<IEdgeProps> {
           const multiplier = (nodeSize / w) / 2;
 
           if (topIntersect.type !== 'none' && topIntersect.point != null) {
-            console.log("topIntersect");
             // intersects the top line at topIntersect.point{x, y}
             response.xOff = trg.x - topIntersect.point.x;
             response.yOff = trg.y - topIntersect.point.y + h / 2 + arrowSize.height;
             response.intersect = topIntersect.point;
           } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
-            console.log("rightIntersect");
             response.xOff = trg.x - rightIntersect.point.x - w / 2 - arrowSize.height - arrowSize.height / 1.5;
             response.yOff = trg.y - rightIntersect.point.y;
             response.intersect = rightIntersect.point;
           } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
-            console.log("bottomIntersect");
             response.xOff = trg.x - bottomIntersect.point.x;
             response.yOff = trg.y - bottomIntersect.point.y - h / 2 - arrowSize.height - arrowSize.height / 1.5;
             response.intersect = bottomIntersect.point;
           } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
-            console.log("leftIntersect");
             response.xOff = trg.x - leftIntersect.point.x + w / 2 + arrowSize.height + arrowSize.height / 1.5;
             response.yOff = trg.y - leftIntersect.point.y;
             response.intersect = leftIntersect.point;
@@ -247,6 +240,7 @@ class Edge extends React.Component<IEdgeProps> {
         y: trg.y - trgOff.yOff
       }
     ];
+    console.log(edge, linePoints, trg, trgOff);
 
     return Edge.lineFunction(linePoints);
   }
