@@ -487,6 +487,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleSvgClicked = (d: any, i: any) => {
+    console.log("handleSvgClicked");
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
       return; // If any part of the edge is clicked, return
@@ -521,6 +522,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
 
   handleDocumentClick = () => {
+    console.log("handleDocumentClick");
     this.setState({
       documentClicked: true,
       focused: this.state.svgClicked,
