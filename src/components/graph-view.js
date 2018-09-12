@@ -74,6 +74,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static getDerivedStateFromProps(nextProps: IGraphViewProps, prevState: IGraphViewState) {
     const { edges, nodeKey } = nextProps;
     let nodes = nextProps.nodes;
+    console.log(nodes);
     const nodesMap = GraphUtils.getNodesMap(nodes, nodeKey);
     const edgesMap = GraphUtils.getEdgesMap(edges);
     GraphUtils.linkNodesAndEdges(nodesMap, edges);

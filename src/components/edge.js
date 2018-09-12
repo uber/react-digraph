@@ -113,7 +113,6 @@ class Edge extends React.Component<IEdgeProps> {
         const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
         if (defSvgRectElement) {
           // it's a rectangle
-          console.log("it's a rectangle");
           const defEndArrowElement: any = document.querySelector(`defs>marker>.arrow`);
 
           const arrowSize = defEndArrowElement.getBoundingClientRect();
@@ -121,8 +120,6 @@ class Edge extends React.Component<IEdgeProps> {
 
           const w = clientRect.width;
           const h = clientRect.height;
-
-          console.log("------------------", w, h, arrowSize.height);
 
           const top = trg.y - h / 2;
           const bottom = trg.y + h / 2;
@@ -242,7 +239,6 @@ class Edge extends React.Component<IEdgeProps> {
         y: trg.y - trgOff.yOff
       }
     ];
-    console.log(edge, linePoints, trg, trgOff);
 
     return Edge.lineFunction(linePoints);
   }
