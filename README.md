@@ -6,8 +6,13 @@ A React component which makes it easy to create a directed graph editor without 
 
 ## Installation
 
-```
+```bash
 npm install --save react-digraph
+```
+
+If you don't have the following peerDependenies, make sure to install them:
+```bash
+npm install --save react react-dom
 ```
 
 ## Usage
@@ -155,7 +160,7 @@ A typical graph that would be stored in the Graph component's state looks someth
 
 For a detailed example, check out src/examples/graph.js.
 To run the example:
-```
+```bash
 npm install
 npm run example
 ```
