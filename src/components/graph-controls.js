@@ -28,7 +28,6 @@ import PropTypes from 'prop-types';
 
 // Only old-style imports for react-icons seem to work with gulp
 import {FaExpand} from 'react-icons/fa';
-import {FaInfoCircle} from 'react-icons/fa';
 
 
 
