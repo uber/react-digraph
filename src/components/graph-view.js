@@ -956,6 +956,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const id = `node-${node[nodeKey]}`;
     const element: any = this.getNodeComponent(id, node, i);
     const nodesMapNode = this.getNodeById(node[nodeKey]);
+    console.log(node, nodesMapNode);
     this.renderNode(id, element);
     if (nodesMapNode) {
       this.syncRenderConnectedEdgesFromNode(nodesMapNode);
@@ -973,8 +974,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (!this.entities) {
       return;
     }
-
-    console.log("----renderNodes", this.state.nodes);
 
     this.state.nodes.forEach((node, i) => {
       this.asyncRenderNode(node, i);
