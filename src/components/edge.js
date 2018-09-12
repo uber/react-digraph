@@ -147,7 +147,7 @@ class Edge extends React.Component<IEdgeProps> {
             response.intersect = rightIntersect.point;
           } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
             response.xOff = trg.x - bottomIntersect.point.x;
-            response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height - arrowSize.height / 1.5; // - h / 2
+            response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
             response.intersect = bottomIntersect.point;
           } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
             response.xOff = trg.x - leftIntersect.point.x + arrowSize.height + arrowSize.height / 1.5; // + w / 2
