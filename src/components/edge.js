@@ -122,6 +122,8 @@ class Edge extends React.Component<IEdgeProps> {
           const w = clientRect.width;
           const h = clientRect.height;
 
+          console.log("------------------", w, h, arrowSize.height);
+
           const top = trg.y - h / 2;
           const bottom = trg.y + h / 2;
           const left = trg.x - w / 2;
