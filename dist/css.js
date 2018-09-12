@@ -65,7 +65,7 @@ var ReactDigraph =
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "f21e22c835813f8abdfe";
+/******/ 	var hotCurrentHash = "ca9169a78c737b941f01";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -164,7 +164,7 @@ var ReactDigraph =
 /******/ 			// Module API
 /******/ 			active: true,
 /******/ 			accept: function(dep, callback) {
-/******/ 				if (typeof dep === "undefined") hot._selfAccepted = true;
+/******/ 				if (dep === undefined) hot._selfAccepted = true;
 /******/ 				else if (typeof dep === "function") hot._selfAccepted = dep;
 /******/ 				else if (typeof dep === "object")
 /******/ 					for (var i = 0; i < dep.length; i++)
@@ -172,7 +172,7 @@ var ReactDigraph =
 /******/ 				else hot._acceptedDependencies[dep] = callback || function() {};
 /******/ 			},
 /******/ 			decline: function(dep) {
-/******/ 				if (typeof dep === "undefined") hot._selfDeclined = true;
+/******/ 				if (dep === undefined) hot._selfDeclined = true;
 /******/ 				else if (typeof dep === "object")
 /******/ 					for (var i = 0; i < dep.length; i++)
 /******/ 						hot._declinedDependencies[dep[i]] = true;

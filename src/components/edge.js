@@ -105,14 +105,18 @@ class Edge extends React.Component<IEdgeProps> {
     const srcNode = document.querySelector(`#node-${src[nodeKey]} use.node`);
     const trgNode = document.querySelector(`#node-${trg[nodeKey]} use.node`);
 
+    console.log('------------------------', trgNode);
+
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
     if (trgNode && trgNode.getAttributeNS) {
       const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+      console.log(xlinkHref);
       if (xlinkHref) {
         const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
+        console.log(defSvgRectElement);
         if (defSvgRectElement) {
           // it's a rectangle
-
+          console.log("it's a rectangle");
           const defEndArrowElement: any = document.querySelector(`defs>marker>.arrow`);
 
           const arrowSize = defEndArrowElement.getBoundingClientRect();
