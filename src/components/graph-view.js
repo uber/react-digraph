@@ -416,7 +416,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { canDeleteNode, canDeleteEdge, readOnly } = this.props;
 
     if (readOnly || !selected) { return; }
-    console.log(selected);
+
     if (!selected.source && canDeleteNode && canDeleteNode(selected)) {
       // node
       // $FlowFixMe
