@@ -423,9 +423,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleWrapperKeydown: KeyboardEventListener = (d) => {
     // Conditionally ignore keypress events on the window
-    if (!document.activeElement === ReactDOM.findDOMNode(this.refs.view)) {
+    if (document.activeElement !== ReactDOM.findDOMNode(this.refs.view)) {
       return;
     }
+    console.log(document.activeElement, ReactDOM.findDOMNode(this.refs.view));
     switch (d.key) {
       case 'Delete':
       case 'Backspace':
