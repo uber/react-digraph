@@ -12,7 +12,7 @@ npm install --save react-digraph
 
 If you don't have the following peerDependenies, make sure to install them:
 ```bash
-npm install --save d3 radium react react-dom react-icons
+npm install --save react react-dom
 ```
 
 ## Usage
