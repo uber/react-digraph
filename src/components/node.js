@@ -29,6 +29,7 @@ export type INode = {
   y: number;
   type: string;
   subtype?: string;
+  nodeKey: string;
   [key: string]: any;
 };
 
@@ -120,7 +121,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleMouseMove = () => {
     const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
     const shiftKey = d3.event.sourceEvent.shiftKey;
-    const { nodeSize, layoutEngine } = this.props;
+    const { nodeSize, layoutEngine, nodeKey } = this.props;
 
     if (!mouseButtonDown) {
       return;
@@ -135,7 +136,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     if (shiftKey) {
       // draw edge
       // undo the target offset subtraction done by Edge
-      const off = Edge.calculateOffset(nodeSize, this.props.data, newState);
+      const off = Edge.calculateOffset(nodeSize, this.props.data, newState, nodeKey);
       newState.x += off.xOff;
       newState.y += off.yOff;
       // now tell the graph that we're actually drawing an edge
@@ -233,6 +234,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', { selected: this.state.selected });
     if (renderNode) {
       // Originally: graphView, domNode, datum, index, elements.
+      console.log("calling renderNode for:", data);
       return renderNode(this.nodeRef, data, index, selected, hovered);
     } else {
       return (

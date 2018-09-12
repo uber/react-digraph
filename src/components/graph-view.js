@@ -890,7 +890,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   getNodeComponent(id: string, node: INode, index: number) {
-    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText } = this.props;
+    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey } = this.props;
     return (
       <Node
         key={id}
@@ -899,6 +899,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         index={index}
         nodeTypes={nodeTypes}
         nodeSize={nodeSize}
+        nodeKey={nodeKey}
         nodeSubtypes={nodeSubtypes}
         onNodeMouseEnter={this.handleNodeMouseEnter}
         onNodeMouseLeave={this.handleNodeMouseLeave}
