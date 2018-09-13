@@ -94,11 +94,12 @@ class GraphUtils {
 
   static classNames(...args: any[]) {
     let className = '';
+    console.log(args, arguments);
     for (const arg of args) {
       if (typeof arg === 'string' || typeof arg === 'number') {
         className += ` ${arg}`;
       } else if (typeof arg === 'object' && !Array.isArray(arg)) {
-        console.log("classNames");
+        console.log("classNames", arg);
         Object.keys(arg).forEach((key) => {
           if (Boolean(arg[key])) {
             className += ` ${key}`;
