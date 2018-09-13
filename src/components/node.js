@@ -223,6 +223,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderShape() {
+    console.log("renderShape", data);
     const { renderNode, data, index, nodeTypes, nodeSubtypes } = this.props;
     const { hovered, selected } = this.state;
     const props = {

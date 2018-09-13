@@ -98,6 +98,7 @@ class GraphUtils {
       if (typeof arg === 'string' || typeof arg === 'number') {
         className += ` ${arg}`;
       } else if (typeof arg === 'object' && !Array.isArray(arg)) {
+        console.log("classNames");
         Object.keys(arg).forEach((key) => {
           if (Boolean(arg[key])) {
             className += ` ${key}`;

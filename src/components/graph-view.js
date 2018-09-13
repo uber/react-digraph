@@ -294,6 +294,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   removeOldNodes(prevNodeMap: any, nodesMap: any) {
     const nodeKey = this.props.nodeKey;
     // remove old nodes
+    console.log("removeOldNodes");
     Object.keys(prevNodeMap).forEach((nodeId) => {
       // Check for deletions
       if (!nodesMap[nodeId]) {

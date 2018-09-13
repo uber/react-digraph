@@ -52,6 +52,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
   }
 
   static processGraphConfigDefs(typesObj: any, graphConfigDefs: any) {
+    console.log("processGraphConfigDefs");
     Object.keys(typesObj).forEach((type) => {
       const safeId = typesObj[type].shapeId ? typesObj[type].shapeId.replace('#', '') : 'graphdef';
       graphConfigDefs.push(React.cloneElement(typesObj[type].shape, { key: `${safeId}-${graphConfigDefs.length + 1}` }));

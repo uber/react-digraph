@@ -32,7 +32,8 @@ import Radium from 'radium';
 import GraphControls from './graph-controls.js'
 
 
-function styleToString(style){
+function styleToString(style) {
+  console.log("styleToString");
   return Object.keys(style)
     .map(function(k) {
       let key = k.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -1104,17 +1105,17 @@ GraphView.defaultProps = {
 
     let defIndex = 0;
     let graphConfigDefs = [];
-
+    console.log("renderDefs");
     Object.keys(nodeTypes).forEach(function(type){
       defIndex += 1;
       graphConfigDefs.push(React.cloneElement(nodeTypes[type].shape, {key: defIndex}))
     })
-
+    console.log("renderDefs1");
     Object.keys(nodeSubtypes).forEach(function(type){
       defIndex += 1;
       graphConfigDefs.push(React.cloneElement(nodeSubtypes[type].shape, {key: defIndex}))
     })
-
+    console.log("renderDefs2");
     Object.keys(edgeTypes).forEach(function(type){
       defIndex += 1;
       graphConfigDefs.push(React.cloneElement(edgeTypes[type].shape, {key: defIndex}))
