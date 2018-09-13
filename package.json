@@ -23,7 +23,7 @@
     "node": ">= 0.10.0"
   },
   "license": "MIT",
-  "main": "dist/main.js",
+  "main": "dist/main.min.js",
   "peerDependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1"
