@@ -223,7 +223,6 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderShape() {
-    console.log("renderShape", data);
     const { renderNode, data, index, nodeTypes, nodeSubtypes } = this.props;
     const { hovered, selected } = this.state;
     const props = {
@@ -235,7 +234,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', { selected: this.state.selected });
     if (renderNode) {
       // Originally: graphView, domNode, datum, index, elements.
-      console.log("renderShape", data);
       return renderNode(this.nodeRef, data, index, selected, hovered);
     } else {
       return (

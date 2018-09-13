@@ -294,7 +294,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   removeOldNodes(prevNodeMap: any, nodesMap: any) {
     const nodeKey = this.props.nodeKey;
     // remove old nodes
-    console.log("removeOldNodes");
     Object.keys(prevNodeMap).forEach((nodeId) => {
       // Check for deletions
       if (!nodesMap[nodeId]) {
@@ -1040,6 +1039,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   renderEdge = (id: string, element: any, edge: IEdge) => {
     const containerId = `${id}-container`;
     const { draggedEdge } = this.state;
+    const { postRenderEdge } = this.props;
     const edgeContainer = document.getElementById(containerId);
     if (!edgeContainer && edge !== draggedEdge) {
       const newSvgEdgeContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -1050,6 +1050,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // into the nodeContainer
     if (edgeContainer) {
       ReactDOM.render(element, edgeContainer);
+      if (postRenderEdge) {
+        return postRenderEdge(id, element, edge, edgeContainer);
+      }
     }
   }
 

@@ -33,7 +33,6 @@ const EMPTY_EDGE_TYPE = "emptyEdge";
 const SPECIAL_EDGE_TYPE = "specialEdge";
 
 function generateLargeSample() {
-  console.log("generateLargeSample");
   const sample = {
     nodes: [],
     edges: [],
