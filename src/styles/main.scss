@@ -30,6 +30,7 @@ $background-color: #f9f9f9;
   transition: opacity 0.167s;
   opacity: 1;
   outline: none;
+  user-select: none;
 
   > .graph {
     align-content: stretch;
