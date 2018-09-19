@@ -24,7 +24,7 @@ import GraphUtils from './graph-util';
 import { type INode } from './node';
 
 export type IEdge = {
-  source: string | null;
+  source: string;
   target: string;
   type?: string;
   handleText?: string;

@@ -799,15 +799,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         draggingEdge: false
       },
       () => {
-        const sourceNode = (this.getNodeById(draggedEdge.source): any).node;
+        const sourceNodeById: any = this.getNodeById(draggedEdge.source);
+        const targetNodeById: any = this.getNodeById(draggedEdge.target);
+        const sourceNode = sourceNodeById.node;
         if (this.canSwap(sourceNode, edgeEndNode, draggedEdge)) {
           // determine the target node and update the edge
           draggedEdgeCopy.target = edgeEndNode[nodeKey];
         }
         this.syncRenderEdge(draggedEdgeCopy);
         this.props.onSwapEdge(
-          (this.getNodeById(draggedEdgeCopy.source): any).node,
-          (this.getNodeById(draggedEdgeCopy.target): any).node,
+          sourceNodeById.node,
+          targetNodeById.node,
           draggedEdge
         );
       }
@@ -913,7 +915,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.renderNodesTimeout = setTimeout(this.renderNodes);
   }
 
-  renderBackground() {
+  renderBackground = () => {
     const { gridSize, backgroundFillId, renderBackground } = this.props;
     if (renderBackground) {
       return renderBackground(gridSize);
@@ -922,7 +924,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  getNodeComponent(id: string, node: INode, index: number) {
+  getNodeComponent = (id: string, node: INode, index: number) => {
     const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey } = this.props;
     return (
       <Node
@@ -1013,7 +1015,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   }
 
-  getEdgeComponent(edge: IEdge | any) {
+  getEdgeComponent = (edge: IEdge | any) => {
     const sourceNodeMapNode = this.getNodeById(edge.source);
     const sourceNode = sourceNodeMapNode ? this.state.nodes[sourceNodeMapNode.originalArrIndex] : null;
     const targetNodeMapNode = this.getNodeById(edge.target);
@@ -1040,11 +1042,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const containerId = `${id}-container`;
     const { draggedEdge } = this.state;
     const { postRenderEdge } = this.props;
-    const edgeContainer = document.getElementById(containerId);
+    let edgeContainer = document.getElementById(containerId);
     if (!edgeContainer && edge !== draggedEdge) {
       const newSvgEdgeContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       newSvgEdgeContainer.id = containerId;
       this.entities.appendChild(newSvgEdgeContainer);
+      edgeContainer = newSvgEdgeContainer;
     }
     // ReactDOM.render replaces the insides of an element This renders the element
     // into the nodeContainer
@@ -1056,8 +1059,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  asyncRenderEdge(edge: IEdge) {
-    if(!edge.source || !edge.target){
+  asyncRenderEdge = (edge: IEdge) => {
+    if (!edge.source || !edge.target) {
       return;
     }
     const timeoutId = `edges-${edge.source}-${edge.target}`;
@@ -1072,6 +1075,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (!edge.source) {
       return;
     }
+
     // We have to use the 'custom' id when we're drawing a new node
     const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
     const id = `edge-${idVar}`;
