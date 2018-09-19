@@ -141,8 +141,8 @@ $background-color: #f9f9f9;
 
       > .slider {
         position: relative;
-        margin-left: 5;
-        margin-right: 5;
+        margin-left: 2px;
+        margin-right: 2px;
         cursor: pointer;
       }
     }
@@ -152,8 +152,8 @@ $background-color: #f9f9f9;
       color: $primary-color;
       border: solid 1px lightgray;
       outline: none;
-      width: 31;
-      height: 31;
+      width: 31px;
+      height: 31px;
       border-radius: 2px;
       cursor: pointer;
       margin: 0;
