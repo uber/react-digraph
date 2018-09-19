@@ -29,7 +29,7 @@ export type INode = {
   y: number;
   type: string;
   subtype?: string;
-  nodeKey: string;
+
   [key: string]: any;
 };
 
@@ -40,6 +40,7 @@ type INodeProps = {
   nodeTypes: any; // TODO: make a nodeTypes interface
   nodeSubtypes: any; // TODO: make a nodeSubtypes interface
   opacity?: number;
+  nodeKey: string;
   nodeSize?: number;
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
   onNodeMouseLeave: (event: any, data: any) => void;

@@ -18,6 +18,8 @@
 import * as d3 from 'd3';
 import * as React from 'react';
 import * as lineIntersect from 'line-intersect';
+import { intersect, shape } from 'svg-intersections';
+import { Point2D } from 'kld-affine';
 import GraphUtils from './graph-util';
 import { type INode } from './node';
 
@@ -89,8 +91,122 @@ class Edge extends React.Component<IEdgeProps> {
       })(srcTrgDataArray);
   }
 
+  static getArrowSize() {
+    const defEndArrowElement: any = document.querySelector(`defs>marker>.arrow`);
+    return defEndArrowElement.getBoundingClientRect();
+  }
+
+  static getDefaultIntersectResponse() {
+    return {
+      xOff: 0,
+      yOff: 0,
+      intersect: {
+        type: 'none',
+        point: {
+          x: 0,
+          y: 0
+        }
+      }
+    };
+  }
+
+  static getRectIntersect(defSvgRectElement: any, src: any, trg: any, nodeSize: number) {
+    const response = Edge.getDefaultIntersectResponse();
+    const arrowSize = Edge.getArrowSize();
+    const clientRect = defSvgRectElement.getBoundingClientRect();
+
+    const w = clientRect.width;
+    const h = clientRect.height;
+
+    const top = trg.y - h / 2;
+    const bottom = trg.y + h / 2;
+    const left = trg.x - w / 2;
+    const right = trg.x + w / 2;
+
+    const topIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, right, top);
+    const rightIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, right, top, right, bottom);
+    const bottomIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, bottom, right, bottom);
+    const leftIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, left, bottom);
+
+    const multiplier = (nodeSize / w) / 2;
+
+    if (topIntersect.type !== 'none' && topIntersect.point != null) {
+      // intersects the top line at topIntersect.point{x, y}
+      response.xOff = trg.x - topIntersect.point.x;
+      response.yOff = trg.y - topIntersect.point.y + arrowSize.height; // + h / 2 ;
+      response.intersect = topIntersect.point;
+    } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
+      response.xOff = trg.x - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
+      response.yOff = trg.y - rightIntersect.point.y;
+      response.intersect = rightIntersect.point;
+    } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
+      response.xOff = trg.x - bottomIntersect.point.x;
+      response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
+      response.intersect = bottomIntersect.point;
+    } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
+      response.xOff = trg.x - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
+      response.yOff = trg.y - leftIntersect.point.y;
+      response.intersect = leftIntersect.point;
+    }
+    // otherwise no intersection, do nothing and treat it like a circle.
+    return response;
+  }
+
+  static getPathIntersect(defSvgPathElement: any, src: any, trg: any, nodeSize: number) {
+    const response = Edge.getDefaultIntersectResponse();
+    const arrowSize = Edge.getArrowSize();
+    // get the rectangular area around path
+    const clientRect = defSvgPathElement.getBoundingClientRect();
+
+    const w = clientRect.width;
+    const h = clientRect.height;
+
+    // calculate the positions of each corner relative to the trg position
+    const top = trg.y - h / 2;
+    const left = trg.x - w / 2;
+
+    // modify the d property to add top and left to the x and y positions
+    let d = defSvgPathElement.getAttribute('d');
+    if (!/^M/.test(d)) {
+      // doesn't look like what we expect.
+      // TODO: add more use cases than simple moveTo commands
+      return;
+    }
+
+    d = d.replace(/^M /, '');
+    let dArr = d.split(' ');
+    dArr = dArr.map((val, index) => {
+      // items % 2 are x positions
+      let isEnd = false;
+      if (/Z$/.test(val)) {
+        val = val.replace(/Z$/, '');
+        isEnd = true;
+      }
+      if (index % 2 === 0) {
+        return (parseFloat(val) + left) + (isEnd ? 'Z' : '');
+      }
+      return (parseFloat(val) + top) + (isEnd ? 'Z' : '');
+    });
+
+    console.log(intersect(
+      shape('path', { d: 'M '+dArr.join(' ') }),
+      shape('line', { x1: src.x, y1: src.y, x2: trg.x, y2: trg.y })
+    ));
+
+    const pathIntersect = intersect(
+      shape('path', { d: 'M ' + dArr.join(' ') }),
+      shape('line', { x1: src.x, y1: src.y, x2: trg.x, y2: trg.y })
+    );
+
+    if (pathIntersect.points.length > 0) {
+      response.xOff = trg.x - pathIntersect.points[0].x;
+      response.yOff = trg.y - pathIntersect.points[0].y + arrowSize.height; // + h / 2 ;
+      response.intersect = pathIntersect.points[0];
+    }
+  }
+
   static calculateOffset(nodeSize: any, src: any, trg: any, nodeKey: string) {
-    const response = {
+    let response = {
       xOff: 0,
       yOff: 0,
       intersect: null
@@ -111,47 +227,20 @@ class Edge extends React.Component<IEdgeProps> {
       const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
       if (xlinkHref) {
         const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
+        const defSvgPathElement: any = document.querySelector(`defs>${xlinkHref} path`);
+
         if (defSvgRectElement) {
           // it's a rectangle
-          const defEndArrowElement: any = document.querySelector(`defs>marker>.arrow`);
-
-          const arrowSize = defEndArrowElement.getBoundingClientRect();
-          const clientRect = defSvgRectElement.getBoundingClientRect();
-
-          const w = clientRect.width;
-          const h = clientRect.height;
-
-          const top = trg.y - h / 2;
-          const bottom = trg.y + h / 2;
-          const left = trg.x - w / 2;
-          const right = trg.x + w / 2;
-
-          const topIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, right, top);
-          const rightIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, right, top, right, bottom);
-          const bottomIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, bottom, right, bottom);
-          const leftIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, left, bottom);
-
-          const multiplier = (nodeSize / w) / 2;
-
-          if (topIntersect.type !== 'none' && topIntersect.point != null) {
-            // intersects the top line at topIntersect.point{x, y}
-            response.xOff = trg.x - topIntersect.point.x;
-            response.yOff = trg.y - topIntersect.point.y + arrowSize.height; // + h / 2 ;
-            response.intersect = topIntersect.point;
-          } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
-            response.xOff = trg.x - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
-            response.yOff = trg.y - rightIntersect.point.y;
-            response.intersect = rightIntersect.point;
-          } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
-            response.xOff = trg.x - bottomIntersect.point.x;
-            response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
-            response.intersect = bottomIntersect.point;
-          } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
-            response.xOff = trg.x - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
-            response.yOff = trg.y - leftIntersect.point.y;
-            response.intersect = leftIntersect.point;
+          response = {
+            ...response,
+            ...Edge.getRectIntersect(defSvgRectElement, src, trg, nodeSize)
           }
-          // otherwise no intersection, do nothing and treat it like a circle.
+        } else if (defSvgPathElement) {
+          // it's a complex path
+          response = {
+            ...response,
+            ...Edge.getPathIntersect(defSvgPathElement, src, trg, nodeSize)
+          }
         }
       }
     }
@@ -257,7 +346,7 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   render() {
-    const { data, edgeTypes, edgeHandleSize, renderEdge } = this.props;
+    const { data, edgeTypes, edgeHandleSize } = this.props;
     const id = `${data.source || ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
       selected: this.props.isSelected

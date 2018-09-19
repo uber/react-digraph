@@ -63,7 +63,6 @@ $background-color: #f9f9f9;
 
     .node-text {
       fill: $dark-color;
-      stroke: $dark-color;
       cursor: pointer;
       user-select: none;
       &.selected {

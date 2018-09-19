@@ -26,7 +26,16 @@ import GraphView from '../components/graph-view';
 import { type INode } from '../components/node';
 import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
 import GraphConfig, {
-  edgeTypes, EMPTY_EDGE_TYPE, EMPTY_TYPE, NODE_KEY, nodeTypes, SPECIAL_CHILD_SUBTYPE, SPECIAL_EDGE_TYPE, SPECIAL_TYPE, SKINNY_TYPE
+  edgeTypes,
+  EMPTY_EDGE_TYPE,
+  EMPTY_TYPE,
+  NODE_KEY,
+  nodeTypes,
+  POLY_TYPE,
+  SPECIAL_CHILD_SUBTYPE,
+  SPECIAL_EDGE_TYPE,
+  SPECIAL_TYPE,
+  SKINNY_TYPE
 } from './graph-config'; // Configures node/edge types
 
 type IGraph = {
@@ -80,6 +89,12 @@ const sample: IGraph = {
       source: 'a1',
       target: 'a6',
       type: EMPTY_EDGE_TYPE
+    },
+    {
+      handleText: '24',
+      source: 'a1',
+      target: 'a7',
+      type: EMPTY_EDGE_TYPE
     }
   ],
   nodes: [
@@ -125,6 +140,13 @@ const sample: IGraph = {
       type: SKINNY_TYPE,
       x: 300,
       y: 600
+    },
+    {
+      id: 'a7',
+      title: 'Node F (7)',
+      type: POLY_TYPE,
+      x: 0,
+      y: 300
     }
   ]
 };

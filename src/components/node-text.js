@@ -49,7 +49,7 @@ class NodeText extends React.Component<INodeTextProps> {
           <tspan opacity="0.5">{typeText}</tspan>
         )}
         {title && (
-          <tspan x={0} dy={lineOffset}>
+          <tspan x={0} dy={lineOffset} fontSize="10px">
             {title}
           </tspan>
         )}
