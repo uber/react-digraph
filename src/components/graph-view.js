@@ -44,8 +44,8 @@ type IGraphViewState = {
   nodes: any[];
   edges: any[];
   selectingNode: boolean;
-  hoveredNodeData: any;
-  edgeEndNode: any;
+  hoveredNodeData: INode;
+  edgeEndNode: INode;
   draggingEdge: boolean;
   draggedEdge: any;
   componentUpToDate: boolean;
@@ -58,7 +58,7 @@ type IGraphViewState = {
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static defaultProps = {
-    canCreateEdge: (startNode?:any, endNode?:any) => true,
+    canCreateEdge: (startNode?:INode, endNode?:INode) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
     edgeArrowSize: 8,
@@ -555,7 +555,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodeMapNode.outgoingEdges.forEach((edge) => {
         this.syncRenderEdge(edge);
       });
-    } else if (canCreateEdge && canCreateEdge()) {
+    } else if (canCreateEdge && canCreateEdge(node[nodeKey])) {
       // render new edge
       this.syncRenderEdge({ source: node[nodeKey], targetPosition: position });
       this.setState({ draggingEdge: true });
@@ -574,7 +574,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         edgesMap &&
         hoveredNodeData !== edgeEndNode &&
         canCreateEdge &&
-        canCreateEdge(hoveredNodeData[nodeKey], edgeEndNode) &&
+        canCreateEdge(hoveredNodeData, edgeEndNode) &&
         !edgesMap[mapId1] &&
         !edgesMap[mapId2]
       ) {

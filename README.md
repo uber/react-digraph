@@ -242,7 +242,7 @@ Prop Types:
   onSelectEdge: (selectedEdge: IEdge) => void;
   canDeleteNode?: (selected: any) => boolean;
   canDeleteEdge?: (selected: any) => boolean;
-  canCreateEdge?: () => boolean;
+  canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
   onUndo?: () => void;
   onCopySelected?: () => void;
   onPasteSelected?: () => void;
