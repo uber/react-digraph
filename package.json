@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "4.1.5",
+  "version": "4.1.6",
   "keywords": [
     "uber-library",
     "babel",
@@ -29,7 +29,7 @@
     "react-dom": "^16.3.0"
   },
   "dependencies": {
-    "d3": "^4.1.1",
+    "d3": "^4.13.0",
     "radium": "^0.24.1",
     "react-icons": "^2.2.1"
   },

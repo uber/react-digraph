@@ -102,15 +102,15 @@ class GraphControls extends Component {
   }
 
   // Modify current zoom of graph-view
-  zoom(e){
+  zoom = (e) => {
     let sliderVal = e.target.value;
     let zoomLevelNext = this.sliderToZoom(sliderVal);
-    let delta = zoomLevelNext-this.props.zoomLevel;
+    let delta = zoomLevelNext - this.props.zoomLevel;
 
-    if( zoomLevelNext <= this.props.maxZoom && zoomLevelNext >= this.props.minZoom){
-      this.props.modifyZoom(delta)
+    if (zoomLevelNext <= this.props.maxZoom && zoomLevelNext >= this.props.minZoom) {
+      this.props.modifyZoom(delta);
     }
-  }
+  };
 
   render() {
     const styles = this.state.styles;
@@ -125,7 +125,7 @@ class GraphControls extends Component {
             min={this.zoomToSlider(this.props.minZoom)}
             max={this.zoomToSlider(this.props.maxZoom)}
             value={this.zoomToSlider(this.props.zoomLevel)}
-            onChange={this.zoom.bind(this)}
+            onChange={this.zoom}
             step="1"/>
           +
         </div>
