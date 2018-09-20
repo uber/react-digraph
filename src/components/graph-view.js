@@ -44,8 +44,8 @@ type IGraphViewState = {
   nodes: any[];
   edges: any[];
   selectingNode: boolean;
-  hoveredNodeData: INode;
-  edgeEndNode: INode;
+  hoveredNodeData: INode | null;
+  edgeEndNode: INode | null;
   draggingEdge: boolean;
   draggedEdge: any;
   componentUpToDate: boolean;
@@ -565,6 +565,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   createNewEdge() {
     const { canCreateEdge, nodeKey, onCreateEdge } = this.props;
     const { edgesMap, edgeEndNode, hoveredNodeData } = this.state;
+    if (!hoveredNodeData) {
+      return;
+    }
     GraphUtils.removeElementFromDom('edge-custom-container');
 
     if (edgeEndNode) {
@@ -857,6 +860,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Updates current viewTransform with some delta
   modifyZoom = (modK: number = 0, modX: number = 0, modY: number = 0, dur: number = 0) => {
+    console.log("modifyZoom", arguments);
     const parent = d3.select(this.viewWrapper).node();
     const center = {
       x: parent.clientWidth / 2,
