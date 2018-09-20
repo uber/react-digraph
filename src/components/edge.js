@@ -188,11 +188,6 @@ class Edge extends React.Component<IEdgeProps> {
       return (parseFloat(val) + top) + (isEnd ? 'Z' : '');
     });
 
-    console.log(intersect(
-      shape('path', { d: 'M '+dArr.join(' ') }),
-      shape('line', { x1: src.x, y1: src.y, x2: trg.x, y2: trg.y })
-    ));
-
     const pathIntersect = intersect(
       shape('path', { d: 'M ' + dArr.join(' ') }),
       shape('line', { x1: src.x, y1: src.y, x2: trg.x, y2: trg.y })
