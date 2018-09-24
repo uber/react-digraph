@@ -50,6 +50,12 @@ const sample: IGraph = {
   edges: [
     {
       handleText: '5',
+      source: 'start1',
+      target: 'a1',
+      type: SPECIAL_EDGE_TYPE
+    },
+    {
+      handleText: '5',
       source: 'a1',
       target: 'a2',
       type: SPECIAL_EDGE_TYPE
@@ -98,6 +104,11 @@ const sample: IGraph = {
     }
   ],
   nodes: [
+    {
+      id: 'start1',
+      title: 'Start (0)',
+      type: SPECIAL_TYPE,
+    },
     {
       id: 'a1',
       title: 'Node A (1)',

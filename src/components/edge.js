@@ -60,8 +60,8 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   static getTheta(pt1: any, pt2: any) {
-    const xComp = pt2.x - pt1.x;
-    const yComp = pt2.y - pt1.y;
+    const xComp = (pt2.x || 0) - (pt1.x || 0);
+    const yComp = (pt2.y || 0) - (pt1.y || 0);
     const theta = Math.atan2(yComp, xComp);
     return theta;
   }
@@ -117,35 +117,39 @@ class Edge extends React.Component<IEdgeProps> {
 
     const w = clientRect.width;
     const h = clientRect.height;
+    const trgX = trg.x || 0;
+    const trgY = trg.y || 0;
+    const srcX = src.x || 0;
+    const srcY = src.y || 0;
 
-    const top = trg.y - h / 2;
-    const bottom = trg.y + h / 2;
-    const left = trg.x - w / 2;
-    const right = trg.x + w / 2;
+    const top = trgY - h / 2;
+    const bottom = trgY + h / 2;
+    const left = trgX - w / 2;
+    const right = trgX + w / 2;
 
-    const topIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, right, top);
-    const rightIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, right, top, right, bottom);
-    const bottomIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, bottom, right, bottom);
-    const leftIntersect = lineIntersect.checkIntersection(src.x, src.y, trg.x, trg.y, left, top, left, bottom);
+    const topIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, top, right, top);
+    const rightIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, right, top, right, bottom);
+    const bottomIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, bottom, right, bottom);
+    const leftIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, top, left, bottom);
 
     const multiplier = (nodeSize / w) / 2;
 
     if (topIntersect.type !== 'none' && topIntersect.point != null) {
       // intersects the top line at topIntersect.point{x, y}
-      response.xOff = trg.x - topIntersect.point.x;
-      response.yOff = trg.y - topIntersect.point.y + arrowSize.height; // + h / 2 ;
+      response.xOff = trgX - topIntersect.point.x;
+      response.yOff = trgY - topIntersect.point.y + arrowSize.height; // + h / 2 ;
       response.intersect = topIntersect.point;
     } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
-      response.xOff = trg.x - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
-      response.yOff = trg.y - rightIntersect.point.y;
+      response.xOff = trgX - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
+      response.yOff = trgY - rightIntersect.point.y;
       response.intersect = rightIntersect.point;
     } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
-      response.xOff = trg.x - bottomIntersect.point.x;
-      response.yOff = trg.y - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
+      response.xOff = trgX - bottomIntersect.point.x;
+      response.yOff = trgY - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
       response.intersect = bottomIntersect.point;
     } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
-      response.xOff = trg.x - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
-      response.yOff = trg.y - leftIntersect.point.y;
+      response.xOff = trgX - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
+      response.yOff = trgY - leftIntersect.point.y;
       response.intersect = leftIntersect.point;
     }
     // otherwise no intersection, do nothing and treat it like a circle.
@@ -160,10 +164,14 @@ class Edge extends React.Component<IEdgeProps> {
 
     const w = clientRect.width;
     const h = clientRect.height;
+    const trgX = trg.x || 0;
+    const trgY = trg.y || 0;
+    const srcX = src.x || 0;
+    const srcY = src.y || 0;
 
     // calculate the positions of each corner relative to the trg position
-    const top = trg.y - h / 2;
-    const left = trg.x - w / 2;
+    const top = trgY - h / 2;
+    const left = trgX - w / 2;
 
     // modify the d property to add top and left to the x and y positions
     let d = defSvgPathElement.getAttribute('d');
@@ -190,12 +198,12 @@ class Edge extends React.Component<IEdgeProps> {
 
     const pathIntersect = intersect(
       shape('path', { d: 'M ' + dArr.join(' ') }),
-      shape('line', { x1: src.x, y1: src.y, x2: trg.x, y2: trg.y })
+      shape('line', { x1: srcX, y1: srcY, x2: trgX, y2: trgY })
     );
 
     if (pathIntersect.points.length > 0) {
-      response.xOff = trg.x - pathIntersect.points[0].x;
-      response.yOff = trg.y - pathIntersect.points[0].y + arrowSize.height; // + h / 2 ;
+      response.xOff = trgX - pathIntersect.points[0].x;
+      response.yOff = trgY - pathIntersect.points[0].y + arrowSize.height; // + h / 2 ;
       response.intersect = pathIntersect.points[0];
     }
   }
@@ -207,7 +215,11 @@ class Edge extends React.Component<IEdgeProps> {
       intersect: null
     };
     const theta = Edge.getTheta(src, trg);
-    const slope = (src.y - trg.y) / (src.x - trg.x);
+    const trgX = trg.x || 0;
+    const trgY = trg.y || 0;
+    const srcX = src.x || 0;
+    const srcY = src.y || 0;
+    const slope = (srcY - trgY) / (srcX - trgX);
 
     let off = nodeSize / 2; // from the center of the node to the perimeter
     response.xOff = off * Math.cos(theta);
@@ -297,7 +309,6 @@ class Edge extends React.Component<IEdgeProps> {
     const translation = this.getEdgeHandleTranslation();
     const rotation = this.getEdgeHandleRotation();
     const offset = this.getEdgeHandleOffsetTranslation();
-    console.log(translation, rotation, offset, this.props);
     return `${translation} ${rotation} ${offset}`;
   }
 
@@ -305,6 +316,10 @@ class Edge extends React.Component<IEdgeProps> {
     const src = this.props.sourceNode || {};
     const trg = this.props.targetNode;
     const { nodeKey, nodeSize } = this.props;
+    const trgX = trg.x || 0;
+    const trgY = trg.y || 0;
+    const srcX = src.x || 0;
+    const srcY = src.y || 0;
 
     // To calculate the offset for a specific node we use that node as the third parameter
     // and the accompanying node as the second parameter, representing where the line
@@ -316,12 +331,12 @@ class Edge extends React.Component<IEdgeProps> {
 
     const linePoints = [
       {
-        x: src.x - srcOff.xOff,
-        y: src.y - srcOff.yOff
+        x: srcX - srcOff.xOff,
+        y: srcY - srcOff.yOff
       },
       {
-        x: trg.x - trgOff.xOff,
-        y: trg.y - trgOff.yOff
+        x: trgX - trgOff.xOff,
+        y: trgY - trgOff.yOff
       }
     ];
 

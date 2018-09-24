@@ -25,8 +25,8 @@ import NodeText from './node-text';
 
 export type INode = {
   title: string;
-  x: number;
-  y: number;
+  x?: number | null;
+  y?: number | null;
   type: string;
   subtype?: string;
 
@@ -96,7 +96,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   constructor(props: INodeProps) {
     super(props);
-    console.log(props, JSON.stringify(props));
+
     this.state = {
       hovered: false,
       mouseDown: false,
