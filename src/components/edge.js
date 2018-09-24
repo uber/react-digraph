@@ -297,6 +297,7 @@ class Edge extends React.Component<IEdgeProps> {
     const translation = this.getEdgeHandleTranslation();
     const rotation = this.getEdgeHandleRotation();
     const offset = this.getEdgeHandleOffsetTranslation();
+    console.log(translation, rotation, offset, this.props);
     return `${translation} ${rotation} ${offset}`;
   }
 
