@@ -375,6 +375,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     edge.source = sourceViewNode[NODE_KEY];
     edge.target = targetViewNode[NODE_KEY];
     graph.edges[i] = edge;
+    // reassign the array reference if you want the graph to re-render a swapped edge
+    graph.edges = [...graph.edges];
 
     this.setState({
       graph,

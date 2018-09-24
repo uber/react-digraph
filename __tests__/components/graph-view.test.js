@@ -677,13 +677,15 @@ describe('GraphView component', () => {
     });
 
     it('drags an edge', () => {
+      instance.canSwap.and.returnValue(true);
       const draggedEdge = {
         source: 'a',
         target: 'b'
       };
       output.setState({
         draggedEdge,
-        draggingEdge: true
+        draggingEdge: true,
+        edgeEndNode: { id: 'c' }
       });
       instance.handleZoomEnd();
       expect(GraphUtils.removeElementFromDom).toHaveBeenCalled();
@@ -743,12 +745,12 @@ describe('GraphView component', () => {
       expect(instance.dragEdge).toHaveBeenCalled();
     });
 
-    it('does nothing when a node is hovered', () => {
+    it('zooms when a node is hovered', () => {
       output.setState({
         hoveredNode: {}
       });
       instance.handleZoom();
-      expect(instance.renderGraphControls).not.toHaveBeenCalled();
+      expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
   });
@@ -808,7 +810,8 @@ describe('GraphView component', () => {
               contains: jasmine.createSpy().and.returnValue(true)
             },
             id: 'a_b'
-          }
+          },
+          buttons: 0
         }
       };
     });
@@ -848,6 +851,7 @@ describe('GraphView component', () => {
     });
 
     it('drags the edge', () => {
+      d3.event.sourceEvent.buttons = 2;
       instance.handleZoomStart();
       expect(output.state().draggedEdge).toEqual(edge);
       expect(instance.dragEdge).toHaveBeenCalled();
