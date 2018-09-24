@@ -71,7 +71,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     nodeSize: 154,
     readOnly: false,
     showGraphControls: true,
-    zoomDelay: 500,
+    zoomDelay: 1000,
     zoomDur: 750
   };
 
