@@ -96,6 +96,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   constructor(props: INodeProps) {
     super(props);
+    console.log(props, JSON.stringify(props));
     this.state = {
       hovered: false,
       mouseDown: false,
