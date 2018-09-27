@@ -1109,7 +1109,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       edgeContainer = newSvgEdgeContainer;
     }
     // ReactDOM.render replaces the insides of an element This renders the element
-    // into the nodeContainer
+    // into the edgeContainer
     if (edgeContainer) {
       ReactDOM.render(element, edgeContainer);
       if (postRenderEdge) {

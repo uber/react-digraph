@@ -19,7 +19,8 @@ import * as d3 from 'd3';
 import * as React from 'react';
 import * as lineIntersect from 'line-intersect';
 import { intersect, shape } from 'svg-intersections';
-import { Point2D } from 'kld-affine';
+import { Point2D, Matrix2D } from 'kld-affine';
+import { Intersection } from 'kld-intersections';
 import GraphUtils from './graph-util';
 import { type INode } from './node';
 
@@ -52,12 +53,6 @@ class Edge extends React.Component<IEdgeProps> {
     edgeHandleSize: 50,
     isSelected: false
   };
-
-  static getMidpoint(pt1: any, pt2: any) {
-    const x = (pt2.x + pt1.x) / 2;
-    const y = (pt2.y + pt1.y) / 2;
-    return { x, y };
-  }
 
   static getTheta(pt1: any, pt2: any) {
     const xComp = (pt2.x || 0) - (pt1.x || 0);
@@ -110,13 +105,15 @@ class Edge extends React.Component<IEdgeProps> {
     };
   }
 
-  static getRectIntersect(defSvgRectElement: any, src: any, trg: any, nodeSize: number) {
+  static getRotatedRectIntersect(defSvgRotatedRectElement: any, src: any, trg: any, includesArrow?: boolean = true) {
     const response = Edge.getDefaultIntersectResponse();
     const arrowSize = Edge.getArrowSize();
-    const clientRect = defSvgRectElement.getBoundingClientRect();
+    const clientRect = defSvgRotatedRectElement.getBoundingClientRect();
 
-    const w = clientRect.width;
-    const h = clientRect.height;
+    const widthAttr = defSvgRotatedRectElement.getAttribute('width');
+    const heightAttr = defSvgRotatedRectElement.getAttribute('height');
+    const w = widthAttr ? parseFloat(widthAttr) : clientRect.width;
+    const h = heightAttr ? parseFloat(heightAttr) : clientRect.height;
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -127,36 +124,63 @@ class Edge extends React.Component<IEdgeProps> {
     const left = trgX - w / 2;
     const right = trgX + w / 2;
 
-    const topIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, top, right, top);
-    const rightIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, right, top, right, bottom);
-    const bottomIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, bottom, right, bottom);
-    const leftIntersect = lineIntersect.checkIntersection(srcX, srcY, trgX, trgY, left, top, left, bottom);
+    const line = shape('line', { x1: srcX, y1: srcY, x2: trgX, y2: trgY });
 
-    const multiplier = (nodeSize / w) / 2;
+    // define rectangle
+    let rect = {
+        topLeft: new Point2D(left, top),
+        bottomRight: new Point2D(right, bottom)
+    };
 
-    if (topIntersect.type !== 'none' && topIntersect.point != null) {
-      // intersects the top line at topIntersect.point{x, y}
-      response.xOff = trgX - topIntersect.point.x;
-      response.yOff = trgY - topIntersect.point.y + arrowSize.height; // + h / 2 ;
-      response.intersect = topIntersect.point;
-    } else if (rightIntersect.type !== 'none' && rightIntersect.point != null) {
-      response.xOff = trgX - rightIntersect.point.x - arrowSize.height; // - w / 2 - arrowSize.height / 1.5
-      response.yOff = trgY - rightIntersect.point.y;
-      response.intersect = rightIntersect.point;
-    } else if (bottomIntersect.type !== 'none' && bottomIntersect.point != null) {
-      response.xOff = trgX - bottomIntersect.point.x;
-      response.yOff = trgY - bottomIntersect.point.y - arrowSize.height; // - h / 2 - arrowSize.height / 1.5
-      response.intersect = bottomIntersect.point;
-    } else if (leftIntersect.type !== 'none' && leftIntersect.point != null) {
-      response.xOff = trgX - leftIntersect.point.x + arrowSize.height; // + w / 2 + arrowSize.height / 1.5
-      response.yOff = trgY - leftIntersect.point.y;
-      response.intersect = leftIntersect.point;
+    // convert rectangle corners to polygon (list of points)
+    let poly = [
+      rect.topLeft,
+      new Point2D(rect.bottomRight.x, rect.topLeft.y),
+      rect.bottomRight,
+      new Point2D(rect.topLeft.x, rect.bottomRight.y)
+    ];
+
+    // find center point of rectangle
+    let center = rect.topLeft.lerp(rect.bottomRight, 0.5);
+
+    // get the rotation
+    let transform = defSvgRotatedRectElement.getAttribute('transform');
+    let rotate = transform ? transform.replace(/(rotate.[0-9]*.)|[^]/g, '$1') : null;
+    let angle = 0;
+    if (rotate) {
+      // get the number
+      rotate = rotate.replace(/^rotate\(|\)$/g, '');
+      // define rotation in radians
+      angle = parseFloat(rotate) * Math.PI / 180.0;
     }
-    // otherwise no intersection, do nothing and treat it like a circle.
+    // create matrix for rotating around center of rectangle
+    let rotation = Matrix2D.rotationAt(angle, center);
+    // create new rotated polygon
+    const rotatedPoly = poly.map(p => p.transform(rotation));
+
+    // find intersections
+    const pathIntersect = Intersection.intersectLinePolygon(line.params[0], line.params[1], rotatedPoly);
+
+    if (pathIntersect.points.length > 0) {
+      let arrowWidth = arrowSize.width;
+      let arrowHeight = arrowSize.height;
+      // arrow points to the left of node
+      if (pathIntersect.points[0].x < trgX) {
+        arrowWidth *= -1;
+      }
+      // arrow points at the bottom of node
+      if (pathIntersect.points[0].y < trgY) {
+        arrowHeight *= -1;
+      }
+
+      response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth / 1.25 : 0);
+      response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight / 1.25 : 0);
+      response.intersect = pathIntersect.points[0];
+    }
     return response;
   }
 
-  static getPathIntersect(defSvgPathElement: any, src: any, trg: any, nodeSize: number) {
+  static getPathIntersect(defSvgPathElement: any, src: any, trg: any, includesArrow?: boolean = true) {
     const response = Edge.getDefaultIntersectResponse();
     const arrowSize = Edge.getArrowSize();
     // get the rectangular area around path
@@ -184,12 +208,12 @@ class Edge extends React.Component<IEdgeProps> {
     d = d.replace(/^M /, '');
     let dArr = d.split(' ');
     dArr = dArr.map((val, index) => {
-      // items % 2 are x positions
       let isEnd = false;
       if (/Z$/.test(val)) {
         val = val.replace(/Z$/, '');
         isEnd = true;
       }
+      // items % 2 are x positions
       if (index % 2 === 0) {
         return (parseFloat(val) + left) + (isEnd ? 'Z' : '');
       }
@@ -202,51 +226,75 @@ class Edge extends React.Component<IEdgeProps> {
     );
 
     if (pathIntersect.points.length > 0) {
-      response.xOff = trgX - pathIntersect.points[0].x;
-      response.yOff = trgY - pathIntersect.points[0].y + arrowSize.height; // + h / 2 ;
+      let arrowWidth = arrowSize.width;
+      let arrowHeight = arrowSize.height;
+      // arrow points to the left of node
+      if (pathIntersect.points[0].x < trgX) {
+        arrowWidth *= -1;
+      }
+      // arrow points at the bottom of node
+      if (pathIntersect.points[0].y < trgY) {
+        arrowHeight *= -1;
+      }
+      response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth / 1.25 : 0);
+      response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight / 1.25 : 0);
       response.intersect = pathIntersect.points[0];
     }
+    return response;
   }
 
-  static calculateOffset(nodeSize: any, src: any, trg: any, nodeKey: string) {
+  static calculateOffset(nodeSize: any, src: any, trg: any, nodeKey: string, includesArrow?: boolean = true) {
     let response = {
       xOff: 0,
       yOff: 0,
       intersect: null
     };
     const theta = Edge.getTheta(src, trg);
-    const trgX = trg.x || 0;
-    const trgY = trg.y || 0;
-    const srcX = src.x || 0;
-    const srcY = src.y || 0;
-    const slope = (srcY - trgY) / (srcX - trgX);
+    const arrowSize = Edge.getArrowSize();
 
     let off = nodeSize / 2; // from the center of the node to the perimeter
-    response.xOff = off * Math.cos(theta);
-    response.yOff = off * Math.sin(theta);
+    let arrowWidth = arrowSize.width;
+    let arrowHeight = arrowSize.height;
+    const xOffset = off * Math.cos(theta);
+    const yOffset = off * Math.sin(theta)
+    // arrow points to the left of node
+    if (xOffset < 0) {
+      arrowWidth *= -1;
+    }
+    // arrow points at the bottom of node
+    if (yOffset < 0) {
+      arrowHeight *= -1;
+    }
+    response.xOff = off * Math.cos(theta) - (includesArrow ? 0 : arrowWidth / 1.5);
+    response.yOff = off * Math.sin(theta) - (includesArrow ? 0 : arrowHeight / 1.5);
 
-    const srcNode = document.querySelector(`#node-${src[nodeKey]} use.node`);
     const trgNode = document.querySelector(`#node-${trg[nodeKey]} use.node`);
-
 
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
     if (trgNode && trgNode.getAttributeNS) {
       const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
       if (xlinkHref) {
         const defSvgRectElement: any = document.querySelector(`defs>${xlinkHref} rect:not([transform])`);
+        const defSvgRotatedRectElement: any = document.querySelector(`defs>${xlinkHref} rect[transform]`);
         const defSvgPathElement: any = document.querySelector(`defs>${xlinkHref} path`);
 
         if (defSvgRectElement) {
           // it's a rectangle
           response = {
             ...response,
-            ...Edge.getRectIntersect(defSvgRectElement, src, trg, nodeSize)
+            ...Edge.getRotatedRectIntersect(defSvgRectElement, src, trg, includesArrow)
           }
         } else if (defSvgPathElement) {
           // it's a complex path
           response = {
             ...response,
-            ...Edge.getPathIntersect(defSvgPathElement, src, trg, nodeSize)
+            ...Edge.getPathIntersect(defSvgPathElement, src, trg, includesArrow)
+          }
+        } else if (defSvgRotatedRectElement) {
+          // it's a rotated rectangle
+          response = {
+            ...response,
+            ...Edge.getRotatedRectIntersect(defSvgRotatedRectElement, src, trg, includesArrow)
           }
         }
       }
@@ -326,7 +374,7 @@ class Edge extends React.Component<IEdgeProps> {
     // comes from and where it's going to. Don't think of a line as a one-way arrow, but rather
     // a connection between two points. In this case, to obtain the offsets for the src we
     // write trg first, then src second. Vice versa to get the offsets for trg.
-    const srcOff = Edge.calculateOffset(nodeSize || 0, trg, src, nodeKey);
+    const srcOff = Edge.calculateOffset(nodeSize || 0, trg, src, nodeKey, false);
     const trgOff = Edge.calculateOffset(nodeSize || 0, src, trg, nodeKey);
 
     const linePoints = [

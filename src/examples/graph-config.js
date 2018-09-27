@@ -43,13 +43,13 @@ const EmptyShape = (
 );
 
 const SpecialShape = (
-  <symbol viewBox="0 0 100 100" id="special">
-    <rect transform="translate(50) rotate(45)" width="70" height="70" />
+  <symbol viewBox="-27 0 154 154" id="special" width="154" height="154">
+    <rect transform="translate(50) rotate(45)" width="109" height="109" />
   </symbol>
 );
 
 const PolyShape = (
-  <symbol viewBox="0 0 88 72" id="poly">
+  <symbol viewBox="0 0 88 72" id="poly" width="88" height="88">
     <path d="M 0 36 18 0 70 0 88 36 70 72 18 72Z"></path>
   </symbol>
 );

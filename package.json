@@ -145,6 +145,7 @@
     "d3": "^5.5.0",
     "dagre": "^0.8.2",
     "kld-affine": "^2.0.4",
+    "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
     "react-icons": "^2.2.1",
     "svg-intersections": "^0.4.0"

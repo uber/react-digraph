@@ -40,6 +40,14 @@ describe('Node component', () => {
     onNodeSelected = jasmine.createSpy();
     onNodeUpdate = jasmine.createSpy();
 
+    spyOn(document, 'querySelector').and.returnValue({
+      getAttribute: jasmine.createSpy().and.returnValue(100),
+      getBoundingClientRect: jasmine.createSpy().and.returnValue({
+        width: 0,
+        height: 0
+      })
+    });
+
     // this gets around d3 being readonly, we need to customize the event object
     let globalEvent = {
       sourceEvent: {}

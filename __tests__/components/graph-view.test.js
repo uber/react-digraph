@@ -51,7 +51,12 @@ describe('GraphView component', () => {
     onSelectEdge = jasmine.createSpy();
     ReactDOM.render = jasmine.createSpy();
 
-    spyOn(document, 'querySelector').and.returnValue(true);
+    spyOn(document, 'querySelector').and.returnValue({
+      getBoundingClientRect: jasmine.createSpy().and.returnValue({
+        width: 0,
+        height: 0
+      })
+    });
 
     // this gets around d3 being readonly, we need to customize the event object
     let globalEvent = {
