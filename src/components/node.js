@@ -241,6 +241,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const defSvgNodeElement: any = document.querySelector(`defs>${nodeTypeXlinkHref}`);
     const nodeWidthAttr = defSvgNodeElement.getAttribute('width');
     const nodeHeightAttr = defSvgNodeElement.getAttribute('height');
+    console.log(defSvgNodeElement, nodeWidthAttr);
     props.width = nodeWidthAttr ? parseInt(nodeWidthAttr, 10) : props.width;
     props.height = nodeHeightAttr ? parseInt(nodeHeightAttr, 10) : props.height;
 
