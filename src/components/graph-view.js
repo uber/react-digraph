@@ -1188,6 +1188,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         ref={(el) => (this.viewWrapper = el)}
       >
         <svg className="graph">
+          <tspan>test</tspan>
           <Defs
             edgeArrowSize={edgeArrowSize}
             gridSpacing={gridSpacing}

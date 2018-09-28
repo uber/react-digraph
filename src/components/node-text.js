@@ -46,10 +46,10 @@ class NodeText extends React.Component<INodeTextProps> {
     return (
       <text className={className} textAnchor="middle">
         {!!typeText && (
-          <tspan opacity="0.5" key="typeText">{typeText}</tspan>
+          <tspan opacity="0.5">{typeText}</tspan>
         )}
         {title && (
-          <tspan x={0} dy={lineOffset} fontSize="10px" key="title">
+          <tspan x={0} dy={lineOffset} fontSize="10px">
             {title}
           </tspan>
         )}
