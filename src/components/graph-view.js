@@ -616,9 +616,7 @@ class GraphView extends Component {
 
   // Programmatically resets zoom
   setZoom = (k=1, x=0, y=0, dur=0) => {
-
     var t = d3.zoomIdentity.translate(x, y).scale(k);
-
     d3.select(this.viewWrapper).select('svg')
       .transition()
       .duration(dur)
@@ -904,10 +902,15 @@ class GraphView extends Component {
   renderView = () => {
     var nodes = this.props.nodes;
     var edges = this.props.edges;
-
     // Update the view w/ new zoom/pan
-    const view = d3.select(this.view)
-      .attr("transform", this.state.viewTransform);
+    const view = d3.select(this.view);
+    const viewNode = view.node();
+    if (viewNode) {
+      const { k, x, y } = this.state.viewTransform;
+      view.attr("transform", this.state.viewTransform);
+      // viewNode.setAttribute('transform', `translate(${x},${y}) scale(${k})`);
+      viewNode.style.transform = null;
+    }
 
     const entities = d3.select(this.entities);
 
