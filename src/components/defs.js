@@ -67,7 +67,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
 
   render() {
     const { edgeArrowSize, gridSpacing, gridDotSize } = this.props;
-    console.log(this.state.graphConfigDefs);
+    console.log("-------------test", this.props, this.state.graphConfigDefs);
     return (
       <defs>
         {this.state.graphConfigDefs}
