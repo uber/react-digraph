@@ -1182,6 +1182,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   render() {
     const { edgeArrowSize, gridSpacing, gridDotSize, nodeTypes, nodeSubtypes, edgeTypes, renderDefs } = this.props;
+    console.log("---------------------------------render render render");
     return (
       <div
         className="view-wrapper"
