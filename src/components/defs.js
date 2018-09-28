@@ -46,7 +46,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
     Defs.processGraphConfigDefs(nextProps.nodeSubtypes, graphConfigDefs);
     Defs.processGraphConfigDefs(nextProps.edgeTypes, graphConfigDefs);
 
-    console.log("-------------------------------getDerivedStateFromProps", graphConfigDefs);
+    console.log("-------------------------------getDerivedStateFromProps", graphConfigDefs, nextProps);
 
     return {
       graphConfigDefs
