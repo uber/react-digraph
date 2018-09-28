@@ -46,8 +46,6 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
     Defs.processGraphConfigDefs(nextProps.nodeSubtypes, graphConfigDefs);
     Defs.processGraphConfigDefs(nextProps.edgeTypes, graphConfigDefs);
 
-    console.log("-------------------------------getDerivedStateFromProps", graphConfigDefs, nextProps);
-
     return {
       graphConfigDefs
     };
@@ -69,7 +67,6 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
 
   render() {
     const { edgeArrowSize, gridSpacing, gridDotSize } = this.props;
-    console.log("-------------test", this.props, this.state.graphConfigDefs);
     return (
       <defs>
         {this.state.graphConfigDefs}

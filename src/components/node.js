@@ -238,10 +238,9 @@ class Node extends React.Component<INodeProps, INodeState> {
     const nodeSubtypeXlinkHref = Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
 
     // get width and height defined on def element
-    const defSvgNodeElement: any = document.querySelector(`defs>${nodeTypeXlinkHref}`);
-    const nodeWidthAttr = defSvgNodeElement.getAttribute('width');
-    const nodeHeightAttr = defSvgNodeElement.getAttribute('height');
-    console.log(defSvgNodeElement, nodeWidthAttr);
+    const defSvgNodeElement: any = nodeTypeXlinkHref ? document.querySelector(`defs>${nodeTypeXlinkHref}`) : null;
+    const nodeWidthAttr = defSvgNodeElement ? defSvgNodeElement.getAttribute('width') : 0;
+    const nodeHeightAttr = defSvgNodeElement ? defSvgNodeElement.getAttribute('height') : 0;
     props.width = nodeWidthAttr ? parseInt(nodeWidthAttr, 10) : props.width;
     props.height = nodeHeightAttr ? parseInt(nodeHeightAttr, 10) : props.height;
 

@@ -141,7 +141,7 @@ const sample: IGraph = {
     {
       id: 'a5',
       title: 'Node E (5)',
-      type: EMPTY_TYPE,
+      type: null,
       x: 50.5757598876953,
       y: 500.81818389892578
     },

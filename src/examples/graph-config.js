@@ -25,7 +25,7 @@ export const NODE_KEY = 'id'; // Key used to identify nodes
 // These keys are arbitrary (but must match the config)
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
-export const EMPTY_TYPE = 'empty'; // Empty node type
+export const EMPTY_TYPE = 'customEmpty'; // Empty node type
 export const POLY_TYPE = 'poly';
 export const SPECIAL_TYPE = 'special';
 export const SKINNY_TYPE = 'skinny';
@@ -36,8 +36,15 @@ export const SPECIAL_EDGE_TYPE = 'specialEdge';
 export const nodeTypes = [EMPTY_TYPE, POLY_TYPE, SPECIAL_TYPE, SKINNY_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
-const EmptyShape = (
-  <symbol viewBox="0 0 100 100" id="empty">
+
+const EmptyNodeShape = (
+  <symbol viewBox="0 0 100 100" id="emptyNode">
+    <circle cx="50" cy="50" r="45" />
+  </symbol>
+);
+
+const CustomEmptyShape = (
+  <symbol viewBox="0 0 100 100" id="customEmpty">
     <circle cx="50" cy="50" r="45" />
   </symbol>
 );
@@ -96,8 +103,13 @@ export default {
     }
   },
   NodeTypes: {
+    emptyNode: {
+      shape: EmptyNodeShape,
+      shapeId: '#emptyNode',
+      typeText: 'None'
+    },
     empty: {
-      shape: EmptyShape,
+      shape: CustomEmptyShape,
       shapeId: '#empty',
       typeText: 'None'
     },
