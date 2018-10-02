@@ -1116,7 +1116,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (edgeContainer) {
       ReactDOM.render(element, edgeContainer);
       if (postRenderEdge) {
-        return postRenderEdge(id, element, edge, edgeContainer);
+        return postRenderEdge(id, element, edge, edgeContainer, this.isEdgeSelected(edge));
       }
     }
   }

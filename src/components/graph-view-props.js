@@ -65,6 +65,6 @@ export type IGraphViewProps = {
     selected: boolean,
     hovered: boolean
   ) => any;
-  postRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any) => void;
+  postRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
   renderNodeText?: (data: any, index: number, id: string | number, isSelected: boolean) => any;
 };
