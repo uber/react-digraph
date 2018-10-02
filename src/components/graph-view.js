@@ -813,7 +813,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       if (this.state.viewTransform !== transform) {
         this.setState({
           viewTransform: transform,
-          draggedEdge: null
+          draggedEdge: null,
+          draggingEdge: false
         }, () => {
           // force the child components which are related to zoom level to update
           this.renderGraphControls();
