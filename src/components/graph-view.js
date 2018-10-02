@@ -739,7 +739,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleZoomStart = () => {
-    console.log("handleZoomStart", d3.event.sourceEvent);
     // Zoom start events also handle edge clicks. We need to determine if an edge
     // was clicked and deal with that scenario.
     const sourceEvent = d3.event.sourceEvent;
@@ -761,7 +760,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { target } = sourceEvent;
     const edgeId = target.id;
     const edge = this.state.edgesMap && this.state.edgesMap[edgeId] ? this.state.edgesMap[edgeId].edge : null;
-    console.log("handleZoomStart edge", edge, edgeId, target, this.state.edgesMap);
 
     // Only move edges if the arrow is dragged
     if (!this.isArrowClicked(edge) || !edge) {
@@ -797,7 +795,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     targetPosition.y += off.yOff;
     this.syncRenderEdge({ source: draggedEdge.source, targetPosition });
     this.setState({
-      draggedEdge
+      draggedEdge,
+      draggingEdge: true
     });
   }
 
@@ -827,14 +826,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleZoomEnd = () => {
-    console.log("handleZoomEnd");
     const { draggingEdge, draggedEdge, edgeEndNode, edgesMap } = this.state;
 
     const { nodeKey } = this.props;
     if (!draggingEdge || !draggedEdge) {
       if (draggingEdge && !draggedEdge) {
-        console.log("handleZoomEnd FAILURE", draggingEdge, draggedEdge, edgeEndNode, this.state);
-        // this is a bad case
+        // This is a bad case, sometimes when the graph loses focus while an edge
+        // is being created it doesn't set draggingEdge to false. This fixes that case.
         this.setState({
           draggingEdge: false
         });
