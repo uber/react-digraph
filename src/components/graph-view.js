@@ -715,7 +715,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       source,
       target
     );
-    console.log(dist, edgeArrowSize, (nodeSize || 0) / 2, (edgeArrowSize || 0) + 10, (nodeSize || 0) / 2 + (edgeArrowSize || 0) + 10);
+    console.log("---isArrowClicked", dist, edgeArrowSize, (nodeSize || 0) / 2, (edgeArrowSize || 0) + 10, (nodeSize || 0) / 2 + (edgeArrowSize || 0) + 10, dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0));
     return dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0); // or *2 or ^2?
   }
 
