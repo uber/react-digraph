@@ -278,23 +278,18 @@ class Edge extends React.Component<IEdgeProps> {
     );
 
     if (pathIntersect.points.length > 0) {
-      let arrowWidth = 0; //arrowSize.width;
-      let arrowHeight = 0; //arrowSize.height;
+      let arrowWidth = arrowSize.width / 1.25;
+      let arrowHeight = arrowSize.height / 1.25;
       const xIntersect = pathIntersect.points[0].x;
       const yIntersect = pathIntersect.points[0].y;
-      if (xIntersect > left && xIntersect < right && yIntersect > trgY) {
-        // arrow points to the top of the node
-        arrowHeight = arrowSize.height;
-      } else if (xIntersect > left && xIntersect < right && yIntersect < trgY) {
-        // arrow points to the bottom of the node
-        arrowHeight = -arrowSize.height;
-      } else if (yIntersect > top && yIntersect < bottom && xIntersect < trgX) {
-        // arrow points to the left of the node
-        arrowWidth = -arrowSize.width * 2;
-      } else if (yIntersect > top && yIntersect < bottom && xIntersect > trgX){
-        // arrow points to the right of the node
-        arrowWidth = arrowSize.width * 2;
+
+      if (trgX - pathIntersect.points[0].x > 0) {
+        arrowWidth = -arrowWidth;
       }
+      if (trgY - pathIntersect.points[0].y > 0) {
+        arrowHeight = -arrowSize.height;
+      }
+
       response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth : 0)
       response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight : 0);
       response.intersect = pathIntersect.points[0];

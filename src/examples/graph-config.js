@@ -39,7 +39,7 @@ export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
 const EmptyNodeShape = (
   <symbol viewBox="0 0 154 154" id="emptyNode">
-    <circle cx="77" cy="77" r="77" />
+    <circle cx="77" cy="77" r="76" />
   </symbol>
 );
 
