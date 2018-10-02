@@ -403,7 +403,7 @@ describe('Node component', () => {
       };
       output.instance().handleMouseMove();
       expect(onNodeMove).toHaveBeenCalledWith(
-        { x: 37.55617207941958, y: 96.81645887845222 },
+        { x: 20, y: 50 },
         0,
         true
       );

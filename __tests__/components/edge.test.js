@@ -38,14 +38,6 @@ describe('Edge component', () => {
     };
     isSelected = false;
 
-    spyOn(document, 'querySelector').and.returnValue({
-      getAttribute: jasmine.createSpy().and.returnValue(100),
-      getBoundingClientRect: jasmine.createSpy().and.returnValue({
-        width: 0,
-        height: 0
-      })
-    });
-
     output = shallow(
       <Edge
         data={data}
@@ -189,8 +181,8 @@ describe('Edge component', () => {
     it('returns the x and y offset', () => {
       const nodeSize = 50;
       const offsets = Edge.calculateOffset(nodeSize, sourceNode, targetNode);
-      expect(offsets.xOff).toEqual(11.18033988749895);
-      expect(offsets.yOff).toEqual(22.360679774997898);
+      expect(offsets.xOff).toEqual(0);
+      expect(offsets.yOff).toEqual(0);
     });
   });
 

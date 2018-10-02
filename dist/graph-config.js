@@ -38,8 +38,8 @@ export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
 
 const EmptyNodeShape = (
-  <symbol viewBox="0 0 100 100" id="emptyNode">
-    <circle cx="50" cy="50" r="45" />
+  <symbol viewBox="0 0 154 154" id="emptyNode">
+    <circle cx="77" cy="77" r="77" />
   </symbol>
 );
 
@@ -68,8 +68,8 @@ const SkinnyShape = (
 );
 
 const SpecialChildShape = (
-  <symbol viewBox="0 0 100 100" id="specialChild">
-    <rect x="2.5" y="0" width="95" height="97.5" fill="rgba(30, 144, 255, 0.12)" />
+  <symbol viewBox="0 0 154 154" id="specialChild">
+    <rect x="2.5" y="0" width="154" height="154" fill="rgba(30, 144, 255, 0.12)" />
   </symbol>
 );
 

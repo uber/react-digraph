@@ -793,7 +793,7 @@ describe('GraphView component', () => {
       instance.dragEdge();
       expect(instance.syncRenderEdge).toHaveBeenCalledWith({
         source: draggedEdge.source,
-        targetPosition: { x: 5.000000000000004, y: 92 }
+        targetPosition: { x: 5, y: 15 }
       });
     });
   });
