@@ -27,9 +27,8 @@ export type INode = {
   title: string;
   x?: number | null;
   y?: number | null;
-  type: string;
-  subtype?: string;
-
+  type?: string;
+  subtype?: string | null;
   [key: string]: any;
 };
 

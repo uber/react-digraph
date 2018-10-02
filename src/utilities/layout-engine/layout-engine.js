@@ -19,7 +19,7 @@
 import { type IGraphViewProps } from '../../components/graph-view-props';
 import { type INode } from '../../components/node';
 
-type IPosition = {
+export type IPosition = {
   x: number;
   y: number;
   [key: string]: any;
@@ -37,7 +37,10 @@ export default class LayoutEngine {
 
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
     nodes.forEach((node) => {
-      const position = this.calculatePosition(node);
+      const position = this.calculatePosition({
+        x: node.x || 0,
+        y: node.y || 0
+      });
       node.x = position.x;
       node.y = position.y;
     });

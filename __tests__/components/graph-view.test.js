@@ -802,7 +802,7 @@ describe('GraphView component', () => {
     let edge;
     beforeEach(() => {
       spyOn(instance, 'dragEdge');
-      spyOn(instance, 'arrowClicked').and.returnValue(true);
+      spyOn(instance, 'isArrowClicked').and.returnValue(true);
       spyOn(instance, 'removeEdgeElement');
       edge = { source: 'a', target: 'b' };
       output.setProps({
@@ -844,7 +844,7 @@ describe('GraphView component', () => {
     });
 
     it('does nothing if the arrow wasn\'t clicked', () => {
-      instance.arrowClicked.and.returnValue(false);
+      instance.isArrowClicked.and.returnValue(false);
       instance.handleZoomStart();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });

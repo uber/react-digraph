@@ -15,10 +15,10 @@
   limitations under the License.
 */
 import { type INode } from '../../components/node';
-import LayoutEngine from './layout-engine';
+import LayoutEngine, { type IPosition } from './layout-engine';
 
 class None extends LayoutEngine {
-  calculatePosition(node: INode) {
+  calculatePosition(node: IPosition) {
     return node;
   }
 }

@@ -162,19 +162,26 @@ class Edge extends React.Component<IEdgeProps> {
     const pathIntersect = Intersection.intersectLinePolygon(line.params[0], line.params[1], rotatedPoly);
 
     if (pathIntersect.points.length > 0) {
-      let arrowWidth = arrowSize.width;
-      let arrowHeight = arrowSize.height;
-      // arrow points to the left of node
-      if (pathIntersect.points[0].x < trgX) {
-        arrowWidth *= -1;
-      }
-      // arrow points at the bottom of node
-      if (pathIntersect.points[0].y < trgY) {
-        arrowHeight *= -1;
+      let arrowWidth = 0; //arrowSize.width;
+      let arrowHeight = 0; //arrowSize.height;
+      const xIntersect = pathIntersect.points[0].x;
+      const yIntersect = pathIntersect.points[0].y;
+      if (xIntersect > left && xIntersect < right && yIntersect > trgY) {
+        // arrow points to the top of the node
+        arrowHeight = arrowSize.height;
+      } else if (xIntersect > left && xIntersect < right && yIntersect < trgY) {
+        // arrow points to the bottom of the node
+        arrowHeight = -arrowSize.height;
+      } else if (yIntersect > top && yIntersect < bottom && xIntersect < trgX) {
+        // arrow points to the left of the node
+        arrowWidth = -arrowSize.width;
+      } else {
+        // arrow points to the right of the node
+        arrowWidth = arrowSize.width;
       }
 
-      response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth / 1.25 : 0);
-      response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight / 1.25 : 0);
+      response.xOff = trgX - xIntersect - (includesArrow ? arrowWidth / 1.25 : 0);
+      response.yOff = trgY - yIntersect - (includesArrow ? arrowHeight / 1.25 : 0);
       response.intersect = pathIntersect.points[0];
     }
     return response;

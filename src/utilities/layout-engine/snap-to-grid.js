@@ -15,28 +15,35 @@
   limitations under the License.
 */
 
-import { type INode } from '../../components/node';
-import LayoutEngine from './layout-engine';
+import LayoutEngine, { type IPosition } from './layout-engine';
 
 class SnapToGrid extends LayoutEngine {
-  calculatePosition(node: INode) {
+  calculatePosition(node: IPosition) {
     const { x, y } = node;
     let { gridSpacing } = this.graphViewProps;
     gridSpacing = gridSpacing || 10;
     const gridOffset = gridSpacing / 2;
 
-    let newX = x;
-    let newY = y;
-    if ((x - gridOffset) % gridSpacing !== 0) {
+    let newX = x || 0;
+    let newY = y || 0;
+    if (x && (x - gridOffset) % gridSpacing !== 0) {
       // Add (gridSpacing / 2) to account for the dot rendering.
       // Now the center of the node is on a dot.
-      newX = (gridSpacing * Math.round(x / gridSpacing)) + gridOffset;
+      let multiplier = 1;
+      if ((x - gridOffset) % gridSpacing < gridOffset) {
+        multiplier = -1;
+      }
+      newX = (gridSpacing * Math.round(x / gridSpacing)) + (gridOffset * multiplier);
     }
 
-    if ((y - gridOffset) % gridSpacing !== 0) {
+    if (y && (y - gridOffset) % gridSpacing !== 0) {
       // Add (gridSpacing / 2) to account for the dot rendering.
       // Now the center of the node is on a dot.
-      newY = (gridSpacing * Math.round(y / gridSpacing)) + gridOffset;
+      let multiplier = 1;
+      if ((y - gridOffset) % gridSpacing < gridOffset) {
+        multiplier = -1;
+      }
+      newY = (gridSpacing * Math.round(y / gridSpacing)) + (gridOffset * multiplier);
     }
     return {
       x: newX,

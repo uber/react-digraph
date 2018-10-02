@@ -352,7 +352,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
     return (
       hoveredNode &&
-      (swapEdge.source !== sourceNode[this.props.nodeKey] || swapEdge.target !== hoveredNode[this.props.nodeKey])
+      sourceNode !== hoveredNode &&
+      (swapEdge.source !== sourceNode[this.props.nodeKey] ||
+        swapEdge.target !== hoveredNode[this.props.nodeKey])
     );
   }
 
@@ -692,7 +694,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   // One can't attach handlers to 'markers' or obtain them from the event.target
   // If the click occurs within a certain radius of edge target, assume the click
   // occurred on the arrow
-  arrowClicked(edge: IEdge | null) {
+  isArrowClicked(edge: IEdge | null) {
     const { nodeSize, edgeArrowSize } = this.props;
     const eventTarget = d3.event.sourceEvent.target;
     if (!edge || eventTarget.tagName !== 'path') {
@@ -713,7 +715,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       source,
       target
     );
-    return dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0) + 10; // or *2 or ^2?
+    console.log(dist, edgeArrowSize, (nodeSize || 0) / 2, (edgeArrowSize || 0) + 10, (nodeSize || 0) / 2 + (edgeArrowSize || 0) + 10);
+    return dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0); // or *2 or ^2?
   }
 
   zoomFilter() {
@@ -763,7 +766,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     console.log("handleZoomStart edge", edge, edgeId, target, this.state.edgesMap);
 
     // Only move edges if the arrow is dragged
-    if (!this.arrowClicked(edge) || !edge) {
+    if (!this.isArrowClicked(edge) || !edge) {
       return false;
     }
     this.removeEdgeElement(edge.source, edge.target);
