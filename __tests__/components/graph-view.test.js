@@ -202,7 +202,7 @@ describe('GraphView component', () => {
         target: 'b'
       };
       instance.syncRenderEdge(expectedEdge);
-      expect(instance.renderEdge).toHaveBeenCalledWith('edge-a-b', 'blah', expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith('edge-a-b', 'blah', expectedEdge, false);
     });
 
     it('uses a custom idVar', () => {
@@ -210,7 +210,7 @@ describe('GraphView component', () => {
         source: 'a'
       };
       instance.syncRenderEdge(expectedEdge);
-      expect(instance.renderEdge).toHaveBeenCalledWith('edge-custom', 'blah', expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith('edge-custom', 'blah', expectedEdge, false);
     });
   });
 

@@ -551,12 +551,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         return;
       }
 
-      nodeMapNode.incomingEdges.forEach((edge) => {
-        this.syncRenderEdge(edge);
-      });
-      nodeMapNode.outgoingEdges.forEach((edge) => {
-        this.syncRenderEdge(edge);
-      });
+      this.syncRenderConnectedEdgesFromNode(nodeMapNode, true);
     } else if (canCreateEdge && canCreateEdge(node[nodeKey])) {
       // render new edge
       this.syncRenderEdge({ source: node[nodeKey], targetPosition: position });
@@ -1032,16 +1027,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     ReactDOM.render(anyElement, nodeContainer);
   }
 
-  syncRenderConnectedEdgesFromNode(node: INodeMapNode) {
+  syncRenderConnectedEdgesFromNode(node: INodeMapNode, nodeMoving: boolean = false) {
     if (this.state.draggingEdge) {
       return;
     }
 
     node.incomingEdges.forEach((edge) => {
-      this.syncRenderEdge(edge);
+      this.syncRenderEdge(edge, nodeMoving);
     });
     node.outgoingEdges.forEach((edge) => {
-      this.syncRenderEdge(edge);
+      this.syncRenderEdge(edge, nodeMoving);
     });
   }
 
@@ -1065,13 +1060,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  isEdgeSelected = (edge: IEdge) => {
-    return !!this.state.selectedEdgeObj &&
-      !!this.state.selectedEdgeObj.edge &&
-      this.state.selectedEdgeObj.edge.source === edge.source &&
-      this.state.selectedEdgeObj.edge.target === edge.target;
-  }
-
   renderNodes = () => {
     if (!this.entities) {
       return;
@@ -1080,6 +1068,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.state.nodes.forEach((node, i) => {
       this.asyncRenderNode(node, i);
     });
+  }
+
+  isEdgeSelected = (edge: IEdge) => {
+    return !!this.state.selectedEdgeObj &&
+      !!this.state.selectedEdgeObj.edge &&
+      this.state.selectedEdgeObj.edge.source === edge.source &&
+      this.state.selectedEdgeObj.edge.target === edge.target;
   }
 
   getEdgeComponent = (edge: IEdge | any) => {
@@ -1105,11 +1100,23 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
 
-  renderEdge = (id: string, element: any, edge: IEdge) => {
-    const containerId = `${id}-container`;
+  renderEdge = (id: string, element: any, edge: IEdge, nodeMoving: boolean = false) => {
+    let containerId = `${id}-container`;
+    const customContainerId = `${id}-custom-container`;
     const { draggedEdge } = this.state;
     const { postRenderEdge } = this.props;
     let edgeContainer = document.getElementById(containerId);
+    if (nodeMoving && edgeContainer) {
+      edgeContainer.style.display = 'none';
+      containerId = `${id}-custom-container`;
+      edgeContainer = document.getElementById(containerId);
+    } else if (edgeContainer) {
+      const customContainer = document.getElementById(customContainerId);
+      edgeContainer.style.display = '';
+      if (customContainer) {
+        customContainer.remove();
+      }
+    }
     if (!edgeContainer && edge !== draggedEdge) {
       const newSvgEdgeContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       newSvgEdgeContainer.id = containerId;
@@ -1138,7 +1145,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
 
-  syncRenderEdge(edge: IEdge | any) {
+  syncRenderEdge(edge: IEdge | any, nodeMoving: boolean = false) {
     if (!edge.source) {
       return;
     }
@@ -1147,7 +1154,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
     const id = `edge-${idVar}`;
     const element = this.getEdgeComponent(edge);
-    this.renderEdge(id, element, edge);
+    this.renderEdge(id, element, edge, nodeMoving);
   }
 
 
