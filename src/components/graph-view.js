@@ -697,6 +697,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   isArrowClicked(edge: IEdge | null) {
     const { nodeSize, edgeArrowSize } = this.props;
     const eventTarget = d3.event.sourceEvent.target;
+    const arrowSize = edgeArrowSize || 0;
     if (!edge || eventTarget.tagName !== 'path') {
       return false; // If the handle is clicked
     }
@@ -710,13 +711,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       x: xycoords[0],
       y: xycoords[1]
     };
-    const target = targetNodeMapNode ? this.state.nodes[targetNodeMapNode.originalArrIndex] : source;
-    const dist = Edge.getDistance(
-      source,
-      target
+    const edgeCoords = Edge.parsePathToXY(Edge.getEdgePathElement(edge));
+
+    // the arrow is clicked if the xycoords are within edgeArrowSize of edgeCoords.target[x,y]
+    return (
+      source.x < edgeCoords.target.x + arrowSize &&
+      source.x > edgeCoords.target.x - arrowSize &&
+      source.y < edgeCoords.target.y + arrowSize &&
+      source.y > edgeCoords.target.y - arrowSize
     );
-    console.log("---isArrowClicked", dist, edgeArrowSize, (nodeSize || 0) / 2, (edgeArrowSize || 0) + 10, (nodeSize || 0) / 2 + (edgeArrowSize || 0) + 10, dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0));
-    return dist < (nodeSize || 0) / 2 + (edgeArrowSize || 0); // or *2 or ^2?
   }
 
   zoomFilter() {
@@ -724,11 +727,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return false;
     }
     return true;
-    // This would prevent zooming while hovered over a node
-    // We want to allow zooming over nodes.
-    // return !d3.event.path.find((el) => {
-    //   return el.classList && el.classList.contains('node');
-    // });
   }
 
   // Keeps 'zoom' contained

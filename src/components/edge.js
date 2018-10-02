@@ -91,6 +91,39 @@ class Edge extends React.Component<IEdgeProps> {
     return defEndArrowElement.getBoundingClientRect();
   }
 
+  static getEdgePathElement(edge: IEdge) {
+    return document.querySelector(`#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`);
+  }
+
+  static parsePathToXY(edgePathElement: Element | null) {
+    const response = {
+      source: {
+        x: 0,
+        y: 0
+      },
+      target: {
+        x: 0,
+        y: 0
+      }
+    };
+    if (edgePathElement) {
+      let d = edgePathElement.getAttribute('d');
+      d = d && d.replace(/^M/, '');
+      d = d && d.replace(/L/, ',');
+      let dArr = (d && d.split(',')) || [];
+      dArr = dArr.map(dimension => {
+        return parseFloat(dimension);
+      });
+      if (dArr.length === 4) {
+        response.source.x = dArr[0];
+        response.source.y = dArr[1];
+        response.target.x = dArr[2];
+        response.target.y = dArr[3];
+      }
+    }
+    return response;
+  }
+
   static getDefaultIntersectResponse() {
     return {
       xOff: 0,
