@@ -829,9 +829,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   handleZoomEnd = () => {
     console.log("handleZoomEnd");
     const { draggingEdge, draggedEdge, edgeEndNode, edgesMap } = this.state;
-    console.log("handleZoomEnd", draggingEdge, draggedEdge, edgeEndNode, this.state);
+
     const { nodeKey } = this.props;
     if (!draggingEdge || !draggedEdge) {
+      if (draggingEdge && !draggedEdge) {
+        console.log("handleZoomEnd FAILURE", draggingEdge, draggedEdge, edgeEndNode, this.state);
+        // this is a bad case
+        this.setState({
+          draggingEdge: false
+        });
+      }
       return;
     }
 
