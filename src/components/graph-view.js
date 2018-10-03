@@ -378,8 +378,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
 
     // inform consumer
-    this.props.onDeleteNode(selectedNode, originalArrIndex, nodes);
     this.props.onSelectNode(null);
+    this.props.onDeleteNode(selectedNode, originalArrIndex, nodes);
   }
 
   deleteEdge(selectedEdge: IEdge) {
