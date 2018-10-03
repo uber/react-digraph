@@ -883,6 +883,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const parent = d3.select(this.viewWrapper).node();
     const entities = d3.select(this.entities).node();
     const viewBBox = entities.getBBox ? entities.getBBox() : null;
+    if (!viewBBox) { return; }
 
     const width = parent.clientWidth;
     const height = parent.clientHeight;
@@ -895,7 +896,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       y: 0,
     };
 
-    if (viewBBox && viewBBox.width > 0 && viewBBox.height > 0) {
+    if (viewBBox.width > 0 && viewBBox.height > 0) {
       // There are entities
       const dx = viewBBox.width;
       const dy = viewBBox.height;
