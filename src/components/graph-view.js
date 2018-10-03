@@ -882,7 +882,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   handleZoomToFit = () => {
     const parent = d3.select(this.viewWrapper).node();
     const entities = d3.select(this.entities).node();
-
+    console.log(entities);
     const viewBBox = entities.getBBox();
 
     const width = parent.clientWidth;
