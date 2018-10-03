@@ -84,20 +84,20 @@ module.exports = {
 
   externals: {
     // TODO: figure out how to deal with externals
-    // react: {
-    //   amd: 'react',
-    //   root: 'react',
-    //   global: 'React',
-    //   commonjs: 'react',
-    //   commonjs2: 'react'
-    // },
-    // 'react-dom': {
-    //   amd: 'react-dom',
-    //   root: 'react-dom',
-    //   global: 'ReactDOM',
-    //   commonjs: 'react-dom',
-    //   commonjs2: 'react-dom'
-    // },
+    react: {
+      amd: 'react',
+      root: 'react',
+      global: 'React',
+      commonjs: 'react',
+      commonjs2: 'react'
+    },
+    'react-dom': {
+      amd: 'react-dom',
+      root: 'react-dom',
+      global: 'ReactDOM',
+      commonjs: 'react-dom',
+      commonjs2: 'react-dom'
+    },
     tslib: 'tslib'
   }
 };
