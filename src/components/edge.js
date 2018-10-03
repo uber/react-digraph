@@ -289,8 +289,18 @@ class Edge extends React.Component<IEdgeProps> {
     let arrowHeight = arrowSize.height;
     const theta = Edge.getTheta(src, trg);
     const clientRect = defSvgCircleElement.getBoundingClientRect();
-    const w = clientRect.width;
-    const h = clientRect.height;
+    const parentElement = defSvgCircleElement.parentElement;
+    let parentWidth = parentElement.getAttribute('width');
+    let parentHeight = parentElement.getAttribute('width');
+    if (parentWidth) {
+      parentWidth = parseFloat(parentWidth);
+    }
+    if (parentHeight) {
+      parentHeight = parseFloat(parentHeight);
+    }
+
+    const w = parentWidth ? parentWidth : clientRect.width;
+    const h = parentHeight ? parentHeight : clientRect.height;
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -306,7 +316,7 @@ class Edge extends React.Component<IEdgeProps> {
     // Note: even though this is a circle function, we can use ellipse
     // because all circles are ellipses but not all ellipses are circles.
     const pathIntersect = intersect(
-      shape('ellipse', { rx: offX, ry: offY, cx: trgX, cy: trgY }),
+      shape('ellipse', { rx: offX + arrowHeight, ry: offY + arrowHeight, cx: trgX - arrowHeight/1.25, cy: trgY - arrowHeight/1.25 }),
       shape('line', { x1: srcX, y1: srcY, x2: trgX, y2: trgY })
     );
 
@@ -315,13 +325,6 @@ class Edge extends React.Component<IEdgeProps> {
       let arrowHeight = arrowSize.height / 1.25;
       const xIntersect = pathIntersect.points[0].x;
       const yIntersect = pathIntersect.points[0].y;
-
-      if (trgX - pathIntersect.points[0].x > 0) {
-        arrowWidth = -arrowWidth;
-      }
-      if (trgY - pathIntersect.points[0].y > 0) {
-        arrowHeight = -arrowSize.height;
-      }
 
       response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth : 0)
       response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight : 0);
