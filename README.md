@@ -6,7 +6,7 @@ A React component which makes it easy to create a directed graph editor without 
 
 ## Important v5.0.0 Information
 Version 5.0.0 is a breaking change to some of the API interfaces. Many of the component attributes are the same, and the data format is the same, but there
-have been some necessary changes to improve the API and make the component faster and add new features. These changes will be listed below in the deprecation notes section.
+have been some necessary changes to improve the API and make the component faster and add new features. Many changes will be listed below in the deprecation notes section. If you notice a problem, please use the ^4.0.0 versions of the package and refer to the legacy documentation in the `v4.x.x` git branch.
 
 ## Installation
 
@@ -24,16 +24,34 @@ All nodes and edges can have a type attribute set - nodes also support a subtype
 It is often convenient to combine these types into a configuration object that can be referred to elsewhere in the application and used to associate events fired from nodes/edges in the graphView with other actions in the application. Here is an abbreviated example:
 
 ```jsx
-import GraphView from 'react-digraph'
+import {
+  GraphView, // required
+  Edge, // optional
+  type IEdge, // optional
+  Node, // optional
+  type INode, // optional
+  type LayoutEngineType, // required to change the layoutEngineType, otherwise optional
+  BwdlTransformer, // optional, Example JSON transformer
+  GraphUtils // optional, useful utility functions
+} from 'react-digraph';
 
 const GraphConfig =  {
   NodeTypes: {
     empty: { // required to show empty nodes
       typeText: "None",
-      shapeId: "#empty",
+      shapeId: "#empty", // relates to the type property of a node
       shape: (
         <symbol viewBox="0 0 100 100" id="empty" key="0">
           <circle cx="50" cy="50" r="45"></circle>
+        </symbol>
+      )
+    },
+    custom: { // required to show empty nodes
+      typeText: "Custom",
+      shapeId: "#custom", // relates to the type property of a node
+      shape: (
+        <symbol viewBox="0 0 50 25" id="custom" key="0">
+          <ellipse cx="50" cy="25" rx="50" ry="25"></circle>
         </symbol>
       )
     }
@@ -125,14 +143,14 @@ A typical graph that would be stored in the Graph component's state looks someth
       "title": "Node C",
       "x": 237.5757598876953,
       "y": 61.81818389892578,
-      "type": "empty"
+      "type": "custom"
     },
     {
       "id": 4,
       "title": "Node C",
       "x": 600.5757598876953,
       "y": 600.81818389892578,
-      "type": "empty"
+      "type": "custom"
     }
   ],
   "edges": [
@@ -151,13 +169,14 @@ A typical graph that would be stored in the Graph component's state looks someth
 
 ```
 
-
 For a detailed example, check out src/examples/graph.js.
 To run the example:
+
 ```
 npm install
 npm run serve
 ```
+
 A webpage will open in your default browser automatically.
 
 - To add nodes, hold shift and click on the grid.
@@ -190,6 +209,7 @@ All props are detailed below.
 | canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
 | canCreateEdge       | func                    | false     | Called before an edge is created.                         |
 | canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
+| postRenderEdge      | func                    | false     | Called after an edge is rendered.                         |
 | renderNode          | func                    | false     | Called to render node geometry.                           |
 | renderNodeText      | func                    | false     | Called to render the node text                            |
 | renderDefs          | func                    | false     | Called to render svg definitions.                         |
@@ -243,6 +263,7 @@ Prop Types:
   canDeleteNode?: (selected: any) => boolean;
   canDeleteEdge?: (selected: any) => boolean;
   canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
+  postRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
   onUndo?: () => void;
   onCopySelected?: () => void;
   onPasteSelected?: () => void;

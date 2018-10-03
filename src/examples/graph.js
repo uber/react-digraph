@@ -21,10 +21,7 @@
 
 import * as React from 'react';
 
-import { type IEdge } from '../components/edge';
-import GraphView from '../components/graph-view';
-import { type INode } from '../components/node';
-import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
+import { GraphView, type IEdge, type INode, type LayoutEngineType } from '../';
 import GraphConfig, {
   edgeTypes,
   EMPTY_EDGE_TYPE,

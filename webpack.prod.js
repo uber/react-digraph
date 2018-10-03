@@ -38,7 +38,10 @@ module.exports = {
       },
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        // Don't exclude the node_modules directory, otherwise the error is:
+        // [21:23:59] GulpUglifyError: unable to minify JavaScript
+        // Caused by: SyntaxError: Unexpected token: name (e)
+        // exclude: /(node_modules|bower_components)/,
         use: [
           {
             loader: 'babel-loader',
