@@ -1104,7 +1104,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     let containerId = `${id}-container`;
     const customContainerId = `${id}-custom-container`;
     const { draggedEdge } = this.state;
-    const { postRenderEdge } = this.props;
+    const { afterRenderEdge } = this.props;
     let edgeContainer = document.getElementById(containerId);
     if (nodeMoving && edgeContainer) {
       edgeContainer.style.display = 'none';
@@ -1127,8 +1127,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // into the edgeContainer
     if (edgeContainer) {
       ReactDOM.render(element, edgeContainer);
-      if (postRenderEdge) {
-        return postRenderEdge(id, element, edge, edgeContainer, this.isEdgeSelected(edge));
+      if (afterRenderEdge) {
+        return afterRenderEdge(id, element, edge, edgeContainer, this.isEdgeSelected(edge));
       }
     }
   }
