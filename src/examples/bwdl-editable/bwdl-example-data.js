@@ -15,7 +15,6 @@
   limitations under the License.
 */
 
-//tslint:disable
 export default {
   ExampleSource: 'https://code.uberinternal.com/file/data/aioyv5yrrs3dadbmxlap/PHID-FILE-v36jeiyn4y3gphtdwjsm/1.json',
   Name: 'Colombo_Intercity_Driver_dispatch',

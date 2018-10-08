@@ -404,7 +404,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   onUndo = () => {
     // Not implemented
-    // tslint:disable-next-line no-console noconsole
     console.warn('Undo is not currently implemented in the example.');
     // Normally any add, remove, or update would record the action in an array.
     // In order to undo it one would simply call the inverse of the action performed. For instance, if someone
@@ -414,7 +413,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   onCopySelected = () => {
     if (this.state.selected.source) {
-      // tslint:disable-next-line no-console noconsole
       console.warn('Cannot copy selected edges, try selecting a node instead.');
       return;
     }
@@ -427,7 +425,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   onPasteSelected = () => {
     if (!this.state.copiedNode) {
-      // tslint:disable-next-line no-console noconsole
       console.warn('No node is currently in the copy queue. Try selecting a node and copying it with Ctrl/Command-C');
     }
     const graph = this.state.graph;

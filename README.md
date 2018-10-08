@@ -6,7 +6,7 @@ A React component which makes it easy to create a directed graph editor without 
 
 ## Important v5.0.0 Information
 Version 5.0.0 is a breaking change to some of the API interfaces. Many of the component attributes are the same, and the data format is the same, but there
-have been some necessary changes to improve the API and make the component faster and add new features. Many changes will be listed below in the deprecation notes section. If you notice a problem, please use the ^4.0.0 versions of the package and refer to the legacy documentation in the `v4.x.x` git branch.
+have been some necessary changes to improve the API, make the component faster, and add new features. Many changes will be listed below in the deprecation notes section. If you notice a problem, please use the ^4.0.0 versions of the package and refer to the legacy documentation in the `v4.x.x` git branch.
 
 ## Installation
 

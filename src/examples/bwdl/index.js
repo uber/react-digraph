@@ -17,7 +17,6 @@
 
 import * as React from 'react';
 import AceEditor from 'react-ace';
-// tslint:disable-next-line ordered-imports
 import 'brace/mode/json';
 import 'brace/theme/monokai';
 import { type IEdge } from '../../components/edge';
