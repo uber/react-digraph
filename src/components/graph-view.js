@@ -200,6 +200,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleWrapperKeydown);
+    document.removeEventListener('click', this.handleDocumentClick);
   }
 
   shouldComponentUpdate(nextProps: IGraphViewProps, nextState: IGraphViewState) {
