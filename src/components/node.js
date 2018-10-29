@@ -64,6 +64,7 @@ type INodeState = {
   y: number;
   selected: boolean;
   mouseDown: boolean;
+  drawingEdge: boolean;
 };
 
 export type IPoint = {
@@ -97,6 +98,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     super(props);
 
     this.state = {
+      drawingEdge: false,
       hovered: false,
       mouseDown: false,
       selected: false,
@@ -135,13 +137,14 @@ class Node extends React.Component<INodeProps, INodeState> {
     };
 
     if (shiftKey) {
+      this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
       const off = Edge.calculateOffset(nodeSize, this.props.data, newState, nodeKey);
       newState.x += off.xOff;
       newState.y += off.yOff;
       // now tell the graph that we're actually drawing an edge
-    } else {
+    } else if(!this.state.drawingEdge) {
       // move node
       if (layoutEngine) {
         Object.assign(newState, layoutEngine.getPositionForNode(newState));
@@ -166,12 +169,14 @@ class Node extends React.Component<INodeProps, INodeState> {
     if (!this.nodeRef.current) {
       return;
     }
+    const { x, y, drawingEdge } = this.state;
+    const { data, index } = this.props;
+    this.setState({ mouseDown: false, drawingEdge: false });
+
     if (this.oldSibling && this.oldSibling.parentElement) {
       this.oldSibling.parentElement.insertBefore(this.nodeRef.current.parentElement, this.oldSibling);
     }
-    this.setState({ mouseDown: false });
-    const { x, y } = this.state;
-    const { data, index } = this.props;
+
     const shiftKey = d3.event.sourceEvent.shiftKey;
     this.props.onNodeUpdate(
       {
@@ -179,10 +184,10 @@ class Node extends React.Component<INodeProps, INodeState> {
         y
       },
       index,
-      shiftKey
+      shiftKey || drawingEdge
     );
 
-    this.props.onNodeSelected(data, index, shiftKey);
+    this.props.onNodeSelected(data, index, shiftKey || drawingEdge);
   }
 
   handleMouseOver = (event: any) => {

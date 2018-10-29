@@ -541,7 +541,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (readOnly) {
       return;
     }
-    if (!shiftKey) {
+    if (!shiftKey && !this.state.draggingEdge) {
       node.x = position.x;
       node.y = position.y;
 
@@ -553,7 +553,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       }
 
       this.syncRenderConnectedEdgesFromNode(nodeMapNode, true);
-    } else if (canCreateEdge && canCreateEdge(node[nodeKey])) {
+    } else if ((canCreateEdge && canCreateEdge(node[nodeKey])) || this.state.draggingEdge) {
       // render new edge
       this.syncRenderEdge({ source: node[nodeKey], targetPosition: position });
       this.setState({ draggingEdge: true });
