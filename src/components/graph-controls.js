@@ -1,155 +1,93 @@
-// Copyright (c) 2016 Uber Technologies, Inc.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// @flow
+/*
+  Copyright(c) 2018 Uber Technologies, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 
 /*
   Zoom slider and zoom to fit controls for GraphView
 */
 
-import React, {Component} from 'react';
-import Radium from 'radium';
-import PropTypes from 'prop-types';
-
-// Only old-style imports for react-icons seem to work with gulp
-const FaExpand = require('react-icons/lib/fa/expand');
-const FaInfoCircle = require('react-icons/lib/fa/info-circle');
-
-
+import React from 'react';
+import FaExpand from 'react-icons/lib/fa/expand';
 
 const steps = 100; // Slider steps
 
-
-
-function makeStyles(primary){
-  return {
-    controls: {
-      position: 'absolute',
-      bottom: '30px',
-      left: '15px',
-      zIndex: 100,
-      display: 'grid',
-      gridTemplateColumns: 'auto auto',
-      gridGap: '15px',
-      alignItems: 'center'
-    },
-    sliderWrapper: {
-      backgroundColor: 'white',
-      color: primary,
-      border: `solid 1px lightgray`,
-      padding: '6.5px',
-      borderRadius: '2px'
-    },
-    slider: {
-      position: 'relative',
-      top: '6px',
-      marginLeft: 5,
-      marginRight: 5,
-      cursor: 'pointer'
-    },
-    button: {
-      backgroundColor: 'white',
-      color: primary,
-      border: `solid 1px lightgray`,
-      outline: 'none',
-      width: 31,
-      height: 31,
-      borderRadius: '2px',
-      cursor: 'pointer'
-    }
-  }
+type IGraphControlProps = {
+  maxZoom?: number;
+  minZoom?: number;
+  zoomLevel: number;
+  zoomToFit: (event: SyntheticMouseEvent<HTMLButtonElement>) => void;
+  modifyZoom: (delta: number) => boolean;
 }
 
+class GraphControls extends React.Component<IGraphControlProps> {
+  static defaultProps = {
+    maxZoom: 1.5,
+    minZoom: 0.15
+  };
 
-
-class GraphControls extends Component {
-
-  constructor(props) {
+  constructor(props: IGraphControlProps) {
     super(props);
-    this.state = {
-      styles: makeStyles(props.primary)
-    }
   }
 
   // Convert slider val (0-steps) to original zoom value range
-  sliderToZoom(val){
-    return ((val) * (this.props.maxZoom - this.props.minZoom)/steps ) + this.props.minZoom
+  sliderToZoom(val: number) {
+    const { minZoom, maxZoom } = this.props;
+    return val * ((maxZoom || 0) - (minZoom || 0)) / steps + (minZoom || 0);
   }
 
   // Convert zoom val (minZoom-maxZoom) to slider range
-  zoomToSlider(val){
-    return (val - this.props.minZoom) * steps/(this.props.maxZoom - this.props.minZoom)
-  }
-
-  // Center graph-view on contents of svg > view
-  zoomToFit(){
-    this.props.zoomToFit();
+  zoomToSlider(val: number) {
+    const { minZoom, maxZoom } = this.props;
+    return (val - (minZoom || 0)) * steps / ((maxZoom || 0) - (minZoom || 0));
   }
 
   // Modify current zoom of graph-view
-  zoom(e){
-    let sliderVal = e.target.value;
-    let zoomLevelNext = this.sliderToZoom(sliderVal);
-    let delta = zoomLevelNext-this.props.zoomLevel;
+  zoom = (e: any) => {
+    const { minZoom, maxZoom } = this.props;
+    const sliderVal = e.target.value;
+    const zoomLevelNext = this.sliderToZoom(sliderVal);
+    const delta = zoomLevelNext - this.props.zoomLevel;
 
-    if( zoomLevelNext <= this.props.maxZoom && zoomLevelNext >= this.props.minZoom){
-      this.props.modifyZoom(delta)
+    if (zoomLevelNext <= (maxZoom || 0) && zoomLevelNext >= (minZoom || 0)) {
+      this.props.modifyZoom(delta);
     }
-  }
+  };
 
   render() {
-    const styles = this.state.styles;
-
     return (
-      <div style={styles.controls} className="graphControls">
-        <div style={styles.sliderWrapper}>
-          -
+      <div className="graph-controls">
+        <div className="slider-wrapper">
+          <span>-</span>
           <input
             type="range"
-            style={styles.slider}
-            min={this.zoomToSlider(this.props.minZoom)}
-            max={this.zoomToSlider(this.props.maxZoom)}
+            className="slider"
+            min={this.zoomToSlider(this.props.minZoom || 0)}
+            max={this.zoomToSlider(this.props.maxZoom || 0)}
             value={this.zoomToSlider(this.props.zoomLevel)}
-            onChange={this.zoom.bind(this)}
-            step="1"/>
-          +
+            onChange={this.zoom}
+            step="1"
+          />
+          <span>+</span>
         </div>
-        <button type="button" style={styles.button} onMouseDown={this.props.zoomToFit}>
-          <FaExpand/>
+        <button type="button" className="slider-button" onMouseDown={this.props.zoomToFit}>
+          <FaExpand />
         </button>
       </div>
     );
   }
 }
 
-GraphControls.propTypes = {
-  primary: PropTypes.string,
-  minZoom: PropTypes.number,
-  maxZoom: PropTypes.number,
-  zoomLevel: PropTypes.number.isRequired,
-  zoomToFit: PropTypes.func.isRequired,
-  modifyZoom: PropTypes.func.isRequired
-}
-
-GraphControls.defaultProps = {
-  primary: 'dodgerblue',
-  minZoom: 0.15,
-  maxZoom: 1.5
-}
-
-export default Radium(GraphControls)
+export default GraphControls;

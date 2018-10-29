@@ -15,13 +15,15 @@
   limitations under the License.
 */
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+import None from './none';
+import SnapToGrid from './snap-to-grid';
+import VerticalTree from './vertical-tree';
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+
+export type LayoutEngine = None | SnapToGrid | VerticalTree;
+
+export const LayoutEngines = {
+  None,
+  SnapToGrid,
+  VerticalTree
+};

@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,13 +14,34 @@
   limitations under the License.
 */
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+#bwdl-graph {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+.selected-node-container {
+  padding: 10px;
+
+  .node-property {
+    margin-bottom: 10px;
+
+    .choices {
+      padding-left: 10px;
+      margin-bottom: 10px;
+
+      .and-object {
+        padding-left: 10px;
+        margin-bottom: 5px;
+      }
+    }
+
+    .node-sub-property {
+      padding-left: 10px;
+    }
+  }
+
+  label {
+    font-weight: bold;
+  }
+}

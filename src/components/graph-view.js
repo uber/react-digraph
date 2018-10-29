@@ -1,1182 +1,1228 @@
-// Copyright (c) 2016 Uber Technologies, Inc.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
+// @flow
 /*
-  GraphView is a Generic D3 Graph view with no application specific
-  code in it and no significant state except UI state (zoom, for example).
+  Copyright(c) 2018 Uber Technologies, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 */
 
-import React, {
-  Component
-} from 'react';
-import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import Radium from 'radium';
-import GraphControls from './graph-controls.js'
+import * as React from 'react';
+import ReactDOM from 'react-dom';
+import '../styles/main.scss';
 
+import { LayoutEngines } from '../utilities/layout-engine/layout-engine-config';
+import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
+import { type IGraphViewProps } from './graph-view-props';
+import Background from './background';
+import Defs from './defs';
+import Edge, { type IEdge, type ITargetPosition } from './edge';
+import GraphControls from './graph-controls';
+import GraphUtils, { type INodeMapNode } from './graph-util';
+import Node, { type INode } from './node';
+import { Transform } from 'stream';
 
-function styleToString(style){
-  return Object.keys(style)
-    .map(function(k) {
-      let key = k.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-      return `${key}:${style[k]}`;
-    }).join(";")
+type IViewTransform = {
+  k: number,
+  x: number,
+  y: number
 }
 
+type IGraphViewState = {
+  viewTransform?: IViewTransform;
+  hoveredNode: boolean;
+  nodesMap: any;
+  edgesMap: any;
+  nodes: any[];
+  edges: any[];
+  selectingNode: boolean;
+  hoveredNodeData: INode | null;
+  edgeEndNode: INode | null;
+  draggingEdge: boolean;
+  draggedEdge: any;
+  componentUpToDate: boolean;
+  selectedEdgeObj: any;
+  selectedNodeObj: any;
+  documentClicked: boolean;
+  svgClicked: boolean;
+  focused: boolean;
+};
 
-function makeStyles(primary='dodgerblue', light='white', dark='black', background='#F9F9F9'){
- let styles = {
-    wrapper: {
-      base: {
-        height: '100%',
-        margin: 0,
-        display: 'flex',
-        boxShadow: 'none',
-        opacity: 0.5,
-        background: background,
-        transition: "opacity 0.167s"
-      },
-      focused: {
-        opacity: 1
-      }
-    },
-    svg: {
-      base: {
-        alignContent: 'stretch',
-        flex: 1
-      }
-    },
-    node: {
-      base: {
-        color: primary,
-        stroke: light,
-        fill: light,
-        filter: 'url(#dropshadow)',
-        strokeWidth: '0.5px',
-        cursor: 'pointer'
-      },
-      selected: {
-        color: light,
-        stroke: primary,
-        fill: primary
-      }
-    },
-    shape: {
-      fill: 'inherit',
-      stroke: dark,
-      strokeWidth: '0.5px'
-    },
-    text: {
-      base:{
-        fill: dark,
-        stroke: dark
-      },
-      selected: {
-        fill: light,
-        stroke: light
-      }
-    },
-    edge: {
-      base: {
-        color: light,
-        stroke: primary,
-        strokeWidth: '2px',
-        markerEnd: 'url(#end-arrow)',
-        cursor: 'pointer'
-      },
-      selected: {
-        color: primary,
-        stroke: primary
-      }
-    },
-    arrow: {
-      fill: primary
+class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
+  static defaultProps = {
+    canCreateEdge: (startNode?:INode, endNode?:INode) => true,
+    canDeleteEdge: () => true,
+    canDeleteNode: () => true,
+    edgeArrowSize: 8,
+    gridSpacing: 36,
+    layoutEngineType: 'None',
+    maxTitleChars: 9,
+    maxZoom: 1.5,
+    minZoom: 0.15,
+    nodeSize: 154,
+    readOnly: false,
+    showGraphControls: true,
+    zoomDelay: 1000,
+    zoomDur: 750
+  };
+
+  static getDerivedStateFromProps(nextProps: IGraphViewProps, prevState: IGraphViewState) {
+    const { edges, nodeKey } = nextProps;
+    let nodes = nextProps.nodes;
+    const nodesMap = GraphUtils.getNodesMap(nodes, nodeKey);
+    const edgesMap = GraphUtils.getEdgesMap(edges);
+    GraphUtils.linkNodesAndEdges(nodesMap, edges);
+
+    const selectedNodeMap =
+      nextProps.selected && nodesMap[`key-${nextProps.selected[nodeKey]}`]
+        ? nodesMap[`key-${nextProps.selected[nodeKey]}`]
+        : null;
+    const selectedEdgeMap =
+      nextProps.selected && edgesMap[`${nextProps.selected.source}_${nextProps.selected.target}`]
+        ? edgesMap[`${nextProps.selected.source}_${nextProps.selected.target}`]
+        : null;
+
+    // Handle layoutEngine on initial render
+    if (prevState.nodes.length === 0 && nextProps.layoutEngineType && LayoutEngines[nextProps.layoutEngineType]) {
+      const layoutEngine = new LayoutEngines[nextProps.layoutEngineType](nextProps);
+      const newNodes = layoutEngine.adjustNodes(nodes, nodesMap);
+      nodes = newNodes;
     }
-  }
 
-  // Styles need to be strings for D3 to apply them all at once
-  styles.node.baseString = styleToString(styles.node.base);
-  styles.node.selectedString = styleToString({...styles.node.base, ...styles.node.selected});
-  styles.text.baseString= styleToString(styles.text.base);
-  styles.text.selectedString = styleToString({...styles.text.base, ...styles.text.selected});
-  styles.edge.baseString = styleToString(styles.edge.base);
-  styles.edge.selectedString = styleToString({...styles.edge.base, ...styles.edge.selected});
-
-  return styles
-}
-
-// any objects with x & y properties
-function getTheta(pt1, pt2) {
-  const xComp = pt2.x - pt1.x;
-  const yComp = pt2.y - pt1.y;
-  const theta = Math.atan2(yComp, xComp);
-  return theta
-}
-
-function getMidpoint(pt1, pt2) {
-  const x = (pt2.x + pt1.x)/2;
-  const y = (pt2.y + pt1.y)/2;
-
-  return {x: x, y: y};
-}
-
-function getDistance(pt1, pt2) {
-  return  Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2))
-}
-
-
-
-class GraphView extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      viewTransform: d3.zoomIdentity,
-      selectionChanged: false,
-      focused: true,
-      enableFocus: props.enableFocus || false, // Enables focus/unfocus
-      edgeSwapQueue: [],    // Stores nodes to be swapped
-      styles: makeStyles(props.primary, props.light, props.dark, props.background)
+    const nextState = {
+      componentUpToDate: true,
+      edges,
+      edgesMap,
+      nodes,
+      nodesMap,
+      readOnly: nextProps.readOnly,
+      selectedEdgeObj: {
+        edge: selectedEdgeMap ? edges[selectedEdgeMap.originalArrIndex] : null
+      },
+      selectedNodeObj: {
+        index: selectedNodeMap ? selectedNodeMap.originalArrIndex : -1,
+        node: selectedNodeMap ? nodes[selectedNodeMap.originalArrIndex] : null
+      },
+      selectionChanged: false
     };
 
-    this.zoom = d3.zoom()
-                  .scaleExtent([props.minZoom, props.maxZoom])
-                  .on("zoom", this.handleZoom);
+    return nextState;
+  }
+
+  nodeTimeouts: any;
+  edgeTimeouts: any;
+  renderNodesTimeout: any;
+  renderEdgesTimeout: any;
+  zoom: any;
+  viewWrapper: any;
+  entities: any;
+  selectedView: any;
+  view: any;
+  graphControls: any;
+  layoutEngine: any;
+
+  constructor(props: IGraphViewProps) {
+    super(props);
 
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
+    this.renderNodesTimeout = null;
+    this.renderEdgesTimeout = null;
+
+    this.graphControls = React.createRef();
+
+    if (props.layoutEngineType) {
+      this.layoutEngine = new LayoutEngines[props.layoutEngineType](props);
+    }
+
+    this.state = {
+      componentUpToDate: false,
+      draggedEdge: null,
+      draggingEdge: false,
+      edgeEndNode: null,
+      edges: [],
+      edgesMap: {},
+      hoveredNode: false,
+      hoveredNodeData: null,
+      nodes: [],
+      nodesMap: {},
+      selectedEdgeObj: null,
+      selectedNodeObj: null,
+      selectingNode: false,
+      documentClicked: false,
+      svgClicked: false,
+      focused: true
+    };
   }
 
   componentDidMount() {
-    // Window event listeners for keypresses
-    // and to control blur/focus of graph
-    d3.select(this.viewWrapper)
-      .on('keydown', this.handleWrapperKeydown);
+    // TODO: can we target the element rather than the document?
+    document.addEventListener('keydown', this.handleWrapperKeydown);
+    document.addEventListener('click', this.handleDocumentClick);
 
-    var svg = d3.select(this.viewWrapper)
-      .on("touchstart", this.containZoom)
-      .on("touchmove", this.containZoom)
-      .on("click", this.handleSvgClicked)
-      .select("svg")
+    this.zoom = d3
+      .zoom()
+      .filter(this.zoomFilter)
+      .scaleExtent([this.props.minZoom || 0, this.props.maxZoom || 0])
+      .on('start', this.handleZoomStart)
+      .on('zoom', this.handleZoom)
+      .on('end', this.handleZoomEnd);
+
+    d3
+      .select(this.viewWrapper)
+      .on('touchstart', this.containZoom)
+      .on('touchmove', this.containZoom)
+      .on('click', this.handleSvgClicked) // handle element click in the element components
+      .select('svg')
       .call(this.zoom);
 
-    // On the initial load, the 'view' <g> doesn't exist
-    // until componentDidMount. Manually render the first view.
+    this.selectedView = d3.select(this.view);
+
+    // On the initial load, the 'view' <g> doesn't exist until componentDidMount.
+    // Manually render the first view.
     this.renderView();
 
-    // It seems Electron/JSDom's mocking of the SVG API is incomplete
-    // and causes D3 to error out when zooming to fit in tests.
-    if(process.env.NODE_ENV !== "test"){
-      setTimeout(() => {
-        if (this.viewWrapper != null) {
-          this.handleZoomToFit();
-        }
-      }, this.props.zoomDelay);
-    }
+    setTimeout(() => {
+      if (this.viewWrapper != null) {
+        this.handleZoomToFit();
+      }
+    }, this.props.zoomDelay);
   }
 
   componentWillUnmount() {
-    // Remove window event listeners
-    d3.select(this.viewWrapper)
-      .on('keydown', null);
+    document.removeEventListener('keydown', this.handleWrapperKeydown);
+    document.removeEventListener('click', this.handleDocumentClick);
   }
 
-  componentWillReceiveProps(nextProps) {
-    let selectionChanged = false;
-    let selected = this.props.selected;
-    const newState = {};
-
-    if (nextProps.selected !== selected) {
-      newState.selected = nextProps.selected;
-      newState.previousSelection = selected;
-      newState.selectionChanged = true;
-
-      let selectionType = null;
-      if (nextProps.selected && nextProps.selected.source){
-        newState.selectionType = 'edge'
-      } else if (nextProps.selected && nextProps.selected[this.props.nodeKey]) {
-        newState.selectionType = 'node'
-      }
-
-      this.setState(newState);
+  shouldComponentUpdate(nextProps: IGraphViewProps, nextState: IGraphViewState) {
+    if (
+      nextProps.nodes !== this.props.nodes ||
+      nextProps.edges !== this.props.edges ||
+      !nextState.componentUpToDate ||
+      nextProps.selected !== this.props.selected ||
+      nextProps.readOnly !== this.props.readOnly ||
+      nextProps.layoutEngineType !== this.props.layoutEngineType
+    ) {
+      return true;
     }
+    return false;
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.selectionChanged) {
+  componentDidUpdate(prevProps: IGraphViewProps, prevState: IGraphViewState) {
+    const { nodesMap, edgesMap, nodes } = this.state;
+
+    if (this.props.layoutEngineType && LayoutEngines[this.props.layoutEngineType]) {
+      this.layoutEngine = new LayoutEngines[this.props.layoutEngineType](this.props);
+      const newNodes = this.layoutEngine.adjustNodes(nodes, nodesMap);
       this.setState({
-        selectionChanged: false
+        nodes: newNodes
       });
+    }
+
+    // Note: the order is intentional Do not save the timeouts to variables, as
+    // subsequent render calls could overwrite timeouts and not render new additions
+    // or deletions.
+    setTimeout(() => {
+      this.addNewNodes(this.state.nodes, prevState.nodesMap);
+    });
+
+    // add new edges
+    setTimeout(() => {
+      this.addNewEdges(this.state.edges, prevState.edgesMap);
+    });
+
+    // remove old edges
+    setTimeout(() => {
+      this.removeOldEdges(prevState.edges, edgesMap);
+    });
+
+    // remove old nodes
+    setTimeout(() => {
+      this.removeOldNodes(prevState.nodesMap, nodesMap);
+    });
+
+    this.setState({
+      componentUpToDate: true
+    });
+  }
+
+  getNodeById(id: string | null): INodeMapNode | null {
+    return this.state.nodesMap ? this.state.nodesMap[`key-${id || ''}`] : null;
+  }
+
+  getEdgeBySourceTarget(source: string, target: string): IEdge | null {
+    return this.state.edgesMap ? this.state.edgesMap[`${source}_${target}`] : null;
+  }
+
+  deleteNodeById(id: string) {
+    if (this.state.nodesMap && this.state.nodesMap[`key-${id}`]) {
+      delete this.state.nodesMap[`key-${id}`];
     }
   }
 
-  /*
-   * Handlers/Interaction
-   */
-
-  hideEdge = (edgeDOMNode) => {
-    d3.select(edgeDOMNode)
-      .attr("opacity", 0)
-  }
-
-  showEdge = (edgeDOMNode) => {
-    d3.select(edgeDOMNode)
-      .attr("opacity", 1)
-  }
-
-  canSwap = (sourceNode, hoveredNode, swapEdge) => {
-    return swapEdge.source != sourceNode[this.props.nodeKey] ||
-          swapEdge.target != hoveredNode[this.props.nodeKey]
-  }
-
-  lineFunction = (data) => {
-    // Provides API for curved lines using .curve()
-    // Example: https://bl.ocks.org/d3indepth/64be9fc39a92ef074034e9a8fb29dcce
-    return (d3.line()
-      .x(function (d) {
-        return d.x;
-      })
-      .y(function (d) {
-        return d.y;
-      }))(data);
-  }
-
-  drawEdge = (sourceNode, target, swapErrBack) => {
-    const self = this;
-
-    const dragEdge = d3.select(this.entities).append('svg:path')
-
-    dragEdge.attr('class', 'link dragline')
-      .attr("style", this.state.styles.edge.selectedString)
-      .attr('d', this.lineFunction([
-        { x: sourceNode.x, y: sourceNode.y },
-        { x: d3.event.x, y: d3.event.y }
-      ]));
-
-    d3.event.on("drag", dragged).on("end", ended);
-
-    function dragged(d) {
-      dragEdge.attr( 'd', self.lineFunction([
-        { x: sourceNode.x, y: sourceNode.y },
-        { x: d3.event.x, y: d3.event.y }
-      ]) )
+  deleteEdgeBySourceTarget(source: string, target: string) {
+    if (this.state.edgesMap && this.state.edgesMap[`${source}_${target}`]) {
+      delete this.state.edgesMap[`${source}_${target}`];
     }
+  }
 
-    function ended(d) {
-      dragEdge.remove();
-
-      let swapEdge = self.state.edgeSwapQueue.shift();
-      let hoveredNode = self.state.hoveredNode;
-
-      self.setState({
-        edgeSwapQueue: self.state.edgeSwapQueue,
-        drawingEdge: false
-      });
-
-      if(hoveredNode && self.props.canCreateEdge(sourceNode, hoveredNode)){
-
-        if( swapEdge ){
-          if(self.props.canDeleteEdge(swapEdge) && self.canSwap(sourceNode,hoveredNode,swapEdge)){
-            self.props.onSwapEdge(sourceNode, hoveredNode, swapEdge)
-            self.renderView()
-          } else {
-            swapErrBack()
-          }
-        } else {
-          self.props.onCreateEdge(sourceNode, hoveredNode)
-          self.renderView()
-        }
+  addNewNodes(nodes: INode[], oldNodesMap: any) {
+    if (this.state.draggingEdge) {
+      return;
+    }
+    const nodeKey = this.props.nodeKey;
+    nodes.forEach((node, i) => {
+      const prevNode = oldNodesMap[`key-${node[nodeKey]}`];
+      if (prevNode && node !== prevNode.node) {
+        // Nodes must be immutable. A node with the same key must not have the same memory reference.
+        // Update individual node
+        this.asyncRenderNode(node, i);
       } else {
-        if (swapErrBack){
-          swapErrBack()
-        }
+        // New node
+        this.asyncRenderNode(node, i);
       }
-    }
+    });
   }
 
-  dragNode = () => {
-    const self = this;
+  removeOldNodes(prevNodeMap: any, nodesMap: any) {
+    const nodeKey = this.props.nodeKey;
+    // remove old nodes
+    Object.keys(prevNodeMap).forEach((nodeId) => {
+      // Check for deletions
+      if (!nodesMap[nodeId]) {
+        // remove all outgoing edges
+        prevNodeMap[nodeId].outgoingEdges.forEach((edge) => {
+          this.removeEdgeElement(edge.source, edge.target);
+        });
 
-    const el = d3.select(d3.event.target.parentElement); // Enclosing 'g' element
-    el.classed("dragging", true);
-    d3.event.on("drag", dragged).on("end", ended);
+        // remove all incoming edges
+        prevNodeMap[nodeId].incomingEdges.forEach((edge) => {
+          this.removeEdgeElement(edge.source, edge.target);
+        });
 
-    let oldSibling = null;
-    function dragged(d) {
-      if (self.props.readOnly) return;
-      const selectedNode = d3.select(this);
-      if (!oldSibling) {
-        oldSibling = this.nextSibling;
+        // remove node
+        const id = prevNodeMap[nodeId].node[nodeKey];
+        GraphUtils.removeElementFromDom(`node-${id}-container`);
       }
-      // Moves child to the end of the element stack to re-arrange the z-index
-      this.parentElement.appendChild(this);
+    });
+  }
 
-      selectedNode.attr('transform', function(d) {
-        d.x += d3.event.dx;
-        d.y += d3.event.dy;
-        return 'translate(' + d.x + ',' + d.y + ')';
+  addNewEdges(edges: IEdge[], oldEdgesMap: any) {
+    if (!this.state.draggingEdge) {
+      edges.forEach((edge) => {
+        if (!edge.source || !edge.target) {
+          return;
+        }
+        const prevEdge = oldEdgesMap[`${edge.source}_${edge.target}`];
+        if (!prevEdge) {
+          // new edge
+          this.asyncRenderEdge(edge);
+        }
       });
-      self.render();
     }
+  }
 
-    function ended() {
-      el.classed("dragging", false);
-
-      if(!self.props.readOnly){
-        var d = d3.select(this).datum();
-        // Move the node back to the original z-index
-        if (oldSibling) {
-          oldSibling.parentElement.insertBefore(this, oldSibling);
-        }
-        self.props.onUpdateNode(d);
+  removeOldEdges = (prevEdges: IEdge[], edgesMap: any) => {
+    // remove old edges
+    prevEdges.forEach((edge) => {
+      // Check for deletions
+      if (!edge.source || !edge.target) {
+        return;
       }
-
-      // For some reason, mouseup isn't firing
-      // - manually firing it here
-      d3.select(this).node().dispatchEvent(new Event("mouseup"))
-    }
-  }
-
-  // Node 'drag' handler
-  handleNodeDrag = () => {
-    if(this.state.drawingEdge && !this.props.readOnly){
-      const target = {x: d3.event.subject.x, y: d3.event.subject.y }
-      this.drawEdge(d3.event.subject, target )
-    } else {
-      this.dragNode()
-    }
-  }
-
-  handleDelete = () => {
-    if (this.props.readOnly) return;
-    if (this.props.selected) {
-      const selected = this.props.selected;
-      if (!selected.source && this.props.canDeleteNode(selected)) {
-        this.props.onDeleteNode(selected);
-        this.props.onSelectNode(null);
-      } else if (selected.source && this.props.canDeleteEdge(selected)) {
-        this.props.onDeleteEdge(selected);
-        this.props.onSelectNode(null);
+      if (!edgesMap[`${edge.source}_${edge.target}`]) {
+        // remove edge
+        this.removeEdgeElement(edge.source, edge.target);
       }
+    });
+  }
+
+  removeEdgeElement(source: string, target: string) {
+    const id = `${source}-${target}`;
+    GraphUtils.removeElementFromDom(`edge-${id}-container`);
+  }
+
+  canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
+    return (
+      hoveredNode &&
+      sourceNode !== hoveredNode &&
+      (swapEdge.source !== sourceNode[this.props.nodeKey] ||
+        swapEdge.target !== hoveredNode[this.props.nodeKey])
+    );
+  }
+
+  deleteNode(selectedNode: INode) {
+    const { nodeKey } = this.props;
+    const { nodes } = this.state;
+
+    const nodeId = selectedNode[nodeKey];
+    const originalArrIndex = (this.getNodeById(nodeId): any).originalArrIndex;
+
+    // delete from local state
+    this.deleteNodeById(nodeId);
+    nodes.splice(originalArrIndex, 1);
+    this.setState({
+      componentUpToDate: false,
+      hoveredNode: false,
+      nodes
+    });
+
+    // remove from UI
+    GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
+
+    // inform consumer
+    this.props.onSelectNode(null);
+    this.props.onDeleteNode(selectedNode, originalArrIndex, nodes);
+  }
+
+  deleteEdge(selectedEdge: IEdge) {
+    const { edges } = this.state;
+    if (!selectedEdge.source || !selectedEdge.target) {
+      return;
+    }
+
+    const originalArrIndex = (this.getEdgeBySourceTarget(selectedEdge.source, selectedEdge.target): any).originalArrIndex;
+
+    edges.splice(originalArrIndex, 1);
+    if (selectedEdge.source && selectedEdge.target) {
+      this.deleteEdgeBySourceTarget(selectedEdge.source, selectedEdge.target);
+    }
+
+    this.setState({
+      componentUpToDate: false,
+      edges
+    });
+
+    // remove from UI
+    if (selectedEdge.source && selectedEdge.target) {
+      GraphUtils.removeElementFromDom(`edge-${selectedEdge.source}-${selectedEdge.target}-container`);
+    }
+
+    // inform consumer
+    this.props.onDeleteEdge(selectedEdge, originalArrIndex, edges);
+  }
+
+  handleDelete = (selected: IEdge | INode) => {
+    const { canDeleteNode, canDeleteEdge, readOnly } = this.props;
+
+    if (readOnly || !selected) { return; }
+
+    if (!selected.source && canDeleteNode && canDeleteNode(selected)) {
+      // node
+      // $FlowFixMe
+      this.deleteNode(selected);
+    } else if (selected.source && canDeleteEdge && canDeleteEdge(selected)) {
+      // edge
+      // $FlowFixMe
+      this.deleteEdge(selected);
     }
   }
 
-  handleWrapperKeydown = (d, i) => {
+  handleWrapperKeydown: KeyboardEventListener = (d) => {
     // Conditionally ignore keypress events on the window
-    // if the Graph isn't focused
-    switch (d3.event.key) {
-      case "Delete":
-        this.handleDelete();
+    if (!this.state.focused) {
+      return;
+    }
+    switch (d.key) {
+      case 'Delete':
+      case 'Backspace':
+        if (this.state.selectedNodeObj) {
+          this.handleDelete(this.state.selectedNodeObj.node || this.props.selected);
+        }
         break;
-      case "Backspace":
-        this.handleDelete();
+      case 'z':
+        if ((d.metaKey || d.ctrlKey) && this.props.onUndo) {
+          this.props.onUndo();
+        }
+        break;
+      case 'c':
+        if ((d.metaKey || d.ctrlKey) && this.state.selectedNodeObj.node && this.props.onCopySelected) {
+          this.props.onCopySelected();
+        }
+        break;
+      case 'v':
+        if ((d.metaKey || d.ctrlKey) && this.state.selectedNodeObj.node && this.props.onPasteSelected) {
+          this.props.onPasteSelected();
+        }
         break;
       default:
         break;
     }
   }
 
-  handleSvgClicked = (d, i) => {
-    if (this.isPartOfEdge(d3.event.target)) return; // If any part of the edge is clicked, return
+  handleEdgeSelected = (e) => {
+    const { source, target } = e.target.dataset;
+    let newState = {
+      svgClicked: true
+    };
+    if (source && target) {
+      const edge: IEdge | null = this.getEdgeBySourceTarget(source, target);
+
+      if (!edge) {
+        return;
+      }
+      const originalArrIndex = (this.getEdgeBySourceTarget(source, target): any).originalArrIndex;
+      const previousSelection = (this.state.selectedEdgeObj && this.state.selectedEdgeObj.edge) || null;
+      newState = {
+        ...newState,
+        selectedEdgeObj: {
+          componentUpToDate: false,
+          edge: this.state.edges[originalArrIndex]
+        }
+      }
+      this.setState(newState);
+      this.syncRenderEdge(this.state.edges[originalArrIndex]);
+      if (previousSelection) {
+        this.syncRenderEdge(previousSelection);
+      }
+      this.props.onSelectEdge(this.state.edges[originalArrIndex]);
+    } else {
+      this.setState(newState);
+    }
+  }
+
+  handleSvgClicked = (d: any, i: any) => {
+    if (this.isPartOfEdge(d3.event.target)) {
+      this.handleEdgeSelected(d3.event);
+      return; // If any part of the edge is clicked, return
+    }
 
     if (this.state.selectingNode) {
       this.setState({
-        selectingNode: false
+        selectingNode: false,
+        svgClicked: true
       });
     } else {
+      const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
+      const previousSelectionIndex = (this.state.selectedNodeObj && this.state.selectedNodeObj.index) || -1;
+
+      // de-select the current selection
+      this.setState({
+        selectedNodeObj: null,
+        focused: true,
+        svgClicked: true
+      });
       this.props.onSelectNode(null);
+      if (previousSelection) {
+        this.syncRenderNode(previousSelection, previousSelectionIndex);
+      }
 
       if (!this.props.readOnly && d3.event.shiftKey) {
-          var xycoords = d3.mouse(event.target);
-          this.props.onCreateNode(xycoords[0], xycoords[1]);
-          this.renderView();
-        }
-    }
-  }
-
-  isPartOfEdge = (element) => {
-    while (element != null && element != this.viewWrapper) {
-      if (element.classList.contains("edge")) {
-        return true;
+        const xycoords = d3.mouse(d3.event.target);
+        this.props.onCreateNode(xycoords[0], xycoords[1]);
       }
-      element = element.parentElement;
     }
-    return false;
   }
 
-  handleNodeMouseDown = (d) => {
-    if (d3.event.defaultPrevented) {
-      return; // dragged
+
+  handleDocumentClick = () => {
+    this.setState({
+      documentClicked: true,
+      focused: this.state.svgClicked,
+      svgClicked: false
+    });
+  }
+
+  isPartOfEdge(element) {
+    return !!GraphUtils.findParent(element, '.edge-container');
+  }
+
+  handleNodeMove = (position: any, index: number, shiftKey: boolean) => {
+    const node = this.state.nodes[index];
+    const { nodeKey, canCreateEdge, readOnly } = this.props;
+    if (readOnly) {
+      return;
     }
+    if (!shiftKey && !this.state.draggingEdge) {
+      node.x = position.x;
+      node.y = position.y;
 
-    // Prevent d3's default as it changes the focus to the body
-    d3.event.preventDefault();
-    d3.event.stopPropagation();
-    if (document.activeElement != this.viewWrapper) {
-      this.viewWrapper.focus();
+      // Update edges synchronously because async doesn't update fast enough
+      const nodeMapNode: INodeMapNode | null = this.getNodeById(node[nodeKey]);
+
+      if (!nodeMapNode) {
+        return;
+      }
+
+      this.syncRenderConnectedEdgesFromNode(nodeMapNode, true);
+    } else if ((canCreateEdge && canCreateEdge(node[nodeKey])) || this.state.draggingEdge) {
+      // render new edge
+      this.syncRenderEdge({ source: node[nodeKey], targetPosition: position });
+      this.setState({ draggingEdge: true });
     }
+  }
 
-    if (d3.event.shiftKey) {
+  createNewEdge() {
+    const { canCreateEdge, nodeKey, onCreateEdge } = this.props;
+    const { edgesMap, edgeEndNode, hoveredNodeData } = this.state;
+    if (!hoveredNodeData) {
+      return;
+    }
+    GraphUtils.removeElementFromDom('edge-custom-container');
+    if (edgeEndNode) {
+      const mapId1 = `${hoveredNodeData[nodeKey]}_${edgeEndNode[nodeKey]}`;
+      const mapId2 = `${edgeEndNode[nodeKey]}_${hoveredNodeData[nodeKey]}`;
+      if (
+        edgesMap &&
+        hoveredNodeData !== edgeEndNode &&
+        canCreateEdge &&
+        canCreateEdge(hoveredNodeData, edgeEndNode) &&
+        !edgesMap[mapId1] &&
+        !edgesMap[mapId2]
+      ) {
+        const edge: IEdge = {
+          source: hoveredNodeData[nodeKey],
+          target: edgeEndNode[nodeKey]
+        };
+        this.setState({
+          componentUpToDate: false,
+          draggedEdge: null,
+          draggingEdge: false,
+        });
 
-      this.setState({
-        selectingNode: true,
-        drawingEdge: true
-      })
+        // this syncRenderEdge will render the edge as un-selected.
+        this.syncRenderEdge(edge);
+        // we expect the parent website to set the selected property to the new edge when it's created
+        onCreateEdge(hoveredNodeData, edgeEndNode);
+      } else {
+        // make the system understand that the edge creation process is done even though it didn't work.
+        this.setState({
+          edgeEndNode: null,
+          draggingEdge: false,
+        });
+      }
+    }
+  }
 
+  handleNodeUpdate = (position: any, index: number, shiftKey: boolean) => {
+    const { onUpdateNode } = this.props;
+    const { nodes } = this.state;
+
+    // Detect if edge is being drawn and link to hovered node
+    // This will handle a new edge
+    if (shiftKey) {
+      this.createNewEdge();
     } else {
-      const previousSelection = this.state.previousSelection;
+      const node = nodes[index];
+      if (node) {
+        Object.assign(node, position);
+        onUpdateNode(node);
+      }
+    }
+    // force a re-render
+    this.setState({
+      componentUpToDate: false,
+      // Setting hoveredNode to false here because the layout engine doesn't
+      // fire the mouseLeave event when nodes are moved.
+      hoveredNode: false
+    });
+  }
+
+  handleNodeMouseEnter = (event: any, data: any, hovered: boolean) => {
+    // hovered is false when creating edges
+    if (hovered && !this.state.hoveredNode) {
       this.setState({
-        selectingNode: true,
-        selectedNode: d,
-        previousSelection
+        hoveredNode: true,
+        hoveredNodeData: data
+      });
+    } else if (!hovered && this.state.hoveredNode && this.state.draggingEdge) {
+      this.setState({
+        edgeEndNode: data
+      });
+    } else {
+      this.setState({
+        hoveredNode: true,
+        hoveredNodeData: data
       });
     }
   }
 
-  handleNodeMouseUp = (d) => {
-    if (this.state.selectingNode) {
-      this.props.onSelectNode(d);
-      this.setState({
-        selectingNode: false
-      });
+  handleNodeMouseLeave = (event: any, data: any) => {
+    if (
+      (d3.event && d3.event.toElement && GraphUtils.findParent(d3.event.toElement, '.node')) ||
+      (event && event.relatedTarget && GraphUtils.findParent(event.relatedTarget, '.node')) ||
+      (d3.event && d3.event.buttons === 1) ||
+      (event && event.buttons === 1)
+    ) {
+      // still within a node
+      return;
+    }
+    if (event && event.relatedTarget) {
+      if (event.relatedTarget.classList.contains('edge-overlay-path')) {
+        return;
+      }
+      this.setState({ hoveredNode: false, edgeEndNode: null });
     }
   }
 
-  handleNodeMouseEnter = (d) => {
-    if (this.state.hoveredNode != d){
-      this.setState({
-        hoveredNode: d
-      })
+  handleNodeSelected = (node: INode, index: number, creatingEdge: boolean) => {
+    // if creatingEdge then de-select nodes and select new edge instead
+    const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
+    const previousSelectionIndex = previousSelection ? this.state.selectedNodeObj.index : -1;
+    const newState = {
+      componentUpToDate: false,
+      selectedNodeObj: {
+        index,
+        node
+      }
+    };
+    this.setState(newState);
+
+    // render both previous selection and new selection
+    this.syncRenderNode(node, index);
+    if (previousSelection) {
+      this.syncRenderNode(previousSelection, previousSelectionIndex);
     }
-  }
 
-  handleNodeMouseLeave = (d) => {
-
-    // For whatever reason, mouseLeave is fired when edge dragging ends
-    // (and mouseup is not fired). This clears the hoverNode state prematurely
-    // resulting in swapEdge failing to fire.
-    // Detecting & ignoring mouseLeave events that result from drag ending here
-    const fromMouseup = event.which == 1;
-    if (this.state.hoveredNode === d && !fromMouseup){
-      this.setState({
-        hoveredNode: null
-      })
+    if (!creatingEdge) {
+      this.props.onSelectNode(node);
     }
   }
 
   // One can't attach handlers to 'markers' or obtain them from the event.target
-  // If the click occurs within a certain radius of edge target,
-  // assume the click occurred on the arrow
-  arrowClicked = (d)=> {
+  // If the click occurs within a certain radius of edge target, assume the click
+  // occurred on the arrow
+  isArrowClicked(edge: IEdge | null) {
+    const { nodeSize, edgeArrowSize } = this.props;
+    const eventTarget = d3.event.sourceEvent.target;
+    const arrowSize = edgeArrowSize || 0;
+    if (!edge || eventTarget.tagName !== 'path') {
+      return false; // If the handle is clicked
+    }
 
-    if(event.target.tagName != 'path') return false; // If the handle is clicked
+    const xycoords = d3.mouse(eventTarget);
+    if (!edge.target) {
+      return false;
+    }
+    const targetNodeMapNode = this.getNodeById(edge.target);
+    const source = {
+      x: xycoords[0],
+      y: xycoords[1]
+    };
+    const edgeCoords = Edge.parsePathToXY(Edge.getEdgePathElement(edge));
 
-    const xycoords = d3.mouse(event.target);
-    const target = this.props.getViewNode(d.target);
-    const dist = getDistance({x: xycoords[0], y: xycoords[1]}, target);
-
-    return dist < this.props.nodeSize/2 + this.props.edgeArrowSize + 10 // or *2 or ^2?
+    // the arrow is clicked if the xycoords are within edgeArrowSize of edgeCoords.target[x,y]
+    return (
+      source.x < edgeCoords.target.x + arrowSize &&
+      source.x > edgeCoords.target.x - arrowSize &&
+      source.y < edgeCoords.target.y + arrowSize &&
+      source.y > edgeCoords.target.y - arrowSize
+    );
   }
 
-  handleEdgeDrag = (d) => {
-    if(!this.props.readOnly && this.state.drawingEdge ){
-      const edgeDOMNode = event.target.parentElement;
-      const sourceNode = this.props.getViewNode(d.source);
-      const xycoords = d3.mouse(event.target)
-      const target = {x: xycoords[0], y: xycoords[1]}
-
-      this.hideEdge(edgeDOMNode);
-      this.drawEdge(sourceNode, target, this.showEdge.bind(this, edgeDOMNode))
+  zoomFilter() {
+    if (d3.event.button || d3.event.ctrlKey) {
+      return false;
     }
-  }
-
-
-  handleEdgeMouseDown = (d) => {
-    // Prevent d3's default as it changes the focus to the body
-    d3.event.preventDefault();
-    d3.event.stopPropagation();
-    if (document.activeElement != this.viewWrapper) {
-      this.viewWrapper.focus();
-    }
-
-    if (!this.props.readOnly && this.arrowClicked(d)) {
-      this.state.edgeSwapQueue.push(d)  // Set this edge aside for redrawing
-      this.setState({
-        drawingEdge: true,
-        edgeSwapQueue: this.state.edgeSwapQueue
-      })
-    } else{
-      this.props.onSelectEdge(d);
-    }
+    return true;
   }
 
   // Keeps 'zoom' contained
-  containZoom = () => {
+  containZoom() {
+    const stop = d3.event.button || d3.event.ctrlKey;
+    if (stop) {
+      d3.event.stopImmediatePropagation(); // stop zoom
+    }
     d3.event.preventDefault();
+  }
+
+  handleZoomStart = () => {
+    // Zoom start events also handle edge clicks. We need to determine if an edge
+    // was clicked and deal with that scenario.
+    const sourceEvent = d3.event.sourceEvent;
+
+    if (
+      // graph can't be modified
+      this.props.readOnly ||
+      // no sourceEvent, not an action on an element
+      !sourceEvent ||
+      // not a click event
+      (sourceEvent && !sourceEvent.buttons) ||
+      // not an edge click area
+      (sourceEvent && !sourceEvent.target.classList.contains('edge-overlay-path'))
+    ) {
+      return false;
+    }
+
+    // Clicked on the edge.
+    const { target } = sourceEvent;
+    const edgeId = target.id;
+    const edge = this.state.edgesMap && this.state.edgesMap[edgeId] ? this.state.edgesMap[edgeId].edge : null;
+
+    // Only move edges if the arrow is dragged
+    if (!this.isArrowClicked(edge) || !edge) {
+      return false;
+    }
+    this.removeEdgeElement(edge.source, edge.target);
+    this.setState({ draggingEdge: true, draggedEdge: edge });
+    this.dragEdge(edge);
+  }
+
+  getMouseCoordinates() {
+    let mouseCoordinates = [0, 0];
+    if (this.selectedView) {
+      mouseCoordinates = d3.mouse(this.selectedView.node());
+    }
+    return mouseCoordinates;
+  }
+
+  dragEdge(draggedEdge?: IEdge) {
+    const { nodeSize, nodeKey } = this.props;
+    draggedEdge = draggedEdge || this.state.draggedEdge;
+    if (!draggedEdge) {
+      return;
+    }
+
+    const mouseCoordinates = this.getMouseCoordinates();
+    const targetPosition = {
+      x: mouseCoordinates[0],
+      y: mouseCoordinates[1]
+    };
+    const off = Edge.calculateOffset(nodeSize, (this.getNodeById(draggedEdge.source): any).node, targetPosition, nodeKey);
+    targetPosition.x += off.xOff;
+    targetPosition.y += off.yOff;
+    this.syncRenderEdge({ source: draggedEdge.source, targetPosition });
+    this.setState({
+      draggedEdge,
+      draggingEdge: true
+    });
   }
 
   // View 'zoom' handler
   handleZoom = () => {
-    if (this.state.focused) {
-      this.setState({
-        viewTransform: d3.event.transform
-      });
+    const { draggingEdge, draggedEdge, hoveredNode } = this.state;
+    const transform: IViewTransform = d3.event.transform;
+
+    if (!draggingEdge) {
+      d3.select(this.view).attr('transform', transform);
+
+      // prevent re-rendering on zoom
+      if (this.state.viewTransform !== transform) {
+        this.setState({
+          viewTransform: transform,
+          draggedEdge: null,
+          draggingEdge: false
+        }, () => {
+          // force the child components which are related to zoom level to update
+          this.renderGraphControls();
+        });
+      }
+    } else if (draggingEdge) {
+      this.dragEdge();
+      return false;
     }
+  }
+
+  handleZoomEnd = () => {
+    const { draggingEdge, draggedEdge, edgeEndNode, edgesMap } = this.state;
+
+    const { nodeKey } = this.props;
+    if (!draggingEdge || !draggedEdge) {
+      if (draggingEdge && !draggedEdge) {
+        // This is a bad case, sometimes when the graph loses focus while an edge
+        // is being created it doesn't set draggingEdge to false. This fixes that case.
+        this.setState({
+          draggingEdge: false
+        });
+      }
+      return;
+    }
+
+    // Zoom start events also handle edge clicks. We need to determine if an edge
+    // was clicked and deal with that scenario.
+    const draggedEdgeCopy = { ...this.state.draggedEdge };
+
+    // remove custom edge
+    GraphUtils.removeElementFromDom('edge-custom-container');
+    this.setState(
+      {
+        draggedEdge: null,
+        draggingEdge: false,
+        hoveredNode: false
+      },
+      () => {
+        // handle creating or swapping edges
+        const sourceNodeById = this.getNodeById(draggedEdge.source);
+        const targetNodeById = this.getNodeById(draggedEdge.target);
+
+
+        if (!sourceNodeById || !targetNodeById) {
+          return;
+        }
+        const sourceNode = sourceNodeById.node;
+        if (
+          edgeEndNode &&
+          !this.getEdgeBySourceTarget(draggedEdge.source, edgeEndNode[nodeKey]) &&
+          this.canSwap(sourceNode, edgeEndNode, draggedEdge)
+        ) {
+          // determine the target node and update the edge
+          draggedEdgeCopy.target = edgeEndNode[nodeKey];
+          this.syncRenderEdge(draggedEdgeCopy);
+          this.props.onSwapEdge(
+            sourceNodeById.node,
+            edgeEndNode,
+            draggedEdge
+          );
+        } else {
+          // this resets the dragged edge back to its original position.
+          this.syncRenderEdge(draggedEdge);
+        }
+      }
+    );
   }
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit = () => {
     const parent = d3.select(this.viewWrapper).node();
     const entities = d3.select(this.entities).node();
-
-    const viewBBox = entities.getBBox();
+    const viewBBox = entities.getBBox ? entities.getBBox() : null;
+    if (!viewBBox) { return; }
 
     const width = parent.clientWidth;
     const height = parent.clientHeight;
+    const minZoom = this.props.minZoom || 0;
+    const maxZoom = this.props.maxZoom || 2;
 
-    let dx,
-        dy,
-        x,
-        y,
-        translate = [this.state.viewTransform.x, this.state.viewTransform.y],
-      next = { x: translate[0], y: translate[1], k: this.state.viewTransform.k };
+    const next = {
+      k: (minZoom + maxZoom) / 2,
+      x: 0,
+      y: 0,
+    };
 
-    if (viewBBox.width > 0 && viewBBox.height > 0){
+    if (viewBBox.width > 0 && viewBBox.height > 0) {
       // There are entities
-      dx = viewBBox.width,
-      dy = viewBBox.height,
-      x = viewBBox.x + viewBBox.width / 2,
-      y = viewBBox.y + viewBBox.height / 2;
+      const dx = viewBBox.width;
+      const dy = viewBBox.height;
+      const x = viewBBox.x + viewBBox.width / 2;
+      const y = viewBBox.y + viewBBox.height / 2;
+      next.k = 0.9 / Math.max(dx / width, dy / height);
 
-      next.k = .9 / Math.max(dx / width, dy / height);
-
-      if (next.k < this.props.minZoom){
-        next.k = this.props.minZoom;
-      } else if (next.k > this.props.maxZoom){
-        next.k = this.props.maxZoom;
+      if (next.k < minZoom) {
+        next.k = minZoom;
+      } else if (next.k > maxZoom) {
+        next.k = maxZoom;
       }
 
       next.x = width / 2 - next.k * x;
       next.y = height / 2 - next.k * y;
-    }
-    else{
-      next.k = (this.props.minZoom + this.props.maxZoom) / 2;
-      next.x = 0;
-      next.y = 0;
     }
 
     this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
   }
 
   // Updates current viewTransform with some delta
-  modifyZoom = (modK = 0, modX = 0, modY = 0, dur = 0) => {
+  modifyZoom = (modK: number = 0, modX: number = 0, modY: number = 0, dur: number = 0) => {
     const parent = d3.select(this.viewWrapper).node();
-    const width = parent.clientWidth;
-    const height = parent.clientHeight;
+    const center = {
+      x: parent.clientWidth / 2,
+      y: parent.clientHeight / 2
+    };
+    const extent = this.zoom.scaleExtent();
+    const viewTransform: any = this.state.viewTransform;
 
-    let target_zoom,
-        center = [width/2, height/2],
-        extent = this.zoom.scaleExtent(),
-        translate = [this.state.viewTransform.x, this.state.viewTransform.y],
-        translate0 = [],
-        l = [],
-        next = {x: translate[0], y: translate[1], k:  this.state.viewTransform.k};
+    const next = {
+      k: viewTransform.k,
+      x: viewTransform.x,
+      y: viewTransform.y
+    };
 
-    target_zoom = next.k * (1 + modK);
+    const targetZoom = next.k * (1 + modK);
+    next.k = targetZoom;
 
-    if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
+    if (targetZoom < extent[0] || targetZoom > extent[1]) {
+      return false;
+    }
 
-    translate0 = [(center[0] - next.x) / next.k, (center[1] - next.y) / next.k];
-    next.k = target_zoom;
-    l = [translate0[0] * next.k + next.x, translate0[1] * next.k + next.y];
+    const translate0 = {
+      x: (center.x - next.x) / next.k,
+      y: (center.y - next.y) / next.k
+    };
 
-    next.x += center[0] - l[0] + modX;
-    next.y += center[1] - l[1] + modY;
+    const l = {
+      x: translate0.x * next.k + next.x,
+      y: translate0.y * next.k + next.y
+    };
 
-    this.setZoom(next.k, next.x, next.y, dur)
+    next.x += center.x - l.x + modX;
+    next.y += center.y - l.y + modY;
+    this.setZoom(next.k, next.x, next.y, dur);
+    return true;
   }
 
   // Programmatically resets zoom
-  setZoom = (k=1, x=0, y=0, dur=0) => {
+  setZoom(k: number = 1, x: number = 0, y: number = 0, dur: number = 0) {
+    const t = d3.zoomIdentity.translate(x, y).scale(k);
 
-    var t = d3.zoomIdentity.translate(x, y).scale(k);
-
-    d3.select(this.viewWrapper).select('svg')
+    d3
+      .select(this.viewWrapper)
+      .select('svg')
       .transition()
       .duration(dur)
       .call(this.zoom.transform, t);
   }
 
-  /*
-   * Render
-   */
-
-  // Returns the svg's path.d' (geometry description) string from edge data
-  // edge.source and edge.target are node ids
-  // @deprecated - not removed due to potential third party integrations
-  getPathDescriptionStr = (sourceX, sourceY, targetX, targetY) => {
-    return `M${sourceX},${sourceY}L${targetX},${targetY}`
-  }
-
-  getPathDescription = (edge) => {
-    let src = this.props.getViewNode(edge.source);
-    let trg = this.props.getViewNode(edge.target);
-
-    if (src && trg) {
-      const off = this.props.nodeSize / 2; // from the center of the node to the perimeter
-
-      const theta = getTheta(src, trg);
-
-      const xOff = off * Math.cos(theta);
-      const yOff = off * Math.sin(theta);
-
-      return this.lineFunction([
-        { x: src.x + xOff, y: src.y + yOff },
-        { x: trg.x - xOff, y: trg.y - yOff }
-      ]);
-    }
-    console.warn("Unable to get source or target for ", edge);
-    return ""
-  }
-
-  getEdgeHandleTransformation = (edge) => {
-    let src = this.props.getViewNode(edge.source);
-    let trg = this.props.getViewNode(edge.target);
-
-    let origin = getMidpoint(src, trg);
-    let x = origin.x;
-    let y = origin.y;
-    let theta = getTheta(src, trg)*180/Math.PI;
-    let offset = -this.props.edgeHandleSize/2;
-
-    return `translate(${x}, ${y}) rotate(${theta}) translate(${offset}, ${offset})`
-  }
-
-  // Returns a d3 transformation string from node data
-  getNodeTransformation = (node) => {
-    return 'translate(' + node.x + ',' + node.y + ')';
-  }
-
-  getNodeStyle = (d, selected) => {
-    return d === selected ?
-      this.state.styles.node.selectedString :
-      this.state.styles.node.baseString
-  }
-
-  getEdgeStyle = (d, selected) => {
-    return d === selected ?
-      this.state.styles.edge.selectedString :
-      this.state.styles.edge.baseString
-  }
-
-  getTextStyle = (d, selected) => {
-    return d === selected ?
-      this.state.styles.text.selectedString :
-      this.state.styles.text.baseString
-  }
-
-  // Renders 'node.title' into node element
-  renderNodeText = (d, domNode) => {
-    let d3Node = d3.select(domNode);
-    let title = d.title ? d.title : ' ';
-
-    let titleText = title.length <= this.props.maxTitleChars ? title :
-      `${title.substring(0, this.props.maxTitleChars)}...`;
-
-    let lineOffset = 18;
-    let textOffset = d.type === this.props.emptyType ? -9 : 18;
-
-    d3Node.selectAll("text").remove();
-
-    let typeText = this.props.nodeTypes[d.type].typeText;
-    let style = this.getTextStyle(d, this.props.selected);
-
-    let el = d3Node.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('style', style)
-      .attr('dy', textOffset);
-
-    el.append('tspan')
-      .attr('opacity', 0.5)
-      .text(typeText);
-
-    if (title) {
-      // User defined/secondary text
-      el.append('tspan').text(titleText).attr('x', 0).attr('dy', lineOffset)
-
-      el.append('title').text(title);
-    }
-  }
-
-  // Renders 'edges' into entities element
-  renderEdges = (entities, edges) => {
-    var self = this;
-
-    // Join Data
-    var edges = entities.selectAll("g.edge")
-      .data(edges, function(d) {
-        // IMPORTANT: this snippet allows D3 to detect updated vs. new data
-        return `${d.source}:${d.target}`;
-      });
-
-    // Remove Old
-    edges.exit()
-        .remove();
-
-    // Add New
-    var newEdges = edges.enter().append("g").classed("edge", true);
-
-    newEdges
-      .on("mousedown", this.handleEdgeMouseDown)
-      .call(d3.drag().on("start", this.handleEdgeDrag));
-
-    newEdges.attr("opacity", 0)
-      .transition()
-      .duration(self.props.transitionTime)
-      .attr("opacity", 1);
-
-    // Merge
-    edges.enter().merge(edges);
-
-    function updateEdge(d, i, els) {
-      // setTimeout is used to unblock the browser
-      // clearing the previous render's timeout prevents the browser from being overworked
-      const key = `edgeKey-${d.source}_${d.target}`;
-      if (self.edgeTimeouts[key]) {
-        clearTimeout(self.edgeTimeouts[key]);
-      }
-      self.edgeTimeouts[key] = setTimeout(() => {
-        self.props.renderEdge(self, this, d, i, els)
-      });
-    }
-
-    // Update All
-    edges.each(updateEdge);
-  }
-
-  // Renders 'nodes' into entities element
-  renderNodes = (entities, nodes) => {
-    var self = this;
-    const nodeKey = this.props.nodeKey;
-    const parent = this.viewWrapper;
-    const viewTransform = this.state.viewTransform;
-    const overlap = (300 / viewTransform.k);
-
-    // Join Data
-    let nodeKeyWarned = false;
-    var nodesSelection = entities.selectAll("g.node").data(nodes, function(d) {
-      // IMPORTANT: this snippet allows D3 to detect updated vs. new data
-      if (d[nodeKey] === undefined && !nodeKeyWarned) {
-        console.warn(
-          `Warning: The specified nodeKey '${nodeKey}' cannot be found on a node. \
-          Make sure the nodeKey is accurate and that all nodes contain a property called '${nodeKey}'. \
-          Performance will degrade when there are nodes with an undefined nodeKey or with duplicate keys.`
-        );
-        nodeKeyWarned = true;
-      }
-      return d[nodeKey]
-    });
-
-    // Animate/Remove Old
-    var removedNodes = nodesSelection.exit()
-      .transition()
-      .duration(self.props.transitionTime)
-      .attr("opacity", 0)
-      .remove();
-
-    // Add New
-    var newNodes = nodesSelection.enter().append("g").classed("node", true);
-
-    newNodes.on("mousedown", this.handleNodeMouseDown)
-      .on("mouseup", this.handleNodeMouseUp)
-      .on("click", (d) => {
-        // Force blocking propagation on node click.
-        // It was found that large graphs would handle clicks on the canvas even
-        // though the mouseDown event blocked propagation.
-        d3.event.stopPropagation();
-        d3.event.preventDefault();
-      })
-      .on("mouseenter", this.handleNodeMouseEnter)
-      .on("mouseleave", this.handleNodeMouseLeave)
-      .call(d3.drag().on("start", this.handleNodeDrag));
-
-    newNodes
-      .attr("opacity", 0)
-      .transition()
-      .duration(self.props.transitionTime)
-      .attr("opacity", 1);
-
-    // Merge
-    nodesSelection.enter().merge(nodesSelection);
-
-    function updateNode(d, i, els) {
-      const key = `nodeKey-${d[nodeKey]}`;
-      // setTimeout is used to unblock the browser
-      // clearing the previous render's timeout prevents the browser from being overworked
-      if (self.nodeTimeouts[key]) {
-        clearTimeout(self.nodeTimeouts[key]);
-      }
-      self.nodeTimeouts[key] = setTimeout(() => {
-        self.props.renderNode(self, this, d, i, els)
-      });
-    }
-
-    // Update Selected and Unselected
-    // New or Removed
-    const selected = nodesSelection.filter((d) => {
-      return (d === this.props.selected ||
-        d === this.state.previousSelection);
-    });
-
-    /*
-      The commented code below would prevent nodes from rendering
-      until they are within the viewport. The problem is that this causes a zoom-to-fit
-      regression. The benefit from the code is that even a gigantic graph is very responsive at first,
-      however as a person zooms out or moves the graph around it would add more nodes.
-      After many nodes are added to the graph the zoom behavior will degrade, and there's no way to
-      remove the existing nodes from the DOM which are outside of the viewport. This degraded performance already
-      exists in the zoom-to-fit scenario for large graphs, since all nodes are rendered and never removed.
-      TODO: figure out if it's possible/worthwhile to remove nodes from the graph that are outside of the viewport
-      TODO: figure out the zoom-to-fit if this is added
-    */
-    // function viewableFilter(d) {
-      // const xPosition = (d.x + viewTransform.x) * viewTransform.k;
-      // const yPosition = (d.y + viewTransform.y) * viewTransform.k;
-      // return xPosition < parent.offsetWidth + overlap &&
-      //   xPosition > 0 - overlap &&
-      //   yPosition < parent.offsetHeight + overlap &&
-      //   yPosition > 0 - overlap;
-    // }
-    // selected.filter(viewableFilter).each(updateNode);
-    // removedNodes.filter(viewableFilter).each(updateNode);
-    // newNodes.filter(viewableFilter).each(updateNode);
-
-    selected.each(updateNode);
-    removedNodes.each(updateNode);
-    newNodes.each(updateNode);
-
-    const newState = {};
-
-    // Update all others
-    // Normally we would want to only render all others on a zoom change,
-    // however sometimes other nodes must be updated on a selection
-    nodesSelection.filter((d) => {
-      const isInSelected = selected.filter((sd) => {
-        return sd === d;
-      }).size();
-      const isInNewNodes = newNodes.filter((nd) => {
-        return nd === d;
-      }).size();
-      const isInRemovedNodes = removedNodes.filter((rd) => {
-        return rd === d;
-      }).size();
-
-      return (
-        // viewableFilter(d) && // see comment above
-        !isInSelected &&
-        !isInNewNodes &&
-        !isInRemovedNodes
-      );
-    }).each(updateNode);
-
-  }
-
   // Renders 'graph' into view element
-  // All DOM updates within 'view' are managed by D3
-  renderView = () => {
-    var nodes = this.props.nodes;
-    var edges = this.props.edges;
-
+  renderView() {
     // Update the view w/ new zoom/pan
-    const view = d3.select(this.view)
-      .attr("transform", this.state.viewTransform);
+    this.selectedView.attr('transform', this.state.viewTransform);
 
-    const entities = d3.select(this.entities);
-
-    this.renderNodes(entities, nodes);
-    this.renderEdges(entities, edges);
+    clearTimeout(this.renderNodesTimeout);
+    this.renderNodesTimeout = setTimeout(this.renderNodes);
   }
 
+  renderBackground = () => {
+    const { gridSize, backgroundFillId, renderBackground } = this.props;
+    if (renderBackground) {
+      return renderBackground(gridSize);
+    } else {
+      return <Background gridSize={gridSize} backgroundFillId={backgroundFillId} />;
+    }
+  }
+
+  getNodeComponent = (id: string, node: INode, index: number) => {
+    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey } = this.props;
+    return (
+      <Node
+        key={id}
+        id={id}
+        data={node}
+        index={index}
+        nodeTypes={nodeTypes}
+        nodeSize={nodeSize}
+        nodeKey={nodeKey}
+        nodeSubtypes={nodeSubtypes}
+        onNodeMouseEnter={this.handleNodeMouseEnter}
+        onNodeMouseLeave={this.handleNodeMouseLeave}
+        onNodeMove={this.handleNodeMove}
+        onNodeUpdate={this.handleNodeUpdate}
+        onNodeSelected={this.handleNodeSelected}
+        renderNode={renderNode}
+        renderNodeText={renderNodeText}
+        isSelected={this.state.selectedNodeObj.node === node}
+        layoutEngine={this.layoutEngine}
+      />
+    );
+  }
+
+  renderNode(id: string, element: Element) {
+    const containerId = `${id}-container`;
+    let nodeContainer: HTMLElement | Element | null = document.getElementById(containerId);
+
+    if (!nodeContainer) {
+      nodeContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      nodeContainer.id = containerId;
+      this.entities.appendChild(nodeContainer);
+    }
+
+    // ReactDOM.render replaces the insides of an element This renders the element
+    // into the nodeContainer
+    const anyElement: any = element;
+    ReactDOM.render(anyElement, nodeContainer);
+  }
+
+  syncRenderConnectedEdgesFromNode(node: INodeMapNode, nodeMoving: boolean = false) {
+    if (this.state.draggingEdge) {
+      return;
+    }
+
+    node.incomingEdges.forEach((edge) => {
+      this.syncRenderEdge(edge, nodeMoving);
+    });
+    node.outgoingEdges.forEach((edge) => {
+      this.syncRenderEdge(edge, nodeMoving);
+    });
+  }
+
+  asyncRenderNode(node: INode, i: number) {
+    const nodeKey = this.props.nodeKey;
+    const timeoutId = `nodes-${node[nodeKey]}`;
+    clearTimeout(this.nodeTimeouts[timeoutId]);
+    this.nodeTimeouts[timeoutId] = setTimeout(() => {
+      this.syncRenderNode(node, i);
+    });
+  }
+
+  syncRenderNode(node: INode, i: number) {
+    const nodeKey = this.props.nodeKey;
+    const id = `node-${node[nodeKey]}`;
+    const element: any = this.getNodeComponent(id, node, i);
+    const nodesMapNode = this.getNodeById(node[nodeKey]);
+    this.renderNode(id, element);
+    if (nodesMapNode) {
+      this.syncRenderConnectedEdgesFromNode(nodesMapNode);
+    }
+  }
+
+  renderNodes = () => {
+    if (!this.entities) {
+      return;
+    }
+
+    this.state.nodes.forEach((node, i) => {
+      this.asyncRenderNode(node, i);
+    });
+  }
+
+  isEdgeSelected = (edge: IEdge) => {
+    return !!this.state.selectedEdgeObj &&
+      !!this.state.selectedEdgeObj.edge &&
+      this.state.selectedEdgeObj.edge.source === edge.source &&
+      this.state.selectedEdgeObj.edge.target === edge.target;
+  }
+
+  getEdgeComponent = (edge: IEdge | any) => {
+    const sourceNodeMapNode = this.getNodeById(edge.source);
+    const sourceNode = sourceNodeMapNode ? this.state.nodes[sourceNodeMapNode.originalArrIndex] : null;
+    const targetNodeMapNode = this.getNodeById(edge.target);
+    const targetNode = targetNodeMapNode ? this.state.nodes[targetNodeMapNode.originalArrIndex] : null;
+    const targetPosition = edge.targetPosition;
+    const { edgeTypes, edgeHandleSize, nodeSize, nodeKey} = this.props;
+
+    return (
+      <Edge
+        data={edge}
+        edgeTypes={edgeTypes}
+        edgeHandleSize={edgeHandleSize}
+        nodeSize={nodeSize}
+        sourceNode={sourceNode}
+        targetNode={targetNode || targetPosition}
+        nodeKey={nodeKey}
+        isSelected={this.isEdgeSelected(edge)}
+      />
+    );
+  }
+
+
+  renderEdge = (id: string, element: any, edge: IEdge, nodeMoving: boolean = false) => {
+    let containerId = `${id}-container`;
+    const customContainerId = `${id}-custom-container`;
+    const { draggedEdge } = this.state;
+    const { afterRenderEdge } = this.props;
+    let edgeContainer = document.getElementById(containerId);
+    if (nodeMoving && edgeContainer) {
+      edgeContainer.style.display = 'none';
+      containerId = `${id}-custom-container`;
+      edgeContainer = document.getElementById(containerId);
+    } else if (edgeContainer) {
+      const customContainer = document.getElementById(customContainerId);
+      edgeContainer.style.display = '';
+      if (customContainer) {
+        customContainer.remove();
+      }
+    }
+    if (!edgeContainer && edge !== draggedEdge) {
+      const newSvgEdgeContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      newSvgEdgeContainer.id = containerId;
+      this.entities.appendChild(newSvgEdgeContainer);
+      edgeContainer = newSvgEdgeContainer;
+    }
+    // ReactDOM.render replaces the insides of an element This renders the element
+    // into the edgeContainer
+    if (edgeContainer) {
+      ReactDOM.render(element, edgeContainer);
+      if (afterRenderEdge) {
+        return afterRenderEdge(id, element, edge, edgeContainer, this.isEdgeSelected(edge));
+      }
+    }
+  }
+
+  asyncRenderEdge = (edge: IEdge) => {
+    if (!edge.source || !edge.target) {
+      return;
+    }
+    const timeoutId = `edges-${edge.source}-${edge.target}`;
+    clearTimeout(this.edgeTimeouts[timeoutId]);
+    this.edgeTimeouts[timeoutId] = setTimeout(() => {
+      this.syncRenderEdge(edge);
+    });
+  }
+
+
+  syncRenderEdge(edge: IEdge | any, nodeMoving: boolean = false) {
+    if (!edge.source) {
+      return;
+    }
+
+    // We have to use the 'custom' id when we're drawing a new node
+    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
+    const id = `edge-${idVar}`;
+    const element = this.getEdgeComponent(edge);
+    this.renderEdge(id, element, edge, nodeMoving);
+  }
+
+
+  renderEdges = () => {
+    if (!this.entities || this.state.draggingEdge) {
+      return;
+    }
+
+    this.state.edges.forEach((edge) => {
+      this.asyncRenderEdge(edge);
+    });
+  }
+
+  /*
+   * GraphControls is a special child component. To maximize responsiveness we disable
+   * rendering on zoom level changes, but this component still needs to update.
+   * This function ensures that it updates into the container quickly upon zoom changes
+   * without causing a full GraphView render.
+   */
+  renderGraphControls() {
+    if (!this.props.showGraphControls) {
+      return;
+    }
+
+    const graphControlsWrapper = document.querySelector('.graph-controls-wrapper')
+    if (graphControlsWrapper) {
+      ReactDOM.render(
+        <GraphControls
+          ref={this.graphControls}
+          minZoom={this.props.minZoom}
+          maxZoom={this.props.maxZoom}
+          zoomLevel={this.state.viewTransform ? this.state.viewTransform.k : 1}
+          zoomToFit={this.handleZoomToFit}
+          modifyZoom={this.modifyZoom}
+        />,
+        graphControlsWrapper
+      );
+    }
+  }
 
   render() {
-    this.renderView();
-    const { styles, focused } = this.state;
+    const { edgeArrowSize, gridSpacing, gridDotSize, nodeTypes, nodeSubtypes, edgeTypes, renderDefs } = this.props;
     return (
       <div
-          className='viewWrapper'
-          tabIndex={0}
-          onFocus={() => {
-            this.setState({
-              focused: true
-            });
-          }}
-          onBlur={() => {
-            if (this.props.enableFocus) {
-              this.setState({
-                focused: false
-              });
-            }
-          }}
-          ref={(el) => this.viewWrapper = el}
-          style={[
-            styles.wrapper.base,
-            !!focused && styles.wrapper.focused,
-            this.props.style
-          ]}>
-        <svg style={styles.svg.base}>
-          { this.props.renderDefs(this) }
-          <g className='view' ref={(el) => this.view = el}>
-            { this.props.renderBackground(this) }
-            <g className='entities' ref={(el) => this.entities = el}></g>
+        className="view-wrapper"
+        ref={(el) => (this.viewWrapper = el)}
+      >
+        <svg className="graph">
+          <Defs
+            edgeArrowSize={edgeArrowSize}
+            gridSpacing={gridSpacing}
+            gridDotSize={gridDotSize}
+            nodeTypes={nodeTypes}
+            nodeSubtypes={nodeSubtypes}
+            edgeTypes={edgeTypes}
+            renderDefs={renderDefs}
+          />
+          <g className="view" ref={(el) => (this.view = el)}>
+            {this.renderBackground()}
+
+            <g className="entities" ref={(el) => (this.entities = el)} />
           </g>
         </svg>
-        {this.props.graphControls && (
-        <GraphControls  primary={this.props.primary}
-                        minZoom={this.props.minZoom}
-                        maxZoom={this.props.maxZoom}
-                        zoomLevel={this.state.viewTransform.k}
-                        zoomToFit={this.handleZoomToFit}
-                        modifyZoom={this.modifyZoom}>
-        </GraphControls>
-        )}
+        <div className="graph-controls-wrapper" />
       </div>
     );
-
-
   }
-
 }
 
-GraphView.propTypes = {
-  nodeKey: PropTypes.string.isRequired,
-  emptyType: PropTypes.string.isRequired,
-  nodes: PropTypes.array.isRequired,
-  edges: PropTypes.array.isRequired,
-  selected: PropTypes.object.isRequired,
-  nodeTypes: PropTypes.object.isRequired,
-  nodeSubtypes: PropTypes.object.isRequired,
-  edgeTypes: PropTypes.object.isRequired,
-  getViewNode: PropTypes.func.isRequired,
-  onSelectNode: PropTypes.func.isRequired,
-  onCreateNode: PropTypes.func.isRequired,
-  onUpdateNode: PropTypes.func.isRequired,
-  onDeleteNode: PropTypes.func.isRequired,
-  onSelectEdge: PropTypes.func.isRequired,
-  onCreateEdge: PropTypes.func.isRequired,
-  onSwapEdge: PropTypes.func.isRequired,
-  onDeleteEdge: PropTypes.func.isRequired,
-  canDeleteNode: PropTypes.func,
-  canCreateEdge: PropTypes.func,
-  canDeleteEdge: PropTypes.func,
-  renderEdge: PropTypes.func,
-  renderNode: PropTypes.func,
-  renderDefs: PropTypes.func,
-  renderBackground: PropTypes.func,
-  readOnly: PropTypes.bool,
-  enableFocus: PropTypes.bool,
-  maxTitleChars: PropTypes.number, // Per line.
-  transitionTime: PropTypes.number, // D3 Enter/Exit duration
-  primary: PropTypes.string,
-  light: PropTypes.string,
-  dark: PropTypes.string,
-  background: PropTypes.string,
-  style: PropTypes.object,
-  gridSize: PropTypes.number, // The point grid is fixed
-  gridSpacing: PropTypes.number,
-  gridDot: PropTypes.number,
-  minZoom: PropTypes.number,
-  maxZoom: PropTypes.number,
-  nodeSize: PropTypes.number,
-  edgeHandleSize: PropTypes.number,
-  edgeArrowSize: PropTypes.number,
-  zoomDelay: PropTypes.number, // ms
-  zoomDur: PropTypes.number, // ms
-  graphControls: PropTypes.bool,
-};
-
-GraphView.defaultProps = {
-  readOnly: false,
-  maxTitleChars: 9,
-  transitionTime: 150,
-  primary: 'dodgerblue',
-  light: '#FFF',
-  dark: '#000',
-  background: '#F9F9F9',
-  gridSize: 40960, // The point grid is fixed
-  gridSpacing: 36,
-  gridDot: 2,
-  minZoom: 0.15,
-  maxZoom: 1.5,
-  nodeSize: 150,
-  edgeHandleSize: 50,
-  edgeArrowSize: 8,
-  zoomDelay: 500,
-  zoomDur: 750,
-  graphControls: true,
-  renderEdge: (graphView, domNode, datum, index, elements ) => {
-
-    // For new edges, add necessary child domNodes
-    if (!domNode.hasChildNodes()){
-      d3.select(domNode).append("path");
-      d3.select(domNode).append("use");
-    }
-
-    let style = graphView.getEdgeStyle(datum, graphView.props.selected);
-    let trans = graphView.getEdgeHandleTransformation(datum)
-    d3.select(domNode)
-      .attr("style", style)
-      .select("use")
-        .attr("xlink:href", function(d){ return graphView.props.edgeTypes[d.type].shapeId })
-        .attr("width", graphView.props.edgeHandleSize)
-        .attr("height", graphView.props.edgeHandleSize)
-        .attr("transform", trans);
-
-    d3.select(domNode)
-      .select('path')
-        .attr('d', graphView.getPathDescription);
-  },
-  renderNode: (graphView, domNode, datum, index, elements) => {
-    // For new nodes, add necessary child domNodes
-    const selection = d3.select(domNode);
-    if (!domNode.hasChildNodes()) {
-      selection.append("use").classed("subtypeShape", true)
-        .attr("x", -graphView.props.nodeSize/2)
-        .attr("y",  -graphView.props.nodeSize/2)
-        .attr("width", graphView.props.nodeSize)
-        .attr("height", graphView.props.nodeSize);
-      selection.append("use").classed("shape", true)
-        .attr("x", -graphView.props.nodeSize/2)
-        .attr("y",  -graphView.props.nodeSize/2)
-        .attr("width", graphView.props.nodeSize)
-        .attr("height", graphView.props.nodeSize);
-    }
-
-    let style = graphView.getNodeStyle(datum, graphView.props.selected);
-
-    selection
-      .attr("style", style);
-
-    if (datum.subtype) {
-      selection.select("use.subtypeShape")
-        .attr("xlink:href", function (d) { return graphView.props.nodeSubtypes[d.subtype].shapeId });
-    } else {
-      selection.select("use.subtypeShape")
-        .attr("xlink:href", function (d) { return null });
-    }
-
-    selection.select("use.shape")
-      .attr("xlink:href", function (d) { return graphView.props.nodeTypes[d.type].shapeId });
-
-    selection.attr('id', `node-${datum[graphView.props.nodeKey]}`);
-
-    graphView.renderNodeText(datum, domNode);
-
-    selection.attr('transform', graphView.getNodeTransformation);
-  },
-  renderDefs: (graphView) => {
-    const { styles } = graphView.state;
-    const {
-      edgeArrowSize,
-      gridSpacing,
-      gridDot,
-      nodeTypes,
-      nodeSubtypes,
-      edgeTypes
-    } = graphView.props;
-
-    let defIndex = 0;
-    let graphConfigDefs = [];
-
-    Object.keys(nodeTypes).forEach(function(type){
-      defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(nodeTypes[type].shape, {key: defIndex}))
-    })
-
-    Object.keys(nodeSubtypes).forEach(function(type){
-      defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(nodeSubtypes[type].shape, {key: defIndex}))
-    })
-
-    Object.keys(edgeTypes).forEach(function(type){
-      defIndex += 1;
-      graphConfigDefs.push(React.cloneElement(edgeTypes[type].shape, {key: defIndex}))
-    })
-
-    return (
-      <defs>
-        {graphConfigDefs}
-
-        <marker id="end-arrow"
-                key="end-arrow"
-                viewBox={`0 -${edgeArrowSize/2} ${edgeArrowSize} ${edgeArrowSize}`}
-                refX={`${edgeArrowSize/2}`}
-                markerWidth={`${edgeArrowSize}`}
-                markerHeight={`${edgeArrowSize}`}
-                orient="auto">
-          <path style={ styles.arrow }
-                d={`M0,-${edgeArrowSize/2}L${edgeArrowSize},0L0,${edgeArrowSize/2}`}>
-          </path>
-        </marker>
-
-        <pattern  id="grid"
-                  key="grid"
-                  width={gridSpacing}
-                  height={gridSpacing}
-                  patternUnits="userSpaceOnUse">
-          <circle cx={gridSpacing/2}
-                  cy={gridSpacing/2}
-                  r={gridDot}
-                  fill="lightgray">
-          </circle>
-        </pattern>
-
-        <filter id="dropshadow" key="dropshadow" height="130%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-          <feOffset dx="2" dy="2" result="offsetblur"/>
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="0.1"/>
-          </feComponentTransfer>
-          <feMerge>
-            <feMergeNode/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-
-      </defs>
-    )
-  },
-  renderBackground: (graphView) => {
-    return (
-      <rect className='background'
-        x={-graphView.props.gridSize/4}
-        y={-graphView.props.gridSize/4}
-        width={ graphView.props.gridSize }
-        height={ graphView.props.gridSize }
-        fill="url(#grid)">
-      </rect>
-    )
-  },
-  canDeleteNode: () => true,
-  canCreateEdge: () => true,
-  canDeleteEdge: () => true,
-};
-
-export default Radium(GraphView)
+export default GraphView;
