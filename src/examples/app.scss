@@ -1,0 +1,156 @@
+/*
+  Copyright(c) 2018 Uber Technologies, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+html, body {
+  font-family: sans-serif;
+  font-size: 12px;
+  margin: 0px;
+}
+
+button {
+  margin-right: 10px;
+}
+
+#graph {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.total-nodes {
+  margin-right: 10px;
+}
+
+.app-header {
+  border-bottom: 1px solid black;
+  background: #f9f9f9;
+
+  > nav {
+    height: 25px;
+    > a {
+      border-right: 1px solid black;
+      line-height: 25px;
+      min-width: 150px;
+      padding: 10px;
+
+      &.active {
+        background: #333;
+        color: white;
+      }
+    }
+  }
+}
+
+.graph-header {
+  border-bottom: 1px solid black;
+  position: fixed;
+  width: 100%;
+  background-color: #fff;
+  padding: 10px;
+
+  .layout-engine {
+    display: inline-block;
+    > span {
+      margin-right: 5px;
+    }
+  }
+}
+
+.sidebar {
+  background-color: white;
+  display: flex;
+
+  &.left,
+  &.right {
+    height: 100%;
+    width: 50%;
+    flex: 1;
+
+    .sidebar-main-container {
+      &.closed {
+        width: 0 !important;
+      }
+    }
+
+    .sidebar-toggle-bar {
+      width: 10px;
+      height: 100%;
+      border-right: 1px solid black;
+      border-left: 1px solid black;
+    }
+  }
+  &.right {
+    flex-direction: row-reverse;
+  }
+
+  &.up,
+  &.down {
+    width: 100%;
+
+    .sidebar-main-container {
+      &.closed {
+        height: 0 !important;
+      }
+    }
+
+    .sidebar-toggle-bar {
+      height: 10px;
+      width: 100%;
+      border-top: 1px solid black;
+      border-bottom: 1px solid black;
+    }
+  }
+
+  &.up {
+    flex-direction: column;
+  }
+  &.down {
+    flex-direction: column-reverse;
+  }
+
+  .sidebar-main-container {
+    flex: 1;
+    transition: height, width 0.5s;
+
+    &.closed {
+      overflow: hidden;
+    }
+  }
+
+  .sidebar-toggle-bar {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+  }
+
+  .sidebar-text-area {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 10px;
+    font-size: 1.2em;
+  }
+}
+
+.graph-container {
+  position: relative;
+  flex: 1;
+}
+
+@import './bwdl/bwdl.scss';
+@import './bwdl-editable/bwdl-editable.scss';

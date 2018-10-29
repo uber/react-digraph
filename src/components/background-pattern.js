@@ -15,13 +15,24 @@
   limitations under the License.
 */
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+import * as React from 'react';
+import Circle from './circle';
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+type IBackgroundPatternProps = {
+  gridSpacing?: number;
+  gridDotSize?: number;
+};
+
+class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
+  render() {
+    const { gridSpacing, gridDotSize } = this.props;
+
+    return (
+      <pattern id="grid" key="grid" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
+        <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
+      </pattern>
+    );
+  }
+}
+
+export default BackgroundPattern;

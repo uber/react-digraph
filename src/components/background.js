@@ -15,13 +15,32 @@
   limitations under the License.
 */
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+import * as React from 'react';
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+type IBackgroundProps = {
+  gridSize?: number;
+  backgroundFillId?: string;
+};
+
+class Background extends React.Component<IBackgroundProps> {
+  static defaultProps = {
+    backgroundFillId: '#grid',
+    gridSize: 40960
+  };
+
+  render() {
+    const { gridSize, backgroundFillId } = this.props;
+    return (
+      <rect
+        className="background"
+        x={-(gridSize || 0) / 4}
+        y={-(gridSize || 0) / 4}
+        width={gridSize}
+        height={gridSize}
+        fill={`url(${backgroundFillId || ''})`}
+      />
+    );
+  }
+}
+
+export default Background;

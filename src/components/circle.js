@@ -15,13 +15,24 @@
   limitations under the License.
 */
 
-import GV from './components/graph-view';
-import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout-engine/layout-engine-config';
+import * as React from 'react';
 
-export { default as Edge, IEdge } from './components/edge';
-export { default as GraphUtils } from './components/graph-util';
-export { default as Node, INode } from './components/node';
-export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
-export { GV as GraphView };
-export type LayoutEngineType = LayoutEngineConfigTypes;
-export default GV;
+type ICircleProps = {
+  gridSpacing?: number;
+  gridDotSize?: number;
+};
+
+class Circle extends React.Component<ICircleProps> {
+  static defaultProps = {
+    gridDotSize: 2,
+    gridSpacing: 36
+  };
+
+  render() {
+    const { gridSpacing, gridDotSize } = this.props;
+
+    return <circle className="circle" cx={(gridSpacing || 0) / 2} cy={(gridSpacing || 0) / 2} r={gridDotSize} />;
+  }
+}
+
+export default Circle;
