@@ -489,7 +489,7 @@ class GraphView extends Component {
 
     if(d3.event.target.tagName != 'path') return false; // If the handle is clicked
 
-    const xycoords = d3.mouse(event.target);
+    const xycoords = d3.mouse(d3.event.target);
     const target = this.props.getViewNode(d.target);
     const dist = getDistance({x: xycoords[0], y: xycoords[1]}, target);
 
