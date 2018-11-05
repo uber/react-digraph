@@ -48,8 +48,8 @@ export type IGraphViewProps = {
   onCopySelected?: () => void;
   onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
   onCreateNode: (x: number, y: number) => void;
-  onDeleteEdge: (selectedEdge: IEdge, index: number, edges: IEdge[]) => void;
-  onDeleteNode: (selected: any, originalArrIndex: number, nodes: any[]) => void;
+  onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
+  onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
   onPasteSelected?: () => void;
   onSelectEdge: (selectedEdge: IEdge) => void;
   onSelectNode: (node: INode | null) => void;
@@ -61,10 +61,10 @@ export type IGraphViewProps = {
   renderNode?: (
     nodeRef: any,
     data: any,
-    index: number,
+    id: string,
     selected: boolean,
     hovered: boolean
   ) => any;
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
-  renderNodeText?: (data: any, index: number, id: string | number, isSelected: boolean) => any;
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
 };
