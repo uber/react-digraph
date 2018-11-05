@@ -727,7 +727,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (stop) {
       d3.event.stopImmediatePropagation(); // stop zoom
     }
-    d3.event.preventDefault();
   }
 
   handleZoomStart = () => {
