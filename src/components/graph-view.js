@@ -607,10 +607,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (shiftKey) {
       this.createNewEdge();
     } else {
-      const node = this.getNodeById(nodeId);
-      if (node) {
-        Object.assign(node, position);
-        onUpdateNode(node);
+      const nodeMap = this.getNodeById(nodeId);
+      if (nodeMap) {
+        Object.assign(nodeMap.node, position);
+        onUpdateNode(nodeMap.node);
       }
     }
     // force a re-render
