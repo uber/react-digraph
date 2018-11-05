@@ -118,7 +118,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
   onUpdateNode = (node: INode) => { return; };
 
-  onDeleteNode = (selected: INode, originalArrIndex: number, nodes: any[]) => {
+  onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
     const newBwdlJson = {
       ...this.state.bwdlJson
     };
@@ -144,7 +144,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.linkEdge(sourceNode, targetNode, edge);
   }
 
-  onDeleteEdge = (selectedEdge: IEdge, index: number, edges: IEdge[]) => {
+  onDeleteEdge = (selectedEdge: IEdge, edges: IEdge[]) => {
     const newBwdlJson = {
       ...this.state.bwdlJson
     };

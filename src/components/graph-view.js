@@ -106,11 +106,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodesMap,
       readOnly: nextProps.readOnly,
       selectedEdgeObj: {
-        edge: selectedEdgeMap ? edges[selectedEdgeMap.originalArrIndex] : null
+        edge: selectedEdgeMap ? selectedEdgeMap.edge : null
       },
       selectedNodeObj: {
-        index: selectedNodeMap ? selectedNodeMap.originalArrIndex : -1,
-        node: selectedNodeMap ? nodes[selectedNodeMap.originalArrIndex] : null
+        nodeId: selectedNodeMap ? nextProps.selected[nodeKey] : null,
+        node: selectedNodeMap ? selectedNodeMap.node : null
       },
       selectionChanged: false
     };
@@ -364,15 +364,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { nodes } = this.state;
 
     const nodeId = selectedNode[nodeKey];
-    const originalArrIndex = (this.getNodeById(nodeId): any).originalArrIndex;
 
     // delete from local state
     this.deleteNodeById(nodeId);
-    nodes.splice(originalArrIndex, 1);
+    const newNodesArr = nodes.filter(node => node[nodeKey] !== nodeId);
     this.setState({
       componentUpToDate: false,
       hoveredNode: false,
-      nodes
+      nodes: newNodesArr
     });
 
     // remove from UI
@@ -380,7 +379,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // inform consumer
     this.props.onSelectNode(null);
-    this.props.onDeleteNode(selectedNode, originalArrIndex, nodes);
+    this.props.onDeleteNode(selectedNode, nodeId, newNodesArr);
   }
 
   deleteEdge(selectedEdge: IEdge) {
@@ -389,16 +388,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const originalArrIndex = (this.getEdgeBySourceTarget(selectedEdge.source, selectedEdge.target): any).originalArrIndex;
-
-    edges.splice(originalArrIndex, 1);
+    let newEdgesArr = edges.filter(edge => edge.source !== selectedEdge.source && edge.target !== selectedEdge.target);
     if (selectedEdge.source && selectedEdge.target) {
       this.deleteEdgeBySourceTarget(selectedEdge.source, selectedEdge.target);
     }
 
     this.setState({
       componentUpToDate: false,
-      edges
+      edges: newEdgesArr
     });
 
     // remove from UI
@@ -407,7 +404,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     // inform consumer
-    this.props.onDeleteEdge(selectedEdge, originalArrIndex, edges);
+    this.props.onDeleteEdge(selectedEdge, newEdgesArr);
   }
 
   handleDelete = (selected: IEdge | INode) => {
@@ -535,9 +532,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!GraphUtils.findParent(element, '.edge-container');
   }
 
-  handleNodeMove = (position: any, index: number, shiftKey: boolean) => {
-    const node = this.state.nodes[index];
+  handleNodeMove = (position: any, nodeId: string, shiftKey: boolean) => {
     const { nodeKey, canCreateEdge, readOnly } = this.props;
+    const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
+    const node = nodeMapNode.node;
+
     if (readOnly) {
       return;
     }
@@ -545,17 +544,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       node.x = position.x;
       node.y = position.y;
 
-      // Update edges synchronously because async doesn't update fast enough
-      const nodeMapNode: INodeMapNode | null = this.getNodeById(node[nodeKey]);
-
       if (!nodeMapNode) {
         return;
       }
 
+      // Update edges synchronously because async doesn't update fast enough
       this.syncRenderConnectedEdgesFromNode(nodeMapNode, true);
-    } else if ((canCreateEdge && canCreateEdge(node[nodeKey])) || this.state.draggingEdge) {
+    } else if ((canCreateEdge && canCreateEdge(nodeId)) || this.state.draggingEdge) {
       // render new edge
-      this.syncRenderEdge({ source: node[nodeKey], targetPosition: position });
+      this.syncRenderEdge({ source: nodeId, targetPosition: position });
       this.setState({ draggingEdge: true });
     }
   }
@@ -602,16 +599,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeUpdate = (position: any, index: number, shiftKey: boolean) => {
+  handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
     const { onUpdateNode } = this.props;
-    const { nodes } = this.state;
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
     if (shiftKey) {
       this.createNewEdge();
     } else {
-      const node = nodes[index];
+      const node = this.getNodeById(nodeId);
       if (node) {
         Object.assign(node, position);
         onUpdateNode(node);
@@ -663,21 +659,21 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeSelected = (node: INode, index: number, creatingEdge: boolean) => {
+  handleNodeSelected = (node: INode, nodeId: string, creatingEdge: boolean) => {
     // if creatingEdge then de-select nodes and select new edge instead
     const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
     const previousSelectionIndex = previousSelection ? this.state.selectedNodeObj.index : -1;
     const newState = {
       componentUpToDate: false,
       selectedNodeObj: {
-        index,
+        nodeId,
         node
       }
     };
     this.setState(newState);
 
     // render both previous selection and new selection
-    this.syncRenderNode(node, index);
+    this.syncRenderNode(node, nodeId);
     if (previousSelection) {
       this.syncRenderNode(previousSelection, previousSelectionIndex);
     }
@@ -994,7 +990,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         key={id}
         id={id}
         data={node}
-        index={index}
         nodeTypes={nodeTypes}
         nodeSize={nodeSize}
         nodeKey={nodeKey}
@@ -1080,9 +1075,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   getEdgeComponent = (edge: IEdge | any) => {
     const sourceNodeMapNode = this.getNodeById(edge.source);
-    const sourceNode = sourceNodeMapNode ? this.state.nodes[sourceNodeMapNode.originalArrIndex] : null;
+    const sourceNode = sourceNodeMapNode ? sourceNodeMapNode.node : null;
     const targetNodeMapNode = this.getNodeById(edge.target);
-    const targetNode = targetNodeMapNode ? this.state.nodes[targetNodeMapNode.originalArrIndex] : null;
+    const targetNode = targetNodeMapNode ? targetNodeMapNode.node : null;
     const targetPosition = edge.targetPosition;
     const { edgeTypes, edgeHandleSize, nodeSize, nodeKey} = this.props;
 

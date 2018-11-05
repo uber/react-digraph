@@ -20,6 +20,7 @@ describe('Node component', () => {
   let onNodeUpdate;
   beforeEach(() => {
     nodeData = {
+      uuid: '1',
       title: 'Test',
       type: 'emptyNode',
       x: 5,
@@ -66,6 +67,7 @@ describe('Node component', () => {
         data={nodeData}
         index={0}
         id="test-node"
+        nodeKey="uuid"
         nodeTypes={nodeTypes}
         nodeSubtypes={nodeSubtypes}
         nodeSize={100}
@@ -130,7 +132,7 @@ describe('Node component', () => {
       });
 
       const result = output.instance().renderText();
-      expect(renderNodeText).toHaveBeenCalledWith(nodeData, 0, 'test-node', false);
+      expect(renderNodeText).toHaveBeenCalledWith(nodeData, 'test-node', false);
       expect(result).toEqual('success');
     });
 
@@ -154,7 +156,7 @@ describe('Node component', () => {
       });
 
       const result = output.instance().renderShape();
-      expect(renderNode).toHaveBeenCalledWith(output.instance().nodeRef, nodeData, 0, false, false);
+      expect(renderNode).toHaveBeenCalledWith(output.instance().nodeRef, nodeData, '1', false, false);
       expect(result).toEqual('success');
     });
 
@@ -330,10 +332,10 @@ describe('Node component', () => {
       output.instance().handleDragEnd();
       expect(onNodeUpdate).toHaveBeenCalledWith(
         { x: 5, y: 10 },
-        0,
+        "1",
         true
       );
-      expect(onNodeSelected).toHaveBeenCalledWith(nodeData, 0, true);
+      expect(onNodeSelected).toHaveBeenCalledWith(nodeData, "1", true);
     });
 
     it('moves the element back to the original DOM position', () => {
@@ -404,7 +406,7 @@ describe('Node component', () => {
       output.instance().handleMouseMove();
       expect(onNodeMove).toHaveBeenCalledWith(
         { x: 20, y: 50 },
-        0,
+        "1",
         true
       );
     });
@@ -421,7 +423,7 @@ describe('Node component', () => {
       output.instance().handleMouseMove();
       expect(onNodeMove).toHaveBeenCalledWith(
         { x: 20, y: 50 },
-        0,
+        "1",
         false
       );
     });
@@ -452,7 +454,7 @@ describe('Node component', () => {
 
       expect(onNodeMove).toHaveBeenCalledWith(
         { x: 100, y: 200 },
-        0,
+        "1",
         false
       );
     });

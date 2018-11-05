@@ -338,7 +338,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   }
 
   // Deletes a node from the graph
-  onDeleteNode = (viewNode: INode, index: number, nodeArr: INode[]) => {
+  onDeleteNode = (viewNode: INode, nodeId: string, nodeArr: INode[]) => {
     const graph = this.state.graph;
     // Delete any connected edges
     const newEdges = graph.edges.filter((edge, i) => {
@@ -393,7 +393,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   }
 
   // Called when an edge is deleted
-  onDeleteEdge = (viewEdge: IEdge, i: number, edges: IEdge[]) => {
+  onDeleteEdge = (viewEdge: IEdge, edges: IEdge[]) => {
     const graph = this.state.graph;
     graph.edges = edges;
     this.setState({

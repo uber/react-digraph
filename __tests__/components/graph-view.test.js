@@ -482,7 +482,6 @@ describe('GraphView component', () => {
       expect(result.type.prototype.constructor.name).toEqual('Node');
       expect(result.props.id).toEqual('test');
       expect(result.props.data).toEqual(node);
-      expect(result.props.index).toEqual(0);
       expect(result.props.isSelected).toEqual(false);
     });
 

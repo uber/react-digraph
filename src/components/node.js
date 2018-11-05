@@ -34,7 +34,6 @@ export type INode = {
 
 type INodeProps = {
   data: INode;
-  index: number;
   id: string;
   nodeTypes: any; // TODO: make a nodeTypes interface
   nodeSubtypes: any; // TODO: make a nodeSubtypes interface
@@ -43,17 +42,17 @@ type INodeProps = {
   nodeSize?: number;
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
   onNodeMouseLeave: (event: any, data: any) => void;
-  onNodeMove: (point: IPoint, index: number, shiftKey: boolean) => void;
-  onNodeSelected: (data: any, index: number, shiftKey: boolean) => void;
-  onNodeUpdate: (point: IPoint, index: number, shiftKey: boolean) => void;
+  onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
+  onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
+  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
   renderNode?: (
     nodeRef: any,
     data: any,
-    index: number,
+    id: string,
     selected: boolean,
     hovered: boolean
   ) => any;
-  renderNodeText?: (data: any, index: number, id: string | number, isSelected: boolean) => any;
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   isSelected: boolean;
   layoutEngine?: any;
 };
@@ -151,7 +150,10 @@ class Node extends React.Component<INodeProps, INodeState> {
       }
       this.setState(newState);
     }
-    this.props.onNodeMove(newState, this.props.index, shiftKey);
+
+    // Never use this.props.index because if the nodes array changes order
+    // then this function could move the wrong node.
+    this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
   }
 
   handleDragStart = () => {
@@ -170,7 +172,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
     const { x, y, drawingEdge } = this.state;
-    const { data, index } = this.props;
+    const { data, index, nodeKey } = this.props;
     this.setState({ mouseDown: false, drawingEdge: false });
 
     if (this.oldSibling && this.oldSibling.parentElement) {
@@ -183,11 +185,11 @@ class Node extends React.Component<INodeProps, INodeState> {
         x,
         y
       },
-      index,
+      data[nodeKey],
       shiftKey || drawingEdge
     );
 
-    this.props.onNodeSelected(data, index, shiftKey || drawingEdge);
+    this.props.onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge);
   }
 
   handleMouseOver = (event: any) => {
@@ -229,7 +231,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderShape() {
-    const { renderNode, data, index, nodeTypes, nodeSubtypes } = this.props;
+    const { renderNode, data, index, nodeTypes, nodeSubtypes, nodeKey } = this.props;
     const { hovered, selected } = this.state;
     const props = {
       height: this.props.nodeSize || 0,
@@ -250,7 +252,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     if (renderNode) {
       // Originally: graphView, domNode, datum, index, elements.
-      return renderNode(this.nodeRef, data, index, selected, hovered);
+      return renderNode(this.nodeRef, data, data[nodeKey], selected, hovered);
     } else {
       return (
         <g className={nodeShapeContainerClassName} {...props}>
@@ -282,7 +284,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   renderText() {
     const { data, index, id, nodeTypes, renderNodeText, isSelected } = this.props;
     if (renderNodeText) {
-      return renderNodeText(data, index, id, isSelected);
+      return renderNodeText(data, id, isSelected);
     }
     return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} />);
   }
