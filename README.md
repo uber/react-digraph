@@ -257,11 +257,11 @@ Prop Types:
   nodeSubtypes: any;
   edgeTypes: any;
   selected: any;
-  onDeleteNode: (selected: any, originalArrIndex: number, nodes: any[]) => void;
+  onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
   onSelectNode: (node: INode | null) => void;
   onCreateNode: (x: number, y: number) => void;
   onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
-  onDeleteEdge: (selectedEdge: IEdge, index: number, edges: IEdge[]) => void;
+  onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
   onUpdateNode: (node: INode) => void;
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
   onSelectEdge: (selectedEdge: IEdge) => void;
@@ -281,13 +281,9 @@ Prop Types:
     selected: boolean,
     hovered: boolean
   ) => any;
-  renderNodeText?: (data: any, index: number, id: string | number, isSelected: boolean) => any;
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;
 ```
-
-## Notes
-
-- To run the tests, you'll need to be using at least node v4.0 (for jsDom). Run `npm run test`.
 
 ## Deprecation Notes
 
