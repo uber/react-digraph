@@ -55,6 +55,7 @@ type INodeProps = {
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   isSelected: boolean;
   layoutEngine?: any;
+  viewWrapperElem: HTMLDivElement;
 };
 
 type INodeState = {
@@ -123,8 +124,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleMouseMove = () => {
     const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
     const shiftKey = d3.event.sourceEvent.shiftKey;
-    const { nodeSize, layoutEngine, nodeKey } = this.props;
-
+    const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
     if (!mouseButtonDown) {
       return;
     }
@@ -139,7 +139,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
-      const off = Edge.calculateOffset(nodeSize, this.props.data, newState, nodeKey);
+      const off = Edge.calculateOffset(nodeSize, this.props.data, newState, nodeKey, true, viewWrapperElem);
       newState.x += off.xOff;
       newState.y += off.yOff;
       // now tell the graph that we're actually drawing an edge
@@ -148,9 +148,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       if (layoutEngine) {
         Object.assign(newState, layoutEngine.getPositionForNode(newState));
       }
-      this.setState(newState);
     }
-
+    this.setState(newState);
     // Never use this.props.index because if the nodes array changes order
     // then this function could move the wrong node.
     this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);

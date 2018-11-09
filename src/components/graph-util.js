@@ -30,40 +30,48 @@ export type INodeMapNode = {
 class GraphUtils {
   static getNodesMap(arr: INode[], key: string) {
     const map = {};
-    arr.forEach((item, index) => {
+    let item = null;
+    for (let i = 0; i < arr.length; i++){
+      item = arr[i];
       map[`key-${item[key]}`] = {
         children: [],
         incomingEdges: [],
         node: item,
-        originalArrIndex: index,
+        originalArrIndex: i,
         outgoingEdges: [],
         parents: []
       };
-    });
+    }
     return map;
   }
 
   static getEdgesMap(arr: IEdge[]) {
     const map = {};
-    arr.forEach((item, index) => {
+    let item = null;
+    for (let i = 0; i < arr.length; i++){
+      item = arr[i];
       if (!item.target) {
-        return;
+        continue;
       }
       map[`${item.source || ''}_${item.target}`] = {
         edge: item,
-        originalArrIndex: index
+        originalArrIndex: i
       };
-    });
+    }
     return map;
   }
 
   static linkNodesAndEdges(nodesMap: any, edges: IEdge[]) {
-    edges.forEach((edge) => {
+    let nodeMapSourceNode = null;
+    let nodeMapTargetNode = null;
+    let edge = null;
+    for (let i = 0; i < edges.length; i++){
+      edge = edges[i];
       if (!edge.target) {
         return;
       }
-      const nodeMapSourceNode = nodesMap[`key-${edge.source || ''}`];
-      const nodeMapTargetNode = nodesMap[`key-${edge.target}`];
+      nodeMapSourceNode = nodesMap[`key-${edge.source || ''}`];
+      nodeMapTargetNode = nodesMap[`key-${edge.target}`];
       // avoid an orphaned edge
       if (nodeMapSourceNode && nodeMapTargetNode) {
         nodeMapSourceNode.outgoingEdges.push(edge);
@@ -71,7 +79,7 @@ class GraphUtils {
         nodeMapSourceNode.children.push(nodeMapTargetNode);
         nodeMapTargetNode.parents.push(nodeMapSourceNode);
       }
-    });
+    }
   }
 
   static removeElementFromDom(id: string) {
@@ -109,6 +117,44 @@ class GraphUtils {
     }
 
     return className.trim();
+  }
+
+  static yieldingLoop(count, chunksize, callback, finished) {
+    var i = 0;
+    (function chunk() {
+        var end = Math.min(i + chunksize, count);
+        for (; i < end; ++i) {
+          callback.call(null, i);
+        }
+        if (i < count) {
+          setTimeout(chunk, 0);
+        } else {
+          finished && finished.call(null);
+        }
+    })();
+  }
+
+  static hasNodeShallowChanged(prevNode, newNode) {
+    const prevNodeKeys = Object.keys(prevNode);
+    const newNodeKeys = Object.keys(prevNode);
+    const checkedKeys = {};
+    for (let i = 0; i < prevNodeKeys.length; i++){
+      const key = prevNodeKeys[i];
+      if (!newNode.hasOwnProperty(key) || prevNode[key] !== newNode[key]) {
+        return true;
+      }
+      checkedKeys[key] = true;
+    }
+    for (let i = 0; i < newNodeKeys.length; i++){
+      const key = newNodeKeys[i];
+      if (checkedKeys[key]) {
+        continue;
+      }
+      if (!prevNode.hasOwnProperty(key) || prevNode[key] !== newNode[key]) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

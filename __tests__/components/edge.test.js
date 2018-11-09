@@ -45,6 +45,7 @@ describe('Edge component', () => {
         sourceNode={sourceNode}
         targetNode={targetNode}
         isSelected={isSelected}
+        viewWrapperElem={document.createElement('div')}
       />
     );
   });
