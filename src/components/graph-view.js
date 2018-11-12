@@ -289,10 +289,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         this.asyncRenderNode(node);
       } else if (!prevNode ||
         ( // selection change
-          selectedNode.node != null &&
           (
             node === selectedNode.node ||
             node === prevSelectedNode.node
+          ) &&
+          (
+            selectedNode.node !== prevSelectedNode.node
           )
         )
       ) {
