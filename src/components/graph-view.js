@@ -28,7 +28,7 @@ import Defs from './defs';
 import Edge, { type IEdge, type ITargetPosition } from './edge';
 import GraphControls from './graph-controls';
 import GraphUtils, { type INodeMapNode } from './graph-util';
-import Node, { type INode } from './node';
+import Node, { type INode, type IPoint } from './node';
 import { Transform } from 'stream';
 
 type IViewTransform = {
@@ -282,22 +282,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       node = nodes[i];
       prevNode = oldNodesMap[`key-${node[nodeKey]}`];
       // if there was a previous node and it changed
-      if (prevNode && (
-        GraphUtils.hasNodeShallowChanged(prevNode.node, node)
+      if (prevNode != null && (
+        GraphUtils.hasNodeShallowChanged(prevNode.node, node) ||
+        ( // selection change
+          selectedNode.node !== prevSelectedNode.node &&
+          (
+            (selectedNode.node && node[nodeKey] === selectedNode.node[nodeKey]) ||
+            (prevSelectedNode.node && node[nodeKey] === prevSelectedNode.node[nodeKey])
+          )
+        )
       )) {
         // Updated node
         this.asyncRenderNode(node);
-      } else if (!prevNode ||
-        ( // selection change
-          (
-            node === selectedNode.node ||
-            node === prevSelectedNode.node
-          ) &&
-          (
-            selectedNode.node !== prevSelectedNode.node
-          )
-        )
-      ) {
+      } else if (!prevNode) {
         // New node
         this.asyncRenderNode(node);
       }
@@ -555,7 +552,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!GraphUtils.findParent(element, '.edge-container');
   }
 
-  handleNodeMove = (position: any, nodeId: string, shiftKey: boolean) => {
+  handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
     const { nodeKey, canCreateEdge, readOnly } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
     if (!nodeMapNode) {
@@ -567,10 +564,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
     if (!shiftKey && !this.state.draggingEdge) {
+      // node moved
       node.x = position.x;
       node.y = position.y;
 
-      // Update edges synchronously because async doesn't update fast enough
+      // Update edges for node
       this.renderConnectedEdgesFromNode(nodeMapNode, true);
     } else if ((canCreateEdge && canCreateEdge(nodeId)) || this.state.draggingEdge) {
       // render new edge

@@ -85,9 +85,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   static getDerivedStateFromProps(nextProps: INodeProps, prevState: INodeState) {
     return {
-      selected: nextProps.isSelected,
-      x: nextProps.data.x || 0,
-      y: nextProps.data.y || 0
+      selected: nextProps.isSelected
     };
   }
 
@@ -143,11 +141,9 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.x += off.xOff;
       newState.y += off.yOff;
       // now tell the graph that we're actually drawing an edge
-    } else if(!this.state.drawingEdge) {
-      // move node
-      if (layoutEngine) {
-        Object.assign(newState, layoutEngine.getPositionForNode(newState));
-      }
+    } else if(!this.state.drawingEdge && layoutEngine) {
+      // move node using the layout engine
+      Object.assign(newState, layoutEngine.getPositionForNode(newState));
     }
     this.setState(newState);
     // Never use this.props.index because if the nodes array changes order
@@ -180,10 +176,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     const shiftKey = d3.event.sourceEvent.shiftKey;
     this.props.onNodeUpdate(
-      {
-        x,
-        y
-      },
+      { x, y },
       data[nodeKey],
       shiftKey || drawingEdge
     );
@@ -289,12 +282,11 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   render() {
-    const { x, y } = this.state;
+    const { x, y, hovered, selected } = this.state;
     const { opacity, id, data } = this.props;
-
     const className = GraphUtils.classNames('node', data.type, {
-      hovered: this.state.hovered,
-      selected: this.state.selected
+      hovered,
+      selected
     });
     return (
       <g
