@@ -82,7 +82,7 @@ class GraphControls extends React.Component<IGraphControlProps> {
           />
           <span>+</span>
         </div>
-        <button className="slider-button" onMouseDown={this.props.zoomToFit}>
+        <button type="button" className="slider-button" onMouseDown={this.props.zoomToFit}>
           <FaExpand />
         </button>
       </div>
