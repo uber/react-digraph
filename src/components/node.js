@@ -85,7 +85,9 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   static getDerivedStateFromProps(nextProps: INodeProps, prevState: INodeState) {
     return {
-      selected: nextProps.isSelected
+      selected: nextProps.isSelected,
+      x: nextProps.data.x,
+      y: nextProps.data.y
     };
   }
 

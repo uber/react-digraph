@@ -338,8 +338,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         const prevEdge = oldEdgesMap[`${edge.source}_${edge.target}`];
         if (!prevEdge ||
           ( // selection change
-            edge === selectedEdge.edge ||
-            edge === prevSelectedEdge.edge
+            selectedEdge !== prevSelectedEdge &&
+            (
+              (selectedEdge.edge && edge === selectedEdge.edge) ||
+              (prevSelectedEdge.edge && prevSelectedEdge.edge)
+            )
           )
         ) {
           // new edge
@@ -570,6 +573,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       // Update edges for node
       this.renderConnectedEdgesFromNode(nodeMapNode, true);
+      this.asyncRenderNode(node);
     } else if ((canCreateEdge && canCreateEdge(nodeId)) || this.state.draggingEdge) {
       // render new edge
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
