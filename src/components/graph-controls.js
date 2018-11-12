@@ -20,7 +20,7 @@
 */
 
 import React from 'react';
-import FaExpand from 'react-icons/lib/fa/expand';
+import { FaExpand } from 'react-icons/fa';
 
 const steps = 100; // Slider steps
 
