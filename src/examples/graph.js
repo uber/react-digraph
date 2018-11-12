@@ -177,7 +177,7 @@ function generateSample(totalNodes) {
       x++;
     }
     generatedSample.nodes.push({
-      id: i,
+      id: `a${i}`,
       title: `Node ${i}`,
       type: nodeTypes[Math.floor(nodeTypes.length * Math.random())],
       x: 0 + 200 * x,

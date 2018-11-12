@@ -17,7 +17,7 @@ Bug reports are essential to keeping react-digraph stable.
 
 First, [go to the issues tab](https://github.com/uber/react-digraph/issues) and make sure to search for your issue in case it has already been answered. Be sure to check [Closed issues](https://github.com/uber/react-digraph/issues?q=is%3Aissue+is%3Aclosed) as well.
 
-If the issue is not already present, the click the [New Issue](https://github.com/uber/react-digraph/issues/new/choose) button. You will be presented with some options, either you can create a bug report or a feature request.
+If the issue is not already present, then click the [New Issue](https://github.com/uber/react-digraph/issues/new/choose) button. You will be presented with some options, either you can create a bug report or a feature request.
 
 When creating [a new bug report](https://github.com/uber/react-digraph/issues/new?template=bug_report.md) you will notice some instructions, such as description, reproduction steps (aka repro steps), expected behavior, screenshots, OS type, browser, and version (which refers to your react-digraph version), and some additional context. Please fill in as much as possible, but not all of it is required. The more information we have the better we can help.
 
@@ -29,7 +29,7 @@ Feature requests help drive the development of our project. Since this project i
 
 If you think react-digraph needs a new feature, please create a new Feature request by [going to the issues tab](https://github.com/uber/react-digraph/issues). Again, make sure to search for your issue in case it has already been answered. Be sure to check [Closed issues](https://github.com/uber/react-digraph/issues?q=is%3Aissue+is%3Aclosed) as well.
 
-If the issue is not already present, the click the [New Issue](https://github.com/uber/react-digraph/issues/new/choose) button. You will be presented with some options, either you can create a bug report or a feature request.
+If the issue is not already present, then click the [New Issue](https://github.com/uber/react-digraph/issues/new/choose) button. You will be presented with some options, either you can create a bug report or a feature request.
 
 When creating [a new feature request](https://github.com/uber/react-digraph/issues/new?template=feature_request.md) you will notice some instructions, such as relation to a problem, solution you'd like, alternatives, and some additional context. Please fill in as much as possible, but not all of it is required. The more information we have the better we can help.
 

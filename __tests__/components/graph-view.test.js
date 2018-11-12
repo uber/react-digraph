@@ -132,6 +132,17 @@ describe('GraphView component', () => {
   });
 
   describe('renderGraphControls method', () => {
+    beforeEach(() => {
+      instance.viewWrapper = {
+        current: document.createElement('div')
+      }
+      instance.viewWrapper.current.width = 500;
+      instance.viewWrapper.current.height = 500;
+      const graphControlsWrapper = document.createElement('g');
+      graphControlsWrapper.classList.add('graph-controls-wrapper');
+      instance.viewWrapper.current.appendChild(graphControlsWrapper);
+    });
+
     it('does nothing when showGraphControls is false', () => {
       output.setProps({
         showGraphControls: false
@@ -184,6 +195,8 @@ describe('GraphView component', () => {
           }
         ]
       });
+      // modifying the edges will call renderEdges, we need to reset this count.
+      instance.asyncRenderEdge.calls.reset();
       instance.entities = [];
       instance.renderEdges();
       expect(instance.asyncRenderEdge).toHaveBeenCalledTimes(2);
@@ -215,19 +228,27 @@ describe('GraphView component', () => {
   });
 
   describe('asyncRenderEdge method', () => {
+    beforeEach(() => {
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        cb();
+        return true;
+      });
+    });
+    afterEach(() => {
+      window.requestAnimationFrame.mockRestore();
+    });
+
     it('renders asynchronously', () => {
-      jest.useFakeTimers();
       spyOn(instance, 'syncRenderEdge');
       const edge = {
         source: 'a',
         target: 'b'
       };
       instance.asyncRenderEdge(edge);
-      jest.runAllTimers();
 
       expect(instance.edgeTimeouts['edges-a-b']).toBeDefined();
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge);
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
     });
   });
 
@@ -331,11 +352,15 @@ describe('GraphView component', () => {
     });
 
     it('returns early when there are no entities', () => {
+      // asyncRenderNode gets called when new nodes are added. Reset the calls.
+      instance.asyncRenderNode.calls.reset();
+
       instance.renderNodes();
       expect(instance.asyncRenderNode).not.toHaveBeenCalled();
     });
 
     it('calls asynchronously renders each node', () => {
+      instance.asyncRenderNode.calls.reset();
       instance.entities = [];
       instance.renderNodes();
       expect(instance.asyncRenderNode).toHaveBeenCalledTimes(2);
@@ -387,34 +412,41 @@ describe('GraphView component', () => {
         nodes: nodesProp
       });
       spyOn(instance, 'renderNode');
-      spyOn(instance, 'syncRenderConnectedEdgesFromNode');
+      spyOn(instance, 'renderConnectedEdgesFromNode');
 
       instance.syncRenderNode(node, 0);
 
       expect(instance.renderNode).toHaveBeenCalledWith('node-a', jasmine.any(Object));
-      expect(instance.syncRenderConnectedEdgesFromNode).toHaveBeenCalled();
+      expect(instance.renderConnectedEdgesFromNode).toHaveBeenCalled();
     });
   });
 
   describe('asyncRenderNode method', () => {
+    beforeEach(() => {
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        cb();
+        return true;
+      });
+    });
+    afterEach(() => {
+      window.requestAnimationFrame.mockRestore();
+    });
+
     it('renders asynchronously', () => {
-      jest.useFakeTimers();
-      jest.clearAllTimers();
       spyOn(instance, 'syncRenderNode');
       const node = { id: 'a' };
-      instance.asyncRenderNode(node, 0);
-      jest.runAllTimers();
+      instance.asyncRenderNode(node);
 
       expect(instance.nodeTimeouts['nodes-a']).toBeDefined();
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(instance.syncRenderNode).toHaveBeenCalledWith(node, 0);
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderNode).toHaveBeenCalledWith(node);
     });
   });
 
-  describe('syncRenderConnectedEdgesFromNode method', () => {
+  describe('renderConnectedEdgesFromNode method', () => {
     let node;
     beforeEach(() => {
-      spyOn(instance, 'syncRenderEdge');
+      spyOn(instance, 'asyncRenderEdge');
       node = {
         id: 'a',
         incomingEdges: [
@@ -431,15 +463,15 @@ describe('GraphView component', () => {
         draggingEdge: true
       });
 
-      instance.syncRenderConnectedEdgesFromNode(node);
+      instance.renderConnectedEdgesFromNode(node);
 
-      expect(instance.syncRenderEdge).not.toHaveBeenCalled();
+      expect(instance.asyncRenderEdge).not.toHaveBeenCalled();
     });
 
     it('renders edges for incoming and outgoing edges', () => {
-      instance.syncRenderConnectedEdgesFromNode(node);
+      instance.renderConnectedEdgesFromNode(node);
 
-      expect(instance.syncRenderEdge).toHaveBeenCalledTimes(2);
+      expect(instance.asyncRenderEdge).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -548,9 +580,11 @@ describe('GraphView component', () => {
   describe('modifyZoom', () => {
     beforeEach(() => {
       spyOn(instance, 'setZoom');
-      instance.viewWrapper = document.createElement('g');
-      instance.viewWrapper.width = 500;
-      instance.viewWrapper.height = 500;
+      instance.viewWrapper = {
+        current: document.createElement('div')
+      }
+      instance.viewWrapper.current.width = 500;
+      instance.viewWrapper.current.height = 500;
       instance.setState({
         viewTransform: {
           k: 0.4,
@@ -584,10 +618,12 @@ describe('GraphView component', () => {
   describe('handleZoomToFit method', () => {
     beforeEach(() => {
       spyOn(instance, 'setZoom');
-      instance.viewWrapper = document.createElement('g');
+      instance.viewWrapper = {
+        current: document.createElement('div')
+      }
       // this gets around instance.viewWrapper.client[Var] being readonly, we need to customize the object
       let globalWidth = 0;
-      Object.defineProperty(instance.viewWrapper, 'clientWidth', {
+      Object.defineProperty(instance.viewWrapper.current, 'clientWidth', {
         get: () => {
           return globalWidth;
         },
@@ -596,7 +632,7 @@ describe('GraphView component', () => {
         }
       });
       let globalHeight = 0;
-      Object.defineProperty(instance.viewWrapper, 'clientHeight', {
+      Object.defineProperty(instance.viewWrapper.current, 'clientHeight', {
         get: () => {
           return globalHeight;
         },
@@ -604,8 +640,8 @@ describe('GraphView component', () => {
           globalHeight = clientHeight;
         }
       });
-      instance.viewWrapper.clientWidth = 500;
-      instance.viewWrapper.clientHeight = 500;
+      instance.viewWrapper.current.clientWidth = 500;
+      instance.viewWrapper.current.clientHeight = 500;
       instance.setState({
         viewTransform: {
           k: 0.4,
