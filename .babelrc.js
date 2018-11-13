@@ -21,9 +21,9 @@ module.exports = function(api) {
       "@babel/plugin-proposal-json-strings"
     ],
     presets: [
+      "@babel/preset-env",
       "@babel/preset-flow",
       ["@babel/preset-react", { development: api.env('development') }],
-      "@babel/preset-env"
     ],
   };
 }
