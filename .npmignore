@@ -9,3 +9,10 @@ __mocks__
 webpack.*
 jest-*
 yarn.lock
+dist/bwdl-*
+dist/css.*
+dist/app.*
+dist/example*
+dist/graph*
+dist/index*
+dist/sidebar*
