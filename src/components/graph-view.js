@@ -297,7 +297,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         // Updated node
         this.asyncRenderNode(node);
       } else if (forceRender || !prevNode) {
-        console.log("rendering node", node[nodeKey]);
         // New node
         this.asyncRenderNode(node);
       }
