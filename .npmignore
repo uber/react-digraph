@@ -4,3 +4,8 @@ coverage/
 dist/test/
 dist/examples/
 example.gif
+__tests__
+__mocks__
+webpack.*
+jest-*
+yarn.lock
