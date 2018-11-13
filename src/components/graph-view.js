@@ -229,8 +229,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    // Note: the order is intentional
+    const forceReRender = this.props.nodes !== prevProps.nodes || this.props.edges !== prevProps.edges
 
+    // Note: the order is intentional
     // remove old edges
     this.removeOldEdges(prevState.edges, edgesMap);
 
@@ -238,10 +239,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.removeOldNodes(prevState.nodesMap, nodesMap);
 
     // add new nodes
-    this.addNewNodes(this.state.nodes, prevState.nodesMap, selectedNodeObj, prevState.selectedNodeObj);
+    this.addNewNodes(this.state.nodes, prevState.nodesMap, selectedNodeObj, prevState.selectedNodeObj, forceReRender);
 
     // add new edges
-    this.addNewEdges(this.state.edges, prevState.edgesMap, selectedEdgeObj, prevState.selectedEdgeObj);
+    this.addNewEdges(this.state.edges, prevState.edgesMap, selectedEdgeObj, prevState.selectedEdgeObj, forceReRender);
 
 
 
@@ -270,7 +271,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  addNewNodes(nodes: INode[], oldNodesMap: any, selectedNode: any, prevSelectedNode: any) {
+  addNewNodes(nodes: INode[], oldNodesMap: any, selectedNode: any, prevSelectedNode: any, forceRender: boolean = false) {
     if (this.state.draggingEdge) {
       return;
     }
@@ -283,7 +284,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       prevNode = oldNodesMap[`key-${node[nodeKey]}`];
       // if there was a previous node and it changed
       if (prevNode != null && (
-        GraphUtils.hasNodeShallowChanged(prevNode.node, node) ||
+        prevNode.node !== node ||
+        //GraphUtils.hasNodeShallowChanged(prevNode.node, node) ||
         ( // selection change
           selectedNode.node !== prevSelectedNode.node &&
           (
@@ -294,7 +296,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       )) {
         // Updated node
         this.asyncRenderNode(node);
-      } else if (!prevNode) {
+      } else if (forceRender || !prevNode) {
+        console.log("rendering node", node[nodeKey]);
         // New node
         this.asyncRenderNode(node);
       }
@@ -327,7 +330,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  addNewEdges(edges: IEdge[], oldEdgesMap: any, selectedEdge: any, prevSelectedEdge: any) {
+  addNewEdges(edges: IEdge[], oldEdgesMap: any, selectedEdge: any, prevSelectedEdge: any, forceRender: boolean = false) {
     if (!this.state.draggingEdge) {
       let edge = null;
       for (let i = 0; i < edges.length; i++){
@@ -336,7 +339,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
           continue;
         }
         const prevEdge = oldEdgesMap[`${edge.source}_${edge.target}`];
-        if (!prevEdge ||
+        if (forceRender ||
+          !prevEdge ||
           ( // selection change
             selectedEdge !== prevSelectedEdge &&
             (
