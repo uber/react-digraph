@@ -278,18 +278,8 @@ class Edge extends React.Component<IEdgeProps> {
     );
 
     if (pathIntersect.points.length > 0) {
-      let arrowWidth = arrowSize.width;
-      let arrowHeight = arrowSize.height;
-      // arrow points to the left of node
-      if (pathIntersect.points[0].x < trgX) {
-        arrowWidth *= -1;
-      }
-      // arrow points at the bottom of node
-      if (pathIntersect.points[0].y < trgY) {
-        arrowHeight *= -1;
-      }
-      response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth / 1.25 : 0);
-      response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight / 1.25 : 0);
+      response.xOff = trgX - pathIntersect.points[0].x;
+      response.yOff = trgY - pathIntersect.points[0].y;
       response.intersect = pathIntersect.points[0];
     }
     return response;
@@ -306,7 +296,6 @@ class Edge extends React.Component<IEdgeProps> {
     const arrowSize = Edge.getArrowSize(viewWrapperElem);
     let arrowWidth = arrowSize.width;
     let arrowHeight = arrowSize.height;
-    const theta = Edge.getTheta(src, trg);
     const clientRect = defSvgCircleElement.getBoundingClientRect();
     const parentElement = defSvgCircleElement.parentElement;
     let parentWidth = parentElement.getAttribute('width');
@@ -324,29 +313,29 @@ class Edge extends React.Component<IEdgeProps> {
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
     const srcY = src.y || 0;
-    const top = trgY - h / 2;
-    const bottom = trgY + h / 2;
-    const left = trgX - w / 2;
-    const right = trgX + w / 2;
     // from the center of the node to the perimeter
-    let offX = w / 2;
-    let offY = h / 2;
+    const arrowOffsetDiviser = 1.25;
+    let offX = w / 2 + ( includesArrow ? arrowWidth / arrowOffsetDiviser : 0);
+    let offY = h / 2 + ( includesArrow ? arrowHeight / arrowOffsetDiviser: 0 );
 
     // Note: even though this is a circle function, we can use ellipse
     // because all circles are ellipses but not all ellipses are circles.
     const pathIntersect = intersect(
-      shape('ellipse', { rx: offX + arrowHeight, ry: offY + arrowHeight, cx: trgX - arrowHeight/1.25, cy: trgY - arrowHeight/1.25 }),
+      shape('ellipse', {
+        rx: offX,
+        ry: offY,
+        cx: trgX,
+        cy: trgY
+      }),
       shape('line', { x1: srcX, y1: srcY, x2: trgX, y2: trgY })
     );
 
     if (pathIntersect.points.length > 0) {
-      let arrowWidth = arrowSize.width / 1.25;
-      let arrowHeight = arrowSize.height / 1.25;
-      const xIntersect = pathIntersect.points[0].x;
-      const yIntersect = pathIntersect.points[0].y;
+      let xIntersect = pathIntersect.points[0].x;
+      let yIntersect = pathIntersect.points[0].y;
 
-      response.xOff = trgX - pathIntersect.points[0].x - (includesArrow ? arrowWidth : 0)
-      response.yOff = trgY - pathIntersect.points[0].y - (includesArrow ? arrowHeight : 0);
+      response.xOff = trgX - xIntersect;
+      response.yOff = trgY - yIntersect;
       response.intersect = pathIntersect.points[0];
     }
     return response;
