@@ -23,7 +23,6 @@ import { Point2D, Matrix2D } from 'kld-affine';
 import { Intersection } from 'kld-intersections';
 import GraphUtils from './graph-util';
 import { type INode } from './node';
-import { S_IFREG } from 'constants';
 
 export type IEdge = {
   source: string;
@@ -397,9 +396,19 @@ class Edge extends React.Component<IEdgeProps> {
     if (trgNode && trgNode.getAttributeNS) {
       const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
       if (xlinkHref) {
-        const defSvgRectElement: any = viewWrapperElem.querySelector(`defs>${xlinkHref} rect`);
-        const defSvgPathElement: any = viewWrapperElem.querySelector(`defs>${xlinkHref} path`);
-        const defSvgCircleElement: any = viewWrapperElem.querySelector(`defs>${xlinkHref} circle, defs>${xlinkHref} ellipse, defs>${xlinkHref} polygon`);
+        const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(`defs>${xlinkHref} rect`);
+        // Conditionally trying to select the element in other ways is faster than trying to
+        // do the selection.
+        const defSvgPathElement: SVGPathElement | null = (
+          !defSvgPathElement ?
+            viewWrapperElem.querySelector(`defs>${xlinkHref} path`) :
+            null
+        );
+        const defSvgCircleElement: SVGCircleElement | SVGEllipseElement | SVGPolygonElement | null = (
+          !defSvgPathElement && !defSvgPathElement ?
+            viewWrapperElem.querySelector(`defs>${xlinkHref} circle, defs>${xlinkHref} ellipse, defs>${xlinkHref} polygon`) :
+            null
+        );
 
         if (defSvgRectElement) {
           // it's a rectangle

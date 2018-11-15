@@ -236,7 +236,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.removeOldEdges(prevState.edges, edgesMap);
 
     // remove old nodes
-    this.removeOldNodes(prevState.nodesMap, nodesMap);
+    this.removeOldNodes(prevState.nodes, prevState.nodesMap, nodesMap);
 
     // add new nodes
     this.addNewNodes(this.state.nodes, prevState.nodesMap, selectedNodeObj, prevState.selectedNodeObj, forceReRender);
@@ -244,26 +244,25 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // add new edges
     this.addNewEdges(this.state.edges, prevState.edgesMap, selectedEdgeObj, prevState.selectedEdgeObj, forceReRender);
 
-
-
     this.setState({
       componentUpToDate: true
     });
   }
 
-  getNodeById(id: string | null): INodeMapNode | null {
-    return this.state.nodesMap ? this.state.nodesMap[`key-${id || ''}`] : null;
+  getNodeById(id: string | null, nodesMap: any | null): INodeMapNode | null {
+    const nodesMapVar = nodesMap || this.state.nodesMap
+    return nodesMapVar ? nodesMapVar[`key-${id || ''}`] : null;
   }
 
   getEdgeBySourceTarget(source: string, target: string): IEdge | null {
     return this.state.edgesMap ? this.state.edgesMap[`${source}_${target}`] : null;
   }
 
-  deleteNodeById(id: string) {
-    if (this.state.nodesMap && this.state.nodesMap[`key-${id}`]) {
-      delete this.state.nodesMap[`key-${id}`];
-    }
-  }
+  // deleteNodeById(id: string) {
+  //   if (this.state.nodesMap && this.state.nodesMap[`key-${id}`]) {
+  //     delete this.state.nodesMap[`key-${id}`];
+  //   }
+  // }
 
   deleteEdgeBySourceTarget(source: string, target: string) {
     if (this.state.edgesMap && this.state.edgesMap[`${source}_${target}`]) {
@@ -281,7 +280,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     GraphUtils.yieldingLoop(nodes.length, 50, (i) => {
       node = nodes[i];
-      prevNode = oldNodesMap[`key-${node[nodeKey]}`];
+      prevNode = this.getNodeById(node[nodeKey], oldNodesMap);
       // if there was a previous node and it changed
       if (prevNode != null && (
         prevNode.node !== node ||
@@ -303,29 +302,35 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   }
 
-  removeOldNodes(prevNodeMap: any, nodesMap: any) {
+  removeOldNodes(prevNodes: any, prevNodesMap: any, nodesMap: any) {
     const nodeKey = this.props.nodeKey;
     // remove old nodes
-    const prevNodeMapKeys = Object.keys(prevNodeMap);
-    for (let i = 0; i < prevNodeMapKeys.length; i++){
-      const nodeId = prevNodeMapKeys[i];
+    // const prevNodeMapKeys = Object.keys(prevNodeMap);
+    for (let i = 0; i < prevNodes.length; i++){
+      const prevNode = prevNodes[i];
+      const nodeId = prevNode[nodeKey];
+
       // Check for deletions
-      if (nodesMap[nodeId]) {
+      if (this.getNodeById(nodeId, nodesMap)) {
         continue;
       }
+
+      const prevNodeMapNode = this.getNodeById(nodeId, prevNodesMap)
       // remove all outgoing edges
-      prevNodeMap[nodeId].outgoingEdges.forEach((edge) => {
+      prevNodeMapNode.outgoingEdges.forEach((edge) => {
         this.removeEdgeElement(edge.source, edge.target);
       });
 
       // remove all incoming edges
-      prevNodeMap[nodeId].incomingEdges.forEach((edge) => {
+      prevNodeMapNode.incomingEdges.forEach((edge) => {
         this.removeEdgeElement(edge.source, edge.target);
       });
 
       // remove node
-      const id = prevNodeMap[nodeId].node[nodeKey];
-      GraphUtils.removeElementFromDom(`node-${id}-container`);
+      // The timeout avoids a race condition
+      setTimeout(() => {
+        GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
+      });
     }
   }
 
@@ -391,13 +396,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const nodeId = selectedNode[nodeKey];
 
     // delete from local state
-    this.deleteNodeById(nodeId);
+    // this.deleteNodeById(nodeId);
     const newNodesArr = nodes.filter(node => node[nodeKey] !== nodeId);
-    this.setState({
-      componentUpToDate: false,
-      hoveredNode: false,
-      nodes: newNodesArr
-    });
+    // this.setState({
+    //   componentUpToDate: false,
+    //   hoveredNode: false
+    // });
 
     // remove from UI
     GraphUtils.removeElementFromDom(`node-${nodeId}-container`);

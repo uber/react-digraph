@@ -169,6 +169,9 @@ function generateSample(totalNodes) {
 
   const numNodes = totalNodes ? totalNodes : 0;
   // generate large array of nodes
+  // These loops are fast enough. 1000 nodes = .45ms + .34ms
+  // 2000 nodes = .86ms + .68ms
+  // implying a linear relationship with number of nodes.
   for (let i = 1; i <= numNodes; i++) {
     if (i % 20 === 0) {
       y++;
@@ -344,7 +347,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     const newEdges = graph.edges.filter((edge, i) => {
       return edge.source !== viewNode[NODE_KEY] && edge.target !== viewNode[NODE_KEY];
     });
-
     graph.nodes = nodeArr;
     graph.edges = newEdges;
 
