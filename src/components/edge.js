@@ -23,6 +23,7 @@ import { Point2D, Matrix2D } from 'kld-affine';
 import { Intersection } from 'kld-intersections';
 import GraphUtils from './graph-util';
 import { type INode } from './node';
+import { S_IFREG } from 'constants';
 
 export type IEdge = {
   source: string;
@@ -207,10 +208,10 @@ class Edge extends React.Component<IEdgeProps> {
       const xIntersect = pathIntersect.points[0].x;
       const yIntersect = pathIntersect.points[0].y;
       if (xIntersect > left && xIntersect < right && yIntersect > trgY) {
-        // arrow points to the top of the node
+        // arrow points to the bottom of the node
         arrowHeight = arrowSize.height;
       } else if (xIntersect > left && xIntersect < right && yIntersect < trgY) {
-        // arrow points to the bottom of the node
+        // arrow points to the top of the node
         arrowHeight = -arrowSize.height;
       } else if (yIntersect > top && yIntersect < bottom && xIntersect < trgX) {
         // arrow points to the left of the node
@@ -247,7 +248,9 @@ class Edge extends React.Component<IEdgeProps> {
 
     // calculate the positions of each corner relative to the trg position
     const top = trgY - h / 2;
+    const bottom = trgY + h / 2;
     const left = trgX - w / 2;
+    const right = trgX + w / 2;
 
     // modify the d property to add top and left to the x and y positions
     let d = defSvgPathElement.getAttribute('d');
@@ -278,8 +281,34 @@ class Edge extends React.Component<IEdgeProps> {
     );
 
     if (pathIntersect.points.length > 0) {
-      response.xOff = trgX - pathIntersect.points[0].x;
-      response.yOff = trgY - pathIntersect.points[0].y;
+      let arrowWidth = 0; //arrowSize.width;
+      let arrowHeight = 0; //arrowSize.height;
+      const xIntersect = pathIntersect.points[0].x;
+      const yIntersect = pathIntersect.points[0].y;
+      let multiplier = 1;
+      if (xIntersect > left && xIntersect < right) {
+        const yIntersectDiff = yIntersect - trgY;
+        multiplier = yIntersect < trgY ? -1 : 1;
+
+        arrowHeight = arrowSize.height * multiplier
+        // Math.min is used to find a percentage of the arrow size
+        // as the arrow approaches a horizontal or vertical vector
+        // Math.abs is used to force the diff to be positive,
+        // because we're using a multiplier instead and Math.min would choose a large
+        // negative number as the minimum, which is undesirable.
+        arrowHeight = arrowHeight * Math.min(Math.abs(yIntersectDiff), 1);
+      }
+      if (yIntersect > top && yIntersect < bottom) {
+        const xIntersectDiff = xIntersect - trgX;
+        multiplier = xIntersect < trgX ? -1 : 1;
+
+        arrowWidth = arrowSize.width * multiplier
+        arrowWidth = arrowWidth * Math.min(Math.abs(xIntersectDiff), 1);
+      }
+
+      response.xOff = trgX - xIntersect - (includesArrow ? arrowWidth / 1.25 : 0);
+      response.yOff = trgY - yIntersect - (includesArrow ? arrowHeight / 1.25 : 0);
+
       response.intersect = pathIntersect.points[0];
     }
     return response;
