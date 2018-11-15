@@ -258,12 +258,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return this.state.edgesMap ? this.state.edgesMap[`${source}_${target}`] : null;
   }
 
-  // deleteNodeById(id: string) {
-  //   if (this.state.nodesMap && this.state.nodesMap[`key-${id}`]) {
-  //     delete this.state.nodesMap[`key-${id}`];
-  //   }
-  // }
-
   deleteEdgeBySourceTarget(source: string, target: string) {
     if (this.state.edgesMap && this.state.edgesMap[`${source}_${target}`]) {
       delete this.state.edgesMap[`${source}_${target}`];
@@ -396,12 +390,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const nodeId = selectedNode[nodeKey];
 
     // delete from local state
-    // this.deleteNodeById(nodeId);
     const newNodesArr = nodes.filter(node => node[nodeKey] !== nodeId);
-    // this.setState({
-    //   componentUpToDate: false,
-    //   hoveredNode: false
-    // });
+    this.setState({
+      componentUpToDate: false,
+      hoveredNode: false
+    });
 
     // remove from UI
     GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
