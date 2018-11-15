@@ -553,7 +553,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   handleDocumentClick = () => {
     this.setState({
       documentClicked: true,
-      focused: this.state.svgClicked,
+      focused: false,
       svgClicked: false
     });
   }
