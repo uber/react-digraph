@@ -124,6 +124,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   renderEdgesTimeout: any;
   zoom: any;
   viewWrapper: React.RefObject<HTMLDivElement>;
+  graphSvg: React.RefObject<SVGElement>;
   entities: any;
   selectedView: any;
   view: any;
@@ -139,6 +140,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.renderEdgesTimeout = null;
     this.viewWrapper = React.createRef();
     this.graphControls = React.createRef();
+    this.graphSvg = React.createRef();
 
     if (props.layoutEngineType) {
       this.layoutEngine = new LayoutEngines[props.layoutEngineType](props);
@@ -278,7 +280,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       // if there was a previous node and it changed
       if (prevNode != null && (
         prevNode.node !== node ||
-        //GraphUtils.hasNodeShallowChanged(prevNode.node, node) ||
+        // GraphUtils.hasNodeShallowChanged(prevNode.node, node) ||
         ( // selection change
           selectedNode.node !== prevSelectedNode.node &&
           (
@@ -434,9 +436,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleDelete = (selected: IEdge | INode) => {
     const { canDeleteNode, canDeleteEdge, readOnly } = this.props;
-
     if (readOnly || !selected) { return; }
-
     if (!selected.source && canDeleteNode && canDeleteNode(selected)) {
       // node
       // $FlowFixMe
@@ -485,7 +485,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   handleEdgeSelected = (e) => {
     const { source, target } = e.target.dataset;
     let newState = {
-      svgClicked: true
+      svgClicked: true,
+      focused: true
     };
     if (source && target) {
       const edge: IEdge | null = this.getEdgeBySourceTarget(source, target);
@@ -543,7 +544,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleDocumentClick = () => {
+  handleDocumentClick = (event: MouseEvent) => {
+    // Ignore document click if it's in the SVGElement
+    if (event &&
+      event.target &&
+      event.target.ownerSVGElement != null &&
+      event.target.ownerSVGElement === this.graphSvg.current
+    ) {
+      return;
+    }
     this.setState({
       documentClicked: true,
       focused: false,
@@ -1220,7 +1229,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         className="view-wrapper"
         ref={this.viewWrapper}
       >
-        <svg className="graph">
+        <svg className="graph" ref={this.graphSvg}>
           <Defs
             edgeArrowSize={edgeArrowSize}
             gridSpacing={gridSpacing}
