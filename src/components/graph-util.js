@@ -68,7 +68,7 @@ class GraphUtils {
     for (let i = 0; i < edges.length; i++){
       edge = edges[i];
       if (!edge.target) {
-        return;
+        continue;
       }
       nodeMapSourceNode = nodesMap[`key-${edge.source || ''}`];
       nodeMapTargetNode = nodesMap[`key-${edge.target}`];

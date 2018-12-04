@@ -633,7 +633,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
-    const { onUpdateNode } = this.props;
+    const { onUpdateNode, readOnly } = this.props;
+
+    if (readOnly) {
+      return;
+    }
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
@@ -654,7 +658,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       // fire the mouseLeave event when nodes are moved.
       hoveredNode: false,
       svgClicked: true,
-
     });
   }
 
@@ -1038,6 +1041,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   renderNode(id: string, element: Element) {
+    if (!this.entities) {
+      return null;
+    }
     const containerId = `${id}-container`;
     let nodeContainer: HTMLElement | Element | null = document.getElementById(containerId);
 
@@ -1128,6 +1134,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
 
   renderEdge = (id: string, element: any, edge: IEdge, nodeMoving: boolean = false) => {
+    if (!this.entities) {
+      return null;
+    }
     let containerId = `${id}-container`;
     const customContainerId = `${id}-custom-container`;
     const { draggedEdge } = this.state;
