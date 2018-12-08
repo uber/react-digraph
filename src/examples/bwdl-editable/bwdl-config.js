@@ -20,56 +20,63 @@
 */
 import * as React from 'react';
 
-export const NODE_KEY = 'id'; // Key used to identify nodes
+export const NODE_KEY = 'title'; // Key used to identify nodes
 
 // These keys are arbitrary (but must match the config)
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
-export const EMPTY_TYPE = 'customEmpty'; // Empty node type
-export const POLY_TYPE = 'poly';
-export const SPECIAL_TYPE = 'special';
-export const SKINNY_TYPE = 'skinny';
+export const EMPTY_TYPE = 'empty'; // Empty node type
+export const CHOICE_TYPE = 'Choice';
+export const TASK_TYPE = 'Task';
+export const PASS_TYPE = 'Pass';
+export const WAIT_TYPE = 'Wait';
+export const TERMINATOR_TYPE = 'Terminator';
 export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
 
-export const nodeTypes = [EMPTY_TYPE, POLY_TYPE, SPECIAL_TYPE, SKINNY_TYPE];
+export const nodeTypes = [EMPTY_TYPE, CHOICE_TYPE, TASK_TYPE, PASS_TYPE, WAIT_TYPE, TERMINATOR_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
-
-const EmptyNodeShape = (
-  <symbol viewBox="0 0 154 154" width="154" height="154" id="emptyNode">
-    <circle cx="77" cy="77" r="76" />
-  </symbol>
-);
-
-const CustomEmptyShape = (
-  <symbol viewBox="0 0 100 100" id="customEmpty">
+const EmptyShape = (
+  <symbol viewBox="0 0 100 100" id="empty">
     <circle cx="50" cy="50" r="45" />
   </symbol>
 );
 
-const SpecialShape = (
-  <symbol viewBox="-27 0 154 154" id="special" width="154" height="154">
-    <rect transform="translate(50) rotate(45)" width="109" height="109" />
+const ChoiceShape = (
+  <symbol viewBox="0 0 100 100" id="choice">
+    <rect transform="translate(50, 5) rotate(45)" width="65" height="65" />
   </symbol>
 );
 
-const PolyShape = (
-  <symbol viewBox="0 0 88 72" id="poly" width="88" height="88">
-    <path d="M 0 36 18 0 70 0 88 36 70 72 18 72Z"></path>
+const TaskShape = (
+  <symbol viewBox="0 0 100 100" id="task">
+    <polygon points="50,5 20,98 95,37 5,37 80,98" />
   </symbol>
 );
 
-const SkinnyShape = (
-  <symbol viewBox="0 0 154 54" width="154" height="54" id="skinny">
-    <rect x="0" y="0" rx="2" ry="2" width="154" height="54" />
+const PassShape = (
+  <symbol viewBox="0 0 100 100" id="pass">
+    <rect transform="translate(7.5, 10)" width="85" height="85" />
+  </symbol>
+);
+
+const WaitShape = (
+  <symbol viewBox="0 0 100 100" id="wait">
+    <circle cx="50" cy="50" r="45" transform="translate(0, 2)" />
+  </symbol>
+);
+
+const TerminatorShape = (
+  <symbol viewBox="0 0 100 100" id="terminator">
+    <rect width="80" height="80" rx="15" ry="15" transform="translate(10, 10)" />
   </symbol>
 );
 
 const SpecialChildShape = (
-  <symbol viewBox="0 0 154 154" id="specialChild">
-    <rect x="2.5" y="0" width="154" height="154" fill="rgba(30, 144, 255, 0.12)" />
+  <symbol viewBox="0 0 100 100" id="specialChild">
+    <rect x="2.5" y="0" width="95" height="97.5" />
   </symbol>
 );
 
@@ -103,30 +110,35 @@ export default {
     }
   },
   NodeTypes: {
-    emptyNode: {
-      shape: EmptyNodeShape,
-      shapeId: '#emptyNode',
-      typeText: 'None'
+    Choice: {
+      shape: ChoiceShape,
+      shapeId: '#choice',
+      typeText: 'Choice'
     },
-    empty: {
-      shape: CustomEmptyShape,
+    emptyNode: {
+      shape: EmptyShape,
       shapeId: '#empty',
       typeText: 'None'
     },
-    special: {
-      shape: SpecialShape,
-      shapeId: '#special',
-      typeText: 'Special'
+    Pass: {
+      shape: PassShape,
+      shapeId: '#pass',
+      typeText: 'Pass'
     },
-    skinny: {
-      shape: SkinnyShape,
-      shapeId: '#skinny',
-      typeText: 'Skinny'
+    Task: {
+      shape: TaskShape,
+      shapeId: '#task',
+      typeText: 'Task'
     },
-    poly: {
-      shape: PolyShape,
-      shapeId: "#poly",
-      typeText: 'Poly'
+    Terminator: {
+      shape: TerminatorShape,
+      shapeId: '#terminator',
+      typeText: 'Terminator',
+    },
+    Wait: {
+      shape: WaitShape,
+      shapeId: '#wait',
+      typeText: 'Wait'
     }
   }
 };

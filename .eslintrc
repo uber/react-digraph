@@ -1,23 +1,21 @@
 {
   "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "allowImportExportEverywhere": false,
+    "codeFrame": false
+  },
   "plugins": [
-    "react",
-    "import-order",
-    "es6-recommended"
+    "flowtype"
   ],
   "env": {
     "browser": true
   },
-  "extends": [
-    "plugin:import-order/recommended",
-    "plugin:react/recommended"
-  ],
-  "rules": {
-    "react/display-name": 0
-  },
-  "parserOptions":{
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
+  "extends": [],
+  "rules": {},
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
     }
   }
 }

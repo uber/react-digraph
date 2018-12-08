@@ -1,0 +1,70 @@
+// @flow
+/*
+  Copyright(c) 2018 Uber Technologies, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
+import { type IEdge, type ITargetPosition } from './edge';
+import { type INode } from './node';
+
+export type IGraphViewProps = {
+  backgroundFillId?: string;
+  edges: any[];
+  edgeArrowSize?: number;
+  edgeHandleSize?: number;
+  edgeTypes: any;
+  gridDotSize?: number;
+  gridSize?: number;
+  gridSpacing?: number;
+  layoutEngineType?: LayoutEngineType;
+  maxTitleChars?: number;
+  maxZoom?: number;
+  minZoom?: number;
+  nodeKey: string;
+  nodes: any[];
+  nodeSize?: number;
+  nodeSubtypes: any;
+  nodeTypes: any;
+  readOnly?: boolean;
+  selected: any;
+  showGraphControls?: boolean;
+  zoomDelay?: number;
+  zoomDur?: number;
+  canCreateEdge?: (startNode?:INode, endNode?:INode) => boolean;
+  canDeleteEdge?: (selected: any) => boolean;
+  canDeleteNode?: (selected: any) => boolean;
+  onCopySelected?: () => void;
+  onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
+  onCreateNode: (x: number, y: number) => void;
+  onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
+  onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
+  onPasteSelected?: () => void;
+  onSelectEdge: (selectedEdge: IEdge) => void;
+  onSelectNode: (node: INode | null) => void;
+  onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
+  onUndo?: () => void;
+  onUpdateNode: (node: INode) => void;
+  renderBackground?: (gridSize?: number) => any;
+  renderDefs?: () => any;
+  renderNode?: (
+    nodeRef: any,
+    data: any,
+    id: string,
+    selected: boolean,
+    hovered: boolean
+  ) => any;
+  afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
+};
