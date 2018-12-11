@@ -48,9 +48,6 @@ class VerticalTree extends SnapToGrid {
     dagre.layout(g);
 
     g.nodes().forEach((gNodeId) => {
-      if (!nodesMap) {
-        return;
-      }
       const nodesMapNode = nodesMap[gNodeId];
 
       // gNode is the dagre representation

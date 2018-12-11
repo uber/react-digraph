@@ -1,6 +1,7 @@
 // @flow
 
 import GraphUtils from '../../src/components/graph-util';
+import { Edge } from '../../src';
 
 describe('GraphUtils class', () => {
   describe('getNodesMap method', () => {
@@ -174,6 +175,22 @@ describe('GraphUtils class', () => {
     it('handles a string and object', () => {
       const result = GraphUtils.classNames('test', { hello: true, world: false });
       expect(result).toEqual('test hello');
+    });
+  });
+
+  describe('hasNodeShallowChanged', () => {
+    it('finds differences in 2 objects', () => {
+      const node1 = { x: 0, y: 1 };
+      const node2 = { x: 1, y: 2 };
+      const changed = GraphUtils.hasNodeShallowChanged(node1, node2);
+      expect(changed).toEqual(true);
+    });
+
+    it('does not find differences in 2 objects', () => {
+      const node1 = { x: 0, y: 1 };
+      const node2 = { x: 0, y: 1 };
+      const changed = GraphUtils.hasNodeShallowChanged(node1, node2);
+      expect(changed).toEqual(false);
     });
   });
 });

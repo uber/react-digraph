@@ -62,18 +62,6 @@ class Edge extends React.Component<IEdgeProps> {
     return theta;
   }
 
-  static getDegrees (radians: number) {
-    return radians * (180 / Math.PI);
-  }
-
-  static getRadians(degrees: number) {
-    return (degrees / 180) * Math.PI;
-  }
-
-  static getDistance(pt1: any, pt2: any) {
-    return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
-  }
-
   static lineFunction(srcTrgDataArray: any) {
     // Provides API for curved lines using .curve() Example:
     // https://bl.ocks.org/d3indepth/64be9fc39a92ef074034e9a8fb29dcce
@@ -98,14 +86,8 @@ class Edge extends React.Component<IEdgeProps> {
 
   static parsePathToXY(edgePathElement: Element | null) {
     const response = {
-      source: {
-        x: 0,
-        y: 0
-      },
-      target: {
-        x: 0,
-        y: 0
-      }
+      source: { x: 0, y: 0 },
+      target: { x: 0, y: 0 }
     };
     if (edgePathElement) {
       let d = edgePathElement.getAttribute('d');
@@ -115,6 +97,7 @@ class Edge extends React.Component<IEdgeProps> {
       dArr = dArr.map(dimension => {
         return parseFloat(dimension);
       });
+
       if (dArr.length === 4) {
         response.source.x = dArr[0];
         response.source.y = dArr[1];
@@ -143,7 +126,7 @@ class Edge extends React.Component<IEdgeProps> {
     defSvgRotatedRectElement: any,
     src: any,
     trg: any,
-    includesArrow?: boolean = true,
+    includesArrow: boolean,
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     const response = Edge.getDefaultIntersectResponse();
@@ -393,42 +376,47 @@ class Edge extends React.Component<IEdgeProps> {
     const trgNode = nodeElem.querySelector(`use.node`);
 
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
-    if (trgNode && trgNode.getAttributeNS) {
-      const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-      if (xlinkHref) {
-        const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(`defs>${xlinkHref} rect`);
-        // Conditionally trying to select the element in other ways is faster than trying to
-        // do the selection.
-        const defSvgPathElement: SVGPathElement | null = (
-          !defSvgPathElement ?
-            viewWrapperElem.querySelector(`defs>${xlinkHref} path`) :
-            null
-        );
-        const defSvgCircleElement: SVGCircleElement | SVGEllipseElement | SVGPolygonElement | null = (
-          !defSvgPathElement && !defSvgPathElement ?
-            viewWrapperElem.querySelector(`defs>${xlinkHref} circle, defs>${xlinkHref} ellipse, defs>${xlinkHref} polygon`) :
-            null
-        );
+    if (!trgNode || (trgNode && !trgNode.getAttributeNS)) {
+      return response;
+    }
 
-        if (defSvgRectElement) {
-          // it's a rectangle
-          response = {
-            ...response,
-            ...Edge.getRotatedRectIntersect(defSvgRectElement, src, trg, includesArrow, viewWrapperElem)
-          }
-        } else if (defSvgPathElement) {
-          // it's a complex path
-          response = {
-            ...response,
-            ...Edge.getPathIntersect(defSvgPathElement, src, trg, includesArrow, viewWrapperElem)
-          }
-        } else {
-          // it's a circle or some other type
-          response = {
-            ...response,
-            ...Edge.getCircleIntersect(defSvgCircleElement, src, trg, includesArrow, viewWrapperElem)
-          }
-        }
+    const xlinkHref = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+
+    if (!xlinkHref) {
+      return response;
+    }
+
+    const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(`defs>${xlinkHref} rect`);
+    // Conditionally trying to select the element in other ways is faster than trying to
+    // do the selection.
+    const defSvgPathElement: SVGPathElement | null = (
+      !defSvgPathElement ?
+        viewWrapperElem.querySelector(`defs>${xlinkHref} path`) :
+        null
+    );
+    const defSvgCircleElement: SVGCircleElement | SVGEllipseElement | SVGPolygonElement | null = (
+      !defSvgPathElement && !defSvgPathElement ?
+        viewWrapperElem.querySelector(`defs>${xlinkHref} circle, defs>${xlinkHref} ellipse, defs>${xlinkHref} polygon`) :
+        null
+    );
+
+    if (defSvgRectElement) {
+      // it's a rectangle
+      response = {
+        ...response,
+        ...Edge.getRotatedRectIntersect(defSvgRectElement, src, trg, includesArrow, viewWrapperElem)
+      }
+    } else if (defSvgPathElement) {
+      // it's a complex path
+      response = {
+        ...response,
+        ...Edge.getPathIntersect(defSvgPathElement, src, trg, includesArrow, viewWrapperElem)
+      }
+    } else {
+      // it's a circle or some other type
+      response = {
+        ...response,
+        ...Edge.getCircleIntersect(defSvgCircleElement, src, trg, includesArrow, viewWrapperElem)
       }
     }
 

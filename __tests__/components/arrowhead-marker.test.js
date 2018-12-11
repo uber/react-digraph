@@ -39,5 +39,13 @@ describe('ArrowheadMarker component', () => {
       const arrowPathProps = output.children().first().props();
       expect(arrowPathProps.d).toEqual('M0,-1.5L3,0L0,1.5');
     });
+
+    it('renders without an edgeArrowSize', () => {
+      output.setProps({
+        edgeArrowSize: null
+      });
+
+      expect(output.getElement()).toBeNull();
+    });
   });
 });

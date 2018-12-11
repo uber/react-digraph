@@ -5,6 +5,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 
 import Edge from '../../src/components/edge';
+import { Point2D } from 'kld-intersections';
 
 describe('Edge component', () => {
   let output;
@@ -194,25 +195,473 @@ describe('Edge component', () => {
     });
   });
 
-  describe('getDistance static method', () => {
-    it('returns the distance between two points', () => {
-      const distance = Edge.getDistance(sourceNode, targetNode);
-      expect(distance).toEqual(201.24611797498108);
-    });
-  });
-
   describe('getTheta static method', () => {
     it('returns the theta between two points', () => {
       const theta = Edge.getTheta(sourceNode, targetNode);
       expect(theta).toEqual(1.1071487177940904);
     });
+
+    it('defaults the x and y to 0', () => {
+      const sourceNode = {};
+      const targetNode = {};
+      const theta = Edge.getTheta(sourceNode, targetNode);
+      expect(theta).toEqual(0);
+    });
   });
 
-  // describe('getMidpoint static method', () => {
-  //   it('returns the midpoint between two points', () => {
-  //     const midpoint = Edge.getMidpoint(sourceNode, targetNode);
-  //     expect(midpoint.x).toEqual(55);
-  //     expect(midpoint.y).toEqual(110);
-  //   });
-  // });
+  describe('getArrowSize static method', () => {
+    it('finds the arrow in the view wrapper element', () => {
+      const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      const boundingClientRectMock = jest.fn().mockImplementation(() => {
+        return rect;
+      });
+      const viewWrapperElem = {
+        querySelector: jest.fn().mockImplementation((selector) => {
+          return {
+            getBoundingClientRect: boundingClientRectMock
+          };
+        })
+      };
+
+      const size = Edge.getArrowSize(viewWrapperElem);
+      expect(viewWrapperElem.querySelector).toHaveBeenCalledWith('defs>marker>.arrow');
+      expect(size).toEqual(rect);
+    });
+
+    it('finds the arrow in the document', () => {
+      const xmlns = 'http://www.w3.org/2000/svg';
+      const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      const boundingClientRectMock = jest.fn().mockImplementation(() => {
+        return rect;
+      });
+      document.querySelector = jest.fn().mockImplementation((selector) => {
+        return {
+          getBoundingClientRect: boundingClientRectMock
+        };
+      });
+
+      const size = Edge.getArrowSize();
+      expect(document.querySelector).toHaveBeenCalledWith('defs>marker>.arrow');
+      expect(size).toEqual(rect);
+
+      document.querySelector.mockRestore();
+    });
+  });
+
+  describe('getEdgePathElement static method', () => {
+    it('returns the edge element from the viewWrapper', () => {
+      const viewWrapperElem = {
+        querySelector: jest.fn()
+      }
+      const fakeEdge = {
+        source: 'fake1',
+        target: 'fake2'
+      };
+      const element = Edge.getEdgePathElement(fakeEdge, viewWrapperElem);
+      expect(viewWrapperElem.querySelector)
+        .toHaveBeenCalledWith('#edge-fake1-fake2-container>.edge-container>.edge>.edge-path');
+    });
+
+    it('returns the edge element from the document', () => {
+      document.querySelector = jest.fn()
+      const fakeEdge = {
+        source: 'fake1',
+        target: 'fake2'
+      };
+      const element = Edge.getEdgePathElement(fakeEdge);
+      expect(document.querySelector)
+        .toHaveBeenCalledWith('#edge-fake1-fake2-container>.edge-container>.edge>.edge-path');
+      document.querySelector.mockRestore();
+    });
+  });
+
+  describe('parsePathToXY static method', () => {
+    it('converts an SVG path d property to an object with source and target objects', () => {
+      const edgePathElement = {
+        getAttribute: jest.fn().mockReturnValue('M33,43L224,282')
+      };
+      const result = Edge.parsePathToXY(edgePathElement);
+      const expected = {
+        source: { x: 33, y: 43 },
+        target: { x: 224, y: 282 }
+      }
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('returns an object with source and target at position 0', () => {
+      const result = Edge.parsePathToXY();
+      const expected = {
+        source: { x: 0, y: 0 },
+        target: { x: 0, y: 0 }
+      }
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('returns a default reponse when there is no d attribute', () => {
+      const edgePathElement = {
+        getAttribute: jest.fn().mockReturnValue('')
+      };
+      const result = Edge.parsePathToXY(edgePathElement);
+      const expected = {
+        source: { x: 0, y: 0 },
+        target: { x: 0, y: 0 }
+      }
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+  });
+
+  describe('getDefaultIntersectResponse static method', () => {
+    it('returns a default intersect object', () => {
+      const result = Edge.getDefaultIntersectResponse();
+      const expected = {
+        xOff: 0,
+        yOff: 0,
+        intersect: {
+          type: 'none',
+          point: {
+            x: 0,
+            y: 0
+          }
+        }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+  });
+
+  describe('getRotatedRectIntersect', () => {
+    let viewWrapperElem;
+    let rectElement;
+    let source;
+    let target;
+    beforeEach(() => {
+      const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      const boundingClientRectMock = jest.fn().mockImplementation(() => {
+        return rect;
+      });
+      viewWrapperElem = {
+        querySelector: jest.fn().mockImplementation((selector) => {
+          return {
+            getBoundingClientRect: boundingClientRectMock
+          };
+        })
+      };
+
+      rectElement = document.createElement('div');
+      rectElement.setAttribute('height', 10);
+      rectElement.setAttribute('width', 10);
+      rectElement.getBoundingClientRect = jest.fn().mockReturnValue({
+        width: 15,
+        height: 15
+      });
+      source = new Point2D(5, 10);
+      target = new Point2D(15, 20);
+    });
+
+    afterEach(() => {
+      rectElement.getBoundingClientRect.mockRestore();
+    });
+
+    it('gets the intersect', () => {
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 5,
+        yOff: 5,
+        intersect: { x: 10, y: 15 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('does includes the arrow', () => {
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, true, viewWrapperElem);
+      const expected = {
+        xOff: -43,
+        yOff: 5,
+        intersect: { x: 10, y: 15 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('uses the clientRect for width and height', () => {
+      rectElement.removeAttribute('height');
+      rectElement.removeAttribute('width');
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, true, viewWrapperElem);
+      const expected = {
+        xOff: -40.5,
+        yOff: 7.5,
+        intersect: { x: 7.5, y: 12.5 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('uses 0 when trg and src do not have x and y', () => {
+      source = new Point2D();
+      target = new Point2D();
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, true, viewWrapperElem);
+      const expected = {
+        xOff: 0,
+        yOff: 0,
+        intersect: { type: 'none', point: { x: 0, y: 0 } }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('handles rotates rectangles', () => {
+      rectElement.setAttribute('transform', 'rotate(45)');
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 3.535533905932736,
+        yOff: 3.5355339059327378,
+        intersect: { x: 11.464466094067264, y: 16.464466094067262 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('points at the bottom', () => {
+      source = new Point2D(5, 20);
+      target = new Point2D(5, 5);
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 0,
+        yOff: -5,
+        intersect: { x: 5, y: 10 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('points at the left', () => {
+      source = new Point2D(-5, 5);
+      target = new Point2D(5, 5);
+      const result = Edge.getRotatedRectIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 5,
+        yOff: 0,
+        intersect: { x: 0, y: 5 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+  });
+
+  describe('getPathIntersect static method', () => {
+    let viewWrapperElem;
+    let rectElement;
+    let source;
+    let target;
+    beforeEach(() => {
+      const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      const boundingClientRectMock = jest.fn().mockImplementation(() => {
+        return rect;
+      });
+      viewWrapperElem = {
+        querySelector: jest.fn().mockImplementation((selector) => {
+          return {
+            getBoundingClientRect: boundingClientRectMock
+          };
+        })
+      };
+
+      rectElement = document.createElement('div');
+      rectElement.setAttribute('height', 10);
+      rectElement.setAttribute('width', 10);
+      rectElement.getBoundingClientRect = jest.fn().mockReturnValue({
+        width: 15,
+        height: 15
+      });
+      source = new Point2D(5, 10);
+      target = new Point2D(15, 20);
+    });
+
+    afterEach(() => {
+      rectElement.getBoundingClientRect.mockRestore();
+    });
+
+    it('finds the intersect', () => {
+      rectElement.setAttribute('d', 'M 0 0 15 0 15 15 0 15Z');
+      const result = Edge.getPathIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 7.5,
+        yOff: 7.5,
+        intersect: { x: 7.5, y: 12.5 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+  });
+
+  describe('getCircleIntersect static method', () => {
+    let viewWrapperElem;
+    let rectElement;
+    let source;
+    let target;
+    beforeEach(() => {
+      const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      const boundingClientRectMock = jest.fn().mockImplementation(() => {
+        return rect;
+      });
+      viewWrapperElem = {
+        querySelector: jest.fn().mockImplementation((selector) => {
+          return {
+            getBoundingClientRect: boundingClientRectMock
+          };
+        })
+      };
+
+      const parentElement = document.createElement('div');
+      parentElement.setAttribute('width', 10);
+      parentElement.setAttribute('height', 10);
+
+      rectElement = document.createElement('div');
+      rectElement.setAttribute('height', 10);
+      rectElement.setAttribute('width', 10);
+      rectElement.getBoundingClientRect = jest.fn().mockReturnValue({
+        width: 15,
+        height: 15
+      });
+
+      parentElement.appendChild(rectElement);
+
+      source = new Point2D(5, 10);
+      target = new Point2D(15, 20);
+    });
+
+    afterEach(() => {
+      rectElement.getBoundingClientRect.mockRestore();
+    });
+
+    it('finds the intersect', () => {
+      const result = Edge.getCircleIntersect(rectElement, source, target, false, viewWrapperElem);
+      const expected = {
+        xOff: 3.5355339059327378,
+        yOff: 3.5355339059327378,
+        intersect: { x: 11.464466094067262, y: 16.464466094067262 }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+  });
+
+  describe('calculateOffset static method', () => {
+    let viewWrapperElem;
+    let source;
+    let target;
+    let defaultExpected;
+    let rectElement;
+    beforeEach(() => {
+      // const rect = { bottom: 10, height: 20, left: 30, right: 40, top: 50, width: 60 };
+      // const boundingClientRectMock = jest.fn().mockImplementation(() => {
+      //   return rect;
+      // });
+      rectElement = document.createElement('div');
+      rectElement.setAttribute('height', 10);
+      rectElement.setAttribute('width', 10);
+      rectElement.getBoundingClientRect = jest.fn().mockReturnValue({
+        width: 15,
+        height: 15
+      });
+      viewWrapperElem = {
+        querySelector: jest.fn().mockImplementation((selector) => {
+          return rectElement;
+        })
+      };
+
+      source = new Point2D(5, 10);
+      source.id = "test";
+      target = new Point2D(15, 20);
+      target.id = "test2";
+
+      defaultExpected = {
+        xOff: 0,
+        yOff: 0,
+        intersect: { type: 'none', point: { x: 0, y: 0 } }
+      };
+    });
+
+    it('returns a default response when there is no matching nodeKey', () => {
+      source.id = '';
+      target.id = '';
+      const result = Edge.calculateOffset(15, source, target, 'id', false, viewWrapperElem);
+      const expected = defaultExpected;
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('returns a default response when there is no matching node element', () => {
+      const result = Edge.calculateOffset(15, source, target, 'id', false, viewWrapperElem);
+      const expected = {
+        xOff: 0,
+        yOff: 0,
+        intersect: { type: 'none', point: { x: 0, y: 0 } }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+    });
+
+    it('returns a default response when there is no matching target node', () => {
+      const trgNode = {};
+      const node = {
+        querySelector: jest.fn().mockImplementation(() => {
+          return trgNode;
+        })
+      };
+
+      document.getElementById = jest.fn().mockImplementation(() => {
+        return node;
+      });
+
+      const result = Edge.calculateOffset(15, source, target, 'id', false, viewWrapperElem);
+      const expected = defaultExpected;
+      expect(document.getElementById).toHaveBeenCalledWith('node-test2');
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+
+      document.getElementById.mockRestore();
+    });
+
+    it('returns a default response when there is no xlinkHref', () => {
+      const trgNode = {
+        getAttributeNS: jest.fn().mockImplementation(() => {
+          return null;
+        })
+      };
+      const node = {
+        querySelector: jest.fn().mockImplementation(() => {
+          return trgNode;
+        })
+      };
+      document.getElementById = jest.fn().mockImplementation(() => {
+        return node;
+      });
+
+      const result = Edge.calculateOffset(15, source, target, 'id', false, viewWrapperElem);
+      const expected = defaultExpected;
+      expect(document.getElementById).toHaveBeenCalledWith('node-test2');
+      expect(trgNode.getAttributeNS).toHaveBeenCalledWith('http://www.w3.org/1999/xlink', 'href');
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+
+      document.getElementById.mockRestore();
+    });
+
+    it('gets a response for a rect element', () => {
+      const trgNode = {
+        getAttributeNS: jest.fn().mockImplementation(() => {
+          return 'test';
+        })
+      };
+      const node = {
+        querySelector: jest.fn().mockImplementation(() => {
+          return trgNode;
+        })
+      };
+      document.getElementById = jest.fn().mockImplementation(() => {
+        return node;
+      });
+
+      const result = Edge.calculateOffset(15, source, target, 'id', false, viewWrapperElem);
+      const expected = {
+        xOff: 5,
+        yOff: 5,
+        intersect: {
+          x: 10,
+          y: 15
+        }
+      };
+      expect(JSON.stringify(result)).toEqual(JSON.stringify(expected));
+
+      document.getElementById.mockRestore();
+    });
+  });
 });

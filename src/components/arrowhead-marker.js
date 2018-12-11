@@ -44,7 +44,7 @@ class ArrowheadMarker extends React.Component<IArrowheadMarkerProps> {
       >
         <path
           className="arrow"
-          d={`M0,-${(edgeArrowSize || 0) / 2}L${edgeArrowSize},0L0,${(edgeArrowSize || 0) / 2}`}
+          d={`M0,-${(edgeArrowSize) / 2}L${edgeArrowSize},0L0,${(edgeArrowSize) / 2}`}
         />
       </marker>
     );

@@ -21,7 +21,6 @@ import Transformer, { type IGraphInput } from './transformer';
 
 export default class BwdlTransformer extends Transformer {
   static transform(input: any) {
-    const startNodeName = input.StartAt;
     if (!input.States) {
       return {
         edges: [],
@@ -45,7 +44,7 @@ export default class BwdlTransformer extends Transformer {
         y: currentNode.y || 0
       };
 
-      if (name === startNodeName) {
+      if (name === input.StartAt) {
         nodes.unshift(nodeToAdd);
       } else {
         nodes.push(nodeToAdd);
