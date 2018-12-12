@@ -29,6 +29,8 @@ export type IEdge = {
   target: string;
   type?: string;
   handleText?: string;
+  label_from?: string;
+  label_to?: string;
   [key: string]: any;
 };
 
@@ -476,18 +478,23 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   getEdgeHandleRotation = (negate: any = false) => {
+    let rotated = false
     const src = this.props.sourceNode;
     const trg = this.props.targetNode;
     let theta = Edge.getTheta(src, trg) * 180 / Math.PI;
     if (negate) {
       theta = -theta;
     }
-    return `rotate(${theta})`;
+    if(theta > 90 || theta < -90){
+      theta = theta + 180
+      rotated = true
+    }
+    return [`rotate(${theta})`, rotated];
   }
 
   getEdgeHandleTransformation = () => {
     const translation = this.getEdgeHandleTranslation();
-    const rotation = this.getEdgeHandleRotation();
+    const [ rotation, ]= this.getEdgeHandleRotation();
     const offset = this.getEdgeHandleOffsetTranslation();
     return `${translation} ${rotation} ${offset}`;
   }
@@ -534,6 +541,22 @@ class Edge extends React.Component<IEdgeProps> {
     );
   }
 
+  renderLabelText (data: any) {
+    const [rotation, isRotated] = this.getEdgeHandleRotation()
+    const title = isRotated ? `${data.label_to} ↔ ${data.label_from}` : `${data.label_from} ↔ ${data.label_to}`
+    return (
+      <text
+        className="edge-text"
+        textAnchor="middle"
+        alignmentBaseline="central"
+        style={{fontSize: '11px', stroke: 'none', fill: 'black'}}
+        transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
+      >
+        {title}
+      </text>
+    );
+  }
+
   render() {
     const { data, edgeTypes, edgeHandleSize, viewWrapperElem } = this.props;
     if (!viewWrapperElem) {
@@ -555,6 +578,7 @@ class Edge extends React.Component<IEdgeProps> {
               transform={`${this.getEdgeHandleTransformation()}`}
             />
             {data.handleText && this.renderHandleText(data)}
+            {data.label_from && data.label_to && this.renderLabelText(data)}
         </g>
         <g className="edge-mouse-handler">
           <path
