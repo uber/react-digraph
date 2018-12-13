@@ -127,12 +127,12 @@ describe('Edge component', () => {
 
   describe('getEdgeHandleRotation method', () => {
     it('returns a rotation', () => {
-      const handleRotation = output.instance().getEdgeHandleRotation();
+      const [handleRotation, ] = output.instance().getEdgeHandleRotation();
       expect(handleRotation).toEqual('rotate(63.43494882292201)');
     });
 
     it('negates the response', () => {
-      const handleRotation = output.instance().getEdgeHandleRotation(true);
+      const [ handleRotation, ] = output.instance().getEdgeHandleRotation(true);
       expect(handleRotation).toEqual('rotate(-63.43494882292201)');
     });
   });
