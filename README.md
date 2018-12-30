@@ -56,7 +56,7 @@ const GraphConfig =  {
       shapeId: "#custom", // relates to the type property of a node
       shape: (
         <symbol viewBox="0 0 50 25" id="custom" key="0">
-          <ellipse cx="50" cy="25" rx="50" ry="25"></circle>
+          <ellipse cx="50" cy="25" rx="50" ry="25"></ellipse>
         </symbol>
       )
     }
