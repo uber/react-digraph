@@ -539,7 +539,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       if (!this.props.readOnly && d3.event.shiftKey) {
         const xycoords = d3.mouse(d3.event.target);
-        this.props.onCreateNode(xycoords[0], xycoords[1], {pageX: d3.event.pageX, pageY: d3.event.pageY});
+        this.props.onCreateNode(xycoords[0], xycoords[1], d3.event);
       }
     }
   }
