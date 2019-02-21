@@ -86,6 +86,7 @@
     "style-loader": "^0.21.0",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.26.1",
+    "webpack-bundle-analyzer": "3.0.4",
     "webpack-cli": "^3.1.2"
   },
   "scripts": {
@@ -109,7 +110,8 @@
     "serve": "npm run live-serve",
     "test": "jest",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
-    "package": "npm-run-all clean lint test build build:prod"
+    "package": "npm-run-all clean lint test build build:prod",
+    "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
   },
   "jest": {
     "testURL": "http://localhost",
