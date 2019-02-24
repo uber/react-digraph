@@ -31,16 +31,18 @@
   "dependencies": {
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
+    "html-react-parser": "^0.6.1",
     "kld-affine": "^2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
     "svg-intersections": "^0.4.0"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.2",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.26.0",
-    "babel-eslint": "^8.2.6",
-    "babel-jest": "^23.4.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
     "babel-loader": "^7.1.5",
     "babel-plugin-react": "^1.0.0",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",
@@ -67,6 +69,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.86.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^22.4.3",
     "jsdom": "^11.12.0",
     "live-server": "^1.2.0",
@@ -78,12 +81,12 @@
     "react": "^16.4.2",
     "react-ace": "^6.1.4",
     "react-dom": "^16.4.2",
-    "react-icons": "^3.2.2",
     "react-router-dom": "^4.3.1",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.0.3",
     "source-map-loader": "^0.2.3",
-    "style-loader": "^0.21.0",
+    "style-loader": "^0.23.1",
+    "svg-inline-loader": "^0.8.0",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2"
@@ -109,7 +112,8 @@
     "serve": "npm run live-serve",
     "test": "jest",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
-    "package": "npm-run-all clean lint test build build:prod"
+    "package": "npm-run-all clean lint test build build:prod",
+    "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
   },
   "jest": {
     "testURL": "http://localhost",
@@ -142,7 +146,8 @@
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/jest-setup.js",
     "moduleNameMapper": {
-      "\\.(scss)$": "<rootDir>/__mocks__/styles.mock.js"
+      "\\.(scss)$": "<rootDir>/__mocks__/styles.mock.js",
+      ".+\\.(svg|png|jpg)$": "identity-obj-proxy"
     }
   }
 }
