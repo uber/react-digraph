@@ -20,57 +20,60 @@ $dark-color: black;
 $light-grey: lightgrey;
 $background-color: #f9f9f9;
 
-.view-wrapper {
+.react-digraph {
   height: 100%;
   width: 100%;
   margin: 0;
-  display: flex;
   box-shadow: none;
   background: $background-color;
-  transition: opacity 0.167s;
-  opacity: 1;
   outline: none;
   user-select: none;
 
-  > .graph {
-    align-content: stretch;
-    flex: 1;
+  .graph {
     width: 100%;
     height: 100%;
   }
 
-  .node {
-    .shape {
-      > use.node {
-        color: $primary-color;
-        stroke: $dark-color;
-        fill: $light-color;
-        filter: url(#dropshadow);
-        stroke-width: 0.5px;
-        cursor: pointer;
-        user-select: none;
+  .circle {
+    fill: $light-grey;
+  }
 
-        &.hovered {
-          stroke: $primary-color;
-        }
-        &.selected {
-          color: $light-color;
-          stroke: $primary-color;
-          stroke-width: 1px;
-          fill: $primary-color;
-        }
-      }
-    }
-
-    .node-text {
-      fill: $dark-color;
+  use {
+    &.node {
+      stroke: $dark-color;
+      fill: $light-color;
+      filter: url(#dropshadow);
+      stroke-width: 0.5px;
       cursor: pointer;
       user-select: none;
+
+      &:hover {
+        stroke: $primary-color;
+      }
+
       &.selected {
-        fill: $light-color;
-        stroke: $light-color;
+        stroke: $primary-color;
+        fill: $primary-color;
       }
     }
+  }
+
+  .node-text {
+    cursor: pointer;
+    user-select: none;
+
+    &.selected {
+      fill: $light-color;
+      stroke: $light-color;
+    }
+  }
+
+  .edge-text {
+    stroke-width: 0.5px;
+    fill: $primary-color;
+    stroke: $primary-color;
+    cursor: pointer;
+    user-select: none;
   }
 
   .edge {
@@ -80,28 +83,15 @@ $background-color: #f9f9f9;
     marker-end: url(#end-arrow);
     cursor: pointer;
 
-    .edge-text {
-      stroke-width: 0.5px;
-      fill: $primary-color;
-      stroke: $primary-color;
-
-      cursor: pointer;
-      user-select: none;
-    }
-
     &.selected {
       color: $primary-color;
-      stroke: $primary-color;
 
       .edge-text {
         fill: $light-color;
         stroke: $light-color;
       }
     }
-
-
   }
-
   .edge-mouse-handler {
     stroke: black;
     opacity: 0;
@@ -119,48 +109,39 @@ $background-color: #f9f9f9;
     position: absolute;
     bottom: 30px;
     left: 15px;
-    z-index: 100;
     display: grid;
     grid-template-columns: auto auto;
     grid-gap: 15px;
     align-items: center;
     user-select: none;
+  }
 
-    > .slider-wrapper {
-      background-color: white;
-      color: $primary-color;
-      border: solid 1px lightgray;
-      padding: 6.5px;
-      border-radius: 2px;
+  .slider-wrapper {
+    background-color: white;
+    color: $primary-color;
+    border: solid 1px lightgray;
+    padding: 6px;
+    border-radius: 2px;
 
-      > span {
-        display: inline-block;
-        vertical-align: top;
-        margin-top: 2px;
-      }
-
-      > .slider {
-        position: relative;
-        margin-left: 4px;
-        margin-right: 4px;
-        cursor: pointer;
-      }
-    }
-
-    > .slider-button {
-      background-color: white;
-      color: $primary-color;
-      border: solid 1px lightgray;
-      outline: none;
-      width: 31px;
-      height: 31px;
-      border-radius: 2px;
-      cursor: pointer;
-      margin: 0;
+    span {
+      vertical-align: top;
     }
   }
 
-  .circle {
-    fill: $light-grey;
+  .slider {
+    position: relative;
+    margin: 0 4px;
+    cursor: pointer;
+  }
+
+  .slider-button {
+    margin: 0;
+    padding: 8px;
+    background-color: white;
+    color: $primary-color;
+    border: solid 1px lightgray;
+    outline: none;
+    border-radius: 2px;
+    cursor: pointer;
   }
 }

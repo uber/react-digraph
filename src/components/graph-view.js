@@ -1235,7 +1235,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { edgeArrowSize, gridSpacing, gridDotSize, nodeTypes, nodeSubtypes, edgeTypes, renderDefs } = this.props;
     return (
       <div
-        className="view-wrapper"
+        className="react-digraph"
         ref={this.viewWrapper}
       >
         <svg className="graph" ref={this.graphSvg}>
