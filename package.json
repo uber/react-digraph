@@ -69,7 +69,6 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.86.0",
-    "identity-obj-proxy": "^3.0.0",
     "jest": "^22.4.3",
     "jsdom": "^11.12.0",
     "live-server": "^1.2.0",
@@ -111,6 +110,7 @@
     "prepublish": "npm run package",
     "serve": "npm run live-serve",
     "test": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
     "package": "npm-run-all clean lint test build build:prod",
     "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
@@ -147,7 +147,7 @@
     "setupTestFrameworkScriptFile": "<rootDir>/jest-setup.js",
     "moduleNameMapper": {
       "\\.(scss)$": "<rootDir>/__mocks__/styles.mock.js",
-      ".+\\.(svg|png|jpg)$": "identity-obj-proxy"
+      "@fortawesome/fontawesome-free/svgs/solid/expand.svg": "<rootDir>/__mocks__/icon.mock.js"
     }
   }
 }
