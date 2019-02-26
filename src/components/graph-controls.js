@@ -20,9 +20,12 @@
 */
 
 import React from 'react';
-import { FaExpand } from 'react-icons/fa';
+import Parse from 'html-react-parser';
+import faExpand from '@fortawesome/fontawesome-free/svgs/solid/expand.svg';
 
 const steps = 100; // Slider steps
+const parsedIcon = Parse(faExpand); //  parse SVG once
+const ExpandIcon = () => parsedIcon; // convert SVG to react component
 
 type IGraphControlProps = {
   maxZoom?: number;
@@ -82,8 +85,12 @@ class GraphControls extends React.Component<IGraphControlProps> {
           />
           <span>+</span>
         </div>
-        <button type="button" className="slider-button" onMouseDown={this.props.zoomToFit}>
-          <FaExpand />
+        <button
+          type="button"
+          className="slider-button"
+          onMouseDown={this.props.zoomToFit}
+        >
+          <ExpandIcon />
         </button>
       </div>
     );
