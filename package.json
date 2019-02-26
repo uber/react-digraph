@@ -149,9 +149,9 @@
     "moduleNameMapper": {
       "\\.(scss)$": "<rootDir>/__mocks__/styles.mock.js",
       "@fortawesome/fontawesome-free/svgs/solid/expand.svg": "<rootDir>/__mocks__/icon.mock.js"
-    },
-    "publishConfig": {
-      "registry": "https://registry.npmjs.org"
     }
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   }
 }
