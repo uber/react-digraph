@@ -155,3 +155,29 @@ You should see a comparison with base: `master` with `yourusername/react-digraph
 As mentioned before, react-digraph uses Jest and Enzyme. Tests are located in the `__tests__` folder.
 
 To run the tests run `npm run test`.
+
+# NPM Package Maintainers Only!
+
+## Creating a new version
+
+**Checkout master and pull updates**
+
+```
+git checkout master
+git pull
+```
+
+**Create a new version**
+
+Create a new version using `npm version [major|minor|patch]` depending on the version type. `major` for major breaking changes, `minor` for non-breaking backwards-compatible changes that introduce new features or improvements, `patch` for bugfixes.
+
+```
+npm version minor
+```
+
+**Push updates**
+
+```
+git push origin master
+git push origin --tags
+```
