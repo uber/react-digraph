@@ -173,6 +173,7 @@ Create a new version using `npm version [major|minor|patch]` depending on the ve
 
 ```
 npm version minor
+npm publish
 ```
 
 **Push updates**
