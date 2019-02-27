@@ -608,18 +608,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         !edgesMap[mapId1] &&
         !edgesMap[mapId2]
       ) {
-        const edge: IEdge = {
-          source: hoveredNodeData[nodeKey],
-          target: edgeEndNode[nodeKey]
-        };
         this.setState({
           componentUpToDate: false,
           draggedEdge: null,
           draggingEdge: false,
         });
 
-        // this syncRenderEdge will render the edge as un-selected.
-        this.syncRenderEdge(edge);
         // we expect the parent website to set the selected property to the new edge when it's created
         onCreateEdge(hoveredNodeData, edgeEndNode);
       } else {
