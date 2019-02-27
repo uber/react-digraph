@@ -57,7 +57,7 @@
     "browserify": "^14.4.0",
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^1.0.0",
-    "enzyme": "^3.9.0",
+    "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "^1.10.0",
     "eslint": "^5.2.0",
     "eslint-config-airbnb": "^17.0.0",
