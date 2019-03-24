@@ -231,7 +231,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    const forceReRender = this.props.nodes !== prevProps.nodes || this.props.edges !== prevProps.edges
+    const forceReRender = this.props.nodes !== prevProps.nodes || this.props.edges !== prevProps.edges || prevProps.layoutEngineType !== this.props.layoutEngineType
 
     // Note: the order is intentional
     // remove old edges
