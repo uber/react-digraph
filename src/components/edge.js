@@ -32,6 +32,7 @@ export type IEdge = {
   label_from?: string;
   label_to?: string;
   [key: string]: any;
+  classes?: string;
 };
 
 export type ITargetPosition = {
@@ -550,10 +551,11 @@ class Edge extends React.Component<IEdgeProps> {
     if (!viewWrapperElem) {
       return null;
     }
+    const edgeClasses = data.classes || []
     const id = `${data.source || ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
-      selected: this.props.isSelected
-    });
+      selected: this.props.isSelected,
+    }, ...edgeClasses);
 
     return (
       <g className="edge-container" data-source={data.source} data-target={data.target}>
