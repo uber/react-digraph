@@ -37,6 +37,13 @@ type IViewTransform = {
   y: number
 }
 
+type IBBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type IGraphViewState = {
   viewTransform?: IViewTransform;
   hoveredNode: boolean;
@@ -55,6 +62,7 @@ type IGraphViewState = {
   documentClicked: boolean;
   svgClicked: boolean;
   focused: boolean;
+  initialBBox: IBBox;
 };
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
@@ -188,16 +196,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .call(this.zoom);
 
     this.selectedView = d3.select(this.view);
-
+    if(this.props.initialBBox)
+      this.handleZoomToFitImpl(this.props.initialBBox, 0);
     // On the initial load, the 'view' <g> doesn't exist until componentDidMount.
     // Manually render the first view.
     this.renderView();
 
-    setTimeout(() => {
-      if (this.viewWrapper != null) {
-        this.handleZoomToFit();
-      }
-    }, this.props.zoomDelay);
+    if (!this.props.initialBBox) {
+      setTimeout(() => {
+        if (this.viewWrapper != null) {
+          this.handleZoomToFit();
+        }
+      }, this.props.zoomDelay);
+    }
   }
 
   componentWillUnmount() {
@@ -903,11 +914,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit = () => {
-    const parent = d3.select(this.viewWrapper.current).node();
     const entities = d3.select(this.entities).node();
     const viewBBox = entities.getBBox ? entities.getBBox() : null;
     if (!viewBBox) { return; }
+    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
+  }
 
+  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number)  => {
+    const parent = d3.select(this.viewWrapper.current).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
     const minZoom = this.props.minZoom || 0;
@@ -937,7 +951,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       next.y = height / 2 - next.k * y;
     }
 
-    this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
+    this.setZoom(next.k, next.x, next.y, zoomDur);
   }
 
   // Updates current viewTransform with some delta
