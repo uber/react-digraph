@@ -214,7 +214,8 @@ All props are detailed below.
 | canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
 | canCreateEdge       | func                    | false     | Called before an edge is created.                         |
 | canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
-| afterRenderEdge      | func                    | false     | Called after an edge is rendered.                         |
+| canSwapEdge         | func                    | false     | Called before an edge 'target' is swapped.                |
+| afterRenderEdge      | func                   | false     | Called after an edge is rendered.                         |
 | renderNode          | func                    | false     | Called to render node geometry.                           |
 | renderNodeText      | func                    | false     | Called to render the node text                            |
 | renderDefs          | func                    | false     | Called to render svg definitions.                         |
@@ -280,6 +281,7 @@ Prop Types:
   canDeleteEdge?: (selected: any) => boolean;
   canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
+  canSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => boolean;
   onUndo?: () => void;
   onCopySelected?: () => void;
   onPasteSelected?: () => void;
