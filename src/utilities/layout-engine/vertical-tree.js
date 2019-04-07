@@ -21,7 +21,7 @@ import SnapToGrid from './snap-to-grid';
 
 class VerticalTree extends SnapToGrid {
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
-    const { nodeKey, nodeSize } = this.graphViewProps;
+    const { nodeKey, nodeSize, nodeHeight, nodeWidth, nodeSpacingMultiplier } = this.graphViewProps;
     const size = (nodeSize || 1) * 1.5;
     const g = new dagre.graphlib.Graph();
     g.setGraph({});
