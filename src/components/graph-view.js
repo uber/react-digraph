@@ -523,6 +523,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true
       });
     } else {
+      if(!d3.event.shiftKey && this.props.onBackgroundClick) {
+        const xycoords = d3.mouse(d3.event.target);
+        this.props.onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+      }
       const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
       const previousSelectionIndex = (this.state.selectedNodeObj && this.state.selectedNodeObj.index) || -1;
 
