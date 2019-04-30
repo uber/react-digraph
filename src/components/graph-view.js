@@ -72,8 +72,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     readOnly: false,
     showGraphControls: true,
     zoomDelay: 1000,
-    zoomDur: 750
-  };
+    zoomDur: 750,
+    centerNodeOnMove: true
+};
 
   static getDerivedStateFromProps(nextProps: IGraphViewProps, prevState: IGraphViewState) {
     const { edges, nodeKey } = nextProps;
@@ -1030,6 +1031,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         isSelected={this.state.selectedNodeObj.node === node}
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
+        centerNodeOnMove={this.props.centerNodeOnMove}
       />
     );
   }
