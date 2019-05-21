@@ -1252,6 +1252,55 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       </div>
     );
   }
+
+  /* Imperative API */
+  panToEntity(entity: IEdge | INode) {
+    const parent = this.viewWrapper.current;
+    const entityBBox = entity ? entity.getBBox() : null;
+
+    if (!parent || !entityBBox) {
+      return;
+    }
+
+    const width = parent.clientWidth;
+    const height = parent.clientHeight;
+
+    const next = {
+      k: this.state.viewTransform.k,
+      x: 0,
+      y: 0,
+    };
+
+    const x = entityBBox.x + entityBBox.width / 2;
+    const y = entityBBox.y + entityBBox.height / 2;
+
+    next.x = width / 2 - next.k * x;
+    next.y = height / 2 - next.k * y;
+
+    this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
+  }
+
+  panToNode(id: string) {
+    if (!this.entities) {
+      return;
+    }
+
+    const node = this.entities.querySelector(`#node-${id}-container`);
+
+    this.panToEntity(node);
+  }
+
+  panToEdge(source: string, target: string) {
+    if (!this.entities) {
+      return;
+    }
+
+    const edge = this.entities.querySelector(
+      `#edge-${source}-${target}-container`
+    );
+
+    this.panToEntity(edge);
+  }
 }
 
 export default GraphView;

@@ -437,6 +437,11 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   handleChangeLayoutEngineType = (event: any) => {
     this.setState({ layoutEngineType: (event.target.value: LayoutEngineType | 'None') });
+}
+
+  onSelectPanNode = (event: any) => {
+    if (this.GraphView)
+      this.GraphView.panToNode(event.target.value);
   }
 
   /*
@@ -468,6 +473,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={undefined}>None</option>
               <option value={'SnapToGrid'}>Snap to Grid</option>
               <option value={'VerticalTree'}>Vertical Tree</option>
+            </select>
+          </div>
+          <div className="pan-list">
+          <span>Pan To:</span>
+            <select onChange={this.onSelectPanNode}>
+              {nodes.map(node => <option key={node[NODE_KEY]} value={node[NODE_KEY]}>{node.title}</option>)}
             </select>
           </div>
         </div>
