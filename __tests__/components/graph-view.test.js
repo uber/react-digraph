@@ -897,4 +897,91 @@ describe('GraphView component', () => {
       expect(instance.dragEdge).toHaveBeenCalled();
     });
   });
+
+  describe('panToEntity method', () => {
+    const entity = document.createElement('g');
+    entity.getBBox = jasmine.createSpy().and.returnValue({ width: 400, height: 300, x: 5, y: 10 });
+    beforeEach(() => {
+      spyOn(instance, 'setZoom');
+      instance.viewWrapper = {
+        current: document.createElement('div')
+      }
+      // this gets around instance.viewWrapper.client[Var] being readonly, we need to customize the object
+      let globalWidth = 0;
+      Object.defineProperty(instance.viewWrapper.current, 'clientWidth', {
+        get: () => {
+          return globalWidth;
+        },
+        set: (clientWidth) => {
+          globalWidth = clientWidth;
+        }
+      });
+      let globalHeight = 0;
+      Object.defineProperty(instance.viewWrapper.current, 'clientHeight', {
+        get: () => {
+          return globalHeight;
+        },
+        set: (clientHeight) => {
+          globalHeight = clientHeight;
+        }
+      });
+      instance.viewWrapper.current.clientWidth = 500;
+      instance.viewWrapper.current.clientHeight = 500;
+      instance.setState({
+        viewTransform: {
+          k: 0.4,
+          x: 50,
+          y: 50
+        }
+      });
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('modifies the zoom to pan to the element', () => {
+      instance.panToEntity(entity, false);
+      expect(entity.getBBox).toHaveBeenCalled();
+      expect(instance.setZoom).toHaveBeenCalledWith(0.4, 168, 186, 750);
+    });
+
+    it('modifies the zoom to pan and zoom to the element', () => {
+      instance.panToEntity(entity, true);
+      expect(entity.getBBox).toHaveBeenCalled();
+      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
+    });
+  });
+
+  describe('panToNode method', () => {
+    const entity = document.createElement('g');
+    entity.id = "node-a1-container";
+
+    beforeEach(() => {
+      instance.panToEntity = jest.fn();
+
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('calls panToEntity on the appropriate node', () => {
+      instance.panToNode('a1');
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
+    });
+  });
+
+  describe('panToEdge method', () => {
+    const entity = document.createElement('g');
+    entity.id = "edge-a1-a2-container";
+
+    beforeEach(() => {
+      instance.panToEntity = jest.fn();
+
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('calls panToEntity on the appropriate edge', () => {
+      instance.panToEdge('a1', 'a2');
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
+    });
+  });
 });

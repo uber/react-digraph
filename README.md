@@ -296,6 +296,14 @@ Prop Types:
   layoutEngineType?: LayoutEngineType;
 ```
 
+## Imperative API
+You can call these methods on the GraphView class using a ref.
+
+| Method            | Type                                                      | Notes                                                                       |
+| ------------------|:---------------------------------------------------------:|  :-------------------------------------------------------------------------:|
+| panToNode         | (id: string, zoom?: boolean) => void                      | Center the node given by `id` within the viewport, optionally zoom in to fit it. |
+| panToEdge         | (source: string, target: string, zoom?: boolean) => void  | Center the edge between `source` and `target` node IDs within the viewport, optionally zoom in to fit it.  |
+
 ## Deprecation Notes
 
 | Prop                | Type    | Required  | Notes                                     |
