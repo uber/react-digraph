@@ -692,7 +692,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeSelected = (node: INode, nodeId: string, creatingEdge: boolean) => {
+  handleNodeSelected = (node: INode, nodeId: string, creatingEdge: boolean, event?: any) => {
     // if creatingEdge then de-select nodes and select new edge instead
     const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
     const previousSelectionIndex = previousSelection ? this.state.selectedNodeObj.index : -1;
@@ -706,7 +706,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.setState(newState);
 
     if (!creatingEdge) {
-      this.props.onSelectNode(node);
+      this.props.onSelectNode(node, event);
     }
   }
 
