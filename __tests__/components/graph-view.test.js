@@ -939,9 +939,15 @@ describe('GraphView component', () => {
     });
 
     it('modifies the zoom to pan to the element', () => {
-      instance.panToEntity(entity);
+      instance.panToEntity(entity, false);
       expect(entity.getBBox).toHaveBeenCalled();
       expect(instance.setZoom).toHaveBeenCalledWith(0.4, 168, 186, 750);
+    });
+
+    it('modifies the zoom to pan and zoom to the element', () => {
+      instance.panToEntity(entity, true);
+      expect(entity.getBBox).toHaveBeenCalled();
+      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
     });
   });
 
@@ -958,7 +964,7 @@ describe('GraphView component', () => {
 
     it('calls panToEntity on the appropriate node', () => {
       instance.panToNode('a1');
-      expect(instance.panToEntity).toHaveBeenCalledWith(entity);
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
     });
   });
 
@@ -975,7 +981,7 @@ describe('GraphView component', () => {
 
     it('calls panToEntity on the appropriate edge', () => {
       instance.panToEdge('a1', 'a2');
-      expect(instance.panToEntity).toHaveBeenCalledWith(entity);
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
     });
   });
 });

@@ -1254,9 +1254,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   /* Imperative API */
-  panToEntity(entity: IEdge | INode) {
+  panToEntity(entity: IEdge | INode, zoom: boolean) {
     const parent = this.viewWrapper.current;
     const entityBBox = entity ? entity.getBBox() : null;
+    const maxZoom = this.props.maxZoom || 2;
 
     if (!parent || !entityBBox) {
       return;
@@ -1274,23 +1275,30 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const x = entityBBox.x + entityBBox.width / 2;
     const y = entityBBox.y + entityBBox.height / 2;
 
+    if (zoom) {
+      next.k = 0.9 / Math.max(entityBBox.width / width, entityBBox.height / height);
+      if (next.k > maxZoom) {
+        next.k = maxZoom;
+      }
+    }
+
     next.x = width / 2 - next.k * x;
     next.y = height / 2 - next.k * y;
 
     this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
   }
 
-  panToNode(id: string) {
+  panToNode(id: string, zoom?: boolean = false) {
     if (!this.entities) {
       return;
     }
 
     const node = this.entities.querySelector(`#node-${id}-container`);
 
-    this.panToEntity(node);
+    this.panToEntity(node, zoom);
   }
 
-  panToEdge(source: string, target: string) {
+  panToEdge(source: string, target: string, zoom?: boolean = false) {
     if (!this.entities) {
       return;
     }
@@ -1299,7 +1307,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       `#edge-${source}-${target}-container`
     );
 
-    this.panToEntity(edge);
+    this.panToEntity(edge, zoom);
   }
 }
 

@@ -441,7 +441,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   onSelectPanNode = (event: any) => {
     if (this.GraphView)
-      this.GraphView.panToNode(event.target.value);
+      this.GraphView.panToNode(event.target.value, true);
   }
 
   /*
