@@ -296,6 +296,14 @@ Prop Types:
   layoutEngineType?: LayoutEngineType;
 ```
 
+## Imperative API
+You can call these methods on the GraphView class using a ref.
+
+| Method            | Type                                      | Notes                                                                       |
+| ------------------|:-----------------------------------------:|  :-------------------------------------------------------------------------:|
+| panToNode         | (id: string) => void                      | Center the node given by `id` within the viewport.                          |
+| panToEdge         | (source: string, target: string) => void  | Center the edge between `source` and `target` node IDs within the viewport. |
+
 ## Deprecation Notes
 
 | Prop                | Type    | Required  | Notes                                     |
