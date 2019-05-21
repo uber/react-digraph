@@ -335,7 +335,7 @@ describe('Node component', () => {
         "1",
         true
       );
-      expect(onNodeSelected).toHaveBeenCalledWith(nodeData, "1", true);
+      expect(onNodeSelected).toHaveBeenCalledWith(nodeData, "1", true, { shiftKey: true });
     });
 
     it('moves the element back to the original DOM position', () => {
