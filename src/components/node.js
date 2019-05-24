@@ -43,7 +43,7 @@ type INodeProps = {
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
   onNodeMouseLeave: (event: any, data: any) => void;
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
-  onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
+  onNodeSelected: (data: any, id: string, shiftKey: boolean, event?: any) => void;
   onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
   renderNode?: (
     nodeRef: any,
@@ -178,21 +178,22 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
     const { x, y, drawingEdge } = this.state;
-    const { data, index, nodeKey } = this.props;
-    this.setState({ mouseDown: false, drawingEdge: false, pointerOffset: null });
+    const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
+    const { sourceEvent } = d3.event;
 
+    this.setState({ mouseDown: false, drawingEdge: false, pointerOffset: null });
     if (this.oldSibling && this.oldSibling.parentElement) {
       this.oldSibling.parentElement.insertBefore(this.nodeRef.current.parentElement, this.oldSibling);
     }
 
-    const shiftKey = d3.event.sourceEvent.shiftKey;
-    this.props.onNodeUpdate(
+    const shiftKey = sourceEvent.shiftKey;
+    onNodeUpdate(
       { x, y },
       data[nodeKey],
       shiftKey || drawingEdge
     );
 
-    this.props.onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge);
+    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
   }
 
   handleMouseOver = (event: any) => {
