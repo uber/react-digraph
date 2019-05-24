@@ -37,6 +37,13 @@ type IViewTransform = {
   y: number
 }
 
+type IBBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type IGraphViewState = {
   viewTransform?: IViewTransform;
   hoveredNode: boolean;
@@ -167,6 +174,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentDidMount() {
+    const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
     // TODO: can we target the element rather than the document?
     document.addEventListener('keydown', this.handleWrapperKeydown);
     document.addEventListener('click', this.handleDocumentClick);
@@ -174,7 +182,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.zoom = d3
       .zoom()
       .filter(this.zoomFilter)
-      .scaleExtent([this.props.minZoom || 0, this.props.maxZoom || 0])
+      .scaleExtent([minZoom || 0, maxZoom || 0])
       .on('start', this.handleZoomStart)
       .on('zoom', this.handleZoom)
       .on('end', this.handleZoomEnd);
@@ -189,15 +197,21 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.selectedView = d3.select(this.view);
 
+    if(initialBBox) {
+      // If initialBBox is set, we don't compute the zoom and don't do any transition.
+      this.handleZoomToFitImpl(initialBBox, 0);
+      this.renderView();
+      return;
+    }
+
     // On the initial load, the 'view' <g> doesn't exist until componentDidMount.
     // Manually render the first view.
     this.renderView();
-
     setTimeout(() => {
       if (this.viewWrapper != null) {
         this.handleZoomToFit();
       }
-    }, this.props.zoomDelay);
+    }, zoomDelay);
   }
 
   componentWillUnmount() {
@@ -903,11 +917,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit = () => {
-    const parent = d3.select(this.viewWrapper.current).node();
     const entities = d3.select(this.entities).node();
     const viewBBox = entities.getBBox ? entities.getBBox() : null;
     if (!viewBBox) { return; }
+    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
+  }
 
+  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number)  => {
+    const parent = d3.select(this.viewWrapper.current).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
     const minZoom = this.props.minZoom || 0;
@@ -937,7 +954,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       next.y = height / 2 - next.k * y;
     }
 
-    this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
+    this.setZoom(next.k, next.x, next.y, zoomDur);
   }
 
   // Updates current viewTransform with some delta

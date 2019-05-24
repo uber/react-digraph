@@ -233,6 +233,7 @@ All props are detailed below.
 | zoomDur             | number                  | false     | Duration of zoom transition.                              |
 | showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
 | layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
+| initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
 
 ### onCreateNode
 You have access to d3 mouse event in `onCreateNode` function.
@@ -294,6 +295,7 @@ Prop Types:
   ) => any;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;
+  initialBBox?: IBBox;
 ```
 
 ## Imperative API
