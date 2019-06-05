@@ -1,3 +1,7 @@
+**v6.3.0** - May 21, 2019
+- PR #130 - Added code to return the d3 event on node selection (@ajbogh) - https://github.com/uber/react-digraph/pull/130
+- PR #129 - Add panToNode/panToEdge imperative methods (@ksnyder9801) - https://github.com/uber/react-digraph/pull/129
+
 **v6.2.0** - Feb 26, 2019
 - PR #99 - Avoid creating orphan edges (@iamsoorena) - https://github.com/uber/react-digraph/pull/99
 - PR #109 - Only import the expand icon (@rileyhilliard) - https://github.com/uber/react-digraph/pull/109

@@ -211,6 +211,7 @@ All props are detailed below.
 | onCreateEdge        | func                    | true      | Called when an edge is created.                           |
 | onSwapEdge          | func                    | true      | Called when an edge 'target' is swapped.                  |
 | onDeleteEdge        | func                    | true      | Called when an edge is deleted.                           |
+| onBackgroundClick   | func                    | false     | Called when the background is clicked.                    |
 | canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
 | canCreateEdge       | func                    | false     | Called before an edge is created.                         |
 | canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
@@ -234,6 +235,8 @@ All props are detailed below.
 | showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
 | layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
 | rotateEdgeHandle    | boolean                 | false     | Whether to rotate edge handle with edge when a node is moved |
+| centerNodeOnMove    | boolean                 | false     | Weather the node should be centered on cursor when moving a node    |
+| initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
 
 ### onCreateNode
 You have access to d3 mouse event in `onCreateNode` function.
@@ -269,6 +272,7 @@ Prop Types:
   nodeSubtypes: any;
   edgeTypes: any;
   selected: any;
+  onBackgroundClick?: (x: number, y: number) => void;
   onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
   onSelectNode: (node: INode | null) => void;
   onCreateNode: (x: number, y: number, event: object) => void;
@@ -296,7 +300,17 @@ Prop Types:
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;
   rotateEdgeHandle?: boolean;
+  centerNodeOnMove?: boolean;
+  initialBBox?: IBBox;
 ```
+
+## Imperative API
+You can call these methods on the GraphView class using a ref.
+
+| Method            | Type                                                      | Notes                                                                       |
+| ------------------|:---------------------------------------------------------:|  :-------------------------------------------------------------------------:|
+| panToNode         | (id: string, zoom?: boolean) => void                      | Center the node given by `id` within the viewport, optionally zoom in to fit it. |
+| panToEdge         | (source: string, target: string, zoom?: boolean) => void  | Center the edge between `source` and `target` node IDs within the viewport, optionally zoom in to fit it.  |
 
 ## Deprecation Notes
 

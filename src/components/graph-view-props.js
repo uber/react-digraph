@@ -19,6 +19,13 @@ import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-
 import { type IEdge, type ITargetPosition } from './edge';
 import { type INode } from './node';
 
+export type IBBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type IGraphViewProps = {
   backgroundFillId?: string;
   edges: any[];
@@ -35,6 +42,9 @@ export type IGraphViewProps = {
   nodeKey: string;
   nodes: any[];
   nodeSize?: number;
+  nodeHeight?: number;
+  nodeWidth?: number;
+  nodeSpacingMultiplier?: number;
   nodeSubtypes: any;
   nodeTypes: any;
   readOnly?: boolean;
@@ -45,6 +55,7 @@ export type IGraphViewProps = {
   canCreateEdge?: (startNode?:INode, endNode?:INode) => boolean;
   canDeleteEdge?: (selected: any) => boolean;
   canDeleteNode?: (selected: any) => boolean;
+  onBackgroundClick?: (x: number, y: number) => void;
   onCopySelected?: () => void;
   onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
   onCreateNode: (x: number, y: number) => void;
@@ -52,7 +63,7 @@ export type IGraphViewProps = {
   onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
   onPasteSelected?: () => void;
   onSelectEdge: (selectedEdge: IEdge) => void;
-  onSelectNode: (node: INode | null) => void;
+  onSelectNode: (node: INode | null, event: any) => void;
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
   onUndo?: () => void;
   onUpdateNode: (node: INode) => void;
@@ -68,4 +79,6 @@ export type IGraphViewProps = {
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   rotateEdgeHandle?: boolean;
+  centerNodeOnMove?: boolean;
+  initialBBox: IBBox;
 };

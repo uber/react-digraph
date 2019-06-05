@@ -37,6 +37,13 @@ type IViewTransform = {
   y: number
 }
 
+type IBBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type IGraphViewState = {
   viewTransform?: IViewTransform;
   hoveredNode: boolean;
@@ -65,7 +72,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
-    maxTitleChars: 9,
+    maxTitleChars: 12,
     maxZoom: 1.5,
     minZoom: 0.15,
     nodeSize: 154,
@@ -74,7 +81,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDelay: 1000,
     zoomDur: 750,
     rotateEdgeHandle: true,
-  };
+    centerNodeOnMove: true,
+};
 
   static getDerivedStateFromProps(nextProps: IGraphViewProps, prevState: IGraphViewState) {
     const { edges, nodeKey } = nextProps;
@@ -168,6 +176,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentDidMount() {
+    const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
     // TODO: can we target the element rather than the document?
     document.addEventListener('keydown', this.handleWrapperKeydown);
     document.addEventListener('click', this.handleDocumentClick);
@@ -175,7 +184,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.zoom = d3
       .zoom()
       .filter(this.zoomFilter)
-      .scaleExtent([this.props.minZoom || 0, this.props.maxZoom || 0])
+      .scaleExtent([minZoom || 0, maxZoom || 0])
       .on('start', this.handleZoomStart)
       .on('zoom', this.handleZoom)
       .on('end', this.handleZoomEnd);
@@ -190,15 +199,21 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.selectedView = d3.select(this.view);
 
+    if(initialBBox) {
+      // If initialBBox is set, we don't compute the zoom and don't do any transition.
+      this.handleZoomToFitImpl(initialBBox, 0);
+      this.renderView();
+      return;
+    }
+
     // On the initial load, the 'view' <g> doesn't exist until componentDidMount.
     // Manually render the first view.
     this.renderView();
-
     setTimeout(() => {
       if (this.viewWrapper != null) {
         this.handleZoomToFit();
       }
-    }, this.props.zoomDelay);
+    }, zoomDelay);
   }
 
   componentWillUnmount() {
@@ -232,7 +247,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    const forceReRender = this.props.nodes !== prevProps.nodes || this.props.edges !== prevProps.edges
+    const forceReRender = this.props.nodes !== prevProps.nodes || this.props.edges !== prevProps.edges || prevProps.layoutEngineType !== this.props.layoutEngineType
 
     // Note: the order is intentional
     // remove old edges
@@ -524,6 +539,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true
       });
     } else {
+      if(!d3.event.shiftKey && this.props.onBackgroundClick) {
+        const xycoords = d3.mouse(d3.event.target);
+        this.props.onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+      }
       const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
       const previousSelectionIndex = (this.state.selectedNodeObj && this.state.selectedNodeObj.index) || -1;
 
@@ -693,7 +712,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeSelected = (node: INode, nodeId: string, creatingEdge: boolean) => {
+  handleNodeSelected = (node: INode, nodeId: string, creatingEdge: boolean, event?: any) => {
     // if creatingEdge then de-select nodes and select new edge instead
     const previousSelection = (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
     const previousSelectionIndex = previousSelection ? this.state.selectedNodeObj.index : -1;
@@ -707,7 +726,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.setState(newState);
 
     if (!creatingEdge) {
-      this.props.onSelectNode(node);
+      this.props.onSelectNode(node, event);
     }
   }
 
@@ -904,11 +923,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Zooms to contents of this.refs.entities
   handleZoomToFit = () => {
-    const parent = d3.select(this.viewWrapper.current).node();
     const entities = d3.select(this.entities).node();
     const viewBBox = entities.getBBox ? entities.getBBox() : null;
     if (!viewBBox) { return; }
+    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
+  }
 
+  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number)  => {
+    const parent = d3.select(this.viewWrapper.current).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
     const minZoom = this.props.minZoom || 0;
@@ -938,7 +960,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       next.y = height / 2 - next.k * y;
     }
 
-    this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
+    this.setZoom(next.k, next.x, next.y, zoomDur);
   }
 
   // Updates current viewTransform with some delta
@@ -1011,7 +1033,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   getNodeComponent = (id: string, node: INode) => {
-    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey } = this.props;
+    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey, maxTitleChars } = this.props;
     return (
       <Node
         key={id}
@@ -1031,6 +1053,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         isSelected={this.state.selectedNodeObj.node === node}
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
+        centerNodeOnMove={this.props.centerNodeOnMove}
+        maxTitleChars={maxTitleChars}
       />
     );
   }
@@ -1253,6 +1277,63 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         <div className="graph-controls-wrapper" />
       </div>
     );
+  }
+
+  /* Imperative API */
+  panToEntity(entity: IEdge | INode, zoom: boolean) {
+    const parent = this.viewWrapper.current;
+    const entityBBox = entity ? entity.getBBox() : null;
+    const maxZoom = this.props.maxZoom || 2;
+
+    if (!parent || !entityBBox) {
+      return;
+    }
+
+    const width = parent.clientWidth;
+    const height = parent.clientHeight;
+
+    const next = {
+      k: this.state.viewTransform.k,
+      x: 0,
+      y: 0,
+    };
+
+    const x = entityBBox.x + entityBBox.width / 2;
+    const y = entityBBox.y + entityBBox.height / 2;
+
+    if (zoom) {
+      next.k = 0.9 / Math.max(entityBBox.width / width, entityBBox.height / height);
+      if (next.k > maxZoom) {
+        next.k = maxZoom;
+      }
+    }
+
+    next.x = width / 2 - next.k * x;
+    next.y = height / 2 - next.k * y;
+
+    this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
+  }
+
+  panToNode(id: string, zoom?: boolean = false) {
+    if (!this.entities) {
+      return;
+    }
+
+    const node = this.entities.querySelector(`#node-${id}-container`);
+
+    this.panToEntity(node, zoom);
+  }
+
+  panToEdge(source: string, target: string, zoom?: boolean = false) {
+    if (!this.entities) {
+      return;
+    }
+
+    const edge = this.entities.querySelector(
+      `#edge-${source}-${target}-container`
+    );
+
+    this.panToEntity(edge, zoom);
   }
 }
 

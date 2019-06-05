@@ -15,31 +15,19 @@
   limitations under the License.
 */
 
-import * as dagre from 'dagre';
-import { type INode } from '../../components/node';
-import SnapToGrid from './snap-to-grid';
+import * as dagre from "dagre";
+import { type INode } from "../../components/node";
+import SnapToGrid from "./snap-to-grid";
 
-class VerticalTree extends SnapToGrid {
+class HorizontalTree extends SnapToGrid {
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
-    const { nodeKey, nodeSize, nodeHeight, nodeWidth, nodeSpacingMultiplier } = this.graphViewProps;
+    const { nodeKey, nodeSize } = this.graphViewProps;
+    const size = (nodeSize || 1) * 1.5;
     const g = new dagre.graphlib.Graph();
-    g.setGraph({});
+    g.setGraph({ rankdir: "LR" });
     g.setDefaultEdgeLabel(() => ({}));
 
-    const spacing = nodeSpacingMultiplier || 1.5
-    let size = (nodeSize || 1) * spacing;
-    let height;
-    let width;
-
-    if (nodeHeight) {
-      height = nodeHeight * spacing;
-    }
-
-    if (nodeWidth) {
-      width = nodeWidth * spacing;
-    }
-
-    nodes.forEach((node) => {
+    nodes.forEach(node => {
       if (!nodesMap) {
         return;
       }
@@ -48,18 +36,21 @@ class VerticalTree extends SnapToGrid {
       const nodesMapNode = nodesMap[nodeKeyId];
 
       // prevent disconnected nodes from being part of the graph
-      if (nodesMapNode.incomingEdges.length === 0 && nodesMapNode.outgoingEdges.length === 0) {
+      if (
+        nodesMapNode.incomingEdges.length === 0 &&
+        nodesMapNode.outgoingEdges.length === 0
+      ) {
         return;
       }
-      g.setNode(nodeKeyId, { width: width || size, height: height || size });
-      nodesMapNode.outgoingEdges.forEach((edge) => {
+      g.setNode(nodeKeyId, { width: size, height: size });
+      nodesMapNode.outgoingEdges.forEach(edge => {
         g.setEdge(nodeKeyId, `key-${edge.target}`);
       });
     });
 
     dagre.layout(g);
 
-    g.nodes().forEach((gNodeId) => {
+    g.nodes().forEach(gNodeId => {
       const nodesMapNode = nodesMap[gNodeId];
 
       // gNode is the dagre representation
@@ -72,4 +63,4 @@ class VerticalTree extends SnapToGrid {
   }
 }
 
-export default VerticalTree;
+export default HorizontalTree;

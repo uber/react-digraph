@@ -43,7 +43,7 @@ type INodeProps = {
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
   onNodeMouseLeave: (event: any, data: any) => void;
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
-  onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
+  onNodeSelected: (data: any, id: string, shiftKey: boolean, event?: any) => void;
   onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
   renderNode?: (
     nodeRef: any,
@@ -56,6 +56,8 @@ type INodeProps = {
   isSelected: boolean;
   layoutEngine?: any;
   viewWrapperElem: HTMLDivElement;
+  centerNodeOnMove: boolean;
+  maxTitleChars: number;
 };
 
 type INodeState = {
@@ -65,6 +67,7 @@ type INodeState = {
   selected: boolean;
   mouseDown: boolean;
   drawingEdge: boolean;
+  pointerOffset: ?{x: number; y: number;}
 };
 
 export type IPoint = {
@@ -80,7 +83,8 @@ class Node extends React.Component<INodeProps, INodeState> {
     onNodeMouseLeave: () => { return; },
     onNodeMove: () => { return; },
     onNodeSelected: () => { return; },
-    onNodeUpdate: () => { return; }
+    onNodeUpdate: () => { return; },
+    centerNodeOnMove: true
   };
 
   static getDerivedStateFromProps(nextProps: INodeProps, prevState: INodeState) {
@@ -103,7 +107,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       mouseDown: false,
       selected: false,
       x: props.data.x || 0,
-      y: props.data.y || 0
+      y: props.data.y || 0,
+      pointerOffset: null
     };
 
     this.nodeRef = React.createRef();
@@ -135,6 +140,11 @@ class Node extends React.Component<INodeProps, INodeState> {
       y: d3.event.y
     };
 
+    if (!this.props.centerNodeOnMove) {
+      newState.pointerOffset = this.state.pointerOffset || { x: d3.event.x - this.props.data.x, y: d3.event.y - this.props.data.y };
+      newState.x -= newState.pointerOffset.x;
+      newState.y -= newState.pointerOffset.y;
+    }
     if (shiftKey) {
       this.setState({ drawingEdge: true });
       // draw edge
@@ -169,21 +179,22 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
     const { x, y, drawingEdge } = this.state;
-    const { data, index, nodeKey } = this.props;
-    this.setState({ mouseDown: false, drawingEdge: false });
+    const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
+    const { sourceEvent } = d3.event;
 
+    this.setState({ mouseDown: false, drawingEdge: false, pointerOffset: null });
     if (this.oldSibling && this.oldSibling.parentElement) {
       this.oldSibling.parentElement.insertBefore(this.nodeRef.current.parentElement, this.oldSibling);
     }
 
-    const shiftKey = d3.event.sourceEvent.shiftKey;
-    this.props.onNodeUpdate(
+    const shiftKey = sourceEvent.shiftKey;
+    onNodeUpdate(
       { x, y },
       data[nodeKey],
       shiftKey || drawingEdge
     );
 
-    this.props.onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge);
+    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
   }
 
   handleMouseOver = (event: any) => {
@@ -276,11 +287,11 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderText() {
-    const { data, index, id, nodeTypes, renderNodeText, isSelected } = this.props;
+    const { data, index, id, nodeTypes, renderNodeText, isSelected, maxTitleChars } = this.props;
     if (renderNodeText) {
       return renderNodeText(data, id, isSelected);
     }
-    return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} />);
+    return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} maxTitleChars={maxTitleChars} />);
   }
 
   render() {

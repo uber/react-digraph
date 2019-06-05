@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "6.2.2",
+  "version": "6.3.0",
   "keywords": [
     "uber-library",
     "babel",
@@ -32,7 +32,7 @@
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
     "html-react-parser": "^0.6.1",
-    "kld-affine": "^2.0.4",
+    "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
     "svg-intersections": "^0.4.0"
