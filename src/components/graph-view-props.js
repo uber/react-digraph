@@ -42,6 +42,9 @@ export type IGraphViewProps = {
   nodeKey: string;
   nodes: any[];
   nodeSize?: number;
+  nodeHeight?: number;
+  nodeWidth?: number;
+  nodeSpacingMultiplier?: number;
   nodeSubtypes: any;
   nodeTypes: any;
   readOnly?: boolean;

@@ -21,11 +21,23 @@ import SnapToGrid from './snap-to-grid';
 
 class VerticalTree extends SnapToGrid {
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
-    const { nodeKey, nodeSize } = this.graphViewProps;
-    const size = (nodeSize || 1) * 1.5;
+    const { nodeKey, nodeSize, nodeHeight, nodeWidth, nodeSpacingMultiplier } = this.graphViewProps;
     const g = new dagre.graphlib.Graph();
     g.setGraph({});
     g.setDefaultEdgeLabel(() => ({}));
+
+    const spacing = nodeSpacingMultiplier || 1.5
+    let size = (nodeSize || 1) * spacing;
+    let height;
+    let width;
+
+    if (nodeHeight) {
+      height = nodeHeight * spacing;
+    }
+
+    if (nodeWidth) {
+      width = nodeWidth * spacing;
+    }
 
     nodes.forEach((node) => {
       if (!nodesMap) {
@@ -39,9 +51,9 @@ class VerticalTree extends SnapToGrid {
       if (nodesMapNode.incomingEdges.length === 0 && nodesMapNode.outgoingEdges.length === 0) {
         return;
       }
-      g.setNode(nodeKeyId, { width: size, height: size });
+      g.setNode(nodeKeyId, { width: width || size, height: height || size });
       nodesMapNode.outgoingEdges.forEach((edge) => {
-        g.setEdge(nodeKeyId,   `key-${edge.target}`);
+        g.setEdge(nodeKeyId, `key-${edge.target}`);
       });
     });
 
