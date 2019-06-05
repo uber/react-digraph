@@ -56,6 +56,7 @@ type INodeProps = {
   isSelected: boolean;
   layoutEngine?: any;
   viewWrapperElem: HTMLDivElement;
+  centerNodeOnMove: boolean;
   maxTitleChars: number;
 };
 
@@ -66,6 +67,7 @@ type INodeState = {
   selected: boolean;
   mouseDown: boolean;
   drawingEdge: boolean;
+  pointerOffset: ?{x: number; y: number;}
 };
 
 export type IPoint = {
@@ -81,7 +83,8 @@ class Node extends React.Component<INodeProps, INodeState> {
     onNodeMouseLeave: () => { return; },
     onNodeMove: () => { return; },
     onNodeSelected: () => { return; },
-    onNodeUpdate: () => { return; }
+    onNodeUpdate: () => { return; },
+    centerNodeOnMove: true
   };
 
   static getDerivedStateFromProps(nextProps: INodeProps, prevState: INodeState) {
@@ -104,7 +107,8 @@ class Node extends React.Component<INodeProps, INodeState> {
       mouseDown: false,
       selected: false,
       x: props.data.x || 0,
-      y: props.data.y || 0
+      y: props.data.y || 0,
+      pointerOffset: null
     };
 
     this.nodeRef = React.createRef();
@@ -136,6 +140,11 @@ class Node extends React.Component<INodeProps, INodeState> {
       y: d3.event.y
     };
 
+    if (!this.props.centerNodeOnMove) {
+      newState.pointerOffset = this.state.pointerOffset || { x: d3.event.x - this.props.data.x, y: d3.event.y - this.props.data.y };
+      newState.x -= newState.pointerOffset.x;
+      newState.y -= newState.pointerOffset.y;
+    }
     if (shiftKey) {
       this.setState({ drawingEdge: true });
       // draw edge
@@ -173,8 +182,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
     const { sourceEvent } = d3.event;
 
-    this.setState({ mouseDown: false, drawingEdge: false });
-
+    this.setState({ mouseDown: false, drawingEdge: false, pointerOffset: null });
     if (this.oldSibling && this.oldSibling.parentElement) {
       this.oldSibling.parentElement.insertBefore(this.nodeRef.current.parentElement, this.oldSibling);
     }

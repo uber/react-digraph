@@ -233,6 +233,7 @@ All props are detailed below.
 | zoomDur             | number                  | false     | Duration of zoom transition.                              |
 | showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
 | layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
+| centerNodeOnMove    | boolean                 | false     | Weather the node should be centered on cursor when moving a node    |
 | initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
 
 ### onCreateNode
@@ -295,6 +296,7 @@ Prop Types:
   ) => any;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;
+  centerNodeOnMove?: boolean;
   initialBBox?: IBBox;
 ```
 
