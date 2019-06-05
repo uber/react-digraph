@@ -56,6 +56,7 @@ type INodeProps = {
   isSelected: boolean;
   layoutEngine?: any;
   viewWrapperElem: HTMLDivElement;
+  maxTitleChars: number;
 };
 
 type INodeState = {
@@ -278,11 +279,11 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderText() {
-    const { data, index, id, nodeTypes, renderNodeText, isSelected } = this.props;
+    const { data, index, id, nodeTypes, renderNodeText, isSelected, maxTitleChars } = this.props;
     if (renderNodeText) {
       return renderNodeText(data, id, isSelected);
     }
-    return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} />);
+    return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} maxTitleChars={maxTitleChars} />);
   }
 
   render() {

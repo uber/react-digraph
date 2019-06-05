@@ -52,6 +52,14 @@ describe('NodeText component', () => {
       expect(tspan.length).toEqual(1);
       expect(title.length).toEqual(0);
     });
+
+    it('truncates node title characters when maxTitleChars is supplied', () => {
+      output.setProps({
+        maxTitleChars: 2
+      });
+      const tspan = output.find('tspan');
+      expect(tspan.at(1).text()).toEqual('Te');
+    });
   });
 
   describe('getTypeText method', () => {

@@ -72,7 +72,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
-    maxTitleChars: 9,
+    maxTitleChars: 12,
     maxZoom: 1.5,
     minZoom: 0.15,
     nodeSize: 154,
@@ -1027,7 +1027,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   getNodeComponent = (id: string, node: INode) => {
-    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey } = this.props;
+    const { nodeTypes, nodeSubtypes, nodeSize, renderNode, renderNodeText, nodeKey, maxTitleChars } = this.props;
     return (
       <Node
         key={id}
@@ -1047,6 +1047,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         isSelected={this.state.selectedNodeObj.node === node}
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
+        maxTitleChars={maxTitleChars}
       />
     );
   }
