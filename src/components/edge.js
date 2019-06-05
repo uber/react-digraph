@@ -49,12 +49,14 @@ type IEdgeProps = {
   isSelected: boolean;
   nodeKey: string;
   viewWrapperElem: HTMLDivElement;
+  rotateEdgeHandle: true;
 };
 
 class Edge extends React.Component<IEdgeProps> {
   static defaultProps = {
     edgeHandleSize: 50,
-    isSelected: false
+    isSelected: false,
+    rotateEdgeHandle: true,
   };
 
   static getTheta(pt1: any, pt2: any) {
@@ -466,7 +468,7 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   getEdgeHandleRotation = (negate: any = false) => {
-    let rotated = false
+    let rotated = false;
     const src = this.props.sourceNode;
     const trg = this.props.targetNode;
     let theta = Edge.getTheta(src, trg) * 180 / Math.PI;
@@ -482,7 +484,7 @@ class Edge extends React.Component<IEdgeProps> {
 
   getEdgeHandleTransformation = () => {
     const translation = this.getEdgeHandleTranslation();
-    const [ rotation, ]= this.getEdgeHandleRotation();
+    const rotation = this.props.rotateEdgeHandle ? this.getEdgeHandleRotation()[0] : '';
     const offset = this.getEdgeHandleOffsetTranslation();
     return `${translation} ${rotation} ${offset}`;
   }
@@ -546,7 +548,7 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   render() {
-    const { data, edgeTypes, edgeHandleSize, viewWrapperElem } = this.props;
+    const { data, edgeTypes, edgeHandleSize, viewWrapperElem, rotateEdgeHandle } = this.props;
     if (!viewWrapperElem) {
       return null;
     }

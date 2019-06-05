@@ -78,6 +78,7 @@ export type IGraphViewProps = {
   ) => any;
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
+  rotateEdgeHandle?: boolean;
   centerNodeOnMove?: boolean;
   initialBBox: IBBox;
 };
