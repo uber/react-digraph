@@ -19,6 +19,13 @@ import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-
 import { type IEdge, type ITargetPosition } from './edge';
 import { type INode } from './node';
 
+export type IBBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type IGraphViewProps = {
   backgroundFillId?: string;
   edges: any[];
@@ -68,4 +75,5 @@ export type IGraphViewProps = {
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   centerNodeOnMove?: boolean;
+  initialBBox: IBBox;
 };

@@ -23,6 +23,7 @@ type INodeTextProps = {
   data: INode;
   nodeTypes: any; // TODO: create a nodeTypes interface
   isSelected: boolean;
+  maxTitleChars: number;
 }
 
 class NodeText extends React.Component<INodeTextProps> {
@@ -37,7 +38,7 @@ class NodeText extends React.Component<INodeTextProps> {
   }
 
   render() {
-    const { data, nodeTypes, isSelected } = this.props;
+    const { data, nodeTypes, isSelected, maxTitleChars } = this.props;
     const lineOffset = 18;
     const title = data.title;
     const className = GraphUtils.classNames('node-text', { selected: isSelected });
@@ -50,7 +51,7 @@ class NodeText extends React.Component<INodeTextProps> {
         )}
         {title && (
           <tspan x={0} dy={lineOffset} fontSize="10px">
-            {title}
+            {title.length > maxTitleChars ? title.substr(0, maxTitleChars) : title}
           </tspan>
         )}
         {title && <title>{title}</title>}
