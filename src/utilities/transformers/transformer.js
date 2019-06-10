@@ -19,12 +19,11 @@ import { type IEdge } from '../../components/edge';
 import { type INode } from '../../components/node';
 
 export type IGraphInput = {
-  nodes: INode[];
-  edges: IEdge[];
+  nodes: INode[],
+  edges: IEdge[],
 };
 
 export default class Transformer {
-
   /**
    * Converts an input from the specified type to IGraphInput type.
    * @param input
@@ -33,7 +32,7 @@ export default class Transformer {
   static transform(input: any): IGraphInput {
     return {
       edges: [],
-      nodes: []
+      nodes: [],
     };
   }
 

@@ -20,11 +20,11 @@ import GraphUtils from './graph-util';
 import { type INode } from './node';
 
 type INodeTextProps = {
-  data: INode;
-  nodeTypes: any; // TODO: create a nodeTypes interface
-  isSelected: boolean;
-  maxTitleChars: number;
-}
+  data: INode,
+  nodeTypes: any, // TODO: create a nodeTypes interface
+  isSelected: boolean,
+  maxTitleChars: number,
+};
 
 class NodeText extends React.Component<INodeTextProps> {
   getTypeText(data: INode, nodeTypes: any) {
@@ -41,17 +41,19 @@ class NodeText extends React.Component<INodeTextProps> {
     const { data, nodeTypes, isSelected, maxTitleChars } = this.props;
     const lineOffset = 18;
     const title = data.title;
-    const className = GraphUtils.classNames('node-text', { selected: isSelected });
+    const className = GraphUtils.classNames('node-text', {
+      selected: isSelected,
+    });
     const typeText = this.getTypeText(data, nodeTypes);
 
     return (
       <text className={className} textAnchor="middle">
-        {!!typeText && (
-          <tspan opacity="0.5">{typeText}</tspan>
-        )}
+        {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
         {title && (
           <tspan x={0} dy={lineOffset} fontSize="10px">
-            {title.length > maxTitleChars ? title.substr(0, maxTitleChars) : title}
+            {title.length > maxTitleChars
+              ? title.substr(0, maxTitleChars)
+              : title}
           </tspan>
         )}
         {title && <title>{title}</title>}

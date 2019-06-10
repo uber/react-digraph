@@ -24,24 +24,27 @@ export default class BwdlTransformer extends Transformer {
     if (!input.States) {
       return {
         edges: [],
-        nodes: []
+        nodes: [],
       };
     }
+
     const nodeNames = Object.keys(input.States);
 
     const nodes: INode[] = [];
     const edges: IEdge[] = [];
 
-    nodeNames.forEach((name) => {
+    nodeNames.forEach(name => {
       const currentNode = input.States[name];
+
       if (!currentNode) {
         return;
       }
+
       const nodeToAdd: INode = {
         title: name,
         type: currentNode.Type,
         x: currentNode.x || 0,
-        y: currentNode.y || 0
+        y: currentNode.y || 0,
       };
 
       if (name === input.StartAt) {
@@ -53,11 +56,11 @@ export default class BwdlTransformer extends Transformer {
       // create edges
       if (currentNode.Type === 'Choice') {
         // multiple edges
-        currentNode.Choices.forEach((choice) => {
+        currentNode.Choices.forEach(choice => {
           if (input.States[choice.Next]) {
             edges.push({
               source: name,
-              target: choice.Next
+              target: choice.Next,
             });
           }
         });
@@ -66,7 +69,7 @@ export default class BwdlTransformer extends Transformer {
         if (currentNode.Default) {
           edges.push({
             source: name,
-            target: currentNode.Default
+            target: currentNode.Default,
           });
         }
       } else if (currentNode.Next) {
@@ -74,7 +77,7 @@ export default class BwdlTransformer extends Transformer {
           // single edge
           edges.push({
             source: name,
-            target: currentNode.Next
+            target: currentNode.Next,
           });
         }
       }
@@ -82,7 +85,7 @@ export default class BwdlTransformer extends Transformer {
 
     return {
       edges,
-      nodes
+      nodes,
     };
   }
 
