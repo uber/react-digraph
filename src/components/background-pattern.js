@@ -19,8 +19,8 @@ import * as React from 'react';
 import Circle from './circle';
 
 type IBackgroundPatternProps = {
-  gridSpacing?: number;
-  gridDotSize?: number;
+  gridSpacing?: number,
+  gridDotSize?: number,
 };
 
 class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
@@ -28,7 +28,13 @@ class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
     const { gridSpacing, gridDotSize } = this.props;
 
     return (
-      <pattern id="grid" key="grid" width={gridSpacing} height={gridSpacing} patternUnits="userSpaceOnUse">
+      <pattern
+        id="grid"
+        key="grid"
+        width={gridSpacing}
+        height={gridSpacing}
+        patternUnits="userSpaceOnUse"
+      >
         <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
       </pattern>
     );

@@ -20,9 +20,9 @@ import { type IGraphViewProps } from '../../components/graph-view-props';
 import { type INode } from '../../components/node';
 
 export type IPosition = {
-  x: number;
-  y: number;
-  [key: string]: any;
+  x: number,
+  y: number,
+  [key: string]: any,
 };
 
 export default class LayoutEngine {
@@ -37,19 +37,18 @@ export default class LayoutEngine {
 
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
     let node = null;
-    let position = {
-      x: 0,
-      y: 0
-    }
-    for (let i = 0; i < nodes.length; i++){
+
+    for (let i = 0; i < nodes.length; i++) {
       node = nodes[i];
       const position = this.calculatePosition({
         x: node.x || 0,
-        y: node.y || 0
+        y: node.y || 0,
       });
+
       node.x = position.x;
       node.y = position.y;
     }
+
     return nodes;
   }
 

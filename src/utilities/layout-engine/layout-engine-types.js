@@ -1,7 +1,7 @@
 // @flow
 
 export type LayoutEngineType =
-  | "None"
-  | "SnapToGrid"
-  | "VerticalTree"
-  | "HorizontalTree";
+  | 'None'
+  | 'SnapToGrid'
+  | 'VerticalTree'
+  | 'HorizontalTree';

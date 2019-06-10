@@ -14,7 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-import { type INode } from '../../components/node';
 import LayoutEngine, { type IPosition } from './layout-engine';
 
 class None extends LayoutEngine {

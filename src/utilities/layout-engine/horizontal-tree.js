@@ -15,22 +15,24 @@
   limitations under the License.
 */
 
-import * as dagre from "dagre";
-import { type INode } from "../../components/node";
-import SnapToGrid from "./snap-to-grid";
+import * as dagre from 'dagre';
+import { type INode } from '../../components/node';
+import SnapToGrid from './snap-to-grid';
 
 class HorizontalTree extends SnapToGrid {
   adjustNodes(nodes: INode[], nodesMap?: any): INode[] {
     const { nodeKey, nodeSize } = this.graphViewProps;
     const size = (nodeSize || 1) * 1.5;
     const g = new dagre.graphlib.Graph();
-    g.setGraph({ rankdir: "LR" });
+
+    g.setGraph({ rankdir: 'LR' });
     g.setDefaultEdgeLabel(() => ({}));
 
     nodes.forEach(node => {
       if (!nodesMap) {
         return;
       }
+
       const nodeId = node[nodeKey];
       const nodeKeyId = `key-${nodeId}`;
       const nodesMapNode = nodesMap[nodeKeyId];
@@ -42,6 +44,7 @@ class HorizontalTree extends SnapToGrid {
       ) {
         return;
       }
+
       g.setNode(nodeKeyId, { width: size, height: size });
       nodesMapNode.outgoingEdges.forEach(edge => {
         g.setEdge(nodeKeyId, `key-${edge.target}`);
@@ -59,6 +62,7 @@ class HorizontalTree extends SnapToGrid {
       nodesMapNode.node.x = gNode.x;
       nodesMapNode.node.y = gNode.y;
     });
+
     return nodes;
   }
 }
