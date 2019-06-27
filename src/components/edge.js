@@ -94,9 +94,7 @@ class Edge extends React.Component<IEdgeProps> {
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${
-        edge.target
-      }-container>.edge-container>.edge>.edge-path`
+      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
     );
   }
 
@@ -647,7 +645,7 @@ class Edge extends React.Component<IEdgeProps> {
         style={{ fontSize: '11px', stroke: 'none', fill: 'black' }}
         transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
       >
-        {title}
+        {data.label || title}
       </text>
     );
   }
@@ -682,7 +680,8 @@ class Edge extends React.Component<IEdgeProps> {
             transform={`${this.getEdgeHandleTransformation()}`}
           />
           {data.handleText && this.renderHandleText(data)}
-          {data.label_from && data.label_to && this.renderLabelText(data)}
+          {(data.label && this.renderLabelText(data)) ||
+            (data.label_from && data.label_to && this.renderLabelText(data))}
         </g>
         <g className="edge-mouse-handler">
           <path
