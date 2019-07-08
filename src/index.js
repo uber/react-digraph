@@ -20,6 +20,8 @@ import { type LayoutEngine as LayoutEngineConfigTypes } from './utilities/layout
 import type { IEdge } from './components/edge';
 import type { INode } from './components/node';
 
+export { default as GraphViewFast } from './components/graph-view-fast';
+
 export { default as Edge } from './components/edge';
 export type IEdgeType = IEdge;
 export { default as GraphUtils } from './components/graph-util';
