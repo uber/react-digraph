@@ -221,7 +221,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // Manually render the first view.
     this.renderView();
     setTimeout(() => {
-      if (this.viewWrapper != null) {
+      if (this.viewWrapper.current != null) {
         this.handleZoomToFit();
       }
     }, zoomDelay);
@@ -1074,6 +1074,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   // Zooms to contents of this.refs.entities
   handleZoomToFit = () => {
     const entities = d3.select(this.entities).node();
+
+    if (!entities) {
+      return;
+    }
+
     const viewBBox = entities.getBBox ? entities.getBBox() : null;
 
     if (!viewBBox) {
@@ -1084,6 +1089,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number) => {
+    if (!this.viewWrapper.current) {
+      return;
+    }
+
     const parent = d3.select(this.viewWrapper.current).node();
     const width = parent.clientWidth;
     const height = parent.clientHeight;
