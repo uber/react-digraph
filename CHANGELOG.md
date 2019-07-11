@@ -1,3 +1,11 @@
+**v6.4.0** - July 11, 2019
+- PR #145 - Fix 'Cannot read property 'getBBox' of null' error when remounting  (@ksnyder9801) - https://github.com/uber/react-digraph/pull/145
+- PR #139 - Added eslint rules and fixed code. (@ajbogh) - https://github.com/uber/react-digraph/pull/139
+- PR #136 - Add horizontal layotu engine (@wfriebel) - https://github.com/uber/react-digraph/pull/136
+- PR #134 - Resolved #114 - maxTitleChars property is not being used (@thesuperhomie) - https://github.com/uber/react-digraph/pull/134
+- PR #131 - Fix expected params in handleDragEnd test (@ksnyder9801) - https://github.com/uber/react-digraph/pull/131
+
+
 **v6.3.0** - May 21, 2019
 - PR #130 - Added code to return the d3 event on node selection (@ajbogh) - https://github.com/uber/react-digraph/pull/130
 - PR #129 - Add panToNode/panToEdge imperative methods (@ksnyder9801) - https://github.com/uber/react-digraph/pull/129
