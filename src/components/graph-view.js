@@ -729,16 +729,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     GraphUtils.removeElementFromDom('edge-custom-container');
 
     if (edgeEndNode) {
-      const mapId1 = `${hoveredNodeData[nodeKey]}_${edgeEndNode[nodeKey]}`;
-      const mapId2 = `${edgeEndNode[nodeKey]}_${hoveredNodeData[nodeKey]}`;
+      const mapId = `${hoveredNodeData[nodeKey]}_${edgeEndNode[nodeKey]}`;
 
       if (
         edgesMap &&
         hoveredNodeData !== edgeEndNode &&
         canCreateEdge &&
         canCreateEdge(hoveredNodeData, edgeEndNode) &&
-        !edgesMap[mapId1] &&
-        !edgesMap[mapId2]
+        !edgesMap[mapId]
       ) {
         this.setState({
           componentUpToDate: false,
