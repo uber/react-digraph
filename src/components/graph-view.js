@@ -261,9 +261,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { layoutEngineType } = this.props;
 
     if (layoutEngineType && LayoutEngines[layoutEngineType]) {
-      this.layoutEngine = new LayoutEngines[this.props.layoutEngineType](
-        this.props
-      );
+      this.layoutEngine = new LayoutEngines[layoutEngineType](this.props);
       const newNodes = this.layoutEngine.adjustNodes(nodes, nodesMap);
 
       this.setState({
@@ -271,10 +269,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
 
-    const forceReRender =
-      // this.props.nodes !== prevProps.nodes ||
-      // this.props.edges !== prevProps.edges ||
-      prevProps.layoutEngineType !== this.props.layoutEngineType;
+    const forceReRender = prevProps.layoutEngineType !== layoutEngineType;
 
     // Note: the order is intentional
     // remove old edges
@@ -366,7 +361,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const nodeKey = this.props.nodeKey;
 
     // remove old nodes
-    // const prevNodeMapKeys = Object.keys(prevNodeMap);
     for (let i = 0; i < prevNodes.length; i++) {
       const prevNode = prevNodes[i];
       const nodeId = prevNode[nodeKey];
@@ -407,7 +401,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       let edge = null;
 
       GraphUtils.yieldingLoop(edges.length, 50, i => {
-        // for (let i = 0; i < edges.length; i++) {
         edge = edges[i];
 
         if (!edge.source || !edge.target) {
@@ -1448,7 +1441,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
    * without causing a full GraphView render.
    */
   renderGraphControls() {
-    const { showGraphControls } = this.props;
+    const { showGraphControls, minZoom, maxZoom } = this.props;
     const { viewTransform } = this.state;
 
     if (!showGraphControls || !this.viewWrapper) {
@@ -1466,8 +1459,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     ReactDOM.render(
       <GraphControls
         ref={this.graphControls}
-        minZoom={this.props.minZoom}
-        maxZoom={this.props.maxZoom}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
         zoomLevel={viewTransform ? viewTransform.k : 1}
         zoomToFit={this.handleZoomToFit}
         modifyZoom={this.modifyZoom}
