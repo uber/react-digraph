@@ -20,7 +20,7 @@ import * as React from 'react';
 import { intersect, shape } from 'svg-intersections';
 import { Point2D, Matrix2D } from 'kld-affine';
 import { Intersection } from 'kld-intersections';
-import GraphUtils from './graph-util';
+import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
 
 export type IEdge = {

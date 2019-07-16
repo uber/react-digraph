@@ -16,7 +16,7 @@
 */
 
 import * as React from 'react';
-import GraphUtils from '../components/graph-util';
+import GraphUtils from '../utilities/graph-util';
 
 type ISidebarProps = {
   children: any,

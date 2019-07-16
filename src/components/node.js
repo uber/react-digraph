@@ -20,7 +20,7 @@ import * as React from 'react';
 // This works in Typescript but causes an import loop for Flowtype. We'll just use `any` below.
 // import { type LayoutEngine } from '../utilities/layout-engine/layout-engine-config';
 import Edge from './edge';
-import GraphUtils from './graph-util';
+import GraphUtils from '../utilities/graph-util';
 import NodeText from './node-text';
 
 export type IPoint = {

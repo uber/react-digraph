@@ -218,5 +218,7 @@ declare module "react-digraph" {
     ): void;
 
     static hasNodeShallowChanged(prevNode: INode, newNode: INode): boolean;
+
+    static isEqual(prevNode: any, newNode: any): boolean;
   }
 }
