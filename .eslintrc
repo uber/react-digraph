@@ -33,7 +33,7 @@
     "no-use-before-define": "error",
     "object-curly-spacing": ["error", "always"],
     "space-before-blocks": "error",
-    "no-console": ["warn", { "allow": ["warn", "error", "log"]}],
+    "no-console": ["error", { "allow": ["warn", "error"]}],
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },

@@ -661,6 +661,7 @@ class Edge extends React.Component<IEdgeProps> {
     const className = GraphUtils.classNames('edge', {
       selected: this.props.isSelected,
     });
+    const edgeHandleTransformation = this.getEdgeHandleTransformation();
 
     return (
       <g
@@ -677,7 +678,8 @@ class Edge extends React.Component<IEdgeProps> {
             xlinkHref={Edge.getXlinkHref(edgeTypes, data)}
             width={edgeHandleSize}
             height={edgeHandleSize}
-            transform={`${this.getEdgeHandleTransformation()}`}
+            transform={edgeHandleTransformation}
+            style={{ transform: edgeHandleTransformation }}
           />
           {data.handleText && this.renderHandleText(data)}
           {data.label_from && data.label_to && this.renderLabelText(data)}

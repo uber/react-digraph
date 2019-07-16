@@ -346,7 +346,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       // if there was a previous node and it changed
       if (
         prevNode != null &&
-        // prevNode.node !== node || // selection change
         (!GraphUtils.isEqual(prevNode.node, node) ||
           (selectedNode.node !== prevSelectedNode.node &&
             ((selectedNode.node &&
@@ -534,11 +533,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     if (!selected.source && canDeleteNode && canDeleteNode(selected)) {
       // node
-      // $FlowFixMe
       this.deleteNode(selected);
     } else if (selected.source && canDeleteEdge && canDeleteEdge(selected)) {
       // edge
-      // $FlowFixMe
       this.deleteEdge(selected);
     }
   };
@@ -623,7 +620,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleSvgClicked = (d: any, i: any) => {
-    console.log('handleSvgClicked');
+    const {
+      onBackgroundClick,
+      onSelectNode,
+      readOnly,
+      onCreateNode,
+    } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
@@ -632,17 +634,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     if (this.state.selectingNode) {
-      console.log('selecting node');
       this.setState({
         focused: true,
         selectingNode: false,
         svgClicked: true,
       });
     } else {
-      if (!d3.event.shiftKey && this.props.onBackgroundClick) {
+      if (!d3.event.shiftKey && onBackgroundClick) {
         const xycoords = d3.mouse(d3.event.target);
 
-        this.props.onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+        onBackgroundClick(xycoords[0], xycoords[1], d3.event);
       }
 
       const previousSelection =
@@ -654,16 +655,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         focused: true,
         svgClicked: true,
       });
-      this.props.onSelectNode(null);
+      onSelectNode(null);
 
       if (previousSelection) {
         this.syncRenderNode(previousSelection);
       }
 
-      if (!this.props.readOnly && d3.event.shiftKey) {
+      if (!readOnly && d3.event.shiftKey) {
         const xycoords = d3.mouse(d3.event.target);
 
-        this.props.onCreateNode(xycoords[0], xycoords[1], d3.event);
+        onCreateNode(xycoords[0], xycoords[1], d3.event);
       }
     }
   };
@@ -1089,7 +1090,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
+    this.handleZoomToFitImpl(
+      viewBBox,
+      this.props.zoomDur || GraphView.defaultProps.zoomDur
+    );
   };
 
   handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number) => {
@@ -1228,10 +1232,43 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
         centerNodeOnMove={this.props.centerNodeOnMove}
-        maxTitleChars={maxTitleChars}
+        maxTitleChars={maxTitleChars || GraphView.defaultProps.maxTitleChars}
       />
     );
   };
+
+  renderNodes = () => {
+    if (!this.entities) {
+      return;
+    }
+
+    this.state.nodes.forEach((node, i) => {
+      this.asyncRenderNode(node);
+    });
+  };
+
+  asyncRenderNode(node: INode) {
+    const nodeKey = this.props.nodeKey;
+    const timeoutId = `nodes-${node[nodeKey]}`;
+
+    cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
+    this.nodeTimeouts[timeoutId] = requestAnimationFrame(() => {
+      this.syncRenderNode(node);
+    });
+  }
+
+  syncRenderNode(node: INode) {
+    const nodeKey = this.props.nodeKey;
+    const id = `node-${node[nodeKey]}`;
+    const element: any = this.getNodeComponent(id, node);
+    const nodesMapNode = this.getNodeById(node[nodeKey]);
+
+    this.renderNode(id, element);
+
+    if (nodesMapNode) {
+      this.renderConnectedEdgesFromNode(nodesMapNode);
+    }
+  }
 
   renderNode(id: string, element: Element) {
     if (!this.entities) {
@@ -1274,41 +1311,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.asyncRenderEdge(edge, nodeMoving);
     });
   }
-
-  asyncRenderNode(node: INode) {
-    const nodeKey = this.props.nodeKey;
-    const timeoutId = `nodes-${node[nodeKey]}`;
-
-    cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
-    this.nodeTimeouts[timeoutId] = requestAnimationFrame(() => {
-      console.log('calling syncRenderNode');
-      this.syncRenderNode(node);
-    });
-  }
-
-  syncRenderNode(node: INode) {
-    const nodeKey = this.props.nodeKey;
-    const id = `node-${node[nodeKey]}`;
-    const element: any = this.getNodeComponent(id, node);
-    const nodesMapNode = this.getNodeById(node[nodeKey]);
-
-    console.log('syncRenderNode', id, element);
-    this.renderNode(id, element);
-
-    if (nodesMapNode) {
-      this.renderConnectedEdgesFromNode(nodesMapNode);
-    }
-  }
-
-  renderNodes = () => {
-    if (!this.entities) {
-      return;
-    }
-
-    this.state.nodes.forEach((node, i) => {
-      this.asyncRenderNode(node);
-    });
-  };
 
   isEdgeSelected = (edge: IEdge) => {
     return (

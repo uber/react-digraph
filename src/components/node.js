@@ -392,6 +392,7 @@ class Node extends React.Component<INodeProps, INodeState> {
         ref={this.nodeRef}
         opacity={opacity}
         transform={`translate(${x}, ${y})`}
+        style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
       >
         {this.renderShape()}
         {this.renderText()}
