@@ -20,7 +20,7 @@ import * as React from 'react';
 import { intersect, shape } from 'svg-intersections';
 import { Point2D, Matrix2D } from 'kld-affine';
 import { Intersection } from 'kld-intersections';
-import GraphUtils from './graph-util';
+import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
 
 export type IEdge = {
@@ -94,9 +94,7 @@ class Edge extends React.Component<IEdgeProps> {
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${
-        edge.target
-      }-container>.edge-container>.edge>.edge-path`
+      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
     );
   }
 
@@ -663,6 +661,7 @@ class Edge extends React.Component<IEdgeProps> {
     const className = GraphUtils.classNames('edge', {
       selected: this.props.isSelected,
     });
+    const edgeHandleTransformation = this.getEdgeHandleTransformation();
 
     return (
       <g
@@ -679,7 +678,8 @@ class Edge extends React.Component<IEdgeProps> {
             xlinkHref={Edge.getXlinkHref(edgeTypes, data)}
             width={edgeHandleSize}
             height={edgeHandleSize}
-            transform={`${this.getEdgeHandleTransformation()}`}
+            transform={edgeHandleTransformation}
+            style={{ transform: edgeHandleTransformation }}
           />
           {data.handleText && this.renderHandleText(data)}
           {data.label_from && data.label_to && this.renderLabelText(data)}

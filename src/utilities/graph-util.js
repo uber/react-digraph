@@ -15,8 +15,9 @@
   limitations under the License.
 */
 
-import { type IEdge } from './edge';
-import { type INode } from './node';
+import { type IEdge } from '../components/edge';
+import { type INode } from '../components/node';
+import fastDeepEqual from 'fast-deep-equal';
 
 export type INodeMapNode = {
   node: INode,
@@ -28,8 +29,9 @@ export type INodeMapNode = {
 };
 
 class GraphUtils {
-  static getNodesMap(arr: INode[], key: string) {
+  static getNodesMap(nodes: any, key: string) {
     const map = {};
+    const arr = Object.keys(nodes).map(key => nodes[key]);
     let item = null;
 
     for (let i = 0; i < arr.length; i++) {
@@ -156,33 +158,13 @@ class GraphUtils {
     })();
   }
 
-  static hasNodeShallowChanged(prevNode, newNode) {
-    const prevNodeKeys = Object.keys(prevNode);
-    const newNodeKeys = Object.keys(prevNode);
-    const checkedKeys = {};
+  // retained for backwards compatibility
+  static hasNodeShallowChanged(prevNode: INode, newNode: INode) {
+    return !this.isEqual(prevNode, newNode);
+  }
 
-    for (let i = 0; i < prevNodeKeys.length; i++) {
-      const key = prevNodeKeys[i];
-
-      if (!newNode.hasOwnProperty(key) || prevNode[key] !== newNode[key]) {
-        return true;
-      }
-
-      checkedKeys[key] = true;
-    }
-    for (let i = 0; i < newNodeKeys.length; i++) {
-      const key = newNodeKeys[i];
-
-      if (checkedKeys[key]) {
-        continue;
-      }
-
-      if (!prevNode.hasOwnProperty(key) || prevNode[key] !== newNode[key]) {
-        return true;
-      }
-    }
-
-    return false;
+  static isEqual(prevNode: any, newNode: any) {
+    return fastDeepEqual(prevNode, newNode);
   }
 }
 

@@ -16,7 +16,7 @@
 */
 
 import * as React from 'react';
-import GraphUtils from './graph-util';
+import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
 
 type INodeTextProps = {

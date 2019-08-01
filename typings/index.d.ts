@@ -117,7 +117,7 @@ declare module "react-digraph" {
     canDeleteNode?: (selected: any) => boolean;
     onCopySelected?: () => void;
     onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
-    onCreateNode: (x: number, y: number) => void;
+    onCreateNode: (x: number, y: number, event: any) => void;
     onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
     onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
     onPasteSelected?: () => void;
@@ -218,5 +218,7 @@ declare module "react-digraph" {
     ): void;
 
     static hasNodeShallowChanged(prevNode: INode, newNode: INode): boolean;
+
+    static isEqual(prevNode: any, newNode: any): boolean;
   }
 }
