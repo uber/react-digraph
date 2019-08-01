@@ -32,7 +32,7 @@ export type INode = {
   title: string,
   x?: number | null,
   y?: number | null,
-  type?: string,
+  type?: string | null,
   subtype?: string | null,
   [key: string]: any,
 };

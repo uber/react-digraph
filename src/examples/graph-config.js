@@ -32,6 +32,7 @@ export const SKINNY_TYPE = 'skinny';
 export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
+export const COMPLEX_CIRCLE_TYPE = 'complexCircle';
 
 export const nodeTypes = [EMPTY_TYPE, POLY_TYPE, SPECIAL_TYPE, SKINNY_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
@@ -57,6 +58,17 @@ const SpecialShape = (
 const PolyShape = (
   <symbol viewBox="0 0 88 72" id="poly" width="88" height="88">
     <path d="M 0 36 18 0 70 0 88 36 70 72 18 72Z" />
+  </symbol>
+);
+
+const ComplexCircleShape = (
+  <symbol viewBox="0 0 100 100" id="complexCircle" width="100" height="100">
+    <circle cx="50" cy="50" r="50" fill="transparent" stroke="transparent" />
+    <circle cx="50" cy="50" r="34" />
+    <path
+      d="M50,0a50,50,0,1,0,50,50A50,50,0,0,0,50,0Zm0,90A40,40,0,1,1,90,50,40,40,0,0,1,50,90Z"
+      data-intersect-ignore="true"
+    />
   </symbol>
 );
 
@@ -139,6 +151,11 @@ export default {
       shape: PolyShape,
       shapeId: '#poly',
       typeText: 'Poly',
+    },
+    complexCircle: {
+      shape: ComplexCircleShape,
+      shapeId: '#complexCircle',
+      typeText: '#complexCircle',
     },
   },
 };
