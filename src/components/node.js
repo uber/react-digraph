@@ -84,6 +84,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
     isSelected: false,
     nodeSize: 154,
+    maxTitleChars: 12,
     onNodeMouseEnter: () => {
       return;
     },

@@ -70,7 +70,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
-    maxTitleChars: 12,
     maxZoom: 1.5,
     minZoom: 0.15,
     nodeSize: 154,
@@ -1083,13 +1082,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    this.handleZoomToFitImpl(
-      viewBBox,
-      this.props.zoomDur || GraphView.defaultProps.zoomDur
-    );
+    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
   };
 
-  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number) => {
+  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number = 0) => {
     if (!this.viewWrapper.current) {
       return;
     }
@@ -1225,7 +1221,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
         centerNodeOnMove={this.props.centerNodeOnMove}
-        maxTitleChars={maxTitleChars || GraphView.defaultProps.maxTitleChars}
+        maxTitleChars={maxTitleChars}
       />
     );
   };
