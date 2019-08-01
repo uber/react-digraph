@@ -275,7 +275,7 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     d = d.replace(/^M /, '');
-    let dArr = d.split(' ');
+    let dArr = d.split(/[ ,]+/);
 
     dArr = dArr.map((val, index) => {
       let isEnd = false;
