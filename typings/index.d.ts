@@ -1,3 +1,4 @@
+// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -14,8 +15,7 @@
   limitations under the License.
 */
 
-declare module "react-digraph" {
-
+declare module 'react-digraph' {
   export type INode = {
     title: string;
     x?: number | null;
@@ -67,6 +67,7 @@ declare module "react-digraph" {
     target: string;
     type?: string;
     handleText?: string;
+    tooltipText?: string;
     [key: string]: any;
   };
 
@@ -172,7 +173,7 @@ declare module "react-digraph" {
     static revert(graphInput: IGraphInput): any;
   }
 
-  export type LayoutEngineType = "None" | "SnapToGrid" | "VerticalTree";
+  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree';
 
   export const GraphView: React.ComponentClass<IGraphViewProps>;
   export type INodeMapNode = {
