@@ -67,7 +67,7 @@ declare module 'react-digraph' {
     target: string;
     type?: string;
     handleText?: string;
-    tooltipText?: string;
+    handleTooltipText?: string;
     [key: string]: any;
   };
 
