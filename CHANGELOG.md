@@ -1,3 +1,8 @@
+**v6.5.0** - August 7, 2019
+- PR #148 - Asynchronous Fast rendering
+- PR #157 - Added data-intersect-ignore property to node SVG to prevent intersection calculaton from selecting the wrong element.
+- PR #159 - Resolved #158 - Add tooltip for edges
+
 **v6.4.0** - July 11, 2019
 - PR #145 - Fix 'Cannot read property 'getBBox' of null' error when remounting  (@ksnyder9801) - https://github.com/uber/react-digraph/pull/145
 - PR #139 - Added eslint rules and fixed code. (@ajbogh) - https://github.com/uber/react-digraph/pull/139
