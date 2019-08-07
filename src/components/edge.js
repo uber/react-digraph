@@ -276,7 +276,7 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     d = d.replace(/^M /, '');
-    let dArr = d.split(' ');
+    let dArr = d.split(/[ ,]+/);
 
     dArr = dArr.map((val, index) => {
       let isEnd = false;
@@ -286,7 +286,7 @@ class Edge extends React.Component<IEdgeProps> {
         isEnd = true;
       }
 
-      // items % 2 are x positions
+      // index % 2 are x positions
       if (index % 2 === 0) {
         return parseFloat(val) + left + (isEnd ? 'Z' : '');
       }
@@ -439,12 +439,14 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(
-      `defs>${xlinkHref} rect`
+      `defs>${xlinkHref} rect:not([data-intersect-ignore=true])`
     );
     // Conditionally trying to select the element in other ways is faster than trying to
     // do the selection.
     const defSvgPathElement: SVGPathElement | null = !defSvgRectElement
-      ? viewWrapperElem.querySelector(`defs>${xlinkHref} path`)
+      ? viewWrapperElem.querySelector(
+          `defs>${xlinkHref} path:not([data-intersect-ignore=true])`
+        )
       : null;
     const defSvgCircleElement:
       | SVGCircleElement
@@ -453,7 +455,7 @@ class Edge extends React.Component<IEdgeProps> {
       | null =
       !defSvgPathElement && !defSvgPathElement
         ? viewWrapperElem.querySelector(
-            `defs>${xlinkHref} circle, defs>${xlinkHref} ellipse, defs>${xlinkHref} polygon`
+            `defs>${xlinkHref} circle:not([data-intersect-ignore=true]), defs>${xlinkHref} ellipse:not([data-intersect-ignore=true]), defs>${xlinkHref} polygon:not([data-intersect-ignore=true])`
           )
         : null;
 

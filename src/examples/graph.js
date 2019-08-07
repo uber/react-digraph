@@ -33,6 +33,7 @@ import GraphConfig, {
   EMPTY_TYPE,
   NODE_KEY,
   nodeTypes,
+  COMPLEX_CIRCLE_TYPE,
   POLY_TYPE,
   SPECIAL_CHILD_SUBTYPE,
   SPECIAL_EDGE_TYPE,
@@ -162,6 +163,13 @@ const sample: IGraph = {
       type: POLY_TYPE,
       x: 0,
       y: 300,
+    },
+    {
+      id: 'a8',
+      title: 'Node G (8)',
+      type: COMPLEX_CIRCLE_TYPE,
+      x: -200,
+      y: 400,
     },
   ],
 };
