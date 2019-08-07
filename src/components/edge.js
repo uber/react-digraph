@@ -95,7 +95,9 @@ class Edge extends React.Component<IEdgeProps> {
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
+      `#edge-${edge.source}-${
+        edge.target
+      }-container>.edge-container>.edge>.edge-path`
     );
   }
 
