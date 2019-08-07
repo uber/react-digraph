@@ -28,6 +28,7 @@ export type IEdge = {
   target: string,
   type?: string,
   handleText?: string,
+  handleTooltipText?: string,
   label_from?: string,
   label_to?: string,
   [key: string]: any,
@@ -685,6 +686,7 @@ class Edge extends React.Component<IEdgeProps> {
           {data.label_from && data.label_to && this.renderLabelText(data)}
         </g>
         <g className="edge-mouse-handler">
+          <title>{data.handleTooltipText}</title>
           <path
             className="edge-overlay-path"
             ref={this.edgeOverlayRef}

@@ -52,12 +52,14 @@ const sample: IGraph = {
   edges: [
     {
       handleText: '5',
+      handleTooltipText: '5',
       source: 'start1',
       target: 'a1',
       type: SPECIAL_EDGE_TYPE,
     },
     {
       handleText: '5',
+      handleTooltipText: 'This edge connects Node A and Node B',
       source: 'a1',
       target: 'a2',
       type: SPECIAL_EDGE_TYPE,
