@@ -199,7 +199,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .on('zoom', this.handleZoom)
       .on('end', this.handleZoomEnd);
 
-    d3.select(this.graphSvg.current)
+    d3.select(this.viewWrapper.current)
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
       .on('click', this.handleSvgClicked) // handle element click in the element components
@@ -632,7 +632,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
-      if (!d3.event.shiftKey && onBackgroundClick) {
+      if (
+        !d3.event.shiftKey &&
+        onBackgroundClick &&
+        d3.event.target.classList.contains('background')
+      ) {
         const xycoords = d3.mouse(d3.event.target);
 
         onBackgroundClick(xycoords[0], xycoords[1], d3.event);
