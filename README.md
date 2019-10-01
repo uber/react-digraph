@@ -212,6 +212,7 @@ All props are detailed below.
 | onSwapEdge          | func                    | true      | Called when an edge 'target' is swapped.                  |
 | onDeleteEdge        | func                    | true      | Called when an edge is deleted.                           |
 | onBackgroundClick   | func                    | false     | Called when the background is clicked.                    |
+| onOverrideableClick | func                    | false     | Called when a node is clicked and returns true if the event should be overridden |
 | canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
 | canCreateEdge       | func                    | false     | Called before an edge is created.                         |
 | canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
@@ -285,6 +286,7 @@ Prop Types:
   canDeleteEdge?: (selected: any) => boolean;
   canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
   afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
+  onOverrideableClick?: (event: any) => boolean;
   onUndo?: () => void;
   onCopySelected?: () => void;
   onPasteSelected?: () => void;

@@ -67,6 +67,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
+    onOverrideableClick: () => false,
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
@@ -515,6 +516,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // inform consumer
     this.props.onDeleteEdge(selectedEdge, newEdgesArr);
   }
+
+  handleOverrideableClick = (event: any) => {
+    const { readOnly, onOverrideableClick } = this.props;
+
+    if (readOnly) {
+      return false;
+    }
+
+    return onOverrideableClick(event) || false;
+  };
 
   handleDelete = (selected: IEdge | INode) => {
     const { canDeleteNode, canDeleteEdge, readOnly } = this.props;
@@ -1215,6 +1226,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         onNodeMove={this.handleNodeMove}
         onNodeUpdate={this.handleNodeUpdate}
         onNodeSelected={this.handleNodeSelected}
+        onOverrideableClick={this.handleOverrideableClick}
         renderNode={renderNode}
         renderNodeText={renderNodeText}
         isSelected={this.state.selectedNodeObj.node === node}

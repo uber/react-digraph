@@ -55,6 +55,7 @@ type INodeProps = {
     event?: any
   ) => void,
   onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void,
+  onOverrideableClick: (event: any) => boolean,
   renderNode?: (
     nodeRef: any,
     data: any,
@@ -78,6 +79,7 @@ type INodeState = {
   mouseDown: boolean,
   drawingEdge: boolean,
   pointerOffset: ?{ x: number, y: number },
+  overidingClick: boolean,
 };
 
 class Node extends React.Component<INodeProps, INodeState> {
@@ -99,6 +101,9 @@ class Node extends React.Component<INodeProps, INodeState> {
     },
     onNodeUpdate: () => {
       return;
+    },
+    onOverrideableClick: (event: any) => {
+      return false;
     },
     centerNodeOnMove: true,
   };
@@ -122,6 +127,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     this.state = {
       drawingEdge: false,
+      overidingClick: false,
       hovered: false,
       mouseDown: false,
       selected: false,
@@ -154,6 +160,10 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
 
+    if (this.state.overidingClick) {
+      return this.setState({ overidingClick: false });
+    }
+
     // While the mouse is down, this function handles all mouse movement
     const newState = {
       x: d3.event.x,
@@ -184,7 +194,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
       newState.x += off.xOff;
       newState.y += off.yOff;
-      // now tell the graph that we're actually drawing an edge
+      // only move the node itself if not overidingClick or drawing an edge
     } else if (!this.state.drawingEdge && layoutEngine) {
       // move node using the layout engine
       Object.assign(newState, layoutEngine.getPositionForNode(newState));
@@ -199,6 +209,12 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleDragStart = () => {
     if (!this.nodeRef.current) {
       return;
+    }
+
+    const overidingClick = this.props.onOverrideableClick(d3.event);
+
+    if (overidingClick) {
+      return this.setState({ overidingClick: true });
     }
 
     if (!this.oldSibling) {
@@ -216,15 +232,20 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
 
-    const { x, y, drawingEdge } = this.state;
+    const { x, y, drawingEdge, overidingClick } = this.state;
     const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
     const { sourceEvent } = d3.event;
 
     this.setState({
       mouseDown: false,
       drawingEdge: false,
+      overidingClick: false,
       pointerOffset: null,
     });
+
+    if (overidingClick) {
+      return;
+    }
 
     if (this.oldSibling && this.oldSibling.parentElement) {
       this.oldSibling.parentElement.insertBefore(

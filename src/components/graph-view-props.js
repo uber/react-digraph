@@ -65,6 +65,7 @@ export type IGraphViewProps = {
   onSelectEdge: (selectedEdge: IEdge) => void,
   onSelectNode: (node: INode | null, event: any) => void,
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
+  onOverrideableClick?: (event: any) => boolean,
   onUndo?: () => void,
   onUpdateNode: (node: INode) => void,
   renderBackground?: (gridSize?: number) => any,

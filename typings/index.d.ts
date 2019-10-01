@@ -42,6 +42,7 @@ declare module 'react-digraph' {
     onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
     onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
     onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
+    onOverrideableClick: (event: any) => boolean;
     renderNode?: (
       nodeRef: any,
       data: any,
@@ -125,6 +126,7 @@ declare module 'react-digraph' {
     onSelectNode: (node: INode | null) => void;
     onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
+    onOverrideableClick?: (event: any) => boolean;
     onUpdateNode: (node: INode) => void;
     renderBackground?: (gridSize?: number) => any;
     renderDefs?: () => any;
