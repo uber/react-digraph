@@ -411,15 +411,17 @@ class Edge extends React.Component<IEdgeProps> {
       return response;
     }
 
-    const foreignObj = viewWrapperElem.querySelector(
-      `foreignObject.digraph-foreign-node-${trg[nodeKey]}`
+    // If there is a custom rendered node, we use the className that `node.js`
+    // passes through as a prop in the `renderNode` method
+    const foreignNode = viewWrapperElem.querySelector(
+      `.digraph-foreign-node-${trg[nodeKey]}`
     );
 
-    if (foreignObj) {
+    if (foreignNode) {
       return {
         ...response,
         ...Edge.getRotatedRectIntersect(
-          foreignObj,
+          foreignNode,
           src,
           trg,
           includesArrow,

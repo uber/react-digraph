@@ -47,6 +47,8 @@ declare module 'react-digraph' {
     opacity?: number;
     nodeKey: string;
     nodeSize?: number;
+    nodeHeight?: number;
+    nodeWidth?: number;
     onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
     onNodeMouseLeave: (event: any, data: any) => void;
     onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
@@ -91,7 +93,6 @@ declare module 'react-digraph' {
     data: IEdge;
     edgeTypes: any; // TODO: create an edgeTypes interface
     edgeHandleSize?: number;
-    nodeSize?: number;
     sourceNode: INode | null;
     targetNode: INode | ITargetPosition;
     isSelected: boolean;
@@ -117,6 +118,8 @@ declare module 'react-digraph' {
     nodeKey: string;
     nodes: any[];
     nodeSize?: number;
+    nodeHeight?: number;
+    nodeWidth?: number;
     nodeSubtypes: any;
     nodeTypes: any;
     readOnly?: boolean;

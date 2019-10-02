@@ -74,7 +74,7 @@ type INodeProps = {
     id: string,
     selected: boolean,
     hovered: boolean,
-    props: INodeComponentProps
+    nodeProps: INodeComponentProps
   ) => any,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
   isSelected: boolean,
@@ -350,12 +350,16 @@ class Node extends React.Component<INodeProps, INodeState> {
       Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
 
     props.xlinkHref = nodeTypeXlinkHref;
-    props.className = `${nodeClassName} digraph-foreign-node-${data[nodeKey]}`;
+    props.className = nodeClassName;
     props['data-index'] = index;
     props.x = -props.width / 2;
     props.y = -props.height / 2;
 
     if (renderNode) {
+      // Add this classname to the rendered node props as it is used by the
+      // `edge.js` intersection detection logic
+      props.className = `${props.className} digraph-foreign-node-${data[nodeKey]}`;
+
       // Originally: graphView, domNode, datum, index, elements.
       return renderNode(
         this.nodeRef,

@@ -229,6 +229,8 @@ All props are detailed below.
 | minZoom             | number                  | false     | Minimum zoom percentage.                                  |
 | maxZoom             | number                  | false     | Maximum zoom percentage.                                  |
 | nodeSize            | number                  | false     | Node bbox size.                                           |
+| nodeHeight          | number                  | false     | Node bbox height. Takes precedence over `nodeSize`        |
+| nodeWidth           | number                  | false     | Node bbox width. Takes precedence over `nodeSize`         |
 | edgeHandleSize      | number                  | false     | Edge handle size.                                         |
 | edgeArrowSize       | number                  | false     | Edge arrow size.                                          |
 | zoomDelay           | number                  | false     | Delay before zoom occurs.                                 |
@@ -236,7 +238,7 @@ All props are detailed below.
 | showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
 | layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
 | rotateEdgeHandle    | boolean                 | false     | Whether to rotate edge handle with edge when a node is moved |
-| centerNodeOnMove    | boolean                 | false     | Weather the node should be centered on cursor when moving a node    |
+| centerNodeOnMove    | boolean                 | false     | Whether the node should be centered on cursor when moving a node    |
 | initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
 
 ### onCreateNode
@@ -259,6 +261,8 @@ Prop Types:
   readOnly?: boolean;
   maxTitleChars?: number;
   nodeSize?: number;
+  nodeHeight?: number;
+  nodeWidth?: number;
   edgeHandleSize?: number;
   edgeArrowSize?: number;
   zoomDelay?: number;
@@ -298,7 +302,7 @@ Prop Types:
     index: number,
     selected: boolean,
     hovered: boolean,
-    props: INodeComponentProps
+    nodeProps: INodeComponentProps
   ) => any;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;
