@@ -297,7 +297,8 @@ Prop Types:
     data: any,
     index: number,
     selected: boolean,
-    hovered: boolean
+    hovered: boolean,
+    props: INodeComponentProps
   ) => any;
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
   layoutEngineType?: LayoutEngineType;

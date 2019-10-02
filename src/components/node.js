@@ -37,6 +37,16 @@ export type INode = {
   [key: string]: any,
 };
 
+type INodeComponentProps = {
+  height: number,
+  width: number,
+  x: number,
+  y: number,
+  xlinkHref: string,
+  className: string,
+  'data-index': number,
+};
+
 type INodeProps = {
   data: INode,
   id: string,
@@ -45,6 +55,8 @@ type INodeProps = {
   opacity?: number,
   nodeKey: string,
   nodeSize?: number,
+  nodeWidth?: number,
+  nodeHeight?: number,
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void,
   onNodeMouseLeave: (event: any, data: any) => void,
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
@@ -61,7 +73,8 @@ type INodeProps = {
     data: any,
     id: string,
     selected: boolean,
-    hovered: boolean
+    hovered: boolean,
+    props: INodeComponentProps
   ) => any,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
   isSelected: boolean,
@@ -154,7 +167,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleMouseMove = () => {
     const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
     const shiftKey = d3.event.sourceEvent.shiftKey;
-    const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
+    const { layoutEngine, nodeKey, viewWrapperElem } = this.props;
 
     if (!mouseButtonDown) {
       return;
@@ -184,7 +197,6 @@ class Node extends React.Component<INodeProps, INodeState> {
       // draw edge
       // undo the target offset subtraction done by Edge
       const off = Edge.calculateOffset(
-        nodeSize,
         this.props.data,
         newState,
         nodeKey,
@@ -312,13 +324,22 @@ class Node extends React.Component<INodeProps, INodeState> {
       index,
       nodeTypes,
       nodeSubtypes,
+      nodeWidth,
+      nodeHeight,
+      nodeSize,
       nodeKey,
     } = this.props;
     const { hovered, selected } = this.state;
     const props = {
-      height: this.props.nodeSize || 0,
-      width: this.props.nodeSize || 0,
+      height: nodeHeight || nodeSize || 0,
+      width: nodeWidth || nodeSize || 0,
+      x: 0,
+      y: 0,
+      xlinkHref: '',
+      className: '',
+      'data-index': 0,
     };
+
     const nodeShapeContainerClassName = GraphUtils.classNames('shape');
     const nodeClassName = GraphUtils.classNames('node', { selected, hovered });
     const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', {
@@ -328,24 +349,39 @@ class Node extends React.Component<INodeProps, INodeState> {
     const nodeSubtypeXlinkHref =
       Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
 
-    // get width and height defined on def element
-    const defSvgNodeElement: any = nodeTypeXlinkHref
-      ? document.querySelector(`defs>${nodeTypeXlinkHref}`)
-      : null;
-    const nodeWidthAttr = defSvgNodeElement
-      ? defSvgNodeElement.getAttribute('width')
-      : 0;
-    const nodeHeightAttr = defSvgNodeElement
-      ? defSvgNodeElement.getAttribute('height')
-      : 0;
-
-    props.width = nodeWidthAttr ? parseInt(nodeWidthAttr, 10) : props.width;
-    props.height = nodeHeightAttr ? parseInt(nodeHeightAttr, 10) : props.height;
+    props.xlinkHref = nodeTypeXlinkHref;
+    props.className = `${nodeClassName} digraph-foreign-node-${data[nodeKey]}`;
+    props['data-index'] = index;
+    props.x = -props.width / 2;
+    props.y = -props.height / 2;
 
     if (renderNode) {
       // Originally: graphView, domNode, datum, index, elements.
-      return renderNode(this.nodeRef, data, data[nodeKey], selected, hovered);
+      return renderNode(
+        this.nodeRef,
+        data,
+        data[nodeKey],
+        selected,
+        hovered,
+        props
+      );
     } else {
+      // get width and height defined on def element
+      const defSvgNodeElement: any = nodeTypeXlinkHref
+        ? document.querySelector(`defs>${nodeTypeXlinkHref}`)
+        : null;
+      const nodeWidthAttr = defSvgNodeElement
+        ? defSvgNodeElement.getAttribute('width')
+        : 0;
+      const nodeHeightAttr = defSvgNodeElement
+        ? defSvgNodeElement.getAttribute('height')
+        : 0;
+
+      props.width = nodeWidthAttr ? parseInt(nodeWidthAttr, 10) : props.width;
+      props.height = nodeHeightAttr
+        ? parseInt(nodeHeightAttr, 10)
+        : props.height;
+
       return (
         <g className={nodeShapeContainerClassName} {...props}>
           {!!data.subtype && (
@@ -359,15 +395,7 @@ class Node extends React.Component<INodeProps, INodeState> {
               xlinkHref={nodeSubtypeXlinkHref}
             />
           )}
-          <use
-            data-index={index}
-            className={nodeClassName}
-            x={-props.width / 2}
-            y={-props.height / 2}
-            width={props.width}
-            height={props.height}
-            xlinkHref={nodeTypeXlinkHref}
-          />
+          <use {...props} />
         </g>
       );
     }

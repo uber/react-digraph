@@ -29,6 +29,16 @@ declare module 'react-digraph' {
     y: number;
   };
 
+  export type INodeComponentProps = {
+    height: number,
+    width: number,
+    x: number,
+    y: number,
+    xlinkHref: string,
+    className: string,
+    'data-index': number
+  };
+
   export type INodeProps = {
     data: INode;
     id: string;
@@ -48,7 +58,8 @@ declare module 'react-digraph' {
       data: any,
       id: string,
       selected: boolean,
-      hovered: boolean
+      hovered: boolean,
+      props: INodeComponentProps
     ) => any;
     renderNodeText?: (
       data: any,
@@ -135,7 +146,8 @@ declare module 'react-digraph' {
       data: any,
       id: string,
       selected: boolean,
-      hovered: boolean
+      hovered: boolean,
+      props: INodeComponentProps
     ) => any;
     afterRenderEdge?: (
       id: string,

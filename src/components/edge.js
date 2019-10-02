@@ -43,7 +43,6 @@ type IEdgeProps = {
   data: IEdge,
   edgeTypes: any, // TODO: create an edgeTypes interface
   edgeHandleSize?: number,
-  nodeSize?: number,
   sourceNode: INode | null,
   targetNode: INode | ITargetPosition,
   isSelected: boolean,
@@ -95,9 +94,7 @@ class Edge extends React.Component<IEdgeProps> {
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${
-        edge.target
-      }-container>.edge-container>.edge>.edge-path`
+      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
     );
   }
 
@@ -402,7 +399,6 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   static calculateOffset(
-    nodeSize: any,
     src: any,
     trg: any,
     nodeKey: string,
@@ -413,6 +409,23 @@ class Edge extends React.Component<IEdgeProps> {
 
     if (!trg[nodeKey]) {
       return response;
+    }
+
+    const foreignObj = viewWrapperElem.querySelector(
+      `foreignObject.digraph-foreign-node-${trg[nodeKey]}`
+    );
+
+    if (foreignObj) {
+      return {
+        ...response,
+        ...Edge.getRotatedRectIntersect(
+          foreignObj,
+          src,
+          trg,
+          includesArrow,
+          viewWrapperElem
+        ),
+      };
     }
 
     // Note: document.getElementById is by far the fastest way to get a node.
@@ -443,27 +456,10 @@ class Edge extends React.Component<IEdgeProps> {
     const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(
       `defs>${xlinkHref} rect:not([data-intersect-ignore=true])`
     );
-    // Conditionally trying to select the element in other ways is faster than trying to
-    // do the selection.
-    const defSvgPathElement: SVGPathElement | null = !defSvgRectElement
-      ? viewWrapperElem.querySelector(
-          `defs>${xlinkHref} path:not([data-intersect-ignore=true])`
-        )
-      : null;
-    const defSvgCircleElement:
-      | SVGCircleElement
-      | SVGEllipseElement
-      | SVGPolygonElement
-      | null =
-      !defSvgPathElement && !defSvgPathElement
-        ? viewWrapperElem.querySelector(
-            `defs>${xlinkHref} circle:not([data-intersect-ignore=true]), defs>${xlinkHref} ellipse:not([data-intersect-ignore=true]), defs>${xlinkHref} polygon:not([data-intersect-ignore=true])`
-          )
-        : null;
 
+    // it's a rectangle
     if (defSvgRectElement) {
-      // it's a rectangle
-      response = {
+      return {
         ...response,
         ...Edge.getRotatedRectIntersect(
           defSvgRectElement,
@@ -473,7 +469,15 @@ class Edge extends React.Component<IEdgeProps> {
           viewWrapperElem
         ),
       };
-    } else if (defSvgPathElement) {
+    }
+
+    // Conditionally trying to select the element in other ways is faster than trying to
+    // do the selection.
+    const defSvgPathElement: SVGPathElement | null = viewWrapperElem.querySelector(
+      `defs>${xlinkHref} path:not([data-intersect-ignore=true])`
+    );
+
+    if (defSvgPathElement) {
       // it's a complex path
       response = {
         ...response,
@@ -485,9 +489,19 @@ class Edge extends React.Component<IEdgeProps> {
           viewWrapperElem
         ),
       };
-    } else {
-      // it's a circle or some other type
-      response = {
+    }
+
+    const defSvgCircleElement:
+      | SVGCircleElement
+      | SVGEllipseElement
+      | SVGPolygonElement
+      | null = viewWrapperElem.querySelector(
+      `defs>${xlinkHref} circle:not([data-intersect-ignore=true]), defs>${xlinkHref} ellipse:not([data-intersect-ignore=true]), defs>${xlinkHref} polygon:not([data-intersect-ignore=true])`
+    );
+
+    // it's a circle
+    if (defSvgCircleElement) {
+      return {
         ...response,
         ...Edge.getCircleIntersect(
           defSvgCircleElement,
@@ -499,6 +513,7 @@ class Edge extends React.Component<IEdgeProps> {
       };
     }
 
+    // Use the default choice
     return response;
   }
 
@@ -575,13 +590,7 @@ class Edge extends React.Component<IEdgeProps> {
   };
 
   getPathDescription(edge: any) {
-    const {
-      sourceNode,
-      targetNode,
-      nodeKey,
-      nodeSize,
-      viewWrapperElem,
-    } = this.props;
+    const { sourceNode, targetNode, nodeKey, viewWrapperElem } = this.props;
     const trgX = targetNode && targetNode.x ? targetNode.x : 0;
     const trgY = targetNode && targetNode.y ? targetNode.y : 0;
     const srcX = targetNode && sourceNode.x ? sourceNode.x : 0;
@@ -593,7 +602,6 @@ class Edge extends React.Component<IEdgeProps> {
     // a connection between two points. In this case, to obtain the offsets for the src we
     // write trg first, then src second. Vice versa to get the offsets for trg.
     const srcOff = Edge.calculateOffset(
-      nodeSize || 0,
       targetNode,
       sourceNode,
       nodeKey,
@@ -601,7 +609,6 @@ class Edge extends React.Component<IEdgeProps> {
       viewWrapperElem
     );
     const trgOff = Edge.calculateOffset(
-      nodeSize || 0,
       sourceNode,
       targetNode,
       nodeKey,
