@@ -24,6 +24,7 @@
   },
   "license": "MIT",
   "main": "dist/main.min.js",
+  "types": "./typings/index.d.ts",
   "peerDependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1"
