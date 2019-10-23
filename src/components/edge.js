@@ -95,9 +95,7 @@ class Edge extends React.Component<IEdgeProps> {
     viewWrapperElem: HTMLDivElement | HTMLDocument = document
   ) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${
-        edge.target
-      }-container>.edge-container>.edge>.edge-path`
+      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
     );
   }
 
@@ -422,6 +420,22 @@ class Edge extends React.Component<IEdgeProps> {
 
     if (!nodeElem) {
       return response;
+    }
+
+    const foreignObject = nodeElem.querySelector('foreignObject');
+
+    if (foreignObject != null) {
+      // we assume that foreignObject is a rectangle, this might need to be revisited in future
+      return {
+        ...response,
+        ...Edge.getRotatedRectIntersect(
+          foreignObject,
+          src,
+          trg,
+          includesArrow,
+          viewWrapperElem
+        ),
+      };
     }
 
     const trgNode = nodeElem.querySelector(`use.node`);

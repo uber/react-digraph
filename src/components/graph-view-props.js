@@ -15,7 +15,6 @@
   limitations under the License.
 */
 
-import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-types';
 import { type IEdge } from './edge';
 import { type INode } from './node';
 
@@ -35,7 +34,7 @@ export type IGraphViewProps = {
   gridDotSize?: number,
   gridSize?: number,
   gridSpacing?: number,
-  layoutEngineType?: LayoutEngineType,
+  layoutEngine?: any,
   maxTitleChars?: number,
   maxZoom?: number,
   minZoom?: number,

@@ -57,7 +57,7 @@ class HorizontalTree extends SnapToGrid {
       const nodesMapNode = nodesMap[gNodeId];
 
       // gNode is the dagre representation
-      const gNode = g.node(gNodeId);
+      const gNode = this.calculatePosition(g.node(gNodeId));
 
       nodesMapNode.node.x = gNode.x;
       nodesMapNode.node.y = gNode.y;

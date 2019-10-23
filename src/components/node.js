@@ -17,6 +17,7 @@
 
 import * as d3 from 'd3';
 import * as React from 'react';
+import Draggable from 'react-draggable';
 // This works in Typescript but causes an import loop for Flowtype. We'll just use `any` below.
 // import { type LayoutEngine } from '../utilities/layout-engine/layout-engine-config';
 import Edge from './edge';
@@ -68,6 +69,7 @@ type INodeProps = {
   viewWrapperElem: HTMLDivElement,
   centerNodeOnMove: boolean,
   maxTitleChars: number,
+  scale?: number,
 };
 
 type INodeState = {
@@ -85,6 +87,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     isSelected: false,
     nodeSize: 154,
     maxTitleChars: 12,
+    scale: 1,
     onNodeMouseEnter: () => {
       return;
     },
@@ -134,20 +137,12 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   componentDidMount() {
-    const dragFunction = d3
-      .drag()
-      .on('drag', this.handleMouseMove)
-      .on('start', this.handleDragStart)
-      .on('end', this.handleDragEnd);
-
-    d3.select(this.nodeRef.current)
-      .on('mouseout', this.handleMouseOut)
-      .call(dragFunction);
+    d3.select(this.nodeRef.current).on('mouseout', this.handleMouseOut);
   }
 
-  handleMouseMove = () => {
-    const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
-    const shiftKey = d3.event.sourceEvent.shiftKey;
+  handleMouseMove = (e, data) => {
+    const mouseButtonDown = e.buttons === 1;
+    const shiftKey = e.shiftKey;
     const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
 
     if (!mouseButtonDown) {
@@ -156,14 +151,14 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     // While the mouse is down, this function handles all mouse movement
     const newState = {
-      x: d3.event.x,
-      y: d3.event.y,
+      x: data.x,
+      y: data.y,
     };
 
     if (!this.props.centerNodeOnMove) {
       newState.pointerOffset = this.state.pointerOffset || {
-        x: d3.event.x - this.props.data.x,
-        y: d3.event.y - this.props.data.y,
+        x: data.x - this.props.data.x,
+        y: data.y - this.props.data.y,
       };
       newState.x -= newState.pointerOffset.x;
       newState.y -= newState.pointerOffset.y;
@@ -201,24 +196,19 @@ class Node extends React.Component<INodeProps, INodeState> {
       return;
     }
 
-    if (!this.oldSibling) {
-      this.oldSibling = this.nodeRef.current.parentElement.nextSibling;
-    }
-
     // Moves child to the end of the element stack to re-arrange the z-index
     this.nodeRef.current.parentElement.parentElement.appendChild(
       this.nodeRef.current.parentElement
     );
   };
 
-  handleDragEnd = () => {
+  handleDragEnd = e => {
     if (!this.nodeRef.current) {
       return;
     }
 
     const { x, y, drawingEdge } = this.state;
     const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
-    const { sourceEvent } = d3.event;
 
     this.setState({
       mouseDown: false,
@@ -226,18 +216,20 @@ class Node extends React.Component<INodeProps, INodeState> {
       pointerOffset: null,
     });
 
-    if (this.oldSibling && this.oldSibling.parentElement) {
-      this.oldSibling.parentElement.insertBefore(
-        this.nodeRef.current.parentElement,
-        this.oldSibling
-      );
-    }
-
-    const shiftKey = sourceEvent.shiftKey;
+    const shiftKey = e.shiftKey;
 
     onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
 
-    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
+    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, e);
+
+    // we need to re-trigger the 'click', since we've disconnected mouseup from
+    // mousedown in handleDragStart()
+    const target = e.target;
+    const options = Object.assign(e);
+
+    window.requestAnimationFrame(() => {
+      target.dispatchEvent(new MouseEvent('click', options));
+    });
   };
 
   handleMouseOver = (event: any) => {
@@ -378,26 +370,34 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   render() {
     const { x, y, hovered, selected } = this.state;
-    const { opacity, id, data } = this.props;
+    const { opacity, id, data, scale } = this.props;
     const className = GraphUtils.classNames('node', data.type, {
       hovered,
       selected,
     });
 
     return (
-      <g
-        className={className}
-        onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}
-        id={id}
-        ref={this.nodeRef}
-        opacity={opacity}
-        transform={`translate(${x}, ${y})`}
-        style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
+      <Draggable
+        position={{ x, y }}
+        onStart={this.handleDragStart}
+        onDrag={this.handleMouseMove}
+        onStop={this.handleDragEnd}
+        scale={scale}
       >
-        {this.renderShape()}
-        {this.renderText()}
-      </g>
+        <g
+          className={className}
+          onMouseOver={this.handleMouseOver}
+          onMouseOut={this.handleMouseOut}
+          id={id}
+          ref={this.nodeRef}
+          opacity={opacity}
+          // transform={`translate(${x}, ${y})`}
+          // style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
+        >
+          {this.renderShape()}
+          {this.renderText()}
+        </g>
+      </Draggable>
     );
   }
 }

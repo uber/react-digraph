@@ -21,12 +21,18 @@ type IBackgroundProps = {
   gridSize?: number,
   backgroundFillId?: string,
   renderBackground?: (gridSize?: number) => any,
+  onMouseMove?: (event: any) => any,
+  onMouseDown?: (event: any) => any,
+  onMouseUp?: (event: any) => any,
 };
 
 class Background extends React.Component<IBackgroundProps> {
   static defaultProps = {
     backgroundFillId: '#grid',
     gridSize: 40960,
+    onMouseMove: () => {},
+    onMouseDown: () => {},
+    onMouseUp: () => {},
   };
 
   render() {
@@ -44,6 +50,9 @@ class Background extends React.Component<IBackgroundProps> {
         width={gridSize}
         height={gridSize}
         fill={`url(${backgroundFillId || ''})`}
+        onMouseDown={this.props.onMouseDown}
+        onMouseMove={this.props.onMouseMove}
+        onMouseUp={this.props.onMouseUp}
       />
     );
   }

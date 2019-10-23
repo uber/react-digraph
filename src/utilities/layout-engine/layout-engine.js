@@ -15,7 +15,6 @@
   limitations under the License.
 */
 
-// import { type IGraphViewProps } from '../../components/graph-view';
 import { type IGraphViewProps } from '../../components/graph-view-props';
 import { type INode } from '../../components/node';
 

@@ -20,7 +20,6 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/main.scss';
 
-import { LayoutEngines } from '../utilities/layout-engine/layout-engine-config';
 import { type IGraphViewProps } from './graph-view-props';
 import Background from './background';
 import Defs from './defs';
@@ -49,7 +48,6 @@ type IGraphViewState = {
   edgesMap: any,
   nodes: any[],
   edges: any[],
-  selectingNode: boolean,
   hoveredNodeData: INode | null,
   edgeEndNode: INode | null,
   draggingEdge: boolean,
@@ -69,7 +67,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canDeleteNode: () => true,
     edgeArrowSize: 8,
     gridSpacing: 36,
-    layoutEngineType: 'None',
     maxZoom: 1.5,
     minZoom: 0.15,
     nodeSize: 154,
@@ -103,15 +100,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         : null;
 
     // Handle layoutEngine on initial render
-    if (
-      prevState.nodes.length === 0 &&
-      nextProps.layoutEngineType &&
-      LayoutEngines[nextProps.layoutEngineType]
-    ) {
-      const layoutEngine = new LayoutEngines[nextProps.layoutEngineType](
-        nextProps
-      );
-      const newNodes = layoutEngine.adjustNodes(nodes, nodesMap);
+    if (prevState.nodes.length === 0 && nextProps.layoutEngine) {
+      const newNodes = nextProps.layoutEngine.adjustNodes(nodes, nodesMap);
 
       nodes = newNodes;
     }
@@ -152,6 +142,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   constructor(props: IGraphViewProps) {
     super(props);
 
+    this.panState = {
+      panning: false,
+      requestId: null,
+    };
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
     this.renderNodesTimeout = null;
@@ -159,10 +153,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.viewWrapper = React.createRef();
     this.graphControls = React.createRef();
     this.graphSvg = React.createRef();
-
-    if (props.layoutEngineType) {
-      this.layoutEngine = new LayoutEngines[props.layoutEngineType](props);
-    }
 
     this.state = {
       componentUpToDate: false,
@@ -177,7 +167,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodesMap: {},
       selectedEdgeObj: null,
       selectedNodeObj: null,
-      selectingNode: false,
       documentClicked: false,
       svgClicked: false,
       focused: true,
@@ -190,6 +179,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // TODO: can we target the element rather than the document?
     document.addEventListener('keydown', this.handleWrapperKeydown);
     document.addEventListener('click', this.handleDocumentClick);
+    document.addEventListener('mouseup', () => this.handlePanEnd());
 
     this.zoom = d3
       .zoom()
@@ -202,9 +192,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     d3.select(this.viewWrapper.current)
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
-      .on('click', this.handleSvgClicked) // handle element click in the element components
-      .select('svg')
-      .call(this.zoom);
+      .on('click', this.handleSvgClicked); // handle element click in the element components
 
     this.selectedView = d3.select(this.view);
 
@@ -241,7 +229,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       !nextState.componentUpToDate ||
       nextProps.selected !== this.props.selected ||
       nextProps.readOnly !== this.props.readOnly ||
-      nextProps.layoutEngineType !== this.props.layoutEngineType
+      nextProps.layoutEngine !== this.props.layoutEngine
     ) {
       return true;
     }
@@ -257,18 +245,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       selectedNodeObj,
       selectedEdgeObj,
     } = this.state;
-    const { layoutEngineType } = this.props;
+    const { layoutEngine } = this.props;
 
-    if (layoutEngineType && LayoutEngines[layoutEngineType]) {
-      this.layoutEngine = new LayoutEngines[layoutEngineType](this.props);
-      const newNodes = this.layoutEngine.adjustNodes(nodes, nodesMap);
+    const forceReRender = prevProps.layoutEngine !== layoutEngine;
+
+    if (forceReRender && layoutEngine) {
+      const newNodes = layoutEngine.adjustNodes(nodes, nodesMap);
 
       this.setState({
         nodes: newNodes,
       });
     }
-
-    const forceReRender = prevProps.layoutEngineType !== layoutEngineType;
 
     // Note: the order is intentional
     // remove old edges
@@ -341,7 +328,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       if (
         prevNode != null &&
         (!GraphUtils.isEqual(prevNode.node, node) ||
-          (selectedNode.node !== prevSelectedNode.node &&
+          (prevSelectedNode &&
+            selectedNode.node !== prevSelectedNode.node &&
             ((selectedNode.node &&
               node[nodeKey] === selectedNode.node[nodeKey]) ||
               (prevSelectedNode.node &&
@@ -612,12 +600,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleSvgClicked = (d: any, i: any) => {
-    const {
-      onBackgroundClick,
-      onSelectNode,
-      readOnly,
-      onCreateNode,
-    } = this.props;
+    const { onBackgroundClick, readOnly, onCreateNode } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
@@ -625,39 +608,22 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return; // If any part of the edge is clicked, return
     }
 
-    if (this.state.selectingNode) {
-      this.setState({
-        focused: true,
-        selectingNode: false,
-        svgClicked: true,
-      });
-    } else {
-      if (!d3.event.shiftKey && onBackgroundClick) {
-        const xycoords = d3.mouse(d3.event.target);
+    if (!d3.event.shiftKey && onBackgroundClick) {
+      const xycoords = d3.mouse(d3.event.target);
 
-        onBackgroundClick(xycoords[0], xycoords[1], d3.event);
-      }
+      onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+    }
 
-      const previousSelection =
-        (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
+    // de-select the current selection
+    this.setState({
+      focused: true,
+      svgClicked: true,
+    });
 
-      // de-select the current selection
-      this.setState({
-        selectedNodeObj: null,
-        focused: true,
-        svgClicked: true,
-      });
-      onSelectNode(null);
+    if (!readOnly && d3.event.shiftKey) {
+      const xycoords = d3.mouse(d3.event.target);
 
-      if (previousSelection) {
-        this.syncRenderNode(previousSelection);
-      }
-
-      if (!readOnly && d3.event.shiftKey) {
-        const xycoords = d3.mouse(d3.event.target);
-
-        onCreateNode(xycoords[0], xycoords[1], d3.event);
-      }
+      onCreateNode(xycoords[0], xycoords[1], d3.event);
     }
   };
 
@@ -1218,10 +1184,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         renderNode={renderNode}
         renderNodeText={renderNodeText}
         isSelected={this.state.selectedNodeObj.node === node}
-        layoutEngine={this.layoutEngine}
+        layoutEngine={this.props.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
         centerNodeOnMove={this.props.centerNodeOnMove}
         maxTitleChars={maxTitleChars}
+        scale={
+          this.state.viewTransform != null ? this.state.viewTransform.k : 1
+        }
       />
     );
   };
@@ -1493,6 +1462,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
           />
           <g className="view" ref={el => (this.view = el)}>
             <Background
+              onMouseDown={event => this.handlePanStart(event)}
+              onMouseMove={event => this.handlePan(event)}
               gridSize={gridSize}
               backgroundFillId={backgroundFillId}
               renderBackground={renderBackground}
@@ -1507,6 +1478,44 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         />
       </div>
     );
+  }
+
+  handlePanStart(event: any) {
+    const { clientX, clientY } = event;
+
+    this.panState = { clientX, clientY, requestId: null, panning: true };
+  }
+
+  handlePan(event: any) {
+    if (!this.panState.panning) {
+      return;
+    }
+
+    if (this.panState.requestId != null) {
+      cancelAnimationFrame(this.panState.requestId);
+    }
+
+    const { viewTransform } = this.state;
+    const k = viewTransform.k || 1;
+    const { clientX, clientY } = event;
+
+    this.panState.requestId = requestAnimationFrame(() => {
+      const offX = clientX - this.panState.clientX + this.state.viewTransform.x;
+      const offY = clientY - this.panState.clientY + this.state.viewTransform.y;
+
+      this.panState = {
+        ...this.panState,
+        clientX,
+        clientY,
+        requestId: null,
+      };
+
+      this.setZoom(k, offX, offY, 0);
+    });
+  }
+
+  handlePanEnd() {
+    this.panState.panning = false;
   }
 
   /* Imperative API */

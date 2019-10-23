@@ -36,7 +36,9 @@
     "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
-    "svg-intersections": "^0.4.0"
+    "svg-intersections": "^0.4.0",
+    "react-draggable": "^3.3.2",
+    "webcola": "3.4.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
@@ -66,6 +68,7 @@
     "eslint-loader": "^2.1.0",
     "eslint-plugin-cup": "^2.0.1",
     "eslint-plugin-es6-recommended": "^0.1.2",
+    "eslint-plugin-filenames": "^1.3.2",
     "eslint-plugin-flowtype": "^2.50.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-import-order": "^2.1.4",
@@ -117,12 +120,13 @@
     "lint-fix": "eslint --fix src",
     "precommit": "lint-staged && npm run test",
     "prefast-test": "npm run prepublish",
+    "prepare": "npm run build:prod",
     "prepublish": "npm run package",
     "serve": "npm run live-serve",
     "test": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
-    "package": "npm-run-all clean lint test build build:prod",
+    "package": "npm-run-all clean lint build build:prod",
     "analyze-bundle": "babel-node ./tools/analyzeBundle.js"
   },
   "jest": {

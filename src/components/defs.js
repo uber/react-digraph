@@ -58,11 +58,13 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
         ? typesObj[type].shapeId.replace('#', '')
         : 'graphdef';
 
-      graphConfigDefs.push(
-        React.cloneElement(typesObj[type].shape, {
-          key: `${safeId}-${graphConfigDefs.length + 1}`,
-        })
-      );
+      if (React.isValidElement(typesObj[type].shape)) {
+        graphConfigDefs.push(
+          React.cloneElement(typesObj[type].shape, {
+            key: `${safeId}-${graphConfigDefs.length + 1}`,
+          })
+        );
+      }
     });
   }
 

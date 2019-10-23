@@ -23,9 +23,9 @@ import * as React from 'react';
 
 import {
   GraphView,
+  LayoutEngines,
   type IEdgeType as IEdge,
   type INodeType as INode,
-  type LayoutEngineType,
 } from '../';
 import GraphConfig, {
   edgeTypes,
@@ -223,7 +223,7 @@ type IGraphState = {
   selected: any,
   totalNodes: number,
   copiedNode: any,
-  layoutEngineType?: LayoutEngineType,
+  layoutEngine?: LayoutEngine,
 };
 
 class Graph extends React.Component<IGraphProps, IGraphState> {
@@ -235,7 +235,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     this.state = {
       copiedNode: null,
       graph: sample,
-      layoutEngineType: undefined,
+      layoutEngine: new LayoutEngines.None({}),
       selected: null,
       totalNodes: sample.nodes.length,
     };
@@ -479,9 +479,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   handleChangeLayoutEngineType = (event: any) => {
-    this.setState({
-      layoutEngineType: (event.target.value: LayoutEngineType | 'None'),
+    const layoutEngine = new LayoutEngines[event.target.value]({
+      nodeKey: NODE_KEY,
+      nodeSize: GraphView.defaultProps.nodeSize,
     });
+
+    this.setState({ layoutEngine });
   };
 
   onSelectPanNode = (event: any) => {
@@ -516,9 +519,10 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               name="layout-engine-type"
               onChange={this.handleChangeLayoutEngineType}
             >
-              <option value={undefined}>None</option>
+              <option value={'None'}>None</option>
               <option value={'SnapToGrid'}>Snap to Grid</option>
               <option value={'VerticalTree'}>Vertical Tree</option>
+              <option value={'HorizontalTree'}>Horizontal Tree</option>
             </select>
           </div>
           <div className="pan-list">
@@ -552,7 +556,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
           onUndo={this.onUndo}
           onCopySelected={this.onCopySelected}
           onPasteSelected={this.onPasteSelected}
-          layoutEngineType={this.state.layoutEngineType}
+          layoutEngine={this.state.layoutEngine}
         />
       </div>
     );

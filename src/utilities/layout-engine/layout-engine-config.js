@@ -22,9 +22,11 @@ import HorizontalTree from './horizontal-tree';
 
 export type LayoutEngine = None | SnapToGrid | VerticalTree | HorizontalTree;
 
-export const LayoutEngines = {
+const LayoutEngines = {
   None,
   SnapToGrid,
   VerticalTree,
   HorizontalTree,
 };
+
+export default LayoutEngines;
