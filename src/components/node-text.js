@@ -54,7 +54,6 @@ class NodeText extends React.Component<INodeTextProps> {
             {title.length > maxTitleChars
               ? title.substr(0, maxTitleChars)
               : title}
-            XXXX
           </tspan>
         </text>
         <text className={className} textAnchor="middle">
