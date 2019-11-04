@@ -25,7 +25,7 @@ import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 import BwdlTransformer from '../../utilities/transformers/bwdl-transformer';
 import Sidebar from '../sidebar';
-import GraphConfig, { EMPTY_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
+import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
 
 type IBwdlState = {
@@ -66,6 +66,17 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     if (sourceNodeBwdl.Type === 'Choice') {
       const newChoice = {
         Next: targetNode.title,
+        isDefault: true,
+        answers: {},
+        containsAny: [],
+        context: {},
+        greaterThan: null,
+        inArray: [],
+        isNotString: null,
+        isString: null,
+        lessThan: null,
+        notInArray: [],
+        setContext: {},
       };
 
       if (sourceNodeBwdl.Choices) {
@@ -110,7 +121,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     };
 
     newBwdlJson.States[`New Item ${Date.now()}`] = {
-      Type: EMPTY_TYPE,
+      Type: CHOICE_TYPE,
+      Choices: [],
+      text: '',
+      immediateNext: false,
+      options: [],
+      start: false,
       x,
       y,
     };

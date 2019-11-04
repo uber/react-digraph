@@ -27,37 +27,42 @@ type INodeTextProps = {
 };
 
 class NodeText extends React.Component<INodeTextProps> {
-  getTypeText(data: INode, nodeTypes: any) {
-    if (data.type && nodeTypes[data.type]) {
-      return nodeTypes[data.type].typeText;
-    } else if (nodeTypes.emptyNode) {
-      return nodeTypes.emptyNode.typeText;
-    } else {
-      return null;
-    }
-  }
+  // getTypeText(data: INode, nodeTypes: any) {
+  //   if (data.type && nodeTypes[data.type]) {
+  //     return nodeTypes[data.type].typeText;
+  //   } else if (nodeTypes.emptyNode) {
+  //     return nodeTypes.emptyNode.typeText;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   render() {
-    const { data, nodeTypes, isSelected, maxTitleChars } = this.props;
+    const { data, isSelected, maxTitleChars } = this.props;
     const lineOffset = 18;
     const title = data.title;
+    const text = data.text;
     const className = GraphUtils.classNames('node-text', {
       selected: isSelected,
     });
-    const typeText = this.getTypeText(data, nodeTypes);
+    // const typeText = this.getTypeText(data, nodeTypes);
 
     return (
-      <text className={className} textAnchor="middle">
-        {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
-        {title && (
-          <tspan x={0} dy={lineOffset} fontSize="10px">
+      <g>
+        <text className={className} textAnchor="middle">
+          <tspan opacity="0.75" fontSize="10px">
             {title.length > maxTitleChars
               ? title.substr(0, maxTitleChars)
               : title}
+            XXXX
           </tspan>
-        )}
-        {title && <title>{title}</title>}
-      </text>
+        </text>
+        <text className={className} textAnchor="middle">
+          <tspan opacity="0.5" dy={lineOffset}>
+            {text}
+          </tspan>
+        </text>
+      </g>
     );
   }
 }

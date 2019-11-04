@@ -43,6 +43,7 @@ export default class BwdlTransformer extends Transformer {
       const nodeToAdd: INode = {
         title: name,
         type: currentNode.Type,
+        text: currentNode.text,
         x: currentNode.x || 0,
         y: currentNode.y || 0,
       };
