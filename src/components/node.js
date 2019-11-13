@@ -143,7 +143,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleMouseMove = (e, data) => {
     const mouseButtonDown = e.buttons === 1;
     const shiftKey = e.shiftKey;
-    const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
+    const { nodeSize, nodeKey, viewWrapperElem } = this.props;
 
     if (!mouseButtonDown) {
       return;
@@ -180,9 +180,6 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.x += off.xOff;
       newState.y += off.yOff;
       // now tell the graph that we're actually drawing an edge
-    } else if (!this.state.drawingEdge && layoutEngine) {
-      // move node using the layout engine
-      Object.assign(newState, layoutEngine.getPositionForNode(newState));
     }
 
     this.setState(newState);
@@ -208,12 +205,19 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { x, y, drawingEdge } = this.state;
-    const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
+    const {
+      data,
+      nodeKey,
+      onNodeSelected,
+      onNodeUpdate,
+      layoutEngine,
+    } = this.props;
 
     this.setState({
       mouseDown: false,
       drawingEdge: false,
       pointerOffset: null,
+      ...(layoutEngine ? layoutEngine.getPositionForNode(this.state) : {}),
     });
 
     const shiftKey = e.shiftKey;
@@ -391,8 +395,6 @@ class Node extends React.Component<INodeProps, INodeState> {
           id={id}
           ref={this.nodeRef}
           opacity={opacity}
-          // transform={`translate(${x}, ${y})`}
-          // style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
         >
           {this.renderShape()}
           {this.renderText()}
