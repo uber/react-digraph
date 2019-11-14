@@ -220,7 +220,7 @@ type IGraphProps = {};
 
 type IGraphState = {
   graph: any,
-  selected: any,
+  selected: any[],
   totalNodes: number,
   copiedNode: any,
   layoutEngine?: LayoutEngine,
@@ -236,7 +236,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       copiedNode: null,
       graph: sample,
       layoutEngine: new LayoutEngines.None({}),
-      selected: null,
+      selected: [],
       totalNodes: sample.nodes.length,
     };
 
@@ -335,12 +335,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   // Node 'mouseUp' handler
   onSelectNode = (viewNode: INode | null) => {
     // Deselect events will send Null viewNode
-    this.setState({ selected: viewNode });
+    this.setState({ selected: viewNode ? [viewNode[NODE_KEY]] : [] });
   };
 
   // Edge 'mouseUp' handler
   onSelectEdge = (viewEdge: IEdge) => {
-    this.setState({ selected: viewEdge });
+    this.setState({ selected: [viewEdge.source, viewEdge.target] });
   };
 
   // Updates the graph with a new node
@@ -366,19 +366,22 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   // Deletes a node from the graph
-  onDeleteNode = (viewNode: INode, nodeId: string, nodeArr: INode[]) => {
+  onDeleteNode = (viewNodes: INode, nodeArr: INode[]) => {
     const graph = this.state.graph;
     // Delete any connected edges
     const newEdges = graph.edges.filter((edge, i) => {
       return (
-        edge.source !== viewNode[NODE_KEY] && edge.target !== viewNode[NODE_KEY]
+        viewNodes.find(
+          node =>
+            edge.source === node[NODE_KEY] || edge.target === node[NODE_KEY]
+        ) == null
       );
     });
 
     graph.nodes = nodeArr;
     graph.edges = newEdges;
 
-    this.setState({ graph, selected: null });
+    this.setState({ graph, selected: [] });
   };
 
   // Creates a new node between two edges
@@ -402,7 +405,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       graph.edges = [...graph.edges, viewEdge];
       this.setState({
         graph,
-        selected: viewEdge,
+        selected: [viewEdge.source, viewEdge.target],
       });
     }
   };
@@ -425,7 +428,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     this.setState({
       graph,
-      selected: edge,
+      selected: [edge.source, edge.target],
     });
   };
 
@@ -436,7 +439,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     graph.edges = edges;
     this.setState({
       graph,
-      selected: null,
+      selected: [],
     });
   };
 
@@ -450,17 +453,14 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   onCopySelected = () => {
-    if (this.state.selected.source) {
-      console.warn('Cannot copy selected edges, try selecting a node instead.');
+    this.state.selected.forEach(nodeKey => {
+      const node = this.state.graph.nodes.find(node => {
+        return node[NODE_KEY] === nodeKey;
+      });
 
-      return;
-    }
-
-    const x = this.state.selected.x + 10;
-    const y = this.state.selected.y + 10;
-
-    this.setState({
-      copiedNode: { ...this.state.selected, x, y },
+      this.setState({
+        copiedNode: { ...node, x: node.x + 10, y: node.y + 10 },
+      });
     });
   };
 

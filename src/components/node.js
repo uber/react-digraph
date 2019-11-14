@@ -49,12 +49,7 @@ type INodeProps = {
   onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void,
   onNodeMouseLeave: (event: any, data: any) => void,
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
-  onNodeSelected: (
-    data: any,
-    id: string,
-    shiftKey: boolean,
-    event?: any
-  ) => void,
+  onNodeSelected: (data: any, shiftKey: boolean, event?: any) => void,
   onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void,
   renderNode?: (
     nodeRef: any,
@@ -224,7 +219,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
 
-    onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, e);
+    onNodeSelected(data, shiftKey || drawingEdge, e);
 
     // we need to re-trigger the 'click', since we've disconnected mouseup from
     // mousedown in handleDragStart()
