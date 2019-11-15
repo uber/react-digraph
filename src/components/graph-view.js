@@ -673,7 +673,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { canCreateEdge, readOnly } = this.props;
+    const { canCreateEdge, readOnly, nodeKey } = this.props;
+    const { selectedNodes } = this.state;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
     if (!nodeMapNode) {
@@ -687,13 +688,21 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     if (!shiftKey && !this.state.draggingEdge) {
-      // node moved
-      node.x = position.x;
-      node.y = position.y;
+      const deltaX = position.x - node.x;
+      const deltaY = position.y - node.y;
 
-      // Update edges for node
-      this.renderConnectedEdgesFromNode(nodeMapNode, true);
-      this.asyncRenderNode(node);
+      GraphUtils.yieldingLoop(selectedNodes.length, 50, i => {
+        const node = selectedNodes[i];
+        const nodeMapNode = this.getNodeById(node[nodeKey]);
+
+        // node moved
+        node.x += deltaX;
+        node.y += deltaY;
+
+        // Update edges for node
+        this.renderConnectedEdgesFromNode(nodeMapNode, true);
+        this.asyncRenderNode(node);
+      });
     } else if (
       (canCreateEdge && canCreateEdge(nodeId)) ||
       this.state.draggingEdge
