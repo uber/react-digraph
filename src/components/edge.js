@@ -598,8 +598,8 @@ class Edge extends React.Component<IEdgeProps> {
     } = this.props;
     const trgX = targetNode && targetNode.x ? targetNode.x : 0;
     const trgY = targetNode && targetNode.y ? targetNode.y : 0;
-    const srcX = targetNode && sourceNode.x ? sourceNode.x : 0;
-    const srcY = targetNode && sourceNode.y ? sourceNode.y : 0;
+    const srcX = sourceNode && sourceNode.x ? sourceNode.x : 0;
+    const srcY = sourceNode && sourceNode.y ? sourceNode.y : 0;
 
     // To calculate the offset for a specific node we use that node as the third parameter
     // and the accompanying node as the second parameter, representing where the line

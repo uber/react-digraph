@@ -333,8 +333,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       const isSelected =
         selectedNodes.find(n => n[nodeKey] === node[nodeKey]) != null;
       const prevSelected =
-        prevSelectedNodes.find(n => n[nodeKey] === prevNode.node[nodeKey]) !=
-        null;
+        prevNode == null
+          ? undefined
+          : prevSelectedNodes.find(
+              n => n[nodeKey] === prevNode.node[nodeKey]
+            ) != null;
 
       // if there was a previous node and it changed
       if (
@@ -408,17 +411,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
             e => e.source === edge.source && e.target === edge.target
           ) != null;
         const prevSelected =
-          prevSelectedEdges.find(
-            e =>
-              e.source === prevEdge.edge.source &&
-              e.target === prevEdge.edge.target
-          ) != null;
+          prevEdge == null
+            ? undefined
+            : prevSelectedEdges.find(
+                e =>
+                  e.source === prevEdge.edge.source &&
+                  e.target === prevEdge.edge.target
+              ) != null;
 
         if (
           forceRender ||
-          !GraphUtils.isEqual(prevEdge.edge, edge) ||
-          !prevEdge ||
-          isSelected !== prevSelected // selection change
+          prevEdge == null ||
+          isSelected !== prevSelected || // selection change
+          (prevEdge != null && !GraphUtils.isEqual(prevEdge.edge, edge))
         ) {
           // new edge
           this.asyncRenderEdge(edge);
