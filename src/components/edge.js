@@ -574,8 +574,8 @@ class Edge extends React.Component<IEdgeProps> {
 
   getEdgeHandleRotation = (negate: any = false) => {
     let rotated = false;
-    const src = this.props.sourceNode;
-    const trg = this.props.targetNode;
+    const src = this.props.sourceNode || { x: 0, y: 0 };
+    const trg = this.props.targetNode || { x: 0, y: 0 };
     let theta = (Edge.getTheta(src, trg) * 180) / Math.PI;
 
     if (negate) {
