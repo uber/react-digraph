@@ -156,6 +156,10 @@ class Edge extends React.Component<IEdgeProps> {
     const heightAttr = defSvgRotatedRectElement.getAttribute('height');
     const w = widthAttr ? parseFloat(widthAttr) : clientRect.width;
     const h = heightAttr ? parseFloat(heightAttr) : clientRect.height;
+
+    trg = trg || { x: 0, y: 0 };
+    src = src || { x: 0, y: 0 };
+
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -255,6 +259,10 @@ class Edge extends React.Component<IEdgeProps> {
 
     const w = clientRect.width;
     const h = clientRect.height;
+
+    trg = trg || { x: 0, y: 0 };
+    src = src || { x: 0, y: 0 };
+
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -366,6 +374,10 @@ class Edge extends React.Component<IEdgeProps> {
 
     const w = parentWidth ? parentWidth : clientRect.width;
     const h = parentHeight ? parentHeight : clientRect.height;
+
+    trg = trg || { x: 0, y: 0 };
+    src = src || { x: 0, y: 0 };
+
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -409,7 +421,7 @@ class Edge extends React.Component<IEdgeProps> {
   ) {
     let response = Edge.getDefaultIntersectResponse();
 
-    if (!trg[nodeKey]) {
+    if (!trg || !trg[nodeKey]) {
       return response;
     }
 
