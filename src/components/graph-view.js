@@ -691,15 +691,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       const deltaX = position.x - node.x;
       const deltaY = position.y - node.y;
 
-      GraphUtils.yieldingLoop(selectedNodes.length, 50, i => {
-        const node = selectedNodes[i];
+      const nodesToMove = selectedNodes.find(n => n[nodeKey] === node[nodeKey])
+        ? selectedNodes
+        : selectedNodes.concat([node]);
+
+      GraphUtils.yieldingLoop(nodesToMove.length, 50, i => {
+        const node = nodesToMove[i];
         const nodeMapNode = this.getNodeById(node[nodeKey]);
 
         // node moved
         node.x += deltaX;
         node.y += deltaY;
 
-        // Update edges for node
         this.renderConnectedEdgesFromNode(nodeMapNode, true);
         this.asyncRenderNode(node);
       });

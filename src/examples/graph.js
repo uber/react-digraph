@@ -366,7 +366,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   // Deletes a node from the graph
-  onDeleteNode = (viewNodes: INode, nodeArr: INode[]) => {
+  onDeleteNode = (viewNodes: INode[], nodeArr: INode[]) => {
     const graph = this.state.graph;
     // Delete any connected edges
     const newEdges = graph.edges.filter((edge, i) => {
