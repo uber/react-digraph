@@ -183,15 +183,20 @@ class Node extends React.Component<INodeProps, INodeState> {
     this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
   };
 
-  handleDragStart = () => {
+  handleDragStart = e => {
     if (!this.nodeRef.current) {
       return;
     }
+
+    const { drawingEdge } = this.state;
+    const { data, onNodeSelected } = this.props;
 
     // Moves child to the end of the element stack to re-arrange the z-index
     this.nodeRef.current.parentElement.parentElement.appendChild(
       this.nodeRef.current.parentElement
     );
+
+    onNodeSelected(data, e.shiftKey || drawingEdge, e);
   };
 
   handleDragEnd = e => {
@@ -200,13 +205,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { x, y, drawingEdge } = this.state;
-    const {
-      data,
-      nodeKey,
-      onNodeSelected,
-      onNodeUpdate,
-      layoutEngine,
-    } = this.props;
+    const { data, nodeKey, onNodeUpdate, layoutEngine } = this.props;
 
     this.setState({
       mouseDown: false,
@@ -218,8 +217,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     const shiftKey = e.shiftKey;
 
     onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
-
-    onNodeSelected(data, shiftKey || drawingEdge, e);
 
     // we need to re-trigger the 'click', since we've disconnected mouseup from
     // mousedown in handleDragStart()
