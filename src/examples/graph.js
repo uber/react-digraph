@@ -333,9 +333,24 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   // Node 'mouseUp' handler
-  onSelectNode = (viewNode: INode | null) => {
-    // Deselect events will send Null viewNode
-    this.setState({ selected: viewNode ? [viewNode[NODE_KEY]] : [] });
+  onSelectNode = (viewNode: INode | null, e) => {
+    const { selected } = this.state;
+    const nodeIndex = viewNode ? selected.indexOf(viewNode[NODE_KEY]) : -1;
+
+    if (!viewNode) {
+      this.setState({ selected: [] });
+    } else if (e.metaKey || e.ctrlKey) {
+      // toggle
+      if (nodeIndex > -1) {
+        selected.splice(nodeIndex, 1);
+      } else {
+        selected.push(viewNode[NODE_KEY]);
+      }
+
+      this.setState({ selected: [...selected] });
+    } else {
+      this.setState({ selected: nodeIndex > -1 ? [] : [viewNode[NODE_KEY]] });
+    }
   };
 
   // Edge 'mouseUp' handler
