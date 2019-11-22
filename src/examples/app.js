@@ -24,9 +24,10 @@ import {
   Switch,
 } from 'react-router-dom';
 
+import EmiFlowEditor from './emi-flow-editor';
 import Bwdl from './bwdl';
 import BwdlEditable from './bwdl-editable';
-import Graph from './graph';
+// import Graph from './graph';
 import GraphFast from './fast';
 
 import './app.scss';
@@ -47,7 +48,8 @@ class App extends React.Component {
             </nav>
           </header>
 
-          <Route exact={true} path="/" component={Graph} />
+          {/* <Route exact={true} path="/" component={Graph} /> */}
+          <Route path="/" component={EmiFlowEditor} />
           <Switch>
             <Route path="/bwdl" component={Bwdl} />
             {/* The following is for typos */}

@@ -33,7 +33,7 @@ class VerticalTree extends SnapToGrid {
     g.setGraph({});
     g.setDefaultEdgeLabel(() => ({}));
 
-    const spacing = nodeSpacingMultiplier || 1.5;
+    const spacing = nodeSpacingMultiplier || 1;
     const size = (nodeSize || 1) * spacing;
     let height;
     let width;
