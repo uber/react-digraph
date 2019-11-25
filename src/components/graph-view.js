@@ -412,8 +412,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
           forceRender ||
           !prevEdge || // selection change
           !GraphUtils.isEqual(prevEdge.edge, edge) ||
-          ((selectedEdge.edge && edge === selectedEdge.edge) ||
-            (prevSelectedEdge.edge && prevSelectedEdge.edge))
+          (selectedEdge.edge && edge === selectedEdge.edge) ||
+          (prevSelectedEdge.edge && prevSelectedEdge.edge)
         ) {
           // new edge
           this.asyncRenderEdge(edge);
