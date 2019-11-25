@@ -23,6 +23,7 @@ import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
 import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
+
 import BwdlTransformer from '../../utilities/transformers/bwdl-transformer';
 import Sidebar from '../sidebar';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
@@ -51,7 +52,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       bwdlText: JSON.stringify(bwdlExample, null, 2),
       copiedNode: null,
       edges: transformed.edges,
-      layoutEngineType: 'HorizontalTree',
+      layoutEngineType: 'VerticalTree',
       nodes: transformed.nodes,
       selected: null,
     };
@@ -297,6 +298,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           <select
             name="layout-engine-type"
             onChange={this.handleChangeLayoutEngineType}
+            value={this.state.layoutEngineType}
           >
             <option value={undefined}>None</option>
             <option value={'SnapToGrid'}>Snap to Grid</option>
