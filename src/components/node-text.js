@@ -51,7 +51,7 @@ class NodeText extends React.Component<INodeTextProps> {
     return (
       <g>
         <text className={className} textAnchor="middle">
-          <tspan opacity="0.75" fontSize="20px">
+          <tspan opacity="1" fontSize="20px" dy={-textOffset}>
             {title.length > maxTitleChars
               ? title.substr(0, maxTitleChars)
               : title}
@@ -64,7 +64,7 @@ class NodeText extends React.Component<INodeTextProps> {
             key={line.substr(0, 10)}
           >
             <tspan
-              opacity="0.5"
+              opacity="1"
               dy={textOffset + lineGap * index}
               fontSize="20px"
             >
