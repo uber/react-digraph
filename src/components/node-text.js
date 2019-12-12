@@ -26,6 +26,18 @@ type INodeTextProps = {
   maxTitleChars: number,
 };
 
+const re = new RegExp('.{1,50}', 'g');
+
+function getLines(text, isSelected) {
+  const lines = text.split('::next::');
+
+  if (!isSelected) {
+    return lines.map(line => line.substr(0, 30));
+  } else {
+    return lines.map(line => line.match(re)).flat();
+  }
+}
+
 class NodeText extends React.Component<INodeTextProps> {
   // getTypeText(data: INode, nodeTypes: any) {
   //   if (data.type && nodeTypes[data.type]) {
@@ -39,8 +51,8 @@ class NodeText extends React.Component<INodeTextProps> {
 
   render() {
     const { data, isSelected, maxTitleChars } = this.props;
-    const textOffset = 18;
-    const lineGap = 15;
+    const textOffset = 20;
+    const lineGap = 25;
     const title = data.title;
     const text = data.text;
     const className = GraphUtils.classNames('node-text', {
@@ -57,7 +69,7 @@ class NodeText extends React.Component<INodeTextProps> {
               : title}
           </tspan>
         </text>
-        {text.split('::next::').map((line, index) => (
+        {getLines(text, isSelected).map((line, index) => (
           <text
             className={className}
             textAnchor="middle"

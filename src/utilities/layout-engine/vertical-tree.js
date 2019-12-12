@@ -43,7 +43,7 @@ class VerticalTree extends SnapToGrid {
     }
 
     if (nodeWidth) {
-      width = nodeWidth * spacing;
+      width = nodeWidth * spacing * 2;
     }
 
     nodes.forEach(node => {
@@ -63,7 +63,10 @@ class VerticalTree extends SnapToGrid {
         return;
       }
 
-      g.setNode(nodeKeyId, { width: width || size, height: height || size });
+      g.setNode(nodeKeyId, {
+        width: width || size * 2,
+        height: height || size,
+      });
       nodesMapNode.outgoingEdges.forEach(edge => {
         g.setEdge(nodeKeyId, `key-${edge.target}`);
       });

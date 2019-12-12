@@ -67,8 +67,6 @@ $background-color: #f9f9f9;
       cursor: pointer;
       user-select: none;
       &.selected {
-        fill: $light-color;
-        stroke: $light-color;
       }
     }
   }

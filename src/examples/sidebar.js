@@ -111,12 +111,14 @@ export default class Sidebar extends React.Component<
 
     return (
       <div className={sidebarClassName}>
-        <div
-          className={this.getContainerClasses()}
-          style={this.getContainerStyle(size, direction)}
-        >
-          {children}
-        </div>
+        {this.state.sidebarClass == sidebarClass.OPEN && (
+          <div
+            className={this.getContainerClasses()}
+            style={this.getContainerStyle(size, direction)}
+          >
+            {children}
+          </div>
+        )}
         <div className="sidebar-toggle-bar" onClick={this.toggleContainer}>
           <i className={this.getArrowIconClasses(direction)} />
         </div>
