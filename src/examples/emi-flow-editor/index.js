@@ -24,7 +24,7 @@ import GraphView from '../../components/graph-view';
 import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 
-import BwdlTransformer from '../../utilities/transformers/bwdl-transformer';
+import FlowV1Transformer from '../../utilities/transformers/flow-v1-transformer';
 import Sidebar from '../sidebar';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
@@ -45,7 +45,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   constructor(props: any) {
     super(props);
 
-    const transformed = BwdlTransformer.transform(bwdlExample);
+    const transformed = FlowV1Transformer.transform(bwdlExample);
 
     this.state = {
       bwdlJson: bwdlExample,
@@ -225,7 +225,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   updateBwdl = () => {
-    const transformed = BwdlTransformer.transform(this.state.bwdlJson);
+    const transformed = FlowV1Transformer.transform(this.state.bwdlJson);
 
     this.setState({
       edges: transformed.edges,

@@ -15,33 +15,4 @@
   limitations under the License.
 */
 
-export default {
-  ExampleSource:
-    'https://code.uberinternal.com/file/data/aioyv5yrrs3dadbmxlap/PHID-FILE-v36jeiyn4y3gphtdwjsm/1.json',
-  Name: 'Colombo_Intercity_Driver_dispatch',
-  Comment:
-    'Send SMS message to drivers accept dispatch for Colombo intercity trip',
-  Version: 1,
-  Domain: '//Autobots',
-  Id: '//Autobots/ColomboIntercityDriverDispatch',
-  StartAt: 'Init',
-  AllowReentry: true,
-  States: {
-    // intro: {
-    //   Type: 'Choice',
-    //   Resource: 'kafka://hp_demand_job-assigned',
-    //   ResultPath: '$.event',
-    //   Next: 'isFlow',
-    //   Choices: []
-    // },
-    // 'isFlow': {
-    //   Type: 'Choice',
-    //   InputPath: '$.event',
-    //   Choices: [],
-    // },
-    // 'flowHelp': {
-    //   Type: 'Choice',
-    //   Choices: [],
-    // }
-  },
-};
+export default {};
