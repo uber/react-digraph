@@ -41,6 +41,10 @@ type IBwdlState = {
   copiedNode: any,
 };
 
+const indexNameRegex = /"index": "(.*)",/;
+const nodeStartLineRegex = /^ {8}"question": {/;
+const nodeEndLineRegex = /^ {4}}/;
+
 class BwdlEditable extends React.Component<{}, IBwdlState> {
   GraphView: GraphView | null;
 
@@ -112,17 +116,21 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.updateBwdl();
   }
 
+  scrollToLine = node => {
+    const nodeIndex = this.state.bwdlText.indexOf(`"index": "${node.title}"`);
+    const lineNumber = this.state.bwdlText.substring(0, nodeIndex).split('\n')
+      .length;
+
+    this.state.editor.gotoLine(lineNumber);
+  };
+
   onSelectNode = (node: INode | null) => {
     this.setState({
       selected: node,
     });
 
     if (this.state.locked) {
-      const nodeIndex = this.state.bwdlText.indexOf(`"index": "${node.title}"`);
-      const lineNumber = this.state.bwdlText.substring(0, nodeIndex).split('\n')
-        .length;
-
-      this.state.editor.gotoLine(lineNumber);
+      this.scrollToLine(node);
     }
   };
 
@@ -274,6 +282,52 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({ locked: !this.state.locked });
   };
 
+  nodeIndexForRow = row => {
+    const lines = this.state.bwdlText.split('\n');
+    const findStartIndex = lines
+      .slice(0, row)
+      .reverse()
+      .findIndex(line => nodeStartLineRegex.test(line));
+
+    if (findStartIndex === -1) {
+      return -1;
+    }
+
+    const nodeStartRow = row - findStartIndex;
+    const findEndIndex = lines
+      .slice(row)
+      .findIndex(line => nodeEndLineRegex.test(line));
+
+    if (findEndIndex === -1) {
+      return -1;
+    }
+
+    const nodeEndRow = row + findEndIndex;
+    const indexLine = lines
+      .slice(nodeStartRow, nodeEndRow)
+      .find(l => l.includes(`"index": "`));
+
+    const match = indexNameRegex.exec(indexLine);
+
+    return match[1];
+  };
+
+  handleCursorChanged = selection => {
+    if (this.state.locked) {
+      const nodeIndex = this.nodeIndexForRow(selection.getCursor().row);
+
+      if (nodeIndex !== -1) {
+        this.GraphView.panToNode(nodeIndex);
+
+        const node = this.state.nodes.find(node => node.title === nodeIndex);
+
+        this.setState({
+          selected: node,
+        });
+      }
+    }
+  };
+
   onload = editor => this.setState({ editor: editor });
 
   renderSidebar() {
@@ -296,6 +350,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             editorProps={{ $blockScrolling: true }}
             highlightActiveLine={true}
             onLoad={this.onload}
+            onCursorChange={this.handleCursorChanged}
             showPrintMargin={true}
             showGutter={true}
             setOptions={{
