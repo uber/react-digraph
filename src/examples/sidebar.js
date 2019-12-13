@@ -26,6 +26,7 @@ type ISidebarProps = {
 
 type ISidebarState = {
   sidebarClass?: string | null,
+  sidebarRatio: number,
 };
 
 const sidebarClass = {
@@ -53,6 +54,7 @@ export default class Sidebar extends React.Component<
     super(props);
     this.state = {
       sidebarClass: sidebarClass.OPEN,
+      sidebarRatio: 0.3,
     };
   }
 
@@ -97,6 +99,10 @@ export default class Sidebar extends React.Component<
     return GraphUtils.classNames(classes);
   }
 
+  changeSidebarRatio = e => {
+    this.setState({ sidebarRatio: e.target.value });
+  };
+
   renderToggleBar(direction: string) {
     return (
       <div className="sidebar-toggle-bar" onClick={this.toggleContainer}>
@@ -107,18 +113,35 @@ export default class Sidebar extends React.Component<
 
   render() {
     const { children, direction, size } = this.props;
+    const { sidebarRatio } = this.state;
     const sidebarClassName = GraphUtils.classNames('sidebar', direction);
 
+    const grow = Math.pow(10, sidebarRatio) - 1;
+    const sidebarStyle = {
+      'flex-grow': grow.toString(),
+    };
+
     return (
-      <div className={sidebarClassName}>
-        {this.state.sidebarClass == sidebarClass.OPEN && (
-          <div
-            className={this.getContainerClasses()}
-            style={this.getContainerStyle(size, direction)}
-          >
-            {children}
-          </div>
-        )}
+      <div className={sidebarClassName} style={sidebarStyle}>
+        <div
+          className={this.getContainerClasses()}
+          style={this.getContainerStyle(size, direction)}
+        >
+          {children}
+        </div>
+        <div className="slider-wrapper">
+          <span>-</span>
+          <input
+            type="range"
+            className="slider"
+            min="0"
+            max="1"
+            value={sidebarRatio}
+            onChange={this.changeSidebarRatio}
+            step="0.001"
+          />
+          <span>+</span>
+        </div>
         <div className="sidebar-toggle-bar" onClick={this.toggleContainer}>
           <i className={this.getArrowIconClasses(direction)} />
         </div>
