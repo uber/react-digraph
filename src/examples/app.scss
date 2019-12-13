@@ -172,6 +172,24 @@ button {
       cursor: pointer;
     }
   }
+
+  > .lock {
+    border: solid 1px lightgray;
+    padding: 3.5px;
+    border-radius: 2px;
+    position: absolute;
+    bottom: 30px;
+    left: 200px;
+    z-index: 100;
+  }
+
+  > .closed {
+    background-color: chocolate;
+  }
+
+  > .open {
+    background-color: white;
+  }
 }
 
 .graph-container {

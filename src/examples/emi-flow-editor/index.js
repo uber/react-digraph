@@ -17,6 +17,8 @@
 
 import * as React from 'react';
 import AceEditor from 'react-ace';
+import 'brace';
+import 'brace/ext/searchbox';
 import 'brace/mode/json';
 import 'brace/theme/monokai';
 import { type IEdge } from '../../components/edge';
@@ -114,6 +116,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({
       selected: node,
     });
+
+    if (this.state.locked) {
+      const nodeIndex = this.state.bwdlText.indexOf(`"index": "${node.title}"`);
+      const lineNumber = this.state.bwdlText.substring(0, nodeIndex).split('\n')
+        .length;
+
+      this.state.editor.gotoLine(lineNumber);
+    }
   };
 
   onCreateNode = (x: number, y: number) => {
@@ -260,9 +270,20 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleToggleLock = e => {
+    this.setState({ locked: !this.state.locked });
+  };
+
+  onload = editor => this.setState({ editor: editor });
+
   renderSidebar() {
     return (
-      <Sidebar direction="left" size={'100%'}>
+      <Sidebar
+        direction="left"
+        size={'100%'}
+        locked={this.state.locked}
+        onLockChanged={this.handleToggleLock}
+      >
         <div>
           <AceEditor
             mode="json"
@@ -271,9 +292,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             name="bwdl-editor"
             width="100%"
             height="100%"
-            fontSize={14}
+            fontSize={10}
             editorProps={{ $blockScrolling: true }}
             highlightActiveLine={true}
+            onLoad={this.onload}
             showPrintMargin={true}
             showGutter={true}
             setOptions={{
@@ -281,6 +303,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
               tabSize: 2,
             }}
             value={this.state.bwdlText}
+            wrapEnabled={true}
           />
         </div>
       </Sidebar>
