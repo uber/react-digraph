@@ -42,8 +42,25 @@ type IBwdlState = {
 };
 
 const indexNameRegex = /"index": "(.*)",/;
-const nodeStartLineRegex = /^ {8}"question": {/;
-const nodeEndLineRegex = /^ {4}}/;
+const nodeStartLineRegex = /^ {4}"question": {/;
+const nodeEndLineRegex = /^ {2}}/;
+
+function sortOnKeys(dict) {
+  const sorted = [];
+
+  for (const key in dict) {
+    sorted[sorted.length] = key;
+  }
+  sorted.sort();
+
+  const tempDict = {};
+
+  for (let i = 0; i < sorted.length; i++) {
+    tempDict[sorted[i]] = dict[sorted[i]];
+  }
+
+  return tempDict;
+}
 
 class BwdlEditable extends React.Component<{}, IBwdlState> {
   GraphView: GraphView | null;
@@ -141,9 +158,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    newBwdlJson[`New Item ${Date.now()}`] = {
+    const nodeIndex = `new-node-${Date.now()}`;
+
+    newBwdlJson[nodeIndex] = {
       Type: CHOICE_TYPE,
       question: {
+        index: nodeIndex,
         connections: [],
         text: '',
         immediateNext: false,
@@ -153,9 +173,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       x,
       y,
     };
+
+    const sortedNewBwdlJson = sortOnKeys(newBwdlJson);
+
     this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2),
+      bwdlJson: sortedNewBwdlJson,
+      bwdlText: JSON.stringify(sortedNewBwdlJson, null, 2),
     });
     this.updateBwdl();
   };
@@ -235,7 +258,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   onPasteSelected = () => {
     const { copiedNode, bwdlJson } = this.state;
 
-    bwdlJson[`New Item ${Date.now()}`] = copiedNode;
+    bwdlJson[`new-node${Date.now()}`] = copiedNode;
 
     const newBwdlJson = {
       ...bwdlJson,
