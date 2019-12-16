@@ -63,16 +63,7 @@ function sortOnKeys(dict) {
 }
 
 function stringify(bwdlJson) {
-  function replacer(name, val) {
-    // convert RegExp to string
-    if (['x', 'y', 'Type'].indexOf(name) !== -1) {
-      return undefined; // remove from result
-    } else {
-      return val;
-    }
-  }
-
-  return JSON.stringify(bwdlJson, replacer, 2);
+  return JSON.stringify(bwdlJson, null, 2);
 }
 
 class BwdlEditable extends React.Component<{}, IBwdlState> {
