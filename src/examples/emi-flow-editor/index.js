@@ -68,11 +68,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const newBwdlJson = {
       ...this.state.bwdlJson,
     };
-    const sourceNodeBwdl = newBwdlJson.States[sourceNode.title];
+    const sourceNodeBwdl = newBwdlJson[sourceNode.title];
 
     if (sourceNodeBwdl.Type === 'Choice') {
-      const newChoice = {
-        Next: targetNode.title,
+      const newConnection = {
+        goto: targetNode.title,
         isString: null,
         isDefault: true,
         answers: {},
@@ -86,27 +86,29 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         setContext: {},
       };
 
-      if (sourceNodeBwdl.Choices) {
+      const connections = sourceNodeBwdl.question.connections;
+
+      if (connections) {
         // check if swapping edge
         let swapped = false;
 
         if (edge) {
-          sourceNodeBwdl.Choices.forEach(choice => {
-            if (edge && choice.Next === edge.target) {
-              choice.Next = targetNode.title;
+          connections.forEach(connection => {
+            if (edge && connection.goto === edge.target) {
+              connection.goto = targetNode.title;
               swapped = true;
             }
           });
         }
 
         if (!swapped) {
-          sourceNodeBwdl.Choices.push(newChoice);
+          connections.push(newConnection);
         }
       } else {
-        sourceNodeBwdl.Choices = [newChoice];
+        sourceNodeBwdl.question.connections = [newConnection];
       }
     } else {
-      sourceNodeBwdl.Next = targetNode.title;
+      sourceNodeBwdl.goto = targetNode.title;
     }
 
     this.setState({
@@ -129,7 +131,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       selected: node,
     });
 
-    if (this.state.locked) {
+    if (node !== null && this.state.locked) {
       this.scrollToLine(node);
     }
   };
@@ -139,13 +141,15 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    newBwdlJson.States[`New Item ${Date.now()}`] = {
+    newBwdlJson[`New Item ${Date.now()}`] = {
       Type: CHOICE_TYPE,
-      Choices: [],
-      text: '',
-      immediateNext: false,
-      options: [],
-      start: false,
+      question: {
+        connections: [],
+        text: '',
+        immediateNext: false,
+        options: [],
+        start: false,
+      },
       x,
       y,
     };
@@ -164,7 +168,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    delete newBwdlJson.States[selected.title];
+    delete newBwdlJson[selected.title];
     this.setState({
       bwdlJson: newBwdlJson,
       bwdlText: JSON.stringify(newBwdlJson, null, 2),
@@ -190,11 +194,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const newBwdlJson = {
       ...this.state.bwdlJson,
     };
-    const sourceNodeBwdl = newBwdlJson.States[selectedEdge.source];
+    const sourceNodeBwdl = newBwdlJson[selectedEdge.source];
 
-    if (sourceNodeBwdl.Choices) {
-      sourceNodeBwdl.Choices = sourceNodeBwdl.Choices.filter(choice => {
-        return choice.Next !== selectedEdge.target;
+    const connections = sourceNodeBwdl.question.connections;
+
+    if (connections) {
+      sourceNodeBwdl.question.connections = connections.filter(connection => {
+        return connection.goto !== selectedEdge.target;
       });
     } else {
       delete sourceNodeBwdl.Next;
@@ -218,7 +224,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       return;
     }
 
-    const original = bwdlJson.States[selected.title];
+    const original = bwdlJson[selected.title];
     const newItem = JSON.parse(JSON.stringify(original));
 
     this.setState({
@@ -229,7 +235,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   onPasteSelected = () => {
     const { copiedNode, bwdlJson } = this.state;
 
-    bwdlJson.States[`New Item ${Date.now()}`] = copiedNode;
+    bwdlJson[`New Item ${Date.now()}`] = copiedNode;
 
     const newBwdlJson = {
       ...bwdlJson,
@@ -347,7 +353,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             width="100%"
             height="100%"
             fontSize={10}
-            editorProps={{ $blockScrolling: true }}
+            editorProps={{ $blockScrolling: Infinity }}
             highlightActiveLine={true}
             onLoad={this.onload}
             onCursorChange={this.handleCursorChanged}

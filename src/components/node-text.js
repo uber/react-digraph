@@ -54,7 +54,7 @@ class NodeText extends React.Component<INodeTextProps> {
     const textOffset = 20;
     const lineGap = 25;
     const title = data.title;
-    const text = data.text;
+    const text = data.text || ' ';
     const className = GraphUtils.classNames('node-text', {
       selected: isSelected,
     });
@@ -64,9 +64,7 @@ class NodeText extends React.Component<INodeTextProps> {
       <g>
         <text className={className} textAnchor="middle">
           <tspan opacity="1" fontSize="20px" dy={-textOffset}>
-            {title.length > maxTitleChars
-              ? title.substr(0, maxTitleChars)
-              : title}
+            {title.length > maxTitleChars ? title.substr(0, 30) : title}
           </tspan>
         </text>
         {getLines(text, isSelected).map((line, index) => (
