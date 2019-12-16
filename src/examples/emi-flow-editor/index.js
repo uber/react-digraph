@@ -62,6 +62,19 @@ function sortOnKeys(dict) {
   return tempDict;
 }
 
+function stringify(bwdlJson) {
+  function replacer(name, val) {
+    // convert RegExp to string
+    if (['x', 'y', 'Type'].indexOf(name) !== -1) {
+      return undefined; // remove from result
+    } else {
+      return val;
+    }
+  }
+
+  return JSON.stringify(bwdlJson, replacer, 2);
+}
+
 class BwdlEditable extends React.Component<{}, IBwdlState> {
   GraphView: GraphView | null;
 
@@ -72,7 +85,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.state = {
       bwdlJson: bwdlExample,
-      bwdlText: JSON.stringify(bwdlExample, null, 2),
+      bwdlText: stringify(bwdlExample),
       copiedNode: null,
       edges: transformed.edges,
       layoutEngineType: 'VerticalTree',
@@ -130,7 +143,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2),
+      bwdlText: stringify(newBwdlJson),
     });
     this.updateBwdl();
   }
@@ -177,8 +190,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const sortedNewBwdlJson = sortOnKeys(newBwdlJson);
 
     this.setState({
-      bwdlJson: sortedNewBwdlJson,
-      bwdlText: JSON.stringify(sortedNewBwdlJson, null, 2),
+      bwdlJson: newBwdlJson,
+      bwdlText: stringify(sortedNewBwdlJson),
     });
     this.updateBwdl();
   };
@@ -194,7 +207,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     delete newBwdlJson[selected.title];
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2),
+      bwdlText: stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -231,7 +244,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2),
+      bwdlText: stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -266,7 +279,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2),
+      bwdlText: stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
