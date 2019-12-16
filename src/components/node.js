@@ -384,6 +384,13 @@ class Node extends React.Component<INodeProps, INodeState> {
       selected,
     });
 
+    if (selected) {
+      // Moves child to the end of the element stack to re-arrange the z-index
+      this.nodeRef.current.parentElement.parentElement.appendChild(
+        this.nodeRef.current.parentElement
+      );
+    }
+
     return (
       <g
         className={className}

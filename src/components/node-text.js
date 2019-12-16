@@ -49,6 +49,40 @@ class NodeText extends React.Component<INodeTextProps> {
   //   }
   // }
 
+  constructor(props) {
+    super(props);
+    this.gTag = React.createRef();
+    this.bkgRect = React.createRef();
+  }
+
+  componentDidUpdate() {
+    const rect = this.bkgRect.current;
+    const g = this.gTag.current;
+    const X_MARGIN = 25;
+    const Y_MARGIN = 25;
+
+    if (this.props.isSelected) {
+      g.removeChild(rect);
+      const SVGRect = g.getBBox();
+
+      rect.setAttribute('x', (parseInt(SVGRect.x) - X_MARGIN).toString());
+      rect.setAttribute('y', (parseInt(SVGRect.y) - Y_MARGIN).toString());
+
+      rect.setAttribute(
+        'width',
+        (parseInt(SVGRect.width) + X_MARGIN * 2).toString()
+      );
+      rect.setAttribute(
+        'height',
+        (parseInt(SVGRect.height) + Y_MARGIN * 2).toString()
+      );
+      rect.setAttribute('fill-opacity', '0.9');
+      g.insertBefore(rect, g.firstChild);
+    } else {
+      rect.setAttribute('fill-opacity', '0');
+    }
+  }
+
   render() {
     const { data, isSelected, maxTitleChars } = this.props;
     const textOffset = 20;
@@ -61,7 +95,8 @@ class NodeText extends React.Component<INodeTextProps> {
     // const typeText = this.getTypeText(data, nodeTypes);
 
     return (
-      <g>
+      <g ref={this.gTag}>
+        <rect fill="lavender" rx="15" ref={this.bkgRect} />
         <text className={className} textAnchor="middle">
           <tspan opacity="1" fontSize="20px" dy={-textOffset}>
             {title.length > maxTitleChars ? title.substr(0, 30) : title}
