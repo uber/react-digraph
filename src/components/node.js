@@ -128,9 +128,14 @@ class Node extends React.Component<INodeProps, INodeState> {
       x: props.data.x || 0,
       y: props.data.y || 0,
       pointerOffset: null,
+      lastWidth: null,
     };
 
     this.nodeRef = React.createRef();
+  }
+
+  componentDidUpdate() {
+    this.adjustNodeShape();
   }
 
   componentDidMount() {
@@ -143,6 +148,8 @@ class Node extends React.Component<INodeProps, INodeState> {
     d3.select(this.nodeRef.current)
       .on('mouseout', this.handleMouseOut)
       .call(dragFunction);
+
+    this.adjustNodeShape();
   }
 
   handleMouseMove = () => {
@@ -284,13 +291,28 @@ class Node extends React.Component<INodeProps, INodeState> {
     return null;
   }
 
+  adjustNodeShape = () => {
+    const node = this.nodeRef.current;
+    // const textNode = node.childNodes[1];
+    const shape = node.firstChild.firstChild;
+    const X_MARGIN = 25;
+    const Y_MARGIN = 25;
+
+    shape.setAttribute('transform', `scale(0, 0)`);
+    const SVGRect = node.getBBox();
+    const xScale = (SVGRect.width + X_MARGIN * 2) / 100.0;
+    const yScale = (SVGRect.height + Y_MARGIN * 2) / 100.0;
+
+    shape.setAttribute('transform', `scale(${xScale}, ${yScale})`);
+  };
+
   renderShape() {
     const {
       renderNode,
       data,
       index,
       nodeTypes,
-      nodeSubtypes,
+      // nodeSubtypes,
       nodeKey,
     } = this.props;
     const { hovered, selected } = this.state;
@@ -300,12 +322,12 @@ class Node extends React.Component<INodeProps, INodeState> {
     };
     const nodeShapeContainerClassName = GraphUtils.classNames('shape');
     const nodeClassName = GraphUtils.classNames('node', { selected, hovered });
-    const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', {
-      selected: this.state.selected,
-    });
+    // const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', {
+    //   selected: this.state.selected,
+    // });
     const nodeTypeXlinkHref = Node.getNodeTypeXlinkHref(data, nodeTypes) || '';
-    const nodeSubtypeXlinkHref =
-      Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
+    // const nodeSubtypeXlinkHref =
+    //   Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
 
     // get width and height defined on def element
     const defSvgNodeElement: any = nodeTypeXlinkHref
@@ -327,18 +349,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     } else {
       return (
         <g className={nodeShapeContainerClassName} {...props}>
-          {!!data.subtype && (
-            <use
-              data-index={index}
-              className={nodeSubtypeClassName}
-              x={-props.width / 2}
-              y={-props.height / 2}
-              width={props.width}
-              height={props.height}
-              xlinkHref={nodeSubtypeXlinkHref}
-            />
-          )}
-          <use
+          <rect
             data-index={index}
             className={nodeClassName}
             x={-props.width / 2}
@@ -346,6 +357,7 @@ class Node extends React.Component<INodeProps, INodeState> {
             width={props.width}
             height={props.height}
             xlinkHref={nodeTypeXlinkHref}
+            rx="15"
           />
         </g>
       );

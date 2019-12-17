@@ -422,7 +422,8 @@ class Edge extends React.Component<IEdgeProps> {
       return response;
     }
 
-    const trgNode = nodeElem.querySelector(`use.node`);
+    // const trgNode = nodeElem.querySelector(`use.node`);
+    const trgNode = nodeElem.querySelector(`rect`);
 
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
     if (!trgNode || (trgNode && !trgNode.getAttributeNS)) {
@@ -438,9 +439,11 @@ class Edge extends React.Component<IEdgeProps> {
       return response;
     }
 
-    const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(
-      `defs>${xlinkHref} rect:not([data-intersect-ignore=true])`
-    );
+    // const defSvgRectElement: SVGRectElement | null = viewWrapperElem.querySelector(
+    //   `defs>${xlinkHref} rect:not([data-intersect-ignore=true])`
+    // );
+
+    const defSvgRectElement: SVGRectElement = trgNode;
     // Conditionally trying to select the element in other ways is faster than trying to
     // do the selection.
     const defSvgPathElement: SVGPathElement | null = !defSvgRectElement

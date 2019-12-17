@@ -56,7 +56,7 @@ const ChoiceShape = (
   // <rect transform="translate(50, 5) rotate(45)" width="65" height="65" />
   // </symbol>
   <symbol viewBox="0 0 100 100" id="choice" width="100" height="100">
-    <circle cx="50" cy="50" r="45" />
+    <rect width="100" height="100" rx="20" />
   </symbol>
 );
 
