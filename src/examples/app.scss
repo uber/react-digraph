@@ -74,12 +74,16 @@ button {
 .sidebar {
   background-color: white;
   display: flex;
+  flex-direction: column;
+  width: 30vw;
 
-  &.left,
+  &.left {
+    resize: horizontal;
+    overflow: auto;
+    grid-area: text-editor;
+  }
   &.right {
-    height: 100%;
-    width: 50%;
-    flex: 1;
+    grid-area: node-editor;
 
     .sidebar-main-container {
       &.closed {
@@ -95,7 +99,6 @@ button {
     }
   }
   &.right {
-    flex-direction: row-reverse;
   }
 
   &.up,
@@ -117,13 +120,13 @@ button {
   }
 
   &.up {
-    flex-direction: column;
   }
   &.down {
-    flex-direction: column-reverse;
   }
 
   .sidebar-main-container {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     transition: height, width 0.5s;
 
@@ -134,7 +137,6 @@ button {
 
   .sidebar-toggle-bar {
     background-color: white;
-    display: flex;
     align-items: center;
     justify-content: center;
     color: black;
@@ -155,8 +157,8 @@ button {
     padding: 6.5px;
     border-radius: 2px;
     position: absolute;
-    bottom: 30px;
-    left: 15px;
+    bottom: 0px;
+    left: 100px;
     z-index: 100;
 
     > span {
@@ -172,30 +174,16 @@ button {
       cursor: pointer;
     }
   }
-
-  > .lock {
-    border: solid 1px lightgray;
-    padding: 3.5px;
-    border-radius: 2px;
-    position: absolute;
-    bottom: 30px;
-    left: 200px;
-    z-index: 100;
-  }
-
-  > .closed {
-    background-color: chocolate;
-  }
-
-  > .open {
-    background-color: white;
-  }
 }
 
 .graph-container {
+  grid-area: graph-editor;
+  resize: horizontal;
+  overflow: auto;
   position: relative;
-  flex: 1;
+  width: 45vw;
 }
 
+
 @import './bwdl/bwdl.scss';
-@import './bwdl-editable/bwdl-editable.scss';
+@import './emi-flow-editor/emi-flow-editor.scss';

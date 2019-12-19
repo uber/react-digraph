@@ -45,22 +45,22 @@ const indexNameRegex = /"index": "(.*)",/;
 const nodeStartLineRegex = /^ {4}"question": {/;
 const nodeEndLineRegex = /^ {2}}/;
 
-function sortOnKeys(dict) {
-  const sorted = [];
+// function sortOnKeys(dict) {
+//   const sorted = [];
 
-  for (const key in dict) {
-    sorted[sorted.length] = key;
-  }
-  sorted.sort();
+//   for (const key in dict) {
+//     sorted[sorted.length] = key;
+//   }
+//   sorted.sort();
 
-  const tempDict = {};
+//   const tempDict = {};
 
-  for (let i = 0; i < sorted.length; i++) {
-    tempDict[sorted[i]] = dict[sorted[i]];
-  }
+//   for (let i = 0; i < sorted.length; i++) {
+//     tempDict[sorted[i]] = dict[sorted[i]];
+//   }
 
-  return tempDict;
-}
+//   return tempDict;
+// }
 
 function stringify(bwdlJson) {
   return JSON.stringify(bwdlJson, null, 2);
@@ -167,18 +167,20 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     newBwdlJson[nodeIndex] = {
       Type: CHOICE_TYPE,
       question: {
+        errorMessageNotMatch: null,
+        exactMatch: false,
         index: nodeIndex,
         connections: [],
         text: '',
         immediateNext: false,
         options: [],
-        start: false,
       },
       x,
       y,
     };
 
-    const sortedNewBwdlJson = sortOnKeys(newBwdlJson);
+    // const sortedNewBwdlJson = sortOnKeys(newBwdlJson);
+    const sortedNewBwdlJson = newBwdlJson;
 
     this.setState({
       bwdlJson: newBwdlJson,
@@ -361,9 +363,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
-  onload = editor => this.setState({ editor: editor });
+  onload = editor => {
+    editor.setAutoScrollEditorIntoView(true);
+    this.setState({ editor: editor });
+  };
 
-  renderSidebar() {
+  renderTextEditor() {
     return (
       <Sidebar
         direction="left"
@@ -446,8 +451,17 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   render() {
     return (
       <div id="bwdl-editable-graph">
-        {this.renderSidebar()}
+        {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
+        <div id="rightBar">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </div>
       </div>
     );
   }

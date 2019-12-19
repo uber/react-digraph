@@ -15,7 +15,37 @@
 */
 
 #bwdl-editable-graph {
-  height: 100%;
-  width: 100%;
+  display: grid;
+  grid-template:
+  "text-editor graph-editor node-editor" min-content;
+  grid-gap: 3px;
+  height: 93vh;
+}
+
+#editorBottomBar {
   display: flex;
+  flex-shrink: 0;
+  flex-grow: 0;
+  margin: 5px;
+  > .lock {
+    border: solid 1px lightgray;
+    border-radius: 2px;
+  }
+
+  > .closed {
+    background-color: chocolate;
+  }
+
+  > .open {
+    background-color: white;
+  }
+}
+
+#editorDiv {
+  flex: 1;
+  height: 90vh;
+}
+
+#rightBar {
+  grid-area: node-editor;
 }
