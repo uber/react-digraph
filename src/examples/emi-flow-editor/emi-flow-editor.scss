@@ -26,18 +26,24 @@
   display: flex;
   flex-shrink: 0;
   flex-grow: 0;
-  margin: 5px;
+  padding: 5px;
+  background-color: #272721;
   > .lock {
-    border: solid 1px lightgray;
+    border: solid 1px black;
     border-radius: 2px;
+
+    &:hover {
+      border: solid 1px white;
+      stroke: aqua;
+    }
   }
 
   > .closed {
-    background-color: chocolate;
+    background-color: #7aff00;
   }
 
   > .open {
-    background-color: white;
+    background-color: #cccccc;
   }
 }
 

@@ -42,9 +42,9 @@ class App extends React.Component {
               <NavLink to="/" exact={true} activeClassName="active">
                 Home
               </NavLink>
-              <NavLink to="/bwdl" activeClassName="active">
+              {/*<NavLink to="/bwdl" activeClassName="active">
                 BWDL
-              </NavLink>
+              </NavLink>*/}
             </nav>
           </header>
 
