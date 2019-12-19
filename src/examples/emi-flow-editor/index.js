@@ -23,6 +23,7 @@ import 'brace/mode/json';
 import 'brace/theme/monokai';
 import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
+import NodeEditor from './node-editor';
 import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 
@@ -286,6 +287,15 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  updateNodesFromBwdl = state => {
+    const transformed = FlowV1Transformer.transform(state.bwdlJson);
+
+    return Object.assign({}, state, {
+      edges: transformed.edges,
+      nodes: transformed.nodes,
+    });
+  };
+
   handleTextAreaChange = (value: string, event: any) => {
     let input = null;
     const bwdlText = value;
@@ -351,7 +361,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     if (this.state.locked) {
       const nodeIndex = this.nodeIndexForRow(selection.getCursor().row);
 
-      if (nodeIndex !== -1) {
+      if (nodeIndex !== -1 && this.GraphView) {
         this.GraphView.panToNode(nodeIndex);
 
         const node = this.state.nodes.find(node => node.title === nodeIndex);
@@ -366,6 +376,52 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   onload = editor => {
     editor.setAutoScrollEditorIntoView(true);
     this.setState({ editor: editor });
+  };
+
+  handleIndexChanged = e => {
+    const newIndex = e.target.value;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+      const selected = { ...prevState.selected };
+      const prevIndex = selected.index;
+      const nodeJson = newBwdlJson[prevIndex];
+
+      delete newBwdlJson[prevIndex];
+
+      nodeJson.question.index = newIndex;
+
+      newBwdlJson[nodeJson.question.index] = nodeJson;
+      const nodeNames = Object.keys(newBwdlJson);
+
+      nodeNames.forEach(name => {
+        const currentNode = newBwdlJson[name];
+
+        if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+          return;
+        }
+
+        const q = currentNode.question;
+
+        // create edges
+        q.connections.forEach(connection => {
+          if (connection.goto === prevIndex) {
+            connection.goto = newIndex;
+          }
+        });
+      });
+
+      selected.title = newIndex;
+      selected.index = newIndex;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+        selected,
+      });
+    });
   };
 
   renderTextEditor() {
@@ -454,13 +510,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
         <div id="rightBar">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+          <NodeEditor onChangeIndex={this.handleIndexChanged}>
+            {this.state.selected}
+          </NodeEditor>
         </div>
       </div>
     );

@@ -46,15 +46,12 @@ export default class FlowV1Transformer extends Transformer {
         title: name,
         type: 'Choice',
         text: q.text,
+        index: q.index,
         x: currentNode.x || 0,
         y: currentNode.y || 0,
       };
 
-      if (name === input['current']) {
-        nodes.unshift(nodeToAdd);
-      } else {
-        nodes.push(nodeToAdd);
-      }
+      nodes.push(nodeToAdd);
 
       // create edges
       q.connections.forEach(connection => {

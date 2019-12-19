@@ -54,4 +54,10 @@
 
 #rightBar {
   grid-area: node-editor;
+  background-color: #2f3029;
+  padding: 10px;
+
+  > div {
+    color: white;
+  }
 }

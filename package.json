@@ -32,11 +32,13 @@
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
     "fast-deep-equal": "^2.0.1",
+    "formik": "^2.0.8",
     "html-react-parser": "^0.6.1",
     "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
-    "svg-intersections": "^0.4.0"
+    "svg-intersections": "^0.4.0",
+    "yup": "^0.28.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
