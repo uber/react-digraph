@@ -45,6 +45,10 @@
   > .open {
     background-color: #cccccc;
   }
+
+  > #empty {
+    flex: 1;
+  }
 }
 
 #editorDiv {
