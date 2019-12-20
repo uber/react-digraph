@@ -121,7 +121,7 @@ export default class Sidebar extends React.Component<
 
     return (
       <div className={sidebarClassName}>
-        <div id="editorDiv" className={this.getContainerClasses()}>
+        <div id="textEditorDiv" className={this.getContainerClasses()}>
           {children}
         </div>
         <div id="editorBottomBar">

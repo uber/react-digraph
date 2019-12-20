@@ -52,8 +52,8 @@ class NodeText extends React.Component<INodeTextProps> {
 
   render() {
     const { data, isSelected } = this.props;
-    const title = data.title;
-    const text = data.text || ' ';
+    const title = data.gnode.question.index;
+    const text = data.gnode.question.text || ' ';
     const className = GraphUtils.classNames('node-text', {
       selected: isSelected,
     });

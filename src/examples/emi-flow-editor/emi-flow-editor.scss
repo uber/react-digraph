@@ -51,17 +51,45 @@
   }
 }
 
-#editorDiv {
+#textEditorDiv {
   flex: 1;
   height: 90vh;
+}
+
+#nodeEditor {
+  color: white;
+  display: flex;
+  flex-direction: column;
+
+  > h1 {
+    flex: 1;
+  }
+
+  > form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    > div {
+      margin: 4px;
+      flex: 1;
+      display: flex;
+
+      > input {
+        flex: 1;
+        margin-left: 5px; 
+      }
+
+      > textarea {
+        flex: 1;
+        margin-left: 5px; 
+      }
+    }
+  }
 }
 
 #rightBar {
   grid-area: node-editor;
   background-color: #2f3029;
   padding: 10px;
-
-  > div {
-    color: white;
-  }
 }

@@ -37,6 +37,7 @@
     "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
+    "react-textarea-autosize": "^7.1.2",
     "svg-intersections": "^0.4.0",
     "yup": "^0.28.0"
   },
