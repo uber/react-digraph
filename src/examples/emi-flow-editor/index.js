@@ -163,14 +163,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    const nodeIndex = `new-node-${Date.now()}`;
+    const index = `new-node-${Date.now()}`;
 
-    newBwdlJson[nodeIndex] = {
+    newBwdlJson[index] = {
       Type: CHOICE_TYPE,
       question: {
         errorMessageNotMatch: null,
         exactMatch: false,
-        index: nodeIndex,
+        index: index,
         connections: [],
         text: '',
         immediateNext: false,
@@ -278,17 +278,22 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.updateBwdl();
   };
 
-  updateBwdl = () => {
-    const transformed = FlowV1Transformer.transform(this.state.bwdlJson);
-    let newState = {};
-
+  getNewStateWithUpdatedSelected = (newState, transformed) => {
     if (this.state.selected) {
       const selected = transformed.nodes.find(
-        node => node.index === this.state.selected.index
+        node =>
+          node.gnode.question.index === this.state.selected.gnode.question.index
       );
 
       newState = Object.assign({}, newState, { selected });
     }
+
+    return newState;
+  };
+
+  updateBwdl = () => {
+    const transformed = FlowV1Transformer.transform(this.state.bwdlJson);
+    const newState = this.getNewStateWithUpdatedSelected({}, transformed);
 
     this.setState(
       Object.assign({}, newState, {
@@ -301,13 +306,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   updateNodesFromBwdl = newState => {
     const transformed = FlowV1Transformer.transform(newState.bwdlJson);
 
-    if (this.state.selected) {
-      const selected = transformed.nodes.find(
-        node => node.index === this.state.selected.index
-      );
-
-      newState = Object.assign({}, newState, { selected });
-    }
+    newState = this.getNewStateWithUpdatedSelected(newState, transformed);
 
     return Object.assign({}, newState, {
       edges: transformed.edges,

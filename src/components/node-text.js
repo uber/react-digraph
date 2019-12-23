@@ -72,7 +72,7 @@ class NodeText extends React.Component<INodeTextProps> {
             dominantBaseline="middle"
             key={line.substr(0, 10)}
           >
-            <tspan fontSize="20px" dy={titleFirstDy + LINE_GAP * index}>
+            <tspan fontSize="30px" dy={titleFirstDy + LINE_GAP * index}>
               {line}
             </tspan>
           </text>
