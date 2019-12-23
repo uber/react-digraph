@@ -48,6 +48,7 @@ export default class FlowV1Transformer extends Transformer {
         gnode: currentNode,
         x: currentNode.x || 0,
         y: currentNode.y || 0,
+        // id: currentNode.id,
       };
 
       nodes.push(nodeToAdd);

@@ -1,25 +1,15 @@
-// Helper styles for demo
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 class NodeEditor extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.index = React.createRef();
-  }
-
-  componentDidUpdate() {
-    const { children } = this.props;
-
-    if (children && children.gnode.question.index.startsWith('new-node')) {
-      this.index.current.focus();
-      this.index.current.select();
-    }
-  }
-
   render() {
-    const { children, onChangeIndex, onChangeText } = this.props;
+    const {
+      children,
+      onChangeIndex,
+      onChangeText,
+      onChangeExactMatch,
+      onChangeErrorMessageNotMatch,
+    } = this.props;
     const node = children;
 
     if (!node) {
@@ -36,20 +26,36 @@ class NodeEditor extends React.Component {
       <div id="nodeEditor">
         <h1>{question.index}</h1>
         <form onSubmit={e => e.preventDefault()}>
-          <div>
+          <label>
             Index:
             <input
               type="text"
               name="index"
               value={question.index}
               onChange={onChangeIndex}
-              ref={this.index}
+              // ref={this.index}
             />
-          </div>
-          <div>
+          </label>
+          <label>
             Text:
             <TextareaAutosize value={question.text} onChange={onChangeText} />
-          </div>
+          </label>
+          <label>
+            Exact match:
+            <input
+              name="exactMatch"
+              type="checkbox"
+              checked={question.exactMatch}
+              onChange={onChangeExactMatch}
+            />
+          </label>
+          <label>
+            Error Message:
+            <TextareaAutosize
+              value={question.errorMessageNotMatch}
+              onChange={onChangeErrorMessageNotMatch}
+            />
+          </label>
         </form>
       </div>
     );

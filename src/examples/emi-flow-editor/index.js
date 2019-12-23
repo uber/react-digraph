@@ -166,9 +166,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const index = `new-node-${Date.now()}`;
 
     newBwdlJson[index] = {
+      // id: index,
       Type: CHOICE_TYPE,
       question: {
-        errorMessageNotMatch: null,
+        errorMessageNotMatch: '',
         exactMatch: false,
         index: index,
         connections: [],
@@ -413,6 +414,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   handleIndexChanged = e => {
     const newIndex = e.target.value;
 
+    const alreadyExists = this.state.nodes.find(
+      node => node.gnode.question.index === newIndex
+    );
+
+    if (alreadyExists) {
+      return;
+    }
+
     this.setState(prevState => {
       const newBwdlJson = {
         ...prevState.bwdlJson,
@@ -466,6 +475,42 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       };
 
       newBwdlJson[index].question.text = newText;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleExactMatchChange = e => {
+    const newExactMatch = e.target.checked;
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].question.exactMatch = newExactMatch;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleErrorMessageNotMatchChange = e => {
+    const newValue = e.target.value;
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].question.errorMessageNotMatch = newValue;
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -563,6 +608,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           <NodeEditor
             onChangeIndex={this.handleIndexChanged}
             onChangeText={this.handleTextChange}
+            onChangeErrorMessageNotMatch={this.handleErrorMessageNotMatchChange}
+            onChangeExactMatch={this.handleExactMatchChange}
           >
             {this.state.selected}
           </NodeEditor>
