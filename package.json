@@ -29,6 +29,7 @@
     "react-dom": "^16.4.1"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
     "fast-deep-equal": "^2.0.1",
@@ -37,6 +38,8 @@
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
     "react-list-input": "^1.1.0",
+    "react-select": "^3.0.8",
+    "react-select-item": "^3.1.0",
     "react-textarea-autosize": "^7.1.2",
     "svg-intersections": "^0.4.0"
   },

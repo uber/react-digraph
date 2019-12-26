@@ -540,6 +540,46 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleAIChange = e => {
+    const aiEnabled = e.target.checked;
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      if (aiEnabled) {
+        newBwdlJson[index].ai = {
+          question_str: 'schedule',
+        };
+      } else {
+        delete newBwdlJson[index].ai;
+      }
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleQuestionStrChange = item => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.question_str = item.value;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
   renderTextEditor() {
     return (
       <Sidebar
@@ -632,6 +672,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeErrorMessageNotMatch={this.handleErrorMessageNotMatchChange}
             onChangeExactMatch={this.handleExactMatchChange}
             onChangeOptions={this.handleOptionsChange}
+            onChangeAI={this.handleAIChange}
+            onChangeQuestionStr={this.handleQuestionStrChange}
           >
             {this.state.selected}
           </NodeEditor>
