@@ -520,7 +520,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   handleOptionsChange = newValue => {
-    // const newValue = e.target.value;
     const index = this.state.selected.gnode.question.index;
 
     this.setState(prevState => {
@@ -529,6 +528,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       };
 
       newBwdlJson[index].question.options = newValue;
+
+      if (newValue.length == 0) {
+        newBwdlJson[index].question.exactMatch = false;
+      }
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,

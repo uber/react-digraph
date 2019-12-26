@@ -104,15 +104,17 @@ class NodeEditor extends React.Component {
               value={question.options}
             />
           </label>
-          <label>
-            Exact match:
-            <input
-              name="exactMatch"
-              type="checkbox"
-              checked={question.exactMatch}
-              onChange={onChangeExactMatch}
-            />
-          </label>
+          {question.options.length > 0 && (
+            <label>
+              Exact match:
+              <input
+                name="exactMatch"
+                type="checkbox"
+                checked={question.exactMatch}
+                onChange={onChangeExactMatch}
+              />
+            </label>
+          )}
           {question.exactMatch && (
             <label>
               Error Message:
