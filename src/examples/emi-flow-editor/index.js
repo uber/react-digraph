@@ -519,6 +519,24 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleOptionsChange = newValue => {
+    // const newValue = e.target.value;
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].question.options = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -610,6 +628,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeText={this.handleTextChange}
             onChangeErrorMessageNotMatch={this.handleErrorMessageNotMatchChange}
             onChangeExactMatch={this.handleExactMatchChange}
+            onChangeOptions={this.handleOptionsChange}
           >
             {this.state.selected}
           </NodeEditor>
