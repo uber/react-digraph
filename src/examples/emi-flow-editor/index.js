@@ -46,22 +46,102 @@ const indexNameRegex = /"index": "(.*)",/;
 const nodeStartLineRegex = /^ {4}"question": {/;
 const nodeEndLineRegex = /^ {2}}/;
 
-// function sortOnKeys(dict) {
-//   const sorted = [];
-
-//   for (const key in dict) {
-//     sorted[sorted.length] = key;
-//   }
-//   sorted.sort();
-
-//   const tempDict = {};
-
-//   for (let i = 0; i < sorted.length; i++) {
-//     tempDict[sorted[i]] = dict[sorted[i]];
-//   }
-
-//   return tempDict;
-// }
+const defaultQuestionStr = 'generic_yes_no_v2';
+const empathyDefaults = {
+  phone: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  best_match_no_retry: {
+    lang: 'ES',
+    prediction_data: {
+      min_similarity: 90,
+      options: {}, // keys will be added for the answer options
+    },
+  },
+  best_match: {
+    lang: 'ES',
+    prediction_data: {
+      min_similarity: 90,
+      options: {}, // keys will be added for the answer options
+    },
+  },
+  dates: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  prepa: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        'prepa-completa': 'Completa',
+        'prepa-en-curso': 'En Curso',
+        'prepa-sin-inicio': 'No la inicié',
+        'prepa-trunca': 'Trunca',
+      },
+    },
+  },
+  salary: {
+    lang: 'ES',
+    country: 'AR',
+    prediction_data: {},
+  },
+  secondary_v2: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        secondary_abandoned: 'No lo terminé',
+        secondary_finished: 'Terminado',
+        secondary_in_progress: 'Lo estoy cursando',
+      },
+    },
+  },
+  nickname: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  duration: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  generic_yes_no_v2: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        generic_yes_no_y: 'Si',
+        generic_yes_no_n: 'No',
+        generic_yes_no_maybe: 'No se',
+      },
+    },
+  },
+  welcome_idle: 'welcome_idle',
+  interest_v2: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        'interest-yes': 'Está OK',
+        'interest-no': 'No me interesa',
+        'interest-another-time': 'Otro día/fecha',
+        'interest-ask-address': 'Está OK',
+      },
+    },
+  },
+  schedule_v2: {
+    lang: 'ES',
+  },
+  sentiment: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  time_interval: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  datetime: {
+    lang: 'ES',
+    country: 'AR',
+  },
+};
 
 function stringify(bwdlJson) {
   return JSON.stringify(bwdlJson, null, 2);
@@ -181,7 +261,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       y,
     };
 
-    // const sortedNewBwdlJson = sortOnKeys(newBwdlJson);
     const sortedNewBwdlJson = newBwdlJson;
 
     this.setState({
@@ -540,6 +619,21 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  setAiDefaults = (nodeJson, newQuestionStr) => {
+    nodeJson.ai = Object.assign(
+      { question_str: newQuestionStr },
+      empathyDefaults[newQuestionStr]
+    );
+
+    const prediction_data = nodeJson.ai.prediction_data;
+
+    if (prediction_data && 'options' in prediction_data) {
+      nodeJson.question.options.forEach(function(option) {
+        prediction_data.options[option] = [];
+      });
+    }
+  };
+
   handleAIChange = e => {
     const aiEnabled = e.target.checked;
     const index = this.state.selected.gnode.question.index;
@@ -550,9 +644,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       };
 
       if (aiEnabled) {
-        newBwdlJson[index].ai = {
-          question_str: 'schedule',
-        };
+        this.setAiDefaults(newBwdlJson[index], defaultQuestionStr);
       } else {
         delete newBwdlJson[index].ai;
       }
@@ -572,7 +664,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         ...prevState.bwdlJson,
       };
 
-      newBwdlJson[index].ai.question_str = item.value;
+      this.setAiDefaults(newBwdlJson[index], item.value);
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -580,6 +672,24 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       });
     });
   };
+
+  handlePredictionDataOptionsChange = (key, newValue) => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.prediction_data.options[key] = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -674,6 +784,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeOptions={this.handleOptionsChange}
             onChangeAI={this.handleAIChange}
             onChangeQuestionStr={this.handleQuestionStrChange}
+            onChangePredictionDataOptions={
+              this.handlePredictionDataOptionsChange
+            }
           >
             {this.state.selected}
           </NodeEditor>

@@ -7,73 +7,143 @@ const Input = ({ value, onChange, type = 'text' }) => (
   <input type={type} value={value} onChange={e => onChange(e.target.value)} />
 );
 
-const question_strs = [
-  { value: 'phone', label: 'phone' },
-  { value: 'sorted_matches', label: 'sorted_matches' },
-  { value: 'best_match_no_retry', label: 'best_match_no_retry' },
-  { value: 'best_match', label: 'best_match' },
-  { value: 'prepa', label: 'prepa' },
-  { value: 'salary', label: 'salary' },
-  { value: 'secondary_v2', label: 'secondary_v2' },
-  { value: 'nickname', label: 'nickname' },
-  { value: 'duration', label: 'duration' },
-  { value: 'generic_yes_no_v2', label: 'generic_yes_no_v2' },
-  { value: 'welcome_idle', label: 'welcome_idle' },
-  { value: 'interest', label: 'interest' },
-  { value: 'interest_v2', label: 'interest_v2' },
-  { value: 'schedule_v2', label: 'schedule_v2' },
-  { value: 'sentiment', label: 'sentiment' },
-  { value: 'time_interval', label: 'time_interval' },
-  { value: 'datetime', label: 'datetime' },
-];
+const Item = function({
+  decorateHandle,
+  removable,
+  onChange,
+  onRemove,
+  value,
+}) {
+  return (
+    <div>
+      <Input value={value} onChange={onChange} />
+      {decorateHandle(
+        <span
+          style={{
+            cursor: 'move',
+            margin: '5px',
+          }}
+        >
+          ↕
+        </span>
+      )}
+      <span
+        onClick={removable ? onRemove : x => x}
+        style={{
+          cursor: removable ? 'pointer' : 'not-allowed',
+          color: removable ? 'white' : 'gray',
+          margin: '5px',
+        }}
+      >
+        X
+      </span>
+    </div>
+  );
+};
+
+const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
+  return (
+    <div>
+      <Input value={value} onChange={onChange} />
+      <span
+        onClick={canAdd ? onAdd : undefined}
+        style={{
+          color: canAdd ? 'white' : 'gray',
+          cursor: canAdd ? 'pointer' : 'not-allowed',
+          margin: '5px',
+        }}
+      >
+        Add
+      </span>
+    </div>
+  );
+};
+
+const selectTheme = function(theme) {
+  return {
+    ...theme,
+    colors: {
+      ...theme.colors,
+      text: 'orangered',
+      primary25: 'hotpink',
+      neutral0: '#242521',
+      neutral80: 'white',
+    },
+  };
+};
+
+class AiEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.questionLabels = {
+      phone: 'phone',
+      best_match_no_retry: 'best_match_no_retry',
+      best_match: 'best_match',
+      prepa: 'prepa',
+      salary: 'salary',
+      secondary_v2: 'secondary_v2',
+      nickname: 'nickname',
+      duration: 'duration',
+      generic_yes_no_v2: 'generic_yes_no_v2',
+      welcome_idle: 'welcome_idle',
+      interest_v2: 'interest_v2',
+      schedule_v2: 'schedule_v2',
+      sentiment: 'sentiment',
+      time_interval: 'time_interval',
+      datetime: 'datetime',
+      dates: 'dates',
+    };
+    this.questionItems = Object.keys(this.questionLabels).map(key =>
+      this.getItem(key)
+    );
+  }
+
+  getItem = key => ({ value: key, label: this.questionLabels[key] });
+
+  render() {
+    const {
+      children,
+      onChangeQuestionStr,
+      onChangePredictionDataOptions,
+    } = this.props;
+    const node = children;
+    const ai = node.gnode.ai;
+
+    return (
+      <div id="aiEditor">
+        <label>
+          AI-Model:
+          <Select
+            className="questionStrSelectContainer"
+            theme={selectTheme}
+            value={this.getItem(ai.question_str)}
+            onChange={onChangeQuestionStr}
+            options={this.questionItems}
+            isSearchable={true}
+          />
+        </label>
+        {ai.prediction_data &&
+          'options' in ai.prediction_data &&
+          Object.keys(ai.prediction_data.options).map(key => (
+            <label className="inputList" key={key}>
+              {key}:
+              <ReactListInput
+                initialStagingValue=""
+                onChange={value => onChangePredictionDataOptions(key, value)}
+                maxItems={20}
+                minItems={0}
+                ItemComponent={Item}
+                StagingComponent={StagingItem}
+                value={ai.prediction_data.options[key]}
+              />
+            </label>
+          ))}
+      </div>
+    );
+  }
+}
 
 class NodeEditor extends React.Component {
-  Item({ decorateHandle, removable, onChange, onRemove, value }) {
-    return (
-      <div>
-        <Input value={value} onChange={onChange} />
-        {decorateHandle(
-          <span
-            style={{
-              cursor: 'move',
-              margin: '5px',
-            }}
-          >
-            ↕
-          </span>
-        )}
-        <span
-          onClick={removable ? onRemove : x => x}
-          style={{
-            cursor: removable ? 'pointer' : 'not-allowed',
-            color: removable ? 'white' : 'gray',
-            margin: '5px',
-          }}
-        >
-          X
-        </span>
-      </div>
-    );
-  }
-
-  StagingItem({ value, onAdd, canAdd, add, onChange }) {
-    return (
-      <div>
-        <Input value={value} onChange={onChange} />
-        <span
-          onClick={canAdd ? onAdd : undefined}
-          style={{
-            color: canAdd ? 'white' : 'gray',
-            cursor: canAdd ? 'pointer' : 'not-allowed',
-            margin: '5px',
-          }}
-        >
-          Add
-        </span>
-      </div>
-    );
-  }
-
   render() {
     const {
       children,
@@ -84,6 +154,7 @@ class NodeEditor extends React.Component {
       onChangeOptions,
       onChangeAI,
       onChangeQuestionStr,
+      onChangePredictionDataOptions,
     } = this.props;
     const node = children;
 
@@ -96,6 +167,13 @@ class NodeEditor extends React.Component {
     }
 
     const question = node.gnode.question;
+
+    // console.log(node.gnode);
+    // if (node.gnode.ai) {
+    //   console.log(node.gnode.ai);
+    //   console.log('prediction_data' in node.gnode.ai && 'options' in node.gnode.ai.prediction_data);
+
+    // }
 
     return (
       <div id="nodeEditor">
@@ -121,8 +199,8 @@ class NodeEditor extends React.Component {
               onChange={onChangeOptions}
               maxItems={20}
               minItems={0}
-              ItemComponent={this.Item}
-              StagingComponent={this.StagingItem}
+              ItemComponent={Item}
+              StagingComponent={StagingItem}
               value={question.options}
             />
           </label>
@@ -156,26 +234,12 @@ class NodeEditor extends React.Component {
             />
           </label>
           {'ai' in node.gnode && (
-            <label>
-              AI-Model:
-              <Select
-                className="questionStrSelectContainer"
-                theme={theme => ({
-                  ...theme,
-                  colors: {
-                    ...theme.colors,
-                    text: 'orangered',
-                    primary25: 'hotpink',
-                    neutral0: '#242521',
-                    neutral80: 'white',
-                  },
-                })}
-                value={node.gnode.ai.question_str}
-                onChange={onChangeQuestionStr}
-                options={question_strs}
-                isSearchable={true}
-              />
-            </label>
+            <AiEditor
+              onChangeQuestionStr={onChangeQuestionStr}
+              onChangePredictionDataOptions={onChangePredictionDataOptions}
+            >
+              {children}
+            </AiEditor>
           )}
         </form>
       </div>
