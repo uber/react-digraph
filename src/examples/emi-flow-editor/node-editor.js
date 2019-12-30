@@ -132,7 +132,7 @@ class AiEditor extends React.Component {
     const ai = node.gnode.ai;
 
     return (
-      <div id="aiEditor">
+      <div id="aiEditor" className="someNodeEditor">
         <label>
           AI-Model:
           <Select
@@ -234,7 +234,7 @@ class AnswerEditor extends React.Component {
     const question = node.gnode.question;
 
     return (
-      <div id="answerEditor">
+      <div id="answerEditor" className="someNodeEditor">
         <label className="inputList">
           Answer options:
           <ReactListInput
@@ -295,14 +295,19 @@ class AnswerEditor extends React.Component {
 
 class EdgeEditor extends React.Component {
   render() {
-    const { children, onChangeConnContainsAny } = this.props;
+    const {
+      children,
+      onChangeConnContainsAny,
+      onChangeConnIsString,
+    } = this.props;
     const edge = children;
     const conns = edge.sourceNode.gnode.question.connections;
     const targetIndex = edge.targetNode.gnode.question.index;
     const conn = conns.find(conn => conn.goto === targetIndex);
 
     return (
-      <div id="edgeEditor">
+      <div id="edgeEditor" className="someNodeEditor">
+        <h1>{`${edge.source} => ${edge.target}`}</h1>
         <label className="inputList">
           containsAny:
           <ReactListInput
@@ -313,6 +318,15 @@ class EdgeEditor extends React.Component {
             ItemComponent={Item}
             StagingComponent={StagingItem}
             value={conn.containsAny}
+          />
+        </label>
+        <label>
+          isString:
+          <input
+            type="text"
+            name="isString"
+            value={conn.isString}
+            onChange={onChangeConnIsString}
           />
         </label>
       </div>
@@ -339,11 +353,12 @@ class NodeEditor extends React.Component {
       onChangeCountry,
       onMakeFirst,
       onChangeConnContainsAny,
+      onChangeConnIsString,
     } = this.props;
 
     if (!children) {
       return (
-        <div id="nodeEditor">
+        <div id="nodeEditor" className="someNodeEditor">
           <h1>Select a node or an edge...</h1>
         </div>
       );
@@ -352,7 +367,10 @@ class NodeEditor extends React.Component {
     if (children.source) {
       return (
         <div id="nodeEditor">
-          <EdgeEditor onChangeConnContainsAny={onChangeConnContainsAny}>
+          <EdgeEditor
+            onChangeConnContainsAny={onChangeConnContainsAny}
+            onChangeConnIsString={onChangeConnIsString}
+          >
             {children}
           </EdgeEditor>
         </div>
@@ -363,9 +381,9 @@ class NodeEditor extends React.Component {
     const question = node.gnode.question;
 
     return (
-      <div id="nodeEditor">
+      <div id="nodeEditor" className="someNodeEditor">
         <h1>{question.index}</h1>
-        <form onSubmit={e => e.preventDefault()}>
+        <form onSubmit={e => e.preventDefault()} className="someNodeEditor">
           {node.first ? (
             <label>First flow node.</label>
           ) : (

@@ -73,26 +73,10 @@
     flex-grow: 0;
     display: flex;
     flex-direction: column;
-
-    > label {
-      margin: 4px;
-      flex: 1;
-      display: flex;
-
-      > input {
-        flex: 1;
-        margin-left: 5px; 
-      }
-
-      > textarea {
-        flex: 1;
-        margin-left: 5px; 
-      }
-    }
   }
 }
 
-#aiEditor {
+.someNodeEditor {
   > label {
     margin: 4px;
     flex: 1;

@@ -180,15 +180,15 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     if (sourceNodeBwdl.Type === 'Choice') {
       const newConnection = {
         goto: targetNode.title,
-        isString: null,
+        isString: '',
         isDefault: true,
         answers: {},
         containsAny: [],
         context: {},
-        greaterThan: null,
+        greaterThan: '',
         inArray: [],
-        isNotString: null,
-        lessThan: null,
+        isNotString: '',
+        lessThan: '',
         notInArray: [],
         setContext: {},
       };
@@ -248,7 +248,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    const index = `new-node-${Date.now()}`;
+    const index = `node-${Date.now()}`;
 
     newBwdlJson[index] = {
       // id: index,
@@ -866,6 +866,28 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleConnIsStringChange = e => {
+    const newValue = e.target.value;
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      const conns = newBwdlJson[index].question.connections;
+      const conn = conns.find(conn => conn.goto === targetIndex);
+
+      conn.isString = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -970,6 +992,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeCountry={this.handleCountryChange}
             onMakeFirst={this.handleMakeFirst}
             onChangeConnContainsAny={this.handleConnContainsAnyChange}
+            onChangeConnIsString={this.handleConnIsStringChange}
           >
             {this.state.selected}
           </NodeEditor>
