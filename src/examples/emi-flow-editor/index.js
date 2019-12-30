@@ -775,6 +775,23 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleCountryChange = item => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.country = item.value;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -876,6 +893,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeMinSimilarity={this.handleMinSimilarityChange}
             onChangeIntentResponse={this.handleIntentResponseChange}
             onChangeImmediateNext={this.handleImmediateNextChange}
+            onChangeCountry={this.handleCountryChange}
           >
             {this.state.selected}
           </NodeEditor>

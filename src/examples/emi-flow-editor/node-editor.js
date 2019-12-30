@@ -105,10 +105,18 @@ class AiEditor extends React.Component {
     this.langItems = Object.keys(this.langLabels).map(key =>
       this.getLangItem(key)
     );
+    this.countryLabels = {
+      MX: 'MX',
+      AR: 'AR',
+    };
+    this.countryItems = Object.keys(this.countryLabels).map(key =>
+      this.getCountryItem(key)
+    );
   }
 
   getQuestionStrItem = key => ({ value: key, label: this.questionLabels[key] });
   getLangItem = key => ({ value: key, label: this.langLabels[key] });
+  getCountryItem = key => ({ value: key, label: this.countryLabels[key] });
 
   render() {
     const {
@@ -118,6 +126,7 @@ class AiEditor extends React.Component {
       onChangeLang,
       onChangeMinSimilarity,
       onChangeIntentResponse,
+      onChangeCountry,
     } = this.props;
     const node = children;
     const ai = node.gnode.ai;
@@ -144,6 +153,19 @@ class AiEditor extends React.Component {
               value={this.getLangItem(ai.lang)}
               onChange={onChangeLang}
               options={this.langItems}
+              isSearchable={true}
+            />
+          </label>
+        )}
+        {ai.country && (
+          <label>
+            Country:
+            <Select
+              className="selectContainer"
+              theme={selectTheme}
+              value={this.getCountryItem(ai.country)}
+              onChange={onChangeCountry}
+              options={this.countryItems}
               isSearchable={true}
             />
           </label>
@@ -206,6 +228,7 @@ class AnswerEditor extends React.Component {
       onChangeLang,
       onChangeMinSimilarity,
       onChangeIntentResponse,
+      onChangeCountry,
     } = this.props;
     const node = children;
     const question = node.gnode.question;
@@ -260,6 +283,7 @@ class AnswerEditor extends React.Component {
             onChangeLang={onChangeLang}
             onChangeMinSimilarity={onChangeMinSimilarity}
             onChangeIntentResponse={onChangeIntentResponse}
+            onChangeCountry={onChangeCountry}
           >
             {children}
           </AiEditor>
@@ -285,6 +309,7 @@ class NodeEditor extends React.Component {
       onChangeLang,
       onChangeMinSimilarity,
       onChangeIntentResponse,
+      onChangeCountry,
     } = this.props;
     const node = children;
 
@@ -342,6 +367,7 @@ class NodeEditor extends React.Component {
               onChangeLang={onChangeLang}
               onChangeMinSimilarity={onChangeMinSimilarity}
               onChangeIntentResponse={onChangeIntentResponse}
+              onChangeCountry={onChangeCountry}
             >
               {children}
             </AnswerEditor>
