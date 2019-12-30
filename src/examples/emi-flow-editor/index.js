@@ -276,6 +276,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
+    if (selected.first) {
+      // cannot delete first node
+      return;
+    }
+
     const newBwdlJson = {
       ...this.state.bwdlJson,
     };
