@@ -293,6 +293,33 @@ class AnswerEditor extends React.Component {
   }
 }
 
+class EdgeEditor extends React.Component {
+  render() {
+    const { children, onChangeConnContainsAny } = this.props;
+    const edge = children;
+    const conns = edge.sourceNode.gnode.question.connections;
+    const targetIndex = edge.targetNode.gnode.question.index;
+    const conn = conns.find(conn => conn.goto === targetIndex);
+
+    return (
+      <div id="edgeEditor">
+        <label className="inputList">
+          containsAny:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={onChangeConnContainsAny}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={conn.containsAny}
+          />
+        </label>
+      </div>
+    );
+  }
+}
+
 class NodeEditor extends React.Component {
   render() {
     const {
@@ -311,17 +338,28 @@ class NodeEditor extends React.Component {
       onChangeIntentResponse,
       onChangeCountry,
       onMakeFirst,
+      onChangeConnContainsAny,
     } = this.props;
-    const node = children;
 
-    if (!node) {
+    if (!children) {
       return (
         <div id="nodeEditor">
-          <h1>Select a node...</h1>
+          <h1>Select a node or an edge...</h1>
         </div>
       );
     }
 
+    if (children.source) {
+      return (
+        <div id="nodeEditor">
+          <EdgeEditor onChangeConnContainsAny={onChangeConnContainsAny}>
+            {children}
+          </EdgeEditor>
+        </div>
+      );
+    }
+
+    const node = children;
     const question = node.gnode.question;
 
     return (

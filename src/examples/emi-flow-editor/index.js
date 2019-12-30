@@ -299,6 +299,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onSelectEdge = (edge: IEdge) => {
+    edge.sourceNode = this.state.nodes.find(node => node.title === edge.source);
+    edge.targetNode = this.state.nodes.find(node => node.title === edge.target);
     this.setState({
       selected: edge,
     });
@@ -371,7 +373,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   getNewStateWithUpdatedSelected = (newState, transformed) => {
-    if (this.state.selected) {
+    if (this.state.selected && this.state.selected.gnode) {
       const selected = transformed.nodes.find(
         node =>
           node.gnode.question.index === this.state.selected.gnode.question.index
@@ -844,6 +846,26 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleConnContainsAnyChange = newValue => {
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+      const conns = newBwdlJson[index].question.connections;
+      const conn = conns.find(conn => conn.goto === targetIndex);
+
+      conn.containsAny = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -947,6 +969,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeImmediateNext={this.handleImmediateNextChange}
             onChangeCountry={this.handleCountryChange}
             onMakeFirst={this.handleMakeFirst}
+            onChangeConnContainsAny={this.handleConnContainsAnyChange}
           >
             {this.state.selected}
           </NodeEditor>
