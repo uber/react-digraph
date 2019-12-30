@@ -117,6 +117,7 @@ class AiEditor extends React.Component {
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
+      onChangeIntentResponse,
     } = this.props;
     const node = children;
     const ai = node.gnode.ai;
@@ -174,6 +175,95 @@ class AiEditor extends React.Component {
               />
             </label>
           ))}
+        {ai.prediction_data &&
+          'intent_responses' in ai.prediction_data &&
+          Object.keys(ai.prediction_data.intent_responses).map(key => (
+            <label key={key}>
+              {key}:
+              <input
+                type="text"
+                name={`intent_response_${key}`}
+                value={ai.prediction_data.intent_responses[key]}
+                onChange={e => onChangeIntentResponse(key, e.target.value)}
+              />
+            </label>
+          ))}
+      </div>
+    );
+  }
+}
+
+class AnswerEditor extends React.Component {
+  render() {
+    const {
+      children,
+      onChangeExactMatch,
+      onChangeErrorMessageNotMatch,
+      onChangeOptions,
+      onChangeAI,
+      onChangeQuestionStr,
+      onChangePredictionDataOptions,
+      onChangeLang,
+      onChangeMinSimilarity,
+      onChangeIntentResponse,
+    } = this.props;
+    const node = children;
+    const question = node.gnode.question;
+
+    return (
+      <div id="answerEditor">
+        <label className="inputList">
+          Answer options:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={onChangeOptions}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={question.options}
+          />
+        </label>
+        {question.options.length > 0 && (
+          <label>
+            Exact match:
+            <input
+              name="exactMatch"
+              type="checkbox"
+              checked={question.exactMatch}
+              onChange={onChangeExactMatch}
+            />
+          </label>
+        )}
+        {question.exactMatch && (
+          <label>
+            Error Message:
+            <TextareaAutosize
+              value={question.errorMessageNotMatch}
+              onChange={onChangeErrorMessageNotMatch}
+            />
+          </label>
+        )}
+        <label>
+          AI - Empathy:
+          <input
+            name="ai"
+            type="checkbox"
+            checked={'ai' in node.gnode}
+            onChange={onChangeAI}
+          />
+        </label>
+        {'ai' in node.gnode && (
+          <AiEditor
+            onChangeQuestionStr={onChangeQuestionStr}
+            onChangePredictionDataOptions={onChangePredictionDataOptions}
+            onChangeLang={onChangeLang}
+            onChangeMinSimilarity={onChangeMinSimilarity}
+            onChangeIntentResponse={onChangeIntentResponse}
+          >
+            {children}
+          </AiEditor>
+        )}
       </div>
     );
   }
@@ -185,6 +275,7 @@ class NodeEditor extends React.Component {
       children,
       onChangeIndex,
       onChangeText,
+      onChangeImmediateNext,
       onChangeExactMatch,
       onChangeErrorMessageNotMatch,
       onChangeOptions,
@@ -193,6 +284,7 @@ class NodeEditor extends React.Component {
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
+      onChangeIntentResponse,
     } = this.props;
     const node = children;
 
@@ -230,56 +322,29 @@ class NodeEditor extends React.Component {
             Text:
             <TextareaAutosize value={question.text} onChange={onChangeText} />
           </label>
-          <label className="inputList">
-            Answer options:
-            <ReactListInput
-              initialStagingValue=""
-              onChange={onChangeOptions}
-              maxItems={20}
-              minItems={0}
-              ItemComponent={Item}
-              StagingComponent={StagingItem}
-              value={question.options}
-            />
-          </label>
-          {question.options.length > 0 && (
-            <label>
-              Exact match:
-              <input
-                name="exactMatch"
-                type="checkbox"
-                checked={question.exactMatch}
-                onChange={onChangeExactMatch}
-              />
-            </label>
-          )}
-          {question.exactMatch && (
-            <label>
-              Error Message:
-              <TextareaAutosize
-                value={question.errorMessageNotMatch}
-                onChange={onChangeErrorMessageNotMatch}
-              />
-            </label>
-          )}
           <label>
-            AI - Empathy:
+            Immediate next:
             <input
-              name="ai"
+              name="immediateNext"
               type="checkbox"
-              checked={'ai' in node.gnode}
-              onChange={onChangeAI}
+              checked={question.immediateNext}
+              onChange={onChangeImmediateNext}
             />
           </label>
-          {'ai' in node.gnode && (
-            <AiEditor
+          {!question.immediateNext && (
+            <AnswerEditor
+              onChangeExactMatch={onChangeExactMatch}
+              onChangeErrorMessageNotMatch={onChangeErrorMessageNotMatch}
+              onChangeOptions={onChangeOptions}
+              onChangeAI={onChangeAI}
               onChangeQuestionStr={onChangeQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
               onChangeLang={onChangeLang}
               onChangeMinSimilarity={onChangeMinSimilarity}
+              onChangeIntentResponse={onChangeIntentResponse}
             >
               {children}
-            </AiEditor>
+            </AnswerEditor>
           )}
         </form>
       </div>

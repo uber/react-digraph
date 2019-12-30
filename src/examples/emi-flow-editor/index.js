@@ -730,6 +730,51 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleIntentResponseChange = (key, newValue) => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleImmediateNextChange = e => {
+    const newValue = e.target.checked;
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      if (newValue) {
+        newBwdlJson[index].question.options = [];
+        newBwdlJson[index].question.exactMatch = false;
+        newBwdlJson[index].question.errorMessageNotMatch = '';
+
+        if ('ai' in newBwdlJson[index]) {
+          delete newBwdlJson[index].ai;
+        }
+      }
+
+      newBwdlJson[index].question.immediateNext = newValue;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -829,6 +874,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             }
             onChangeLang={this.handleLangChange}
             onChangeMinSimilarity={this.handleMinSimilarityChange}
+            onChangeIntentResponse={this.handleIntentResponseChange}
+            onChangeImmediateNext={this.handleImmediateNextChange}
           >
             {this.state.selected}
           </NodeEditor>

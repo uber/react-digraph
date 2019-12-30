@@ -89,23 +89,23 @@
         margin-left: 5px; 
       }
     }
+  }
+}
 
-    > #aiEditor {
-      > label {
-        margin: 4px;
-        flex: 1;
-        display: flex;
+#aiEditor {
+  > label {
+    margin: 4px;
+    flex: 1;
+    display: flex;
 
-        > input {
-          flex: 1;
-          margin-left: 5px; 
-        }
+    > input {
+      flex: 1;
+      margin-left: 5px; 
+    }
 
-        > textarea {
-          flex: 1;
-          margin-left: 5px; 
-        }
-      }
+    > textarea {
+      flex: 1;
+      margin-left: 5px; 
     }
   }
 }
