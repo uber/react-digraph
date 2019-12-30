@@ -295,11 +295,7 @@ class AnswerEditor extends React.Component {
 
 class EdgeEditor extends React.Component {
   render() {
-    const {
-      children,
-      onChangeConnContainsAny,
-      onChangeConnIsString,
-    } = this.props;
+    const { children, onChangeConn } = this.props;
     const edge = children;
     const conns = edge.sourceNode.gnode.question.connections;
     const targetIndex = edge.targetNode.gnode.question.index;
@@ -312,7 +308,7 @@ class EdgeEditor extends React.Component {
           containsAny:
           <ReactListInput
             initialStagingValue=""
-            onChange={onChangeConnContainsAny}
+            onChange={value => onChangeConn('containsAny', value)}
             maxItems={20}
             minItems={0}
             ItemComponent={Item}
@@ -326,7 +322,58 @@ class EdgeEditor extends React.Component {
             type="text"
             name="isString"
             value={conn.isString}
-            onChange={onChangeConnIsString}
+            onChange={e => onChangeConn('isString', e.target.value)}
+          />
+        </label>
+        <label>
+          isNotString:
+          <input
+            type="text"
+            name="isNotString"
+            value={conn.isNotString}
+            onChange={e => onChangeConn('isNotString', e.target.value)}
+          />
+        </label>
+        <label>
+          lessThan:
+          <input
+            type="number"
+            name="lessThan"
+            value={conn.lessThan}
+            onChange={e => onChangeConn('lessThan', e.target.value)}
+          />
+        </label>
+        <label>
+          greaterThan:
+          <input
+            type="number"
+            name="greaterThan"
+            value={conn.greaterThan}
+            onChange={e => onChangeConn('greaterThan', e.target.value)}
+          />
+        </label>
+        <label className="inputList">
+          inArray:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={value => onChangeConn('inArray', value)}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={conn.inArray}
+          />
+        </label>
+        <label className="inputList">
+          notInArray:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={value => onChangeConn('notInArray', value)}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={conn.notInArray}
           />
         </label>
       </div>
@@ -352,8 +399,7 @@ class NodeEditor extends React.Component {
       onChangeIntentResponse,
       onChangeCountry,
       onMakeFirst,
-      onChangeConnContainsAny,
-      onChangeConnIsString,
+      onChangeConn,
     } = this.props;
 
     if (!children) {
@@ -367,12 +413,7 @@ class NodeEditor extends React.Component {
     if (children.source) {
       return (
         <div id="nodeEditor">
-          <EdgeEditor
-            onChangeConnContainsAny={onChangeConnContainsAny}
-            onChangeConnIsString={onChangeConnIsString}
-          >
-            {children}
-          </EdgeEditor>
+          <EdgeEditor onChangeConn={onChangeConn}>{children}</EdgeEditor>
         </div>
       );
     }

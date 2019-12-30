@@ -846,7 +846,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  handleConnContainsAnyChange = newValue => {
+  handleConnChange = (connProperty, newValue) => {
     const index = this.state.selected.sourceNode.gnode.question.index;
     const targetIndex = this.state.selected.targetNode.gnode.question.index;
 
@@ -857,29 +857,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       const conns = newBwdlJson[index].question.connections;
       const conn = conns.find(conn => conn.goto === targetIndex);
 
-      conn.containsAny = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
-  };
-
-  handleConnIsStringChange = e => {
-    const newValue = e.target.value;
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
-      conn.isString = newValue;
+      conn[connProperty] = newValue;
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -991,8 +969,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeImmediateNext={this.handleImmediateNextChange}
             onChangeCountry={this.handleCountryChange}
             onMakeFirst={this.handleMakeFirst}
-            onChangeConnContainsAny={this.handleConnContainsAnyChange}
-            onChangeConnIsString={this.handleConnIsStringChange}
+            onChangeConn={this.handleConnChange}
           >
             {this.state.selected}
           </NodeEditor>
