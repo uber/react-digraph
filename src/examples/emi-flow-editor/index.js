@@ -622,7 +622,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   setAiDefaults = (nodeJson, newQuestionStr) => {
     nodeJson.ai = Object.assign(
       { question_str: newQuestionStr },
-      empathyDefaults[newQuestionStr]
+      JSON.parse(JSON.stringify(empathyDefaults[newQuestionStr]))
     );
 
     const prediction_data = nodeJson.ai.prediction_data;
@@ -699,6 +699,29 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       };
 
       newBwdlJson[index].ai.lang = item.value;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleMinSimilarityChange = e => {
+    const newValue = e.target.value;
+
+    if (newValue !== '' && (newValue > 100 || newValue < 1)) {
+      return;
+    }
+
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.prediction_data.min_similarity = newValue;
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -805,6 +828,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
               this.handlePredictionDataOptionsChange
             }
             onChangeLang={this.handleLangChange}
+            onChangeMinSimilarity={this.handleMinSimilarityChange}
           >
             {this.state.selected}
           </NodeEditor>

@@ -116,6 +116,7 @@ class AiEditor extends React.Component {
       onChangeQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
+      onChangeMinSimilarity,
     } = this.props;
     const node = children;
     const ai = node.gnode.ai;
@@ -125,7 +126,7 @@ class AiEditor extends React.Component {
         <label>
           AI-Model:
           <Select
-            className="questionStrSelectContainer"
+            className="selectContainer"
             theme={selectTheme}
             value={this.getQuestionStrItem(ai.question_str)}
             onChange={onChangeQuestionStr}
@@ -137,12 +138,23 @@ class AiEditor extends React.Component {
           <label>
             Language:
             <Select
-              className="langSelectContainer"
+              className="selectContainer"
               theme={selectTheme}
               value={this.getLangItem(ai.lang)}
               onChange={onChangeLang}
               options={this.langItems}
               isSearchable={true}
+            />
+          </label>
+        )}
+        {ai.prediction_data && 'min_similarity' in ai.prediction_data && (
+          <label>
+            Min Similarity:
+            <input
+              type="number"
+              name="min_similarity"
+              value={ai.prediction_data.min_similarity}
+              onChange={onChangeMinSimilarity}
             />
           </label>
         )}
@@ -180,6 +192,7 @@ class NodeEditor extends React.Component {
       onChangeQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
+      onChangeMinSimilarity,
     } = this.props;
     const node = children;
 
@@ -263,6 +276,7 @@ class NodeEditor extends React.Component {
               onChangeQuestionStr={onChangeQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
               onChangeLang={onChangeLang}
+              onChangeMinSimilarity={onChangeMinSimilarity}
             >
               {children}
             </AiEditor>
