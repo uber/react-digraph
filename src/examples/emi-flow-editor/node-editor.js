@@ -94,17 +94,28 @@ class AiEditor extends React.Component {
       dates: 'dates',
     };
     this.questionItems = Object.keys(this.questionLabels).map(key =>
-      this.getItem(key)
+      this.getQuestionStrItem(key)
+    );
+    this.langLabels = {
+      ES: 'ES',
+      ES_419: 'ES_419',
+      ES_AR: 'ES_AR',
+      ES_MX: 'ES_MX',
+    };
+    this.langItems = Object.keys(this.langLabels).map(key =>
+      this.getLangItem(key)
     );
   }
 
-  getItem = key => ({ value: key, label: this.questionLabels[key] });
+  getQuestionStrItem = key => ({ value: key, label: this.questionLabels[key] });
+  getLangItem = key => ({ value: key, label: this.langLabels[key] });
 
   render() {
     const {
       children,
       onChangeQuestionStr,
       onChangePredictionDataOptions,
+      onChangeLang,
     } = this.props;
     const node = children;
     const ai = node.gnode.ai;
@@ -116,12 +127,25 @@ class AiEditor extends React.Component {
           <Select
             className="questionStrSelectContainer"
             theme={selectTheme}
-            value={this.getItem(ai.question_str)}
+            value={this.getQuestionStrItem(ai.question_str)}
             onChange={onChangeQuestionStr}
             options={this.questionItems}
             isSearchable={true}
           />
         </label>
+        {ai.lang && (
+          <label>
+            Language:
+            <Select
+              className="langSelectContainer"
+              theme={selectTheme}
+              value={this.getLangItem(ai.lang)}
+              onChange={onChangeLang}
+              options={this.langItems}
+              isSearchable={true}
+            />
+          </label>
+        )}
         {ai.prediction_data &&
           'options' in ai.prediction_data &&
           Object.keys(ai.prediction_data.options).map(key => (
@@ -155,6 +179,7 @@ class NodeEditor extends React.Component {
       onChangeAI,
       onChangeQuestionStr,
       onChangePredictionDataOptions,
+      onChangeLang,
     } = this.props;
     const node = children;
 
@@ -237,6 +262,7 @@ class NodeEditor extends React.Component {
             <AiEditor
               onChangeQuestionStr={onChangeQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
+              onChangeLang={onChangeLang}
             >
               {children}
             </AiEditor>

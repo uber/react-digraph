@@ -690,6 +690,23 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleLangChange = item => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson[index].ai.lang = item.value;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -787,6 +804,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangePredictionDataOptions={
               this.handlePredictionDataOptionsChange
             }
+            onChangeLang={this.handleLangChange}
           >
             {this.state.selected}
           </NodeEditor>
