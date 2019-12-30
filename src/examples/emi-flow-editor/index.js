@@ -176,12 +176,15 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
     const sourceNodeBwdl = newBwdlJson[sourceNode.title];
+    const isDefault = sourceNodeBwdl.question.connections.every(
+      conn => !conn.isDefault
+    );
 
     if (sourceNodeBwdl.Type === 'Choice') {
       const newConnection = {
         goto: targetNode.title,
         isString: '',
-        isDefault: true,
+        isDefault: isDefault,
         answers: {},
         containsAny: [],
         context: {},
@@ -299,7 +302,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onSelectEdge = (edge: IEdge) => {
-    edge.sourceNode = this.state.nodes.find(node => node.title === edge.source);
     edge.targetNode = this.state.nodes.find(node => node.title === edge.target);
     this.setState({
       selected: edge,
@@ -866,6 +868,35 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleConnMakeDefault = enabling => {
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+      const conns = newBwdlJson[index].question.connections;
+
+      if (enabling) {
+        const defaultConn = conns.find(conn => conn.isDefault);
+
+        if (defaultConn) {
+          defaultConn.isDefault = false;
+        }
+      }
+
+      const conn = conns.find(conn => conn.goto === targetIndex);
+
+      conn['isDefault'] = enabling;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -970,6 +1001,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeCountry={this.handleCountryChange}
             onMakeFirst={this.handleMakeFirst}
             onChangeConn={this.handleConnChange}
+            onMakeDefaultConn={this.handleConnMakeDefault}
           >
             {this.state.selected}
           </NodeEditor>

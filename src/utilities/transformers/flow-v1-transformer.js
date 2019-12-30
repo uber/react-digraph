@@ -60,6 +60,8 @@ export default class FlowV1Transformer extends Transformer {
           edges.push({
             source: name,
             target: connection.goto,
+            sourceNode: nodeToAdd,
+            conn: connection,
           });
         }
       });

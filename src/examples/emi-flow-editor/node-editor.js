@@ -295,7 +295,7 @@ class AnswerEditor extends React.Component {
 
 class EdgeEditor extends React.Component {
   render() {
-    const { children, onChangeConn } = this.props;
+    const { children, onChangeConn, onMakeDefaultConn } = this.props;
     const edge = children;
     const conns = edge.sourceNode.gnode.question.connections;
     const targetIndex = edge.targetNode.gnode.question.index;
@@ -304,6 +304,30 @@ class EdgeEditor extends React.Component {
     return (
       <div id="edgeEditor" className="someNodeEditor">
         <h1>{`${edge.source} => ${edge.target}`}</h1>
+        {conn.isDefault && (
+          <label className="defaultConnection">Default connection</label>
+        )}
+        {conn.isDefault ? (
+          <label>
+            Click to remove default behavior:
+            <input
+              name="deafultConn"
+              type="button"
+              value="Remove default"
+              onClick={e => onMakeDefaultConn(false)}
+            />
+          </label>
+        ) : (
+          <label>
+            Click to make this connection the default one:
+            <input
+              name="deafultConn"
+              type="button"
+              value="Make default"
+              onClick={e => onMakeDefaultConn(true)}
+            />
+          </label>
+        )}
         <label className="inputList">
           containsAny:
           <ReactListInput
@@ -400,6 +424,7 @@ class NodeEditor extends React.Component {
       onChangeCountry,
       onMakeFirst,
       onChangeConn,
+      onMakeDefaultConn,
     } = this.props;
 
     if (!children) {
@@ -413,7 +438,12 @@ class NodeEditor extends React.Component {
     if (children.source) {
       return (
         <div id="nodeEditor">
-          <EdgeEditor onChangeConn={onChangeConn}>{children}</EdgeEditor>
+          <EdgeEditor
+            onChangeConn={onChangeConn}
+            onMakeDefaultConn={onMakeDefaultConn}
+          >
+            {children}
+          </EdgeEditor>
         </div>
       );
     }

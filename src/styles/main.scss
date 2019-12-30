@@ -79,6 +79,7 @@ $background-color: #f9f9f9;
     stroke-width: 2px;
     marker-end: url(#end-arrow);
     cursor: pointer;
+    stroke-dasharray: 5;
 
     .edge-text {
       stroke-width: 0.5px;
@@ -99,6 +100,10 @@ $background-color: #f9f9f9;
       }
     }
 
+    &.default {
+      stroke-dasharray: none;
+      stroke: violet;
+    }
 
   }
 

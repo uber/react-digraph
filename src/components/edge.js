@@ -663,9 +663,11 @@ class Edge extends React.Component<IEdgeProps> {
       return null;
     }
 
+    const isDefault = data.conn && data.conn.isDefault;
     const id = `${data.source || ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
       selected: this.props.isSelected,
+      default: isDefault,
     });
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
 
