@@ -30,6 +30,7 @@ export type IPoint = {
 
 export type INode = {
   title: string,
+  first: boolean,
   x?: number | null,
   y?: number | null,
   type?: string | null,
@@ -85,6 +86,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     isSelected: false,
     nodeSize: 154,
     maxTitleChars: 12,
+    first: false,
     onNodeMouseEnter: () => {
       return;
     },
@@ -321,7 +323,11 @@ class Node extends React.Component<INodeProps, INodeState> {
       width: this.props.nodeSize || 0,
     };
     const nodeShapeContainerClassName = GraphUtils.classNames('shape');
-    const nodeClassName = GraphUtils.classNames('node', { selected, hovered });
+    const nodeClassName = GraphUtils.classNames('node', {
+      selected,
+      hovered,
+      first: data.first,
+    });
     // const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', {
     //   selected: this.state.selected,
     // });

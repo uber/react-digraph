@@ -261,11 +261,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       y,
     };
 
-    const sortedNewBwdlJson = newBwdlJson;
+    if (!('current' in newBwdlJson)) {
+      newBwdlJson['current'] = index;
+    }
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: stringify(sortedNewBwdlJson),
+      bwdlText: stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -497,7 +499,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       node => node.gnode.question.index === newIndex
     );
 
-    if (alreadyExists) {
+    if (alreadyExists || ['name', 'current', 'faqs'].includes(newIndex)) {
       return;
     }
 
@@ -513,7 +515,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
       nodeJson.question.index = newIndex;
 
-      newBwdlJson[nodeJson.question.index] = nodeJson;
+      newBwdlJson[newIndex] = nodeJson;
+
+      if (newBwdlJson.current === prevIndex) {
+        newBwdlJson.current = newIndex;
+      }
+
       const nodeNames = Object.keys(newBwdlJson);
 
       nodeNames.forEach(name => {
@@ -792,6 +799,41 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleMakeFirst = () => {
+    const index = this.state.selected.gnode.question.index;
+
+    // make sure that selected node is a root node
+    const nodeNames = Object.keys(this.state.bwdlJson);
+    const firstable = nodeNames.every(name => {
+      const currentNode = this.state.bwdlJson[name];
+
+      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+        return true;
+      }
+
+      const q = currentNode.question;
+
+      return q.connections.every(connection => connection.goto !== index);
+    });
+
+    if (!firstable) {
+      return;
+    }
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+
+      newBwdlJson['current'] = index;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -894,6 +936,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeIntentResponse={this.handleIntentResponseChange}
             onChangeImmediateNext={this.handleImmediateNextChange}
             onChangeCountry={this.handleCountryChange}
+            onMakeFirst={this.handleMakeFirst}
           >
             {this.state.selected}
           </NodeEditor>

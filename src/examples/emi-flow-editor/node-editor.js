@@ -310,6 +310,7 @@ class NodeEditor extends React.Component {
       onChangeMinSimilarity,
       onChangeIntentResponse,
       onChangeCountry,
+      onMakeFirst,
     } = this.props;
     const node = children;
 
@@ -323,17 +324,23 @@ class NodeEditor extends React.Component {
 
     const question = node.gnode.question;
 
-    // console.log(node.gnode);
-    // if (node.gnode.ai) {
-    //   console.log(node.gnode.ai);
-    //   console.log('prediction_data' in node.gnode.ai && 'options' in node.gnode.ai.prediction_data);
-
-    // }
-
     return (
       <div id="nodeEditor">
         <h1>{question.index}</h1>
         <form onSubmit={e => e.preventDefault()}>
+          {node.first ? (
+            <label>First flow node.</label>
+          ) : (
+            <label>
+              Click to make this node the first of the flow:
+              <input
+                name="first"
+                type="button"
+                value="Make first"
+                onClick={onMakeFirst}
+              />
+            </label>
+          )}
           <label>
             Index:
             <input
