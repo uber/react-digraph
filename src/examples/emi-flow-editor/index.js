@@ -167,6 +167,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 
   linkEdge(sourceNode: INode, targetNode: INode, edge?: IEdge) {
+    if (targetNode.first) {
+      // cannot link to first node.
+      return;
+    }
+
     const newBwdlJson = {
       ...this.state.bwdlJson,
     };
