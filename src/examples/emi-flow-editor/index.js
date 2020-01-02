@@ -23,12 +23,12 @@ import 'brace/mode/json';
 import 'brace/theme/monokai';
 import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
-import NodeEditor from './node-editor';
 import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 
 import FlowV1Transformer from '../../utilities/transformers/flow-v1-transformer';
 import Sidebar from '../sidebar';
+import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
 
