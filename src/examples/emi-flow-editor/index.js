@@ -619,7 +619,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  handleOptionsChange = newValue => {
+  handleQuickRepliesChange = newValue => {
     const index = this.state.selected.gnode.question.index;
 
     this.setState(prevState => {
@@ -627,7 +627,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         ...prevState.bwdlJson,
       };
 
-      newBwdlJson[index].question.options = newValue;
+      newBwdlJson[index].question.quickReplies = newValue;
 
       if (newValue.length == 0) {
         newBwdlJson[index].question.exactMatch = false;
@@ -988,7 +988,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeText={this.handleTextChange}
             onChangeErrorMessageNotMatch={this.handleErrorMessageNotMatchChange}
             onChangeExactMatch={this.handleExactMatchChange}
-            onChangeOptions={this.handleOptionsChange}
+            onChangeQuickReplies={this.handleQuickRepliesChange}
             onChangeAI={this.handleAIChange}
             onChangeQuestionStr={this.handleQuestionStrChange}
             onChangePredictionDataOptions={

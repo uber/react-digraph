@@ -221,7 +221,7 @@ class AnswerEditor extends React.Component {
       children,
       onChangeExactMatch,
       onChangeErrorMessageNotMatch,
-      onChangeOptions,
+      onChangeQuickReplies,
       onChangeAI,
       onChangeQuestionStr,
       onChangePredictionDataOptions,
@@ -236,18 +236,18 @@ class AnswerEditor extends React.Component {
     return (
       <div id="answerEditor" className="someNodeEditor">
         <label className="inputList">
-          Answer options:
+          Quick replies:
           <ReactListInput
             initialStagingValue=""
-            onChange={onChangeOptions}
+            onChange={onChangeQuickReplies}
             maxItems={20}
             minItems={0}
             ItemComponent={Item}
             StagingComponent={StagingItem}
-            value={question.options}
+            value={question.quickReplies}
           />
         </label>
-        {question.options.length > 0 && (
+        {question.quickReplies.length > 0 && (
           <label>
             Exact match:
             <input
@@ -414,7 +414,7 @@ class NodeEditor extends React.Component {
       onChangeImmediateNext,
       onChangeExactMatch,
       onChangeErrorMessageNotMatch,
-      onChangeOptions,
+      onChangeQuickReplies,
       onChangeAI,
       onChangeQuestionStr,
       onChangePredictionDataOptions,
@@ -494,7 +494,7 @@ class NodeEditor extends React.Component {
             <AnswerEditor
               onChangeExactMatch={onChangeExactMatch}
               onChangeErrorMessageNotMatch={onChangeErrorMessageNotMatch}
-              onChangeOptions={onChangeOptions}
+              onChangeQuickReplies={onChangeQuickReplies}
               onChangeAI={onChangeAI}
               onChangeQuestionStr={onChangeQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
