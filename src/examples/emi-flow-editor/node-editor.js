@@ -3,6 +3,38 @@ import TextareaAutosize from 'react-textarea-autosize';
 import ReactListInput from 'react-list-input';
 import Select from 'react-select';
 
+const selectTheme = function(theme) {
+  return {
+    ...theme,
+    colors: {
+      ...theme.colors,
+      text: 'orangered',
+      primary25: 'hotpink',
+      neutral0: '#242521',
+      neutral80: 'white',
+    },
+  };
+};
+
+const getSimpleItem = function(name) {
+  return { value: name, label: name };
+};
+
+const filterOps = [
+  'contains',
+  'notcontains',
+  'equals',
+  'notequals',
+  'min',
+  'max',
+  'in',
+  'notin',
+];
+
+const isArrayFilterOp = function(op) {
+  return ['in', 'notin'].includes(op);
+};
+
 const Input = ({ value, onChange, type = 'text' }) => (
   <input type={type} value={value} onChange={e => onChange(e.target.value)} />
 );
@@ -59,18 +91,183 @@ const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
   );
 };
 
-const selectTheme = function(theme) {
-  return {
-    ...theme,
-    colors: {
-      ...theme.colors,
-      text: 'orangered',
-      primary25: 'hotpink',
-      neutral0: '#242521',
-      neutral80: 'white',
-    },
-  };
+const FilterItem = function({
+  decorateHandle,
+  removable,
+  onChange,
+  onRemove,
+  value,
+  getOptions,
+  onChangeArrayFilterValue,
+}) {
+  // clone, or bad stuff happens.
+  value = Object.assign({}, value);
+
+  return (
+    <div>
+      <label>
+        <Select
+          className="selectContainer"
+          theme={selectTheme}
+          value={getSimpleItem(value.key)}
+          onChange={item => {
+            value.key = item.value;
+            onChange(value);
+          }}
+          options={getOptions().map(option => getSimpleItem(option))}
+          isSearchable={true}
+        />
+      </label>
+      <label>
+        <Select
+          className="selectContainer"
+          theme={selectTheme}
+          value={getSimpleItem(value.op)}
+          onChange={item => {
+            value.op = item.value;
+            onChange(value);
+          }}
+          options={filterOps.map(op => getSimpleItem(op))}
+          isSearchable={true}
+        />
+      </label>
+      {isArrayFilterOp(value.op) ? (
+        <label className="inputList">
+          <ReactListInput
+            initialStagingValue=""
+            onChange={list =>
+              onChangeArrayFilterValue('answers', value.key, value.op, list)
+            }
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={value.value}
+          />
+        </label>
+      ) : (
+        <label>
+          <Input
+            value={value.value}
+            onChange={text => {
+              value.value = text;
+              onChange(value);
+            }}
+          />
+        </label>
+      )}
+      {decorateHandle(
+        <span
+          style={{
+            cursor: 'move',
+            margin: '5px',
+          }}
+        >
+          ↕
+        </span>
+      )}
+      <span
+        onClick={removable ? onRemove : x => x}
+        style={{
+          cursor: removable ? 'pointer' : 'not-allowed',
+          color: removable ? 'white' : 'gray',
+          margin: '5px',
+        }}
+      >
+        X
+      </span>
+    </div>
+  );
 };
+
+const FilterItemHOC = (getOptions, onChangeArrayFilterValue) => props =>
+  FilterItem({ ...props, getOptions, onChangeArrayFilterValue });
+
+const StagingFilterItem = function({
+  value,
+  onAdd,
+  canAdd,
+  add,
+  onChange,
+  getOptions,
+}) {
+  // clone, or bad stuff happens.
+  value = Object.assign({}, value);
+  canAdd = value.key !== null && value.op !== null && value.value;
+
+  return (
+    <div className="staging">
+      <label>
+        Question:
+        <Select
+          className="selectContainer"
+          theme={selectTheme}
+          value={getSimpleItem(value.key)}
+          onChange={item => {
+            value.key = item.value;
+            onChange(value);
+          }}
+          options={getOptions().map(option => getSimpleItem(option))}
+          isSearchable={true}
+        />
+      </label>
+      <label>
+        Operation:
+        <Select
+          className="selectContainer"
+          theme={selectTheme}
+          value={getSimpleItem(value.op)}
+          onChange={item => {
+            value.op = item.value;
+            onChange(value);
+          }}
+          options={filterOps.map(op => getSimpleItem(op))}
+          isSearchable={true}
+        />
+      </label>
+      {isArrayFilterOp(value.op) ? (
+        <label className="inputList">
+          Value:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={list => {
+              value.value = list;
+              onChange(value);
+            }}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={value.value}
+          />
+        </label>
+      ) : (
+        <label>
+          <Input
+            value={value.value}
+            onChange={text => {
+              value.value = text;
+              onChange(value);
+            }}
+          />
+        </label>
+      )}
+      <span
+        onClick={canAdd ? onAdd : undefined}
+        style={{
+          color: canAdd ? 'white' : 'gray',
+          cursor: canAdd ? 'pointer' : 'not-allowed',
+          margin: '5px',
+        }}
+      >
+        Add
+      </span>
+    </div>
+  );
+};
+
+const StagingFilterItemHOC = getOptions => props =>
+  StagingFilterItem({ ...props, getOptions });
 
 class AiEditor extends React.Component {
   constructor(props) {
@@ -294,8 +491,22 @@ class AnswerEditor extends React.Component {
 }
 
 class EdgeEditor extends React.Component {
+  getFilterItems = filters =>
+    Object.keys(filters).map(key => ({
+      key: key.substr(0, key.lastIndexOf('_')),
+      op: key.substr(key.lastIndexOf('_') + 1),
+      value: filters[key],
+    }));
+
   render() {
-    const { children, onChangeConn, onMakeDefaultConn } = this.props;
+    const {
+      children,
+      onChangeConn,
+      onMakeDefaultConn,
+      getFilterAnswers,
+      onChangeConnFilters,
+      onChangeArrayFilterValue,
+    } = this.props;
     const edge = children;
     const conns = edge.sourceNode.gnode.question.connections;
     const targetIndex = edge.targetNode.gnode.question.index;
@@ -400,6 +611,21 @@ class EdgeEditor extends React.Component {
             value={conn.notInArray}
           />
         </label>
+        <label className="inputList">
+          answers:
+          <ReactListInput
+            initialStagingValue={{ key: null, op: null, value: '' }}
+            onChange={value => onChangeConnFilters('answers', value)}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={FilterItemHOC(
+              getFilterAnswers,
+              onChangeArrayFilterValue
+            )}
+            StagingComponent={StagingFilterItemHOC(getFilterAnswers)}
+            value={this.getFilterItems(conn.answers)}
+          />
+        </label>
       </div>
     );
   }
@@ -425,6 +651,9 @@ class NodeEditor extends React.Component {
       onMakeFirst,
       onChangeConn,
       onMakeDefaultConn,
+      getFilterAnswers,
+      onChangeConnFilters,
+      onChangeArrayFilterValue,
     } = this.props;
 
     if (!children) {
@@ -441,6 +670,9 @@ class NodeEditor extends React.Component {
           <EdgeEditor
             onChangeConn={onChangeConn}
             onMakeDefaultConn={onMakeDefaultConn}
+            getFilterAnswers={getFilterAnswers}
+            onChangeConnFilters={onChangeConnFilters}
+            onChangeArrayFilterValue={onChangeArrayFilterValue}
           >
             {children}
           </EdgeEditor>

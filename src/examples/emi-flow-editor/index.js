@@ -263,7 +263,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         connections: [],
         text: '',
         immediateNext: false,
-        options: [],
+        quickReplies: [],
       },
       x,
       y,
@@ -317,26 +317,29 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onDeleteEdge = (selectedEdge: IEdge, edges: IEdge[]) => {
-    const newBwdlJson = {
-      ...this.state.bwdlJson,
-    };
-    const sourceNodeBwdl = newBwdlJson[selectedEdge.source];
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
 
-    const connections = sourceNodeBwdl.question.connections;
+      const sourceNodeBwdl = newBwdlJson[selectedEdge.source];
 
-    if (connections) {
+      const connections = sourceNodeBwdl.question.connections;
+
+      // if (connections) {
       sourceNodeBwdl.question.connections = connections.filter(connection => {
         return connection.goto !== selectedEdge.target;
       });
-    } else {
-      delete sourceNodeBwdl.Next;
-    }
+      // } else {
+      //   delete sourceNodeBwdl.Next;
+      // }
 
-    this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: stringify(newBwdlJson),
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+        selected: null,
+      });
     });
-    this.updateBwdl();
   };
 
   onUndo() {
@@ -649,8 +652,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const prediction_data = nodeJson.ai.prediction_data;
 
     if (prediction_data && 'options' in prediction_data) {
-      nodeJson.question.options.forEach(function(option) {
-        prediction_data.options[option] = [];
+      nodeJson.question.quickReplies.forEach(function(quickReply) {
+        prediction_data.options[quickReply] = [];
       });
     }
   };
@@ -897,6 +900,71 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  getAncestorIndexes = index => {
+    const ansestorIndexes = new Set();
+
+    let prevSize = -1;
+
+    while (ansestorIndexes.size > prevSize) {
+      prevSize = ansestorIndexes.size;
+      this.state.edges.forEach(edge => {
+        if (ansestorIndexes.has(edge.target) || edge.target === index) {
+          ansestorIndexes.add(edge.source);
+        }
+      });
+    }
+
+    return Array.from(ansestorIndexes);
+  };
+
+  getFilterAnswers = () => this.getAncestorIndexes(this.state.selected.source);
+
+  handleConnFiltersChange = (connProperty, filters) => {
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+      const conns = newBwdlJson[index].question.connections;
+      const conn = conns.find(conn => conn.goto === targetIndex);
+
+      conn[connProperty] = {};
+      filters.forEach(filter => {
+        const key = `${filter.key}_${filter.op}`;
+
+        conn[connProperty][key] = filter.value;
+      });
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
+  handleChangeArrayFilterValue = (connProperty, key, op, value) => {
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
+      const conns = newBwdlJson[index].question.connections;
+      const conn = conns.find(conn => conn.goto === targetIndex);
+
+      key = `${key}_${op}`;
+      conn[connProperty][key] = value;
+
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: stringify(newBwdlJson),
+      });
+    });
+  };
+
   renderTextEditor() {
     return (
       <Sidebar
@@ -1002,6 +1070,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onMakeFirst={this.handleMakeFirst}
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}
+            getFilterAnswers={this.getFilterAnswers}
+            onChangeConnFilters={this.handleConnFiltersChange}
+            onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
           >
             {this.state.selected}
           </NodeEditor>

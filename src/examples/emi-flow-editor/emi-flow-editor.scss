@@ -116,6 +116,16 @@
   }
 }
 
+.staging {
+  border: 1px solid lightpink;
+  border-radius: 4px;
+  > label {
+    > input {
+      background: lightpink;
+    }
+  }
+}
+
 .selectContainer {
   margin: 10px;
   width: 200px;
