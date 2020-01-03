@@ -93,6 +93,7 @@ $background-color: #f9f9f9;
     &.selected {
       color: $primary-color;
       stroke: $primary-color;
+      stroke-width: 5px;
 
       .edge-text {
         fill: $light-color;

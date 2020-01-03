@@ -46,6 +46,13 @@ const indexNameRegex = /"index": "(.*)",/;
 const nodeStartLineRegex = /^ {4}"question": {/;
 const nodeEndLineRegex = /^ {2}}/;
 
+const connsStartLineRegex = /^ {6}"connections": \[/;
+const connsEndLineRegex = /^ {6}]/;
+
+const connStartLineRegex = /^ {8}{/;
+const connEndLineRegex = /^ {8}}/;
+const gotoIndexRegex = /"goto": "(.*)",/;
+
 const defaultQuestionStr = 'generic_yes_no_v2';
 const empathyDefaults = {
   phone: {
@@ -163,6 +170,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       layoutEngineType: 'VerticalTree',
       nodes: transformed.nodes,
       selected: null,
+      locked: true,
     };
   }
 
@@ -448,12 +456,18 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({ locked: !this.state.locked });
   };
 
-  nodeIndexForRow = row => {
+  extractTextFromBlock = (
+    row,
+    blockStartRegex,
+    blockEndRegex,
+    lineIncludes,
+    lineExtractRegex
+  ) => {
     const lines = this.state.bwdlText.split('\n');
     const findStartIndex = lines
       .slice(0, row)
       .reverse()
-      .findIndex(line => nodeStartLineRegex.test(line));
+      .findIndex(line => blockStartRegex.test(line));
 
     if (findStartIndex === -1) {
       return -1;
@@ -462,7 +476,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const nodeStartRow = row - findStartIndex;
     const findEndIndex = lines
       .slice(row)
-      .findIndex(line => nodeEndLineRegex.test(line));
+      .findIndex(line => blockEndRegex.test(line));
 
     if (findEndIndex === -1) {
       return -1;
@@ -471,11 +485,50 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const nodeEndRow = row + findEndIndex;
     const indexLine = lines
       .slice(nodeStartRow, nodeEndRow)
-      .find(l => l.includes(`"index": "`));
+      .find(l => l.includes(lineIncludes));
 
-    const match = indexNameRegex.exec(indexLine);
+    const match = lineExtractRegex.exec(indexLine);
 
     return match[1];
+  };
+
+  nodeIndexForRow = row => {
+    return this.extractTextFromBlock(
+      row,
+      nodeStartLineRegex,
+      nodeEndLineRegex,
+      `"index": "`,
+      indexNameRegex
+    );
+  };
+
+  gotoIndexForRow = row => {
+    const lines = this.state.bwdlText.split('\n');
+    const prevLines = lines.slice(0, row).reverse();
+    const findStartIndex = prevLines.findIndex(line =>
+      connsStartLineRegex.test(line)
+    );
+
+    if (findStartIndex === -1) {
+      return -1;
+    }
+
+    const findEndIndex = prevLines.findIndex(line =>
+      connsEndLineRegex.test(line)
+    );
+
+    if (findEndIndex != -1 && findEndIndex < findStartIndex) {
+      return -1;
+    }
+
+    // inside connections block
+    return this.extractTextFromBlock(
+      row,
+      connStartLineRegex,
+      connEndLineRegex,
+      `"goto": "`,
+      gotoIndexRegex
+    );
   };
 
   updateSelectedFromBwdl = () => {
@@ -493,16 +546,28 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   handleCursorChanged = selection => {
-    if (this.state.locked) {
+    if (this.state.locked && this.GraphView) {
       const nodeIndex = this.nodeIndexForRow(selection.getCursor().row);
 
-      if (nodeIndex !== -1 && this.GraphView) {
-        this.GraphView.panToNode(nodeIndex);
+      if (nodeIndex !== -1) {
+        let selected = null;
+        const gotoIndex = this.gotoIndexForRow(selection.getCursor().row);
 
-        const node = this.state.nodes.find(node => node.title === nodeIndex);
+        if (gotoIndex !== -1) {
+          this.GraphView.panToEdge(nodeIndex, gotoIndex);
+          selected = this.state.edges.find(
+            edge => edge.source == nodeIndex && edge.target == gotoIndex
+          );
+          selected.targetNode = this.state.nodes.find(
+            node => node.title === gotoIndex
+          );
+        } else {
+          this.GraphView.panToNode(nodeIndex);
+          selected = this.state.nodes.find(node => node.title === nodeIndex);
+        }
 
         this.setState({
-          selected: node,
+          selected: selected,
         });
       }
     }
