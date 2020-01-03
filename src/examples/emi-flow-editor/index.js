@@ -244,6 +244,19 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.state.editor.gotoLine(lineNumber);
   };
 
+  scrollToLineEdge = edge => {
+    const nodeIndex = this.state.bwdlText.indexOf(`  "${edge.source}"`);
+
+    const gotoIndex = this.state.bwdlText
+      .substr(nodeIndex)
+      .indexOf(`"goto": "${edge.target}"`);
+    const lineNumber = this.state.bwdlText
+      .substring(0, nodeIndex + gotoIndex)
+      .split('\n').length;
+
+    this.state.editor.gotoLine(lineNumber);
+  };
+
   onSelectNode = (node: INode | null) => {
     this.setState({
       selected: node,
@@ -318,6 +331,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({
       selected: edge,
     });
+
+    if (edge !== null && this.state.locked) {
+      this.scrollToLineEdge(edge);
+    }
   };
 
   onCreateEdge = (sourceNode: INode, targetNode: INode) => {
