@@ -129,6 +129,19 @@
   }
 }
 
+.stagingContext {
+  display: flex;
+  flex-direction: column;
+  > label {
+    display: flex;
+  }
+}
+
+.contextItem {
+  display: flex;
+  align-items: center;
+}
+
 label {
   align-items: center;
   border: 1px solid grey;
@@ -148,3 +161,4 @@ label {
 .defaultConnection {
   color: violet;
 }
+

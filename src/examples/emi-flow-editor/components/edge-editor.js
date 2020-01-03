@@ -203,6 +203,109 @@ const StagingFilterItem = function({
 const StagingFilterItemHOC = getOptions => props =>
   StagingFilterItem({ ...props, getOptions });
 
+const ContextItem = function({
+  decorateHandle,
+  removable,
+  onChange,
+  onRemove,
+  value,
+}) {
+  // clone, or bad stuff happens.
+  value = Object.assign({}, value);
+
+  return (
+    <div className="contextItem">
+      <label>
+        <Input
+          value={value.var}
+          onChange={text => {
+            value.var = text;
+            onChange(value);
+          }}
+        />
+      </label>
+      =
+      <label>
+        <Input
+          value={value.value}
+          onChange={text => {
+            value.value = text;
+            onChange(value);
+          }}
+        />
+      </label>
+      {decorateHandle(
+        <span
+          style={{
+            cursor: 'move',
+            margin: '5px',
+          }}
+        >
+          ↕
+        </span>
+      )}
+      <span
+        onClick={removable ? onRemove : x => x}
+        style={{
+          cursor: removable ? 'pointer' : 'not-allowed',
+          color: removable ? 'white' : 'gray',
+          margin: '5px',
+        }}
+      >
+        X
+      </span>
+    </div>
+  );
+};
+
+const StagingContextItem = function({ value, onAdd, canAdd, add, onChange }) {
+  // clone, or bad stuff happens.
+  value = Object.assign({}, value);
+  canAdd = value.var !== '' && value.value !== '';
+
+  return (
+    <div className="stagingContext stagingItem">
+      <label>
+        Variable:
+        <Input
+          value={value.var}
+          className="stagingTextInput"
+          onChange={text => {
+            value.var = text;
+            onChange(value);
+          }}
+        />
+      </label>
+      <label>
+        Value:
+        <Input
+          className="stagingTextInput"
+          value={value.value}
+          onChange={text => {
+            value.value = text;
+            onChange(value);
+          }}
+        />
+      </label>
+      <span
+        onClick={canAdd ? onAdd : undefined}
+        style={{
+          cursor: canAdd ? 'pointer' : 'not-allowed',
+          margin: '5px',
+          backgroundColor: canAdd ? 'ivory' : 'grey',
+          color: 'black',
+          padding: '2px',
+          border: '1px solid grey',
+          borderRadius: '5px',
+          maxWidth: 'fit-content',
+        }}
+      >
+        Add
+      </span>
+    </div>
+  );
+};
+
 class EdgeEditor extends React.Component {
   getFilterItems = filters =>
     Object.keys(filters).map(key => ({
@@ -210,6 +313,22 @@ class EdgeEditor extends React.Component {
       op: key.substr(key.lastIndexOf('_') + 1),
       value: filters[key],
     }));
+
+  getSetContextItems = context =>
+    Object.keys(context).map(key => ({
+      var: key,
+      value: context[key],
+    }));
+
+  getSetContextFromItems = items => {
+    const context = {};
+
+    items.forEach(item => {
+      context[item.var] = item.value;
+    });
+
+    return context;
+  };
 
   render() {
     const {
@@ -337,6 +456,20 @@ class EdgeEditor extends React.Component {
             )}
             StagingComponent={StagingFilterItemHOC(getFilterAnswers)}
             value={this.getFilterItems(conn.answers)}
+          />
+        </label>
+        <label className="inputList">
+          Set Context:
+          <ReactListInput
+            initialStagingValue={{ var: '', value: '' }}
+            onChange={value =>
+              onChangeConn('setContext', this.getSetContextFromItems(value))
+            }
+            maxItems={20}
+            minItems={0}
+            ItemComponent={ContextItem}
+            StagingComponent={StagingContextItem}
+            value={this.getSetContextItems(conn.setContext)}
           />
         </label>
       </div>
