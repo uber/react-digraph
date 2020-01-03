@@ -69,11 +69,12 @@ const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
         style={{
           cursor: canAdd ? 'pointer' : 'not-allowed',
           margin: '5px',
-          'background-color': canAdd ? 'ivory' : 'grey',
+          backgroundColor: canAdd ? 'ivory' : 'grey',
           color: 'black',
           padding: '2px',
           border: '1px solid grey',
-          'border-radius': '5px',
+          borderRadius: '5px',
+          maxWidth: 'fit-content',
         }}
       >
         Add

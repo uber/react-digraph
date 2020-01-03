@@ -186,12 +186,12 @@ const StagingFilterItem = function({
         style={{
           cursor: canAdd ? 'pointer' : 'not-allowed',
           margin: '5px',
-          'background-color': canAdd ? 'ivory' : 'grey',
+          backgroundColor: canAdd ? 'ivory' : 'grey',
           color: 'black',
           padding: '2px',
           border: '1px solid grey',
-          'border-radius': '5px',
-          'max-width': 'fit-content',
+          borderRadius: '5px',
+          maxWidth: 'fit-content',
         }}
       >
         Add
