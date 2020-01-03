@@ -125,7 +125,7 @@ const StagingFilterItem = function({
   return (
     <div className="stagingFilters stagingItem">
       <label>
-        Question:
+        Key:
         <Select
           className="selectContainer"
           theme={selectTheme}
@@ -347,7 +347,8 @@ class EdgeEditor extends React.Component {
       children,
       onChangeConn,
       onMakeDefaultConn,
-      getFilterAnswers,
+      getPrevIndexes,
+      getPrevContextVars,
       onChangeArrayFilterValue,
     } = this.props;
     const edge = children;
@@ -464,11 +465,28 @@ class EdgeEditor extends React.Component {
             maxItems={20}
             minItems={0}
             ItemComponent={FilterItemHOC(
-              getFilterAnswers,
+              getPrevIndexes,
               onChangeArrayFilterValue
             )}
-            StagingComponent={StagingFilterItemHOC(getFilterAnswers)}
+            StagingComponent={StagingFilterItemHOC(getPrevIndexes)}
             value={this.getFilterItems(conn.answers)}
+          />
+        </label>
+        <label className="inputList">
+          context:
+          <ReactListInput
+            initialStagingValue={{ key: null, op: null, value: '' }}
+            onChange={value =>
+              onChangeConn('context', this.getFilterFromItems(value))
+            }
+            maxItems={20}
+            minItems={0}
+            ItemComponent={FilterItemHOC(
+              getPrevContextVars,
+              onChangeArrayFilterValue
+            )}
+            StagingComponent={StagingFilterItemHOC(getPrevContextVars)}
+            value={this.getFilterItems(conn.context)}
           />
         </label>
         <label className="inputList">

@@ -969,24 +969,38 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  getAncestorIndexes = index => {
-    const ansestorIndexes = new Set();
+  getAncestorIndexes = (index, edgeCallback) => {
+    const ancestorIndexes = new Set();
 
     let prevSize = -1;
 
-    while (ansestorIndexes.size > prevSize) {
-      prevSize = ansestorIndexes.size;
+    while (ancestorIndexes.size > prevSize) {
+      prevSize = ancestorIndexes.size;
       this.state.edges.forEach(edge => {
-        if (ansestorIndexes.has(edge.target) || edge.target === index) {
-          ansestorIndexes.add(edge.source);
+        if (ancestorIndexes.has(edge.target) || edge.target === index) {
+          ancestorIndexes.add(edge.source);
+
+          if (edgeCallback) {
+            edgeCallback(edge);
+          }
         }
       });
     }
 
-    return Array.from(ansestorIndexes);
+    return Array.from(ancestorIndexes);
   };
 
-  getFilterAnswers = () => this.getAncestorIndexes(this.state.selected.source);
+  getPrevIndexes = () => this.getAncestorIndexes(this.state.selected.source);
+
+  getPrevContextVars = () => {
+    const vars = new Set();
+
+    this.getAncestorIndexes(this.state.selected.source, edge => {
+      Object.keys(edge.conn.setContext).forEach(vars.add, vars);
+    });
+
+    return Array.from(vars);
+  };
 
   handleChangeArrayFilterValue = (connProperty, key, op, value) => {
     const index = this.state.selected.sourceNode.gnode.question.index;
@@ -1114,7 +1128,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onMakeFirst={this.handleMakeFirst}
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}
-            getFilterAnswers={this.getFilterAnswers}
+            getPrevIndexes={this.getPrevIndexes}
+            getPrevContextVars={this.getPrevContextVars}
             onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
           >
             {this.state.selected}

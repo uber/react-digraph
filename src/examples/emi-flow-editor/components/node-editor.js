@@ -23,7 +23,8 @@ class NodeEditor extends React.Component {
       onMakeFirst,
       onChangeConn,
       onMakeDefaultConn,
-      getFilterAnswers,
+      getPrevIndexes,
+      getPrevContextVars,
       onChangeArrayFilterValue,
     } = this.props;
 
@@ -41,7 +42,8 @@ class NodeEditor extends React.Component {
           <EdgeEditor
             onChangeConn={onChangeConn}
             onMakeDefaultConn={onMakeDefaultConn}
-            getFilterAnswers={getFilterAnswers}
+            getPrevIndexes={getPrevIndexes}
+            getPrevContextVars={getPrevContextVars}
             onChangeArrayFilterValue={onChangeArrayFilterValue}
           >
             {children}

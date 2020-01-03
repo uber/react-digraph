@@ -131,7 +131,6 @@
 
 .filterItem {
   display: flex;
-  margin-left: -60px;
   align-items: center;
 
   > label {
@@ -139,12 +138,12 @@
     padding: 0px;
 
     > .selectContainer {
-      width: 120px;
+      width: 90px;
       margin: 0px;
     }
 
     > input {
-      width: 80px;
+      width: 70px;
     }
   }
 }
