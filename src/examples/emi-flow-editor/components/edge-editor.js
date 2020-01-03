@@ -123,7 +123,7 @@ const StagingFilterItem = function({
   canAdd = value.key !== null && value.op !== null && value.value;
 
   return (
-    <div className="staging stagingItem">
+    <div className="stagingFilters stagingItem">
       <label>
         Question:
         <Select
@@ -170,6 +170,7 @@ const StagingFilterItem = function({
         </label>
       ) : (
         <label>
+          Value:
           <Input
             className="stagingTextInput"
             value={value.value}
@@ -183,9 +184,14 @@ const StagingFilterItem = function({
       <span
         onClick={canAdd ? onAdd : undefined}
         style={{
-          color: canAdd ? 'white' : 'gray',
           cursor: canAdd ? 'pointer' : 'not-allowed',
           margin: '5px',
+          'background-color': canAdd ? 'ivory' : 'grey',
+          color: 'black',
+          padding: '2px',
+          border: '1px solid grey',
+          'border-radius': '5px',
+          'max-width': 'fit-content',
         }}
       >
         Add

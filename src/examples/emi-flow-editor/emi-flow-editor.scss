@@ -78,7 +78,6 @@
 
 .someNodeEditor {
   > label {
-    margin: 4px;
     flex: 1;
     display: flex;
 
@@ -111,7 +110,7 @@
 }
 
 .stagingItem {
-  margin: 10px;
+  margin: 2px;
   border: 1px solid lightpink;
   border-radius: 5px;
   padding: 5px;
@@ -119,10 +118,26 @@
 
 .stagingTextInput {
   background: lightpink;
+  margin-left: 5px,
+}
+
+.stagingFilters {
+  display: flex;
+  flex-direction: column;
+  > label {
+    display: flex;
+  }
+}
+
+label {
+  align-items: center;
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 5px;
 }
 
 .selectContainer {
-  margin: 10px;
+  margin: 5px;
   width: 200px;
 }
 
