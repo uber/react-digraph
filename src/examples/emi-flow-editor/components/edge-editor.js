@@ -123,7 +123,7 @@ const StagingFilterItem = function({
   canAdd = value.key !== null && value.op !== null && value.value;
 
   return (
-    <div className="staging">
+    <div className="staging stagingItem">
       <label>
         Question:
         <Select
@@ -171,6 +171,7 @@ const StagingFilterItem = function({
       ) : (
         <label>
           <Input
+            className="stagingTextInput"
             value={value.value}
             onChange={text => {
               value.value = text;

@@ -17,8 +17,13 @@ const getSimpleItem = function(name) {
   return { value: name, label: name };
 };
 
-const Input = ({ value, onChange, type = 'text' }) => (
-  <input type={type} value={value} onChange={e => onChange(e.target.value)} />
+const Input = ({ value, onChange, type = 'text', className = '' }) => (
+  <input
+    className={className}
+    type={type}
+    value={value}
+    onChange={e => onChange(e.target.value)}
+  />
 );
 
 const Item = function({
@@ -29,7 +34,7 @@ const Item = function({
   value,
 }) {
   return (
-    <div>
+    <div className="listItem">
       <Input value={value} onChange={onChange} />
       {decorateHandle(
         <span
@@ -57,8 +62,8 @@ const Item = function({
 
 const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
   return (
-    <div>
-      <Input value={value} onChange={onChange} />
+    <div className="stagingItem">
+      <Input className="stagingTextInput" value={value} onChange={onChange} />
       <span
         onClick={canAdd ? onAdd : undefined}
         style={{
