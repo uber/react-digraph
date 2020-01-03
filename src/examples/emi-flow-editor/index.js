@@ -43,7 +43,7 @@ type IBwdlState = {
 };
 
 const indexNameRegex = /"index": "(.*)",/;
-const nodeStartLineRegex = /^ {4}"question": {/;
+const nodeStartLineRegex = /^ {2}"((?!faqs).)*": {/;
 const nodeEndLineRegex = /^ {2}}/;
 
 const connsStartLineRegex = /^ {6}"connections": \[/;
@@ -465,7 +465,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   ) => {
     const lines = this.state.bwdlText.split('\n');
     const findStartIndex = lines
-      .slice(0, row)
+      .slice(0, row + 1)
       .reverse()
       .findIndex(line => blockStartRegex.test(line));
 
