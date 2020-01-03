@@ -31,7 +31,7 @@ const FilterItem = function({
   value = Object.assign({}, value);
 
   return (
-    <div>
+    <div className="filterItem">
       <label>
         <Select
           className="selectContainer"

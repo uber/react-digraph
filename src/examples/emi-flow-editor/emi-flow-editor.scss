@@ -129,6 +129,26 @@
   }
 }
 
+.filterItem {
+  display: flex;
+  margin-left: -60px;
+  align-items: center;
+
+  > label {
+    margin: 0px;
+    padding: 0px;
+
+    > .selectContainer {
+      width: 120px;
+      margin: 0px;
+    }
+
+    > input {
+      width: 80px;
+    }
+  }
+}
+
 .stagingContext {
   display: flex;
   flex-direction: column;
