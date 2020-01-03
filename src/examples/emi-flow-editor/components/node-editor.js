@@ -24,7 +24,6 @@ class NodeEditor extends React.Component {
       onChangeConn,
       onMakeDefaultConn,
       getFilterAnswers,
-      onChangeConnFilters,
       onChangeArrayFilterValue,
     } = this.props;
 
@@ -43,7 +42,6 @@ class NodeEditor extends React.Component {
             onChangeConn={onChangeConn}
             onMakeDefaultConn={onMakeDefaultConn}
             getFilterAnswers={getFilterAnswers}
-            onChangeConnFilters={onChangeConnFilters}
             onChangeArrayFilterValue={onChangeArrayFilterValue}
           >
             {children}

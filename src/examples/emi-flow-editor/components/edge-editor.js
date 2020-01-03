@@ -314,6 +314,18 @@ class EdgeEditor extends React.Component {
       value: filters[key],
     }));
 
+  getFilterFromItems = items => {
+    const filters = {};
+
+    items.forEach(item => {
+      const key = `${item.key}_${item.op}`;
+
+      filters[key] = item.value;
+    });
+
+    return filters;
+  };
+
   getSetContextItems = context =>
     Object.keys(context).map(key => ({
       var: key,
@@ -336,7 +348,6 @@ class EdgeEditor extends React.Component {
       onChangeConn,
       onMakeDefaultConn,
       getFilterAnswers,
-      onChangeConnFilters,
       onChangeArrayFilterValue,
     } = this.props;
     const edge = children;
@@ -447,7 +458,9 @@ class EdgeEditor extends React.Component {
           answers:
           <ReactListInput
             initialStagingValue={{ key: null, op: null, value: '' }}
-            onChange={value => onChangeConnFilters('answers', value)}
+            onChange={value =>
+              onChangeConn('answers', this.getFilterFromItems(value))
+            }
             maxItems={20}
             minItems={0}
             ItemComponent={FilterItemHOC(

@@ -923,31 +923,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   getFilterAnswers = () => this.getAncestorIndexes(this.state.selected.source);
 
-  handleConnFiltersChange = (connProperty, filters) => {
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
-      conn[connProperty] = {};
-      filters.forEach(filter => {
-        const key = `${filter.key}_${filter.op}`;
-
-        conn[connProperty][key] = filter.value;
-      });
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
-  };
-
   handleChangeArrayFilterValue = (connProperty, key, op, value) => {
     const index = this.state.selected.sourceNode.gnode.question.index;
     const targetIndex = this.state.selected.targetNode.gnode.question.index;
@@ -1075,7 +1050,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}
             getFilterAnswers={this.getFilterAnswers}
-            onChangeConnFilters={this.handleConnFiltersChange}
             onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
           >
             {this.state.selected}
