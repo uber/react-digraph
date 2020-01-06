@@ -8,13 +8,11 @@ class NodeEditor extends React.Component {
     const {
       children,
       onChangeIndex,
-      onChangeText,
+      onChangeQuestion,
       onChangeImmediateNext,
-      onChangeExactMatch,
-      onChangeErrorMessageNotMatch,
       onChangeQuickReplies,
       onChangeAI,
-      onChangeQuestionStr,
+      onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
@@ -83,7 +81,10 @@ class NodeEditor extends React.Component {
           </label>
           <label>
             Text:
-            <TextareaAutosize value={question.text} onChange={onChangeText} />
+            <TextareaAutosize
+              value={question.text}
+              onChange={e => onChangeQuestion('text', e.target.value)}
+            />
           </label>
           <label>
             Immediate next:
@@ -91,16 +92,15 @@ class NodeEditor extends React.Component {
               name="immediateNext"
               type="checkbox"
               checked={question.immediateNext}
-              onChange={onChangeImmediateNext}
+              onChange={e => onChangeImmediateNext(e.target.checked)}
             />
           </label>
           {!question.immediateNext && (
             <AnswerEditor
-              onChangeExactMatch={onChangeExactMatch}
-              onChangeErrorMessageNotMatch={onChangeErrorMessageNotMatch}
+              onChangeQuestion={onChangeQuestion}
               onChangeQuickReplies={onChangeQuickReplies}
               onChangeAI={onChangeAI}
-              onChangeQuestionStr={onChangeQuestionStr}
+              onChangeAiQuestionStr={onChangeAiQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
               onChangeLang={onChangeLang}
               onChangeMinSimilarity={onChangeMinSimilarity}

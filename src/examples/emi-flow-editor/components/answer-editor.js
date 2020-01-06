@@ -8,11 +8,10 @@ class AnswerEditor extends React.Component {
   render() {
     const {
       children,
-      onChangeExactMatch,
-      onChangeErrorMessageNotMatch,
+      onChangeQuestion,
       onChangeQuickReplies,
       onChangeAI,
-      onChangeQuestionStr,
+      onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
@@ -43,7 +42,7 @@ class AnswerEditor extends React.Component {
               name="exactMatch"
               type="checkbox"
               checked={question.exactMatch}
-              onChange={onChangeExactMatch}
+              onChange={e => onChangeQuestion('exactMatch', e.target.value)}
             />
           </label>
         )}
@@ -52,22 +51,33 @@ class AnswerEditor extends React.Component {
             Error Message:
             <TextareaAutosize
               value={question.errorMessageNotMatch}
-              onChange={onChangeErrorMessageNotMatch}
+              onChange={e =>
+                onChangeQuestion('errorMessageNotMatch', e.target.value)
+              }
             />
           </label>
         )}
+        <label>
+          Is Audio:
+          <input
+            name="isAudio"
+            type="checkbox"
+            checked={question.isAudio}
+            onChange={e => onChangeQuestion('isAudio', e.target.checked)}
+          />
+        </label>
         <label>
           AI - Empathy:
           <input
             name="ai"
             type="checkbox"
             checked={'ai' in node.gnode}
-            onChange={onChangeAI}
+            onChange={e => onChangeAI(e.target.checked)}
           />
         </label>
         {'ai' in node.gnode && (
           <AiEditor
-            onChangeQuestionStr={onChangeQuestionStr}
+            onChangeAiQuestionStr={onChangeAiQuestionStr}
             onChangePredictionDataOptions={onChangePredictionDataOptions}
             onChangeLang={onChangeLang}
             onChangeMinSimilarity={onChangeMinSimilarity}

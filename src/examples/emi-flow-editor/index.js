@@ -284,6 +284,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         connections: [],
         text: '',
         immediateNext: false,
+        isAudio: false,
         quickReplies: [],
       },
       x,
@@ -654,26 +655,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  handleTextChange = e => {
-    const newText = e.target.value;
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].question.text = newText;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+  handleQuestionChange = (property, newValue) => {
+    this.changeSelectedNode(
+      (newBwdlJson, index) => (newBwdlJson[index].question[property] = newValue)
+    );
   };
 
-  handleExactMatchChange = e => {
-    const newExactMatch = e.target.checked;
+  changeSelectedNode = f => {
     const index = this.state.selected.gnode.question.index;
 
     this.setState(prevState => {
@@ -681,25 +669,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         ...prevState.bwdlJson,
       };
 
-      newBwdlJson[index].question.exactMatch = newExactMatch;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
-  };
-
-  handleErrorMessageNotMatchChange = e => {
-    const newValue = e.target.value;
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].question.errorMessageNotMatch = newValue;
+      f(newBwdlJson, index);
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -709,23 +679,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   handleQuickRepliesChange = newValue => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
+    this.changeSelectedNode((newBwdlJson, index) => {
       newBwdlJson[index].question.quickReplies = newValue;
 
       if (newValue.length == 0) {
         newBwdlJson[index].question.exactMatch = false;
       }
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
     });
   };
 
@@ -744,128 +703,55 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
-  handleAIChange = e => {
-    const aiEnabled = e.target.checked;
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
+  handleAIChange = aiEnabled => {
+    this.changeSelectedNode((newBwdlJson, index) => {
       if (aiEnabled) {
         this.setAiDefaults(newBwdlJson[index], defaultQuestionStr);
       } else {
         delete newBwdlJson[index].ai;
       }
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
     });
   };
 
-  handleQuestionStrChange = item => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      this.setAiDefaults(newBwdlJson[index], item.value);
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+  handleAiQuestionStrChange = item => {
+    this.changeSelectedNode((newBwdlJson, index) =>
+      this.setAiDefaults(newBwdlJson[index], item.value)
+    );
   };
 
   handlePredictionDataOptionsChange = (key, newValue) => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].ai.prediction_data.options[key] = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedNode(
+      (newBwdlJson, index) =>
+        (newBwdlJson[index].ai.prediction_data.options[key] = newValue)
+    );
   };
 
   handleLangChange = item => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].ai.lang = item.value;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedNode(
+      (newBwdlJson, index) => (newBwdlJson[index].ai.lang = item.value)
+    );
   };
 
-  handleMinSimilarityChange = e => {
-    const newValue = e.target.value;
-
+  handleMinSimilarityChange = newValue => {
     if (newValue !== '' && (newValue > 100 || newValue < 1)) {
       return;
     }
 
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].ai.prediction_data.min_similarity = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedNode(
+      (newBwdlJson, index) =>
+        (newBwdlJson[index].ai.prediction_data.min_similarity = newValue)
+    );
   };
 
   handleIntentResponseChange = (key, newValue) => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedNode(
+      (newBwdlJson, index) =>
+        (newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue)
+    );
   };
 
-  handleImmediateNextChange = e => {
-    const newValue = e.target.checked;
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
+  handleImmediateNextChange = newValue => {
+    this.changeSelectedNode((newBwdlJson, index) => {
       if (newValue) {
         newBwdlJson[index].question.options = [];
         newBwdlJson[index].question.exactMatch = false;
@@ -877,29 +763,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       }
 
       newBwdlJson[index].question.immediateNext = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
     });
   };
 
   handleCountryChange = item => {
-    const index = this.state.selected.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      newBwdlJson[index].ai.country = item.value;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedNode(
+      (newBwdlJson, index) => (newBwdlJson[index].ai.country = item.value)
+    );
   };
 
   handleMakeFirst = () => {
@@ -923,12 +793,23 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       return;
     }
 
+    this.changeSelectedNode(
+      (newBwdlJson, index) => (newBwdlJson['current'] = index)
+    );
+  };
+
+  changeSelectedConn = f => {
+    const index = this.state.selected.sourceNode.gnode.question.index;
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
     this.setState(prevState => {
       const newBwdlJson = {
         ...prevState.bwdlJson,
       };
+      const conns = newBwdlJson[index].question.connections;
+      const conn = conns.find(conn => conn.goto === targetIndex);
 
-      newBwdlJson['current'] = index;
+      f(conn, conns, newBwdlJson, index, targetIndex);
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -938,35 +819,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   handleConnChange = (connProperty, newValue) => {
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
-      conn[connProperty] = newValue;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
+    this.changeSelectedConn(conn => (conn[connProperty] = newValue));
   };
 
   handleConnMakeDefault = enabling => {
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
-
+    this.changeSelectedConn((conn, conns) => {
       if (enabling) {
         const defaultConn = conns.find(conn => conn.isDefault);
 
@@ -975,14 +832,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         }
       }
 
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
       conn['isDefault'] = enabling;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
     });
   };
 
@@ -1020,23 +870,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   handleChangeArrayFilterValue = (connProperty, key, op, value) => {
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
+    this.changeSelectedConn(conn => {
       key = `${key}_${op}`;
       conn[connProperty][key] = value;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
     });
   };
 
@@ -1128,12 +964,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         <div id="rightBar">
           <NodeEditor
             onChangeIndex={this.handleIndexChanged}
-            onChangeText={this.handleTextChange}
-            onChangeErrorMessageNotMatch={this.handleErrorMessageNotMatchChange}
-            onChangeExactMatch={this.handleExactMatchChange}
+            onChangeQuestion={this.handleQuestionChange}
             onChangeQuickReplies={this.handleQuickRepliesChange}
             onChangeAI={this.handleAIChange}
-            onChangeQuestionStr={this.handleQuestionStrChange}
+            onChangeAiQuestionStr={this.handleAiQuestionStrChange}
             onChangePredictionDataOptions={
               this.handlePredictionDataOptionsChange
             }

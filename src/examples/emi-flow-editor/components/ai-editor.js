@@ -52,7 +52,7 @@ class AiEditor extends React.Component {
   render() {
     const {
       children,
-      onChangeQuestionStr,
+      onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
@@ -70,7 +70,7 @@ class AiEditor extends React.Component {
             className="selectContainer"
             theme={selectTheme}
             value={this.getQuestionStrItem(ai.question_str)}
-            onChange={onChangeQuestionStr}
+            onChange={onChangeAiQuestionStr}
             options={this.questionItems}
             isSearchable={true}
           />
@@ -108,7 +108,7 @@ class AiEditor extends React.Component {
               type="number"
               name="min_similarity"
               value={ai.prediction_data.min_similarity}
-              onChange={onChangeMinSimilarity}
+              onChange={e => onChangeMinSimilarity(e.target.value)}
             />
           </label>
         )}
