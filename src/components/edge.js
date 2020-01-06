@@ -52,6 +52,8 @@ type IEdgeProps = {
   rotateEdgeHandle: true,
 };
 
+const LINE_GAP = 15;
+
 class Edge extends React.Component<IEdgeProps> {
   static defaultProps = {
     edgeHandleSize: 50,
@@ -624,6 +626,38 @@ class Edge extends React.Component<IEdgeProps> {
     return Edge.lineFunction(linePoints);
   }
 
+  getLabels(conn: any) {
+    if (!conn) {
+      return '';
+    }
+
+    const nonFilterProps = ['goto', 'isDefault'];
+
+    const empty = function(e) {
+      return !e || (typeof e === 'object' && Object.entries(e).length === 0);
+    };
+
+    const getObjectLabels = function(prop, obj) {
+      return Object.keys(obj).map(k => `[${prop}-${k}: ${obj[k]}]`);
+    };
+
+    const propertyLabelsReducer = function(labels, prop) {
+      const obj = conn[prop];
+
+      if (typeof obj !== 'object') {
+        labels.push(`[${prop}: ${obj}]`);
+      } else {
+        labels = [...labels, ...getObjectLabels(prop, obj)];
+      }
+
+      return labels;
+    };
+
+    return Object.keys(conn)
+      .filter(k => !nonFilterProps.includes(k) && !empty(conn[k]))
+      .reduce(propertyLabelsReducer, []);
+  }
+
   renderHandleText(data: any) {
     return (
       <text
@@ -638,21 +672,33 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   renderLabelText(data: any) {
-    const [rotation, isRotated] = this.getEdgeHandleRotation();
-    const title = isRotated
-      ? `${data.label_to} ↔ ${data.label_from}`
-      : `${data.label_from} ↔ ${data.label_to}`;
+    // let [rotation, isRotated] = this.getEdgeHandleRotation();
+    if (!data.conn) {
+      return;
+    }
+
+    const labels = this.getLabels(data.conn);
+    const labelsFirstDy = -1 * ((labels.length - 1) / 2) * LINE_GAP;
+    // const title = isRotated
+    //   ? `${data.label_to} ↔ ${data.label_from}`
+    //   : `${data.label_from} ↔ ${data.label_to}`;
+    const rotation = 'rotate(0)';
 
     return (
-      <text
-        className="edge-text"
-        textAnchor="middle"
-        alignmentBaseline="central"
-        style={{ fontSize: '11px', stroke: 'none', fill: 'black' }}
-        transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
-      >
-        {title}
-      </text>
+      <g>
+        {labels.map((label, index) => (
+          <text
+            className="edge-text"
+            textAnchor="middle"
+            alignmentBaseline="central"
+            style={{ fontSize: '14px', stroke: 'none', fill: 'black' }}
+            transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
+            key={label.substr(0, 10)}
+          >
+            <tspan dy={labelsFirstDy + LINE_GAP * index}>{label}</tspan>
+          </text>
+        ))}
+      </g>
     );
   }
 
@@ -690,7 +736,8 @@ class Edge extends React.Component<IEdgeProps> {
             style={{ transform: edgeHandleTransformation }}
           />
           {data.handleText && this.renderHandleText(data)}
-          {data.label_from && data.label_to && this.renderLabelText(data)}
+          {/*data.label_from && data.label_to && this.renderLabelText(data)*/}
+          {this.renderLabelText(data)}
         </g>
         <g className="edge-mouse-handler">
           <title>{data.handleTooltipText}</title>

@@ -66,6 +66,17 @@ class AnswerEditor extends React.Component {
             onChange={e => onChangeQuestion('isAudio', e.target.checked)}
           />
         </label>
+        {question.isAudio && (
+          <label>
+            No Audio - Error Message:
+            <TextareaAutosize
+              value={question.audioErrorMessage}
+              onChange={e =>
+                onChangeQuestion('audioErrorMessage', e.target.value)
+              }
+            />
+          </label>
+        )}
         <label>
           AI - Empathy:
           <input
