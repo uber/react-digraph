@@ -1,7 +1,13 @@
 import * as React from 'react';
 import Select from 'react-select';
 import ReactListInput from 'react-list-input';
-import { Input, getSimpleItem, selectTheme } from './common';
+import {
+  Input,
+  getSimpleItem,
+  selectTheme,
+  StagingSelectItemHOC,
+  SelectItemHOC,
+} from './common';
 
 const filterOps = [
   // 'contains',
@@ -29,95 +35,6 @@ const changeFilterOp = (item, value, onChange) => {
 
   onChange(value);
 };
-
-const IntentItem = function({
-  decorateHandle,
-  removable,
-  onChange,
-  onRemove,
-  value,
-  getOptions,
-}) {
-  return (
-    <div className="listItem">
-      <Select
-        className="selectContainer"
-        theme={selectTheme}
-        value={getSimpleItem(value)}
-        onChange={item => onChange(item.value)}
-        options={getOptions().map(option => getSimpleItem(option))}
-        isSearchable={true}
-        isDisabled={true}
-      />
-      {decorateHandle(
-        <span
-          style={{
-            cursor: 'move',
-            margin: '5px',
-          }}
-        >
-          ↕
-        </span>
-      )}
-      <span
-        onClick={removable ? onRemove : x => x}
-        style={{
-          cursor: removable ? 'pointer' : 'not-allowed',
-          color: removable ? 'white' : 'gray',
-          margin: '5px',
-        }}
-      >
-        X
-      </span>
-    </div>
-  );
-};
-
-const IntentItemHOC = getOptions => props =>
-  IntentItem({ ...props, getOptions });
-
-const StagingIntentItem = function({
-  value,
-  onAdd,
-  canAdd,
-  add,
-  onChange,
-  getOptions,
-}) {
-  return (
-    <div className="stagingItem">
-      <label style={{ border: 'none' }}>
-        Intent:
-        <Select
-          className="selectContainer"
-          theme={selectTheme}
-          value={getSimpleItem(value)}
-          onChange={item => onChange(item.value)}
-          options={getOptions().map(option => getSimpleItem(option))}
-          isSearchable={true}
-        />
-      </label>
-      <span
-        onClick={canAdd ? onAdd : undefined}
-        style={{
-          cursor: canAdd ? 'pointer' : 'not-allowed',
-          margin: '5px',
-          backgroundColor: canAdd ? 'ivory' : 'grey',
-          color: 'black',
-          padding: '2px',
-          border: '1px solid grey',
-          borderRadius: '5px',
-          maxWidth: 'fit-content',
-        }}
-      >
-        Add
-      </span>
-    </div>
-  );
-};
-
-const StagingIntentItemHOC = getOptions => props =>
-  StagingIntentItem({ ...props, getOptions });
 
 const IntentFilterItem = function({
   decorateHandle,
@@ -159,8 +76,8 @@ const IntentFilterItem = function({
             }
             maxItems={20}
             minItems={0}
-            ItemComponent={IntentItemHOC(getOptions)}
-            StagingComponent={StagingIntentItemHOC(getOptions)}
+            ItemComponent={SelectItemHOC(getOptions)}
+            StagingComponent={StagingSelectItemHOC(getOptions)}
             value={value.value}
           />
         </label>
@@ -252,8 +169,8 @@ const StagingIntentFilterItem = function({
             }}
             maxItems={20}
             minItems={0}
-            ItemComponent={IntentItemHOC(getOptions)}
-            StagingComponent={StagingIntentItemHOC(getOptions)}
+            ItemComponent={SelectItemHOC(getOptions)}
+            StagingComponent={StagingSelectItemHOC(getOptions)}
             value={value.value}
           />
         </label>
