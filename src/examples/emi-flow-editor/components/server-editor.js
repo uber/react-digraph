@@ -1,9 +1,21 @@
 import * as React from 'react';
 import ReactListInput from 'react-list-input';
 import Select from 'react-select';
-import { selectTheme, getSimpleItem, Item, StagingItem } from './common';
+import {
+  selectTheme,
+  getSimpleItem,
+  Item,
+  StagingItem,
+  SelectItemHOC,
+  StagingSelectItemHOC,
+} from './common';
 
 const methods = ['POST', 'PUT', 'GET'];
+
+const getSupportedParams = () => ['candidate_id', 'job_id', 'channel_user_id'];
+
+const getValidParamsHOC = server => () =>
+  getSupportedParams().filter(p => !server.params.includes(p));
 
 class ServerEditor extends React.Component {
   render() {
@@ -37,6 +49,18 @@ class ServerEditor extends React.Component {
             onChange={item => onChangeServerProp('method', item.value)}
             options={methods.map(method => getSimpleItem(method))}
             isSearchable={true}
+          />
+        </label>
+        <label className="inputList">
+          Send params:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={list => onChangeServerProp('params', list)}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={SelectItemHOC(getSupportedParams)}
+            StagingComponent={StagingSelectItemHOC(getValidParamsHOC(server))}
+            value={server.params}
           />
         </label>
         <label>

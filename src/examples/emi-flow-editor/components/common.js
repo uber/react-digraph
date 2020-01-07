@@ -181,8 +181,9 @@ const StagingSelectItem = function({
   );
 };
 
-const StagingSelectItemHOC = getOptions => props =>
-  StagingSelectItem({ ...props, getOptions });
+const StagingSelectItemHOC = getOptions => props => {
+  return StagingSelectItem({ ...props, getOptions });
+};
 
 export {
   selectTheme,

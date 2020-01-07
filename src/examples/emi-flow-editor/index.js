@@ -643,6 +643,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           method: 'PUT',
           url: 'http://...',
           param: '',
+          params: [],
         };
       } else {
         delete newBwdlJson[index].server;
