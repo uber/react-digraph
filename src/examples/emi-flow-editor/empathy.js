@@ -95,4 +95,52 @@ const empathyDefaults = {
   },
 };
 
-export { defaultQuestionStr, empathyDefaults };
+const intentsByQuestionStr = {
+  dates: ['success'],
+  duration: ['didNotWork', 'success'],
+  generic_yes_no_v2: [
+    'generic_yes_no_n',
+    'generic_yes_no_maybe',
+    'generic_yes_no_y',
+  ],
+  interest_v2: [
+    'interest-another-time',
+    'interest-ask-address',
+    'interest-yes',
+    'interest-no',
+  ],
+  nickname: ['success'],
+  prepa: [
+    'prepa-trunca',
+    'prepa-en-curso',
+    'prepa-sin-inicio',
+    'prepa-completa',
+  ],
+  salary: ['notSure', 'success'],
+  schedule_v2: [
+    'userNotInterested',
+    'interestCant',
+    'otherTime',
+    'personalReason',
+    'specificTimeAndDay',
+    'studying',
+    'userConfirms',
+    'userDeniesPrediction',
+    'confirmsUserInterest',
+    'didNotSee',
+    'fromDate',
+  ],
+  secondary_v2: [
+    'secondary_abandoned',
+    'secondary_in_progress',
+    'secondary_finished',
+  ],
+  sentiment: [
+    'Default Fallback Intent',
+    'sentiment_happy',
+    'sentiment_unhappy',
+    'sentiment_neutral',
+  ],
+};
+
+export { defaultQuestionStr, empathyDefaults, intentsByQuestionStr };

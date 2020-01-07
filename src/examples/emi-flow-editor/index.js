@@ -31,7 +31,11 @@ import Sidebar from '../sidebar';
 import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
-import { defaultQuestionStr, empathyDefaults } from './empathy';
+import {
+  defaultQuestionStr,
+  empathyDefaults,
+  intentsByQuestionStr,
+} from './empathy';
 
 type IBwdlState = {
   nodes: INode[],
@@ -778,10 +782,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   getPrevIndexes = () => this.getAncestorIndexes(this.state.selected.source);
 
-  getIntents = () =>
-    Object.keys(
-      this.state.selected.sourceNode.gnode.ai.prediction_data.intent_responses
-    );
+  getSourceNodeIntents = () => {
+    const ai = this.state.selected.sourceNode.gnode.ai;
+
+    return intentsByQuestionStr[ai.question_str] || [];
+  };
 
   getPrevContextVars = () => {
     const vars = new Set();
@@ -904,7 +909,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}
             getPrevIndexes={this.getPrevIndexes}
-            getIntents={this.getIntents}
+            getIntents={this.getSourceNodeIntents}
             getPrevContextVars={this.getPrevContextVars}
             onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
           >
