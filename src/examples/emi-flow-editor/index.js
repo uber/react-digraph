@@ -636,6 +636,60 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
+  handleServerChange = serverEnabled => {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      if (serverEnabled) {
+        newBwdlJson[index].server = {
+          method: 'PUT',
+          url: 'http://...',
+          param: '',
+        };
+      } else {
+        delete newBwdlJson[index].server;
+      }
+    });
+  };
+
+  handleServerParamChange = value => {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      const hasParam = this.state.bwdlJson[index].server.param;
+
+      if (!hasParam && value) {
+        newBwdlJson[index].server.translate = {};
+        newBwdlJson[index].question.quickReplies.forEach(reply => {
+          newBwdlJson[index].server.translate[reply] = reply;
+        });
+      } else if (hasParam && !value) {
+        delete newBwdlJson[index].server.translate;
+      }
+
+      newBwdlJson[index].server.param = value;
+    });
+  };
+
+  handleServerPropChange = (prop, value) => {
+    this.changeSelectedNode(
+      (newBwdlJson, index) => (newBwdlJson[index].server[prop] = value)
+    );
+  };
+
+  handleServerIncludeAnswersChange = enabled => {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      if (enabled) {
+        newBwdlJson[index].server.includeAnswers = ['x'];
+      } else {
+        delete newBwdlJson[index].server.includeAnswers;
+      }
+    });
+  };
+
+  handleServerTranslateChange = (key, newValue) => {
+    this.changeSelectedNode(
+      (newBwdlJson, index) =>
+        (newBwdlJson[index].server.translate[key] = newValue)
+    );
+  };
+
   handleAiQuestionStrChange = item => {
     this.changeSelectedNode((newBwdlJson, index) =>
       this.setAiDefaults(newBwdlJson[index], item.value)
@@ -896,6 +950,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeQuestion={this.handleQuestionChange}
             onChangeQuickReplies={this.handleQuickRepliesChange}
             onChangeAI={this.handleAIChange}
+            onChangeServer={this.handleServerChange}
+            onChangeServerProp={this.handleServerPropChange}
+            onChangeServerParam={this.handleServerParamChange}
+            onChangeServerIncludeAnswers={this.handleServerIncludeAnswersChange}
+            onChangeServerTranslate={this.handleServerTranslateChange}
             onChangeAiQuestionStr={this.handleAiQuestionStrChange}
             onChangePredictionDataOptions={
               this.handlePredictionDataOptionsChange

@@ -12,6 +12,11 @@ class NodeEditor extends React.Component {
       onChangeImmediateNext,
       onChangeQuickReplies,
       onChangeAI,
+      onChangeServer,
+      onChangeServerProp,
+      onChangeServerParam,
+      onChangeServerIncludeAnswers,
+      onChangeServerTranslate,
       onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
@@ -102,6 +107,11 @@ class NodeEditor extends React.Component {
               onChangeQuestion={onChangeQuestion}
               onChangeQuickReplies={onChangeQuickReplies}
               onChangeAI={onChangeAI}
+              onChangeServer={onChangeServer}
+              onChangeServerProp={onChangeServerProp}
+              onChangeServerParam={onChangeServerParam}
+              onChangeServerIncludeAnswers={onChangeServerIncludeAnswers}
+              onChangeServerTranslate={onChangeServerTranslate}
               onChangeAiQuestionStr={onChangeAiQuestionStr}
               onChangePredictionDataOptions={onChangePredictionDataOptions}
               onChangeLang={onChangeLang}

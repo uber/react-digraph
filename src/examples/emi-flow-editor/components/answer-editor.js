@@ -3,6 +3,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import ReactListInput from 'react-list-input';
 import { Item, StagingItem } from './common';
 import AiEditor from './ai-editor';
+import ServerEditor from './server-editor';
 
 class AnswerEditor extends React.Component {
   render() {
@@ -11,6 +12,11 @@ class AnswerEditor extends React.Component {
       onChangeQuestion,
       onChangeQuickReplies,
       onChangeAI,
+      onChangeServer,
+      onChangeServerProp,
+      onChangeServerParam,
+      onChangeServerIncludeAnswers,
+      onChangeServerTranslate,
       onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
@@ -97,6 +103,25 @@ class AnswerEditor extends React.Component {
           >
             {children}
           </AiEditor>
+        )}
+        <label>
+          Server request:
+          <input
+            name="server"
+            type="checkbox"
+            checked={'server' in node.gnode}
+            onChange={e => onChangeServer(e.target.checked)}
+          />
+        </label>
+        {'server' in node.gnode && (
+          <ServerEditor
+            onChangeServerProp={onChangeServerProp}
+            onChangeServerIncludeAnswers={onChangeServerIncludeAnswers}
+            onChangeServerParam={onChangeServerParam}
+            onChangeServerTranslate={onChangeServerTranslate}
+          >
+            {children}
+          </ServerEditor>
         )}
       </div>
     );
