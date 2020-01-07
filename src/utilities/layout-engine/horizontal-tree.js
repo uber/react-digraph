@@ -28,6 +28,7 @@ class HorizontalTree extends SnapToGrid {
       nodeWidth,
       nodeSizeOverridesAllowed,
       nodeSpacingMultiplier,
+      nodeLocationOverrides,
       graphConfig,
     } = this.graphViewProps;
     const spacing = nodeSpacingMultiplier || 1.5;
@@ -79,6 +80,21 @@ class HorizontalTree extends SnapToGrid {
     });
 
     dagre.layout(g);
+
+    if (nodeLocationOverrides) {
+      for (const gNodeId in nodeLocationOverrides) {
+        if (nodeLocationOverrides.hasOwnProperty(gNodeId)) {
+          const nodeKeyId = `key-${gNodeId}`;
+          const gNode = g.node(nodeKeyId);
+          const locationOverride = nodeLocationOverrides[gNodeId];
+
+          if (gNode && locationOverride) {
+            gNode.x = locationOverride.x;
+            gNode.y = locationOverride.y;
+          }
+        }
+      }
+    }
 
     g.nodes().forEach(gNodeId => {
       const nodesMapNode = nodesMap[gNodeId];
