@@ -107,6 +107,8 @@
 
 .listItem {
   margin-top: 3px;
+  display: flex;
+  align-items: center;
 }
 
 .stagingItem {
@@ -114,6 +116,12 @@
   border: 1px solid lightpink;
   border-radius: 5px;
   padding: 5px;
+  display: flex;
+  align-items: center;
+
+  > label {
+    border: 1px solid lightpink;
+  }
 }
 
 .stagingTextInput {
@@ -138,7 +146,7 @@
     padding: 0px;
 
     > .selectContainer {
-      width: 90px;
+      width: 140px;
       margin: 0px;
     }
 
@@ -171,6 +179,16 @@ label {
 .selectContainer {
   margin: 5px;
   width: 200px;
+}
+
+.selectMidContainer {
+  margin: 5px;
+  width: 150px;
+}
+
+.selectShortContainer {
+  margin: 5px;
+  width: 100px;
 }
 
 .select__option {

@@ -31,6 +31,7 @@ import Sidebar from '../sidebar';
 import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
+import { defaultQuestionStr, empathyDefaults } from './empathy';
 
 type IBwdlState = {
   nodes: INode[],
@@ -53,101 +54,17 @@ const connStartLineRegex = /^ {8}{/;
 const connEndLineRegex = /^ {8}}/;
 const gotoIndexRegex = /"goto": "(.*)",/;
 
-const defaultQuestionStr = 'generic_yes_no_v2';
-const empathyDefaults = {
-  phone: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  best_match_no_retry: {
-    lang: 'ES',
-    prediction_data: {
-      min_similarity: 90,
-      options: {}, // keys will be added for the answer options
-    },
-  },
-  best_match: {
-    lang: 'ES',
-    prediction_data: {
-      min_similarity: 90,
-      options: {}, // keys will be added for the answer options
-    },
-  },
-  dates: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  prepa: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        'prepa-completa': 'Completa',
-        'prepa-en-curso': 'En Curso',
-        'prepa-sin-inicio': 'No la inicié',
-        'prepa-trunca': 'Trunca',
-      },
-    },
-  },
-  salary: {
-    lang: 'ES',
-    country: 'AR',
-    prediction_data: {},
-  },
-  secondary_v2: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        secondary_abandoned: 'No lo terminé',
-        secondary_finished: 'Terminado',
-        secondary_in_progress: 'Lo estoy cursando',
-      },
-    },
-  },
-  nickname: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  duration: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  generic_yes_no_v2: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        generic_yes_no_y: 'Si',
-        generic_yes_no_n: 'No',
-        generic_yes_no_maybe: 'No se',
-      },
-    },
-  },
-  welcome_idle: 'welcome_idle',
-  interest_v2: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        'interest-yes': 'Está OK',
-        'interest-no': 'No me interesa',
-        'interest-another-time': 'Otro día/fecha',
-        'interest-ask-address': 'Está OK',
-      },
-    },
-  },
-  schedule_v2: {
-    lang: 'ES',
-  },
-  sentiment: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  time_interval: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  datetime: {
-    lang: 'ES',
-    country: 'AR',
-  },
+const makeid = function(length) {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
 };
 
 function stringify(bwdlJson) {
@@ -202,6 +119,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         lessThan: '',
         notInArray: [],
         setContext: {},
+        nlp: {},
       };
 
       const connections = sourceNodeBwdl.question.connections;
@@ -272,7 +190,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       ...this.state.bwdlJson,
     };
 
-    const index = `node-${Date.now()}`;
+    const index = `node-${makeid(4)}`;
 
     newBwdlJson[index] = {
       // id: index,
@@ -860,6 +778,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   getPrevIndexes = () => this.getAncestorIndexes(this.state.selected.source);
 
+  getIntents = () =>
+    Object.keys(
+      this.state.selected.sourceNode.gnode.ai.prediction_data.intent_responses
+    );
+
   getPrevContextVars = () => {
     const vars = new Set();
 
@@ -981,6 +904,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}
             getPrevIndexes={this.getPrevIndexes}
+            getIntents={this.getIntents}
             getPrevContextVars={this.getPrevContextVars}
             onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
           >

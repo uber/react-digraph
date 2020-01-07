@@ -42,7 +42,7 @@ class AnswerEditor extends React.Component {
               name="exactMatch"
               type="checkbox"
               checked={question.exactMatch}
-              onChange={e => onChangeQuestion('exactMatch', e.target.value)}
+              onChange={e => onChangeQuestion('exactMatch', e.target.checked)}
             />
           </label>
         )}

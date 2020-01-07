@@ -693,7 +693,7 @@ class Edge extends React.Component<IEdgeProps> {
             alignmentBaseline="central"
             style={{ fontSize: '14px', stroke: 'none', fill: 'black' }}
             transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
-            key={label.substr(0, 10)}
+            key={label}
           >
             <tspan dy={labelsFirstDy + LINE_GAP * index}>{label}</tspan>
           </text>

@@ -23,6 +23,7 @@ class NodeEditor extends React.Component {
       onMakeDefaultConn,
       getPrevIndexes,
       getPrevContextVars,
+      getIntents,
       onChangeArrayFilterValue,
     } = this.props;
 
@@ -41,6 +42,7 @@ class NodeEditor extends React.Component {
             onChangeConn={onChangeConn}
             onMakeDefaultConn={onMakeDefaultConn}
             getPrevIndexes={getPrevIndexes}
+            getIntents={getIntents}
             getPrevContextVars={getPrevContextVars}
             onChangeArrayFilterValue={onChangeArrayFilterValue}
           >

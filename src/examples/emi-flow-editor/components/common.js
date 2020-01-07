@@ -17,11 +17,20 @@ const getSimpleItem = function(name) {
   return { value: name, label: name };
 };
 
-const Input = ({ value, onChange, type = 'text', className = '' }) => (
+const Input = ({
+  value,
+  onChange,
+  type = 'text',
+  className = '',
+  disabled = '',
+  style,
+}) => (
   <input
+    style={style}
     className={className}
     type={type}
     value={value}
+    disabled={disabled}
     onChange={e => onChange(e.target.value)}
   />
 );
@@ -60,9 +69,9 @@ const Item = function({
   );
 };
 
-const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
+const StagingItem = function({ value, onAdd, canAdd, add, onChange, style }) {
   return (
-    <div className="stagingItem">
+    <div className="stagingItem" style={style}>
       <Input className="stagingTextInput" value={value} onChange={onChange} />
       <span
         onClick={canAdd ? onAdd : undefined}
@@ -83,4 +92,6 @@ const StagingItem = function({ value, onAdd, canAdd, add, onChange }) {
   );
 };
 
-export { selectTheme, getSimpleItem, Input, Item, StagingItem };
+const StagingItemHOC = style => props => StagingItem({ ...props, style });
+
+export { selectTheme, getSimpleItem, Input, Item, StagingItemHOC, StagingItem };
