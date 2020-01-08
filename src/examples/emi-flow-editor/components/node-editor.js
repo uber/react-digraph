@@ -14,12 +14,7 @@ class NodeEditor extends React.Component {
       aiHandlers,
       serverHandlers,
       onMakeFirst,
-      onChangeConn,
-      onMakeDefaultConn,
-      getPrevIndexes,
-      getPrevContextVars,
-      getIntents,
-      onChangeArrayFilterValue,
+      edgeHandlers,
     } = this.props;
 
     if (!children) {
@@ -34,12 +29,12 @@ class NodeEditor extends React.Component {
       return (
         <div id="nodeEditor">
           <EdgeEditor
-            onChangeConn={onChangeConn}
-            onMakeDefaultConn={onMakeDefaultConn}
-            getPrevIndexes={getPrevIndexes}
-            getIntents={getIntents}
-            getPrevContextVars={getPrevContextVars}
-            onChangeArrayFilterValue={onChangeArrayFilterValue}
+            onChangeConn={edgeHandlers.onChangeConn}
+            onMakeDefaultConn={edgeHandlers.onMakeDefaultConn}
+            getPrevIndexes={edgeHandlers.getPrevIndexes}
+            getIntents={edgeHandlers.getIntents}
+            getPrevContextVars={edgeHandlers.getPrevContextVars}
+            onChangeArrayFilterValue={edgeHandlers.onChangeArrayFilterValue}
           >
             {children}
           </EdgeEditor>

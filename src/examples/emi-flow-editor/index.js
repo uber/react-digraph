@@ -31,9 +31,10 @@ import Sidebar from '../sidebar';
 import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
-import { intentsByQuestionStr } from './empathy';
 import getServerHandlers from './handlers/server-handlers';
 import getAiHandlers from './handlers/ai-handlers';
+import getEdgeHandlers from './handlers/edge-handlers';
+import getQuestionHandlers from './handlers/question-handlers';
 
 type IBwdlState = {
   nodes: INode[],
@@ -69,10 +70,6 @@ const makeid = function(length) {
   return result;
 };
 
-function stringify(bwdlJson) {
-  return JSON.stringify(bwdlJson, null, 2);
-}
-
 class BwdlEditable extends React.Component<{}, IBwdlState> {
   GraphView: GraphView | null;
 
@@ -83,7 +80,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.state = {
       bwdlJson: bwdlExample,
-      bwdlText: stringify(bwdlExample),
+      bwdlText: this.stringify(bwdlExample),
       copiedNode: null,
       edges: transformed.edges,
       layoutEngineType: 'VerticalTree',
@@ -92,6 +89,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       locked: true,
     };
   }
+
+  stringify = bwdlJson => JSON.stringify(bwdlJson, null, 2);
 
   linkEdge(sourceNode: INode, targetNode: INode, edge?: IEdge) {
     if (targetNode.first) {
@@ -151,7 +150,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: stringify(newBwdlJson),
+      bwdlText: this.stringify(newBwdlJson),
     });
     this.updateBwdl();
   }
@@ -218,7 +217,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: stringify(newBwdlJson),
+      bwdlText: this.stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -243,7 +242,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     delete newBwdlJson[selected.title];
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: stringify(newBwdlJson),
+      bwdlText: this.stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -287,7 +286,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
+        bwdlText: this.stringify(newBwdlJson),
         selected: null,
       });
     });
@@ -323,7 +322,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: stringify(newBwdlJson),
+      bwdlText: this.stringify(newBwdlJson),
     });
     this.updateBwdl();
   };
@@ -517,71 +516,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({ editor: editor });
   };
 
-  handleIndexChanged = e => {
-    const newIndex = e.target.value;
-
-    const alreadyExists = this.state.nodes.find(
-      node => node.gnode.question.index === newIndex
-    );
-
-    if (alreadyExists || ['name', 'current', 'faqs'].includes(newIndex)) {
-      return;
-    }
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const selected = { ...prevState.selected };
-      const prevIndex = selected.gnode.question.index;
-      const nodeJson = newBwdlJson[prevIndex];
-
-      delete newBwdlJson[prevIndex];
-
-      nodeJson.question.index = newIndex;
-
-      newBwdlJson[newIndex] = nodeJson;
-
-      if (newBwdlJson.current === prevIndex) {
-        newBwdlJson.current = newIndex;
-      }
-
-      const nodeNames = Object.keys(newBwdlJson);
-
-      nodeNames.forEach(name => {
-        const currentNode = newBwdlJson[name];
-
-        if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
-          return;
-        }
-
-        const q = currentNode.question;
-
-        // create edges
-        q.connections.forEach(connection => {
-          if (connection.goto === prevIndex) {
-            connection.goto = newIndex;
-          }
-        });
-      });
-
-      // selected.title = newIndex;
-      // selected.gnode.question.index = newIndex;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-        // selected,
-      });
-    });
-  };
-
-  handleQuestionChange = (property, newValue) => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson[index].question[property] = newValue)
-    );
-  };
-
   changeSelectedNode = f => {
     const index = this.state.selected.gnode.question.index;
 
@@ -594,144 +528,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
+        bwdlText: this.stringify(newBwdlJson),
       });
-    });
-  };
-
-  handleQuickRepliesChange = newValue => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].question.quickReplies = newValue;
-
-      if (newValue.length == 0) {
-        newBwdlJson[index].question.exactMatch = false;
-      }
-    });
-  };
-
-  handleImmediateNextChange = newValue => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      if (newValue) {
-        newBwdlJson[index].question.options = [];
-        newBwdlJson[index].question.exactMatch = false;
-        newBwdlJson[index].question.errorMessageNotMatch = '';
-
-        if ('ai' in newBwdlJson[index]) {
-          delete newBwdlJson[index].ai;
-        }
-      }
-
-      newBwdlJson[index].question.immediateNext = newValue;
-    });
-  };
-
-  handleMakeFirst = () => {
-    const index = this.state.selected.gnode.question.index;
-
-    // make sure that selected node is a root node
-    const nodeNames = Object.keys(this.state.bwdlJson);
-    const firstable = nodeNames.every(name => {
-      const currentNode = this.state.bwdlJson[name];
-
-      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
-        return true;
-      }
-
-      const q = currentNode.question;
-
-      return q.connections.every(connection => connection.goto !== index);
-    });
-
-    if (!firstable) {
-      return;
-    }
-
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson['current'] = index)
-    );
-  };
-
-  changeSelectedConn = f => {
-    const index = this.state.selected.sourceNode.gnode.question.index;
-    const targetIndex = this.state.selected.targetNode.gnode.question.index;
-
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
-
-      f(conn, conns, newBwdlJson, index, targetIndex);
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: stringify(newBwdlJson),
-      });
-    });
-  };
-
-  handleConnChange = (connProperty, newValue) => {
-    this.changeSelectedConn(conn => (conn[connProperty] = newValue));
-  };
-
-  handleConnMakeDefault = enabling => {
-    this.changeSelectedConn((conn, conns) => {
-      if (enabling) {
-        const defaultConn = conns.find(conn => conn.isDefault);
-
-        if (defaultConn) {
-          defaultConn.isDefault = false;
-        }
-      }
-
-      conn['isDefault'] = enabling;
-    });
-  };
-
-  getAncestorIndexes = (index, edgeCallback) => {
-    const ancestorIndexes = new Set();
-
-    let prevSize = -1;
-
-    while (ancestorIndexes.size > prevSize) {
-      prevSize = ancestorIndexes.size;
-      this.state.edges.forEach(edge => {
-        if (ancestorIndexes.has(edge.target) || edge.target === index) {
-          ancestorIndexes.add(edge.source);
-
-          if (edgeCallback) {
-            edgeCallback(edge);
-          }
-        }
-      });
-    }
-
-    return Array.from(ancestorIndexes);
-  };
-
-  getPrevIndexes = () => this.getAncestorIndexes(this.state.selected.source);
-
-  getSourceNodeIntents = () => {
-    const ai = this.state.selected.sourceNode.gnode.ai;
-
-    return intentsByQuestionStr[ai.question_str] || [];
-  };
-
-  getPrevContextVars = () => {
-    const vars = new Set();
-
-    this.getAncestorIndexes(this.state.selected.source, edge => {
-      Object.keys(edge.conn.setContext).forEach(vars.add, vars);
-    });
-
-    return Array.from(vars);
-  };
-
-  handleChangeArrayFilterValue = (connProperty, key, op, value) => {
-    this.changeSelectedConn(conn => {
-      key = `${key}_${op}`;
-      conn[connProperty][key] = value;
     });
   };
 
@@ -816,25 +614,22 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 
   render() {
+    const questionHandlers = getQuestionHandlers(this);
+
     return (
       <div id="bwdl-editable-graph">
         {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
         <div id="rightBar">
           <NodeEditor
-            onChangeIndex={this.handleIndexChanged}
-            onChangeQuestion={this.handleQuestionChange}
-            onChangeQuickReplies={this.handleQuickRepliesChange}
+            onChangeIndex={questionHandlers.onChangeIndex}
+            onChangeImmediateNext={questionHandlers.onChangeImmediateNext}
+            onMakeFirst={questionHandlers.onMakeFirst}
+            onChangeQuestion={questionHandlers.onChangeQuestion}
+            onChangeQuickReplies={questionHandlers.onChangeQuickReplies}
             aiHandlers={getAiHandlers(this)}
             serverHandlers={getServerHandlers(this)}
-            onChangeImmediateNext={this.handleImmediateNextChange}
-            onMakeFirst={this.handleMakeFirst}
-            onChangeConn={this.handleConnChange}
-            onMakeDefaultConn={this.handleConnMakeDefault}
-            getPrevIndexes={this.getPrevIndexes}
-            getIntents={this.getSourceNodeIntents}
-            getPrevContextVars={this.getPrevContextVars}
-            onChangeArrayFilterValue={this.handleChangeArrayFilterValue}
+            edgeHandlers={getEdgeHandlers(this)}
           >
             {this.state.selected}
           </NodeEditor>
