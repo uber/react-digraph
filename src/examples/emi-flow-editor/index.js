@@ -636,59 +636,72 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  handleServerChange = serverEnabled => {
+  getServerParent = (nodeJson, parentProp) =>
+    parentProp ? nodeJson[parentProp] : nodeJson;
+
+  handleServerChange = (serverEnabled, parentProp) => {
     this.changeSelectedNode((newBwdlJson, index) => {
+      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+
       if (serverEnabled) {
-        newBwdlJson[index].server = {
+        serverParent.server = {
           method: 'PUT',
           url: 'http://...',
           param: '',
           params: [],
         };
       } else {
-        delete newBwdlJson[index].server;
+        delete serverParent.server;
       }
     });
   };
 
-  handleServerParamChange = value => {
+  handleServerParamChange = (value, parentProp) => {
     this.changeSelectedNode((newBwdlJson, index) => {
       const hasParam = this.state.bwdlJson[index].server.param;
+      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
 
       if (!hasParam && value) {
-        newBwdlJson[index].server.translate = {};
+        serverParent.server.translate = {};
         newBwdlJson[index].question.quickReplies.forEach(reply => {
-          newBwdlJson[index].server.translate[reply] = reply;
+          serverParent.server.translate[reply] = reply;
         });
       } else if (hasParam && !value) {
-        delete newBwdlJson[index].server.translate;
+        delete serverParent.server.translate;
       }
 
-      newBwdlJson[index].server.param = value;
+      serverParent.server.param = value;
     });
   };
 
-  handleServerPropChange = (prop, value) => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson[index].server[prop] = value)
-    );
-  };
-
-  handleServerIncludeAnswersChange = enabled => {
+  handleServerPropChange = (prop, value, parentProp) => {
     this.changeSelectedNode((newBwdlJson, index) => {
+      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+
+      serverParent.server[prop] = value;
+    });
+  };
+
+  handleServerIncludeAnswersChange = (enabled, parentProp) => {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+
       if (enabled) {
-        newBwdlJson[index].server.includeAnswers = ['x'];
+        serverParent.server.includeAnswers = [
+          newBwdlJson[index].question.quickReplies[0],
+        ];
       } else {
-        delete newBwdlJson[index].server.includeAnswers;
+        delete serverParent.server.includeAnswers;
       }
     });
   };
 
-  handleServerTranslateChange = (key, newValue) => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) =>
-        (newBwdlJson[index].server.translate[key] = newValue)
-    );
+  handleServerTranslateChange = (key, newValue, parentProp) => {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+
+      serverParent.server.translate[key] = newValue;
+    });
   };
 
   handleAiQuestionStrChange = item => {
