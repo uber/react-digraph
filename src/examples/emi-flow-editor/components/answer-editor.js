@@ -12,11 +12,7 @@ class AnswerEditor extends React.Component {
       onChangeQuestion,
       onChangeQuickReplies,
       onChangeAI,
-      onChangeServer,
-      onChangeServerProp,
-      onChangeServerParam,
-      onChangeServerIncludeAnswers,
-      onChangeServerTranslate,
+      serverHandlers,
       onChangeAiQuestionStr,
       onChangePredictionDataOptions,
       onChangeLang,
@@ -110,15 +106,17 @@ class AnswerEditor extends React.Component {
             name="server"
             type="checkbox"
             checked={'server' in node.gnode}
-            onChange={e => onChangeServer(e.target.checked)}
+            onChange={e => serverHandlers.onChangeServer(e.target.checked)}
           />
         </label>
         {'server' in node.gnode && (
           <ServerEditor
-            onChangeServerProp={onChangeServerProp}
-            onChangeServerIncludeAnswers={onChangeServerIncludeAnswers}
-            onChangeServerParam={onChangeServerParam}
-            onChangeServerTranslate={onChangeServerTranslate}
+            onChangeServerProp={serverHandlers.onChangeServerProp}
+            onChangeServerIncludeAnswers={
+              serverHandlers.onChangeServerIncludeAnswers
+            }
+            onChangeServerParam={serverHandlers.onChangeServerParam}
+            onChangeServerTranslate={serverHandlers.onChangeServerTranslate}
           >
             {children}
           </ServerEditor>

@@ -36,6 +36,7 @@ import {
   empathyDefaults,
   intentsByQuestionStr,
 } from './empathy';
+import getServerHandlers from './handlers/server-handlers';
 
 type IBwdlState = {
   nodes: INode[],
@@ -636,74 +637,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  getServerParent = (nodeJson, parentProp) =>
-    parentProp ? nodeJson[parentProp] : nodeJson;
-
-  handleServerChange = (serverEnabled, parentProp) => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
-
-      if (serverEnabled) {
-        serverParent.server = {
-          method: 'PUT',
-          url: 'http://...',
-          param: '',
-          params: [],
-        };
-      } else {
-        delete serverParent.server;
-      }
-    });
-  };
-
-  handleServerParamChange = (value, parentProp) => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const hasParam = this.state.bwdlJson[index].server.param;
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
-
-      if (!hasParam && value) {
-        serverParent.server.translate = {};
-        newBwdlJson[index].question.quickReplies.forEach(reply => {
-          serverParent.server.translate[reply] = reply;
-        });
-      } else if (hasParam && !value) {
-        delete serverParent.server.translate;
-      }
-
-      serverParent.server.param = value;
-    });
-  };
-
-  handleServerPropChange = (prop, value, parentProp) => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
-
-      serverParent.server[prop] = value;
-    });
-  };
-
-  handleServerIncludeAnswersChange = (enabled, parentProp) => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
-
-      if (enabled) {
-        serverParent.server.includeAnswers = [
-          newBwdlJson[index].question.quickReplies[0],
-        ];
-      } else {
-        delete serverParent.server.includeAnswers;
-      }
-    });
-  };
-
-  handleServerTranslateChange = (key, newValue, parentProp) => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
-
-      serverParent.server.translate[key] = newValue;
-    });
-  };
-
   handleAiQuestionStrChange = item => {
     this.changeSelectedNode((newBwdlJson, index) =>
       this.setAiDefaults(newBwdlJson[index], item.value)
@@ -964,11 +897,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeQuestion={this.handleQuestionChange}
             onChangeQuickReplies={this.handleQuickRepliesChange}
             onChangeAI={this.handleAIChange}
-            onChangeServer={this.handleServerChange}
-            onChangeServerProp={this.handleServerPropChange}
-            onChangeServerParam={this.handleServerParamChange}
-            onChangeServerIncludeAnswers={this.handleServerIncludeAnswersChange}
-            onChangeServerTranslate={this.handleServerTranslateChange}
+            serverHandlers={getServerHandlers(this)}
             onChangeAiQuestionStr={this.handleAiQuestionStrChange}
             onChangePredictionDataOptions={
               this.handlePredictionDataOptionsChange
