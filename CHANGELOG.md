@@ -1,3 +1,7 @@
+**v6.6.0** - January 8, 2020
+- PR #184 - Horizontal tree (@chiayenhung) - https://github.com/uber/react-digraph/pull/184
+- PR #185 - new props README for HorizontalTree (@chiayenhung) - https://github.com/uber/react-digraph/pull/185
+
 **v6.5.0** - August 7, 2019
 - PR #148 - Asynchronous Fast rendering
 - PR #157 - Added data-intersect-ignore property to node SVG to prevent intersection calculaton from selecting the wrong element.
