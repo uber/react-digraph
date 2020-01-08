@@ -53,7 +53,7 @@ class AnswerEditor extends React.Component {
             />
           </label>
         )}
-        <label>
+        <label style={{ display: 'flex', flexDirection: 'column' }}>
           Is Audio:
           <input
             name="isAudio"
@@ -61,19 +61,19 @@ class AnswerEditor extends React.Component {
             checked={question.isAudio}
             onChange={e => onChangeQuestion('isAudio', e.target.checked)}
           />
+          {question.isAudio && (
+            <label style={{ display: 'flex' }}>
+              No Audio - Error Message:
+              <TextareaAutosize
+                value={question.audioErrorMessage}
+                onChange={e =>
+                  onChangeQuestion('audioErrorMessage', e.target.value)
+                }
+              />
+            </label>
+          )}
         </label>
-        {question.isAudio && (
-          <label>
-            No Audio - Error Message:
-            <TextareaAutosize
-              value={question.audioErrorMessage}
-              onChange={e =>
-                onChangeQuestion('audioErrorMessage', e.target.value)
-              }
-            />
-          </label>
-        )}
-        <label>
+        <label style={{ display: 'flex', flexDirection: 'column' }}>
           AI - Empathy:
           <input
             name="ai"
@@ -81,22 +81,22 @@ class AnswerEditor extends React.Component {
             checked={'ai' in node.gnode}
             onChange={e => aiHandlers.onChangeAI(e.target.checked)}
           />
+          {'ai' in node.gnode && (
+            <AiEditor
+              onChangeAiQuestionStr={aiHandlers.onChangeAiQuestionStr}
+              onChangePredictionDataOptions={
+                aiHandlers.onChangePredictionDataOptions
+              }
+              onChangeLang={aiHandlers.onChangeLang}
+              onChangeMinSimilarity={aiHandlers.onChangeMinSimilarity}
+              onChangeIntentResponse={aiHandlers.onChangeIntentResponse}
+              onChangeCountry={aiHandlers.onChangeCountry}
+            >
+              {children}
+            </AiEditor>
+          )}
         </label>
-        {'ai' in node.gnode && (
-          <AiEditor
-            onChangeAiQuestionStr={aiHandlers.onChangeAiQuestionStr}
-            onChangePredictionDataOptions={
-              aiHandlers.onChangePredictionDataOptions
-            }
-            onChangeLang={aiHandlers.onChangeLang}
-            onChangeMinSimilarity={aiHandlers.onChangeMinSimilarity}
-            onChangeIntentResponse={aiHandlers.onChangeIntentResponse}
-            onChangeCountry={aiHandlers.onChangeCountry}
-          >
-            {children}
-          </AiEditor>
-        )}
-        <label>
+        <label style={{ display: 'flex', flexDirection: 'column' }}>
           Server request:
           <input
             name="server"
@@ -104,19 +104,19 @@ class AnswerEditor extends React.Component {
             checked={'server' in node.gnode}
             onChange={e => serverHandlers.onChangeServer(e.target.checked)}
           />
+          {'server' in node.gnode && (
+            <ServerEditor
+              onChangeServerProp={serverHandlers.onChangeServerProp}
+              onChangeServerIncludeAnswers={
+                serverHandlers.onChangeServerIncludeAnswers
+              }
+              onChangeServerParam={serverHandlers.onChangeServerParam}
+              onChangeServerTranslate={serverHandlers.onChangeServerTranslate}
+            >
+              {children}
+            </ServerEditor>
+          )}
         </label>
-        {'server' in node.gnode && (
-          <ServerEditor
-            onChangeServerProp={serverHandlers.onChangeServerProp}
-            onChangeServerIncludeAnswers={
-              serverHandlers.onChangeServerIncludeAnswers
-            }
-            onChangeServerParam={serverHandlers.onChangeServerParam}
-            onChangeServerTranslate={serverHandlers.onChangeServerTranslate}
-          >
-            {children}
-          </ServerEditor>
-        )}
       </div>
     );
   }
