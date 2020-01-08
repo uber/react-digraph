@@ -237,6 +237,9 @@ All props are detailed below.
 | rotateEdgeHandle    | boolean                 | false     | Whether to rotate edge handle with edge when a node is moved |
 | centerNodeOnMove    | boolean                 | false     | Weather the node should be centered on cursor when moving a node    |
 | initialBBox         | typeof IBBox            | false     | If specified, initial render graph using the given bounding box|
+| graphConfig         | object                  | false     | [dagre](https://github.com/dagrejs/dagre/wiki#configuring-the-layout) graph setting configuration, which will override layout engine graph configuration - only apply to HorizontalTree|
+| nodeSizeOverridesAllowed | boolean            | false     | Flag to toggle `sizeOverride` in `nodes` - only apply to HorizontalTree |
+| nodeLocationOverrides | object                | false     | Nodes location overrides object - only apply to HorizontalTree |
 
 ### onCreateNode
 You have access to d3 mouse event in `onCreateNode` function.
@@ -302,6 +305,9 @@ Prop Types:
   rotateEdgeHandle?: boolean;
   centerNodeOnMove?: boolean;
   initialBBox?: IBBox;
+  graphConfig?: object;
+  nodeSizeOverridesAllowed?: boolean;
+  nodeLocationOverrides?: {[string]: {x?: number, y?:number}}
 ```
 
 ## Imperative API
