@@ -1,4 +1,5 @@
 import { defaultQuestionStr, empathyDefaults } from '../empathy';
+import getServerHandlers from './server-handlers';
 
 const getAiHandlers = bwdlEditable => {
   bwdlEditable.setAiDefaults = function(nodeJson, newQuestionStr) {
@@ -68,6 +69,8 @@ const getAiHandlers = bwdlEditable => {
         (newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue)
     );
   }.bind(bwdlEditable);
+
+  bwdlEditable.aiServerHandlers = getServerHandlers(bwdlEditable, 'ai');
 
   return bwdlEditable;
 };

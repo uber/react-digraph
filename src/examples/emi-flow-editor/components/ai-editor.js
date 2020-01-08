@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactListInput from 'react-list-input';
 import Select from 'react-select';
+import ServerEditor from './server-editor';
 import { selectTheme, Item, StagingItem } from './common';
 
 class AiEditor extends React.Component {
@@ -59,6 +60,7 @@ class AiEditor extends React.Component {
       onChangeMinSimilarity,
       onChangeIntentResponse,
       onChangeCountry,
+      aiServerHandlers,
     } = aiHandlers;
     const node = children;
     const ai = node.gnode.ai;
@@ -153,6 +155,9 @@ class AiEditor extends React.Component {
                   />
                 </label>
               ))}
+            <ServerEditor serverHandlers={aiServerHandlers} parentProp="ai">
+              {children}
+            </ServerEditor>
           </div>
         )}
       </label>

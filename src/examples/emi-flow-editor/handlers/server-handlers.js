@@ -1,11 +1,13 @@
-const getServerHandlers = (bwdlEditable, parentProp) => {
-  bwdlEditable.getServerParent = function(nodeJson) {
-    return parentProp ? nodeJson[parentProp] : nodeJson;
-  };
+const getServerHandlers = bwdlEditable => {
+  bwdlEditable.getServerParent = function(parentProp) {
+    const gnode = this.state.selected.gnode;
 
-  bwdlEditable.onChangeServer = function(serverEnabled) {
+    return parentProp ? gnode[parentProp] : gnode;
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeServer = function(serverEnabled, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+      const serverParent = this.getServerParent(parentProp);
 
       if (serverEnabled) {
         serverParent.server = {
@@ -20,10 +22,10 @@ const getServerHandlers = (bwdlEditable, parentProp) => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerParam = function(value) {
+  bwdlEditable.onChangeServerParam = function(value, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const hasParam = this.state.bwdlJson[index].server.param;
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+      const serverParent = this.getServerParent(parentProp);
 
       if (!hasParam && value) {
         serverParent.server.translate = {};
@@ -38,17 +40,17 @@ const getServerHandlers = (bwdlEditable, parentProp) => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerProp = function(prop, value) {
+  bwdlEditable.onChangeServerProp = function(prop, value, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+      const serverParent = this.getServerParent(parentProp);
 
       serverParent.server[prop] = value;
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerIncludeAnswers = function(enabled) {
+  bwdlEditable.onChangeServerIncludeAnswers = function(enabled, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+      const serverParent = this.getServerParent(parentProp);
 
       if (enabled) {
         serverParent.server.includeAnswers = [
@@ -60,9 +62,9 @@ const getServerHandlers = (bwdlEditable, parentProp) => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerTranslate = function(key, newValue) {
+  bwdlEditable.onChangeServerTranslate = function(key, newValue, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
-      const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
+      const serverParent = this.getServerParent(parentProp);
 
       serverParent.server.translate[key] = newValue;
     });

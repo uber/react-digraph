@@ -20,17 +20,18 @@ const getValidIncludeAnswersHOC = (question, server) => () =>
 
 class ServerEditor extends React.Component {
   render() {
-    const { children, serverHandlers } = this.props;
+    const { children, serverHandlers, parentProp } = this.props;
     const {
       onChangeServer,
       onChangeServerProp,
       onChangeServerIncludeAnswers,
       onChangeServerParam,
       onChangeServerTranslate,
+      getServerParent,
     } = serverHandlers;
     const node = children;
     const question = node.gnode.question;
-    const server = node.gnode.server;
+    const server = getServerParent(parentProp).server;
 
     return (
       <label style={{ display: 'flex', flexDirection: 'column' }}>
@@ -38,17 +39,19 @@ class ServerEditor extends React.Component {
         <input
           name="server"
           type="checkbox"
-          checked={'server' in node.gnode}
-          onChange={e => onChangeServer(e.target.checked)}
+          checked={server !== undefined}
+          onChange={e => onChangeServer(e.target.checked, parentProp)}
         />
-        {'server' in node.gnode && (
+        {server !== undefined && (
           <div id="serverEditor" className="someNodeEditor">
             <label>
               URL:
               <input
                 name="url"
                 value={server.url}
-                onChange={e => onChangeServerProp('url', e.target.value)}
+                onChange={e =>
+                  onChangeServerProp('url', e.target.value, parentProp)
+                }
               />
             </label>
             <label>
@@ -57,7 +60,9 @@ class ServerEditor extends React.Component {
                 className="selectContainer"
                 theme={selectTheme}
                 value={getSimpleItem(server.method)}
-                onChange={item => onChangeServerProp('method', item.value)}
+                onChange={item =>
+                  onChangeServerProp('method', item.value, parentProp)
+                }
                 options={methods.map(method => getSimpleItem(method))}
                 isSearchable={true}
               />
@@ -66,7 +71,9 @@ class ServerEditor extends React.Component {
               Send params:
               <ReactListInput
                 initialStagingValue=""
-                onChange={list => onChangeServerProp('params', list)}
+                onChange={list =>
+                  onChangeServerProp('params', list, parentProp)
+                }
                 maxItems={20}
                 minItems={0}
                 ItemComponent={SelectItemHOC(getSupportedParams)}
@@ -83,7 +90,9 @@ class ServerEditor extends React.Component {
                   name="includeAnswers"
                   type="checkbox"
                   checked={'includeAnswers' in server}
-                  onChange={e => onChangeServerIncludeAnswers(e.target.checked)}
+                  onChange={e =>
+                    onChangeServerIncludeAnswers(e.target.checked, parentProp)
+                  }
                 />
               </label>
             )}
@@ -92,7 +101,9 @@ class ServerEditor extends React.Component {
                 Answers:
                 <ReactListInput
                   initialStagingValue=""
-                  onChange={list => onChangeServerProp('includeAnswers', list)}
+                  onChange={list =>
+                    onChangeServerProp('includeAnswers', list, parentProp)
+                  }
                   maxItems={20}
                   minItems={1}
                   ItemComponent={SelectItemHOC(() => question.quickReplies)}
@@ -109,7 +120,9 @@ class ServerEditor extends React.Component {
                 <input
                   name="param"
                   value={server.param}
-                  onChange={e => onChangeServerParam(e.target.value)}
+                  onChange={e =>
+                    onChangeServerParam(e.target.value, parentProp)
+                  }
                 />
               </label>
             )}
@@ -123,7 +136,7 @@ class ServerEditor extends React.Component {
                       name={`param_${key}`}
                       value={server.translate[key]}
                       onChange={e =>
-                        onChangeServerTranslate(key, e.target.value)
+                        onChangeServerTranslate(key, e.target.value, parentProp)
                       }
                     />
                   </label>
