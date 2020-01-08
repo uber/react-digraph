@@ -73,29 +73,7 @@ class AnswerEditor extends React.Component {
             </label>
           )}
         </label>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
-          AI - Empathy:
-          <input
-            name="ai"
-            type="checkbox"
-            checked={'ai' in node.gnode}
-            onChange={e => aiHandlers.onChangeAI(e.target.checked)}
-          />
-          {'ai' in node.gnode && (
-            <AiEditor
-              onChangeAiQuestionStr={aiHandlers.onChangeAiQuestionStr}
-              onChangePredictionDataOptions={
-                aiHandlers.onChangePredictionDataOptions
-              }
-              onChangeLang={aiHandlers.onChangeLang}
-              onChangeMinSimilarity={aiHandlers.onChangeMinSimilarity}
-              onChangeIntentResponse={aiHandlers.onChangeIntentResponse}
-              onChangeCountry={aiHandlers.onChangeCountry}
-            >
-              {children}
-            </AiEditor>
-          )}
-        </label>
+        <AiEditor aiHandlers={aiHandlers}>{children}</AiEditor>
         <ServerEditor serverHandlers={serverHandlers}>{children}</ServerEditor>
       </div>
     );
