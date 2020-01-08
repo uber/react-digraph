@@ -1,9 +1,9 @@
-const getServerHandlers = bwdlEditable => {
-  bwdlEditable.getServerParent = function(nodeJson, parentProp) {
+const getServerHandlers = (bwdlEditable, parentProp) => {
+  bwdlEditable.getServerParent = function(nodeJson) {
     return parentProp ? nodeJson[parentProp] : nodeJson;
   };
 
-  bwdlEditable.onChangeServer = function(serverEnabled, parentProp) {
+  bwdlEditable.onChangeServer = function(serverEnabled) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
 
@@ -20,7 +20,7 @@ const getServerHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerParam = function(value, parentProp) {
+  bwdlEditable.onChangeServerParam = function(value) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const hasParam = this.state.bwdlJson[index].server.param;
       const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
@@ -38,7 +38,7 @@ const getServerHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerProp = function(prop, value, parentProp) {
+  bwdlEditable.onChangeServerProp = function(prop, value) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
 
@@ -46,7 +46,7 @@ const getServerHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerIncludeAnswers = function(enabled, parentProp) {
+  bwdlEditable.onChangeServerIncludeAnswers = function(enabled) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
 
@@ -60,7 +60,7 @@ const getServerHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerTranslate = function(key, newValue, parentProp) {
+  bwdlEditable.onChangeServerTranslate = function(key, newValue) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const serverParent = this.getServerParent(newBwdlJson[index], parentProp);
 

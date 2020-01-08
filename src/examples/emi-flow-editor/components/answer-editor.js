@@ -96,27 +96,7 @@ class AnswerEditor extends React.Component {
             </AiEditor>
           )}
         </label>
-        <label style={{ display: 'flex', flexDirection: 'column' }}>
-          Server request:
-          <input
-            name="server"
-            type="checkbox"
-            checked={'server' in node.gnode}
-            onChange={e => serverHandlers.onChangeServer(e.target.checked)}
-          />
-          {'server' in node.gnode && (
-            <ServerEditor
-              onChangeServerProp={serverHandlers.onChangeServerProp}
-              onChangeServerIncludeAnswers={
-                serverHandlers.onChangeServerIncludeAnswers
-              }
-              onChangeServerParam={serverHandlers.onChangeServerParam}
-              onChangeServerTranslate={serverHandlers.onChangeServerTranslate}
-            >
-              {children}
-            </ServerEditor>
-          )}
-        </label>
+        <ServerEditor serverHandlers={serverHandlers}>{children}</ServerEditor>
       </div>
     );
   }

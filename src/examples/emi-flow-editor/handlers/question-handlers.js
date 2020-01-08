@@ -59,6 +59,10 @@ const getQuestionHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeQuestion = function(property, newValue) {
+    if (property === 'isAudio' && !newValue) {
+      this.state.selected.gnode.question.audioErrorMessage = '';
+    }
+
     this.changeSelectedNode(
       (newBwdlJson, index) => (newBwdlJson[index].question[property] = newValue)
     );
@@ -75,19 +79,16 @@ const getQuestionHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeImmediateNext = function(newValue) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      if (newValue) {
-        newBwdlJson[index].question.options = [];
-        newBwdlJson[index].question.exactMatch = false;
-        newBwdlJson[index].question.errorMessageNotMatch = '';
+    const { question, ai, server } = this.state.selected.gnode;
 
-        if ('ai' in newBwdlJson[index]) {
-          delete newBwdlJson[index].ai;
-        }
-      }
+    if (
+      newValue &&
+      (question.quickReplies.length > 0 || question.exactMatch || ai || server)
+    ) {
+      return;
+    }
 
-      newBwdlJson[index].question.immediateNext = newValue;
-    });
+    this.onChangeQuestion('immediateNext', newValue);
   }.bind(bwdlEditable);
 
   bwdlEditable.onMakeFirst = function() {
