@@ -31,12 +31,9 @@ import Sidebar from '../sidebar';
 import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
-import {
-  defaultQuestionStr,
-  empathyDefaults,
-  intentsByQuestionStr,
-} from './empathy';
+import { intentsByQuestionStr } from './empathy';
 import getServerHandlers from './handlers/server-handlers';
+import getAiHandlers from './handlers/ai-handlers';
 
 type IBwdlState = {
   nodes: INode[],
@@ -612,68 +609,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  setAiDefaults = (nodeJson, newQuestionStr) => {
-    nodeJson.ai = Object.assign(
-      { question_str: newQuestionStr },
-      JSON.parse(JSON.stringify(empathyDefaults[newQuestionStr]))
-    );
-
-    const prediction_data = nodeJson.ai.prediction_data;
-
-    if (prediction_data && 'options' in prediction_data) {
-      nodeJson.question.quickReplies.forEach(function(quickReply) {
-        prediction_data.options[quickReply] = [];
-      });
-    }
-  };
-
-  handleAIChange = aiEnabled => {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      if (aiEnabled) {
-        this.setAiDefaults(newBwdlJson[index], defaultQuestionStr);
-      } else {
-        delete newBwdlJson[index].ai;
-      }
-    });
-  };
-
-  handleAiQuestionStrChange = item => {
-    this.changeSelectedNode((newBwdlJson, index) =>
-      this.setAiDefaults(newBwdlJson[index], item.value)
-    );
-  };
-
-  handlePredictionDataOptionsChange = (key, newValue) => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) =>
-        (newBwdlJson[index].ai.prediction_data.options[key] = newValue)
-    );
-  };
-
-  handleLangChange = item => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson[index].ai.lang = item.value)
-    );
-  };
-
-  handleMinSimilarityChange = newValue => {
-    if (newValue !== '' && (newValue > 100 || newValue < 1)) {
-      return;
-    }
-
-    this.changeSelectedNode(
-      (newBwdlJson, index) =>
-        (newBwdlJson[index].ai.prediction_data.min_similarity = newValue)
-    );
-  };
-
-  handleIntentResponseChange = (key, newValue) => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) =>
-        (newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue)
-    );
-  };
-
   handleImmediateNextChange = newValue => {
     this.changeSelectedNode((newBwdlJson, index) => {
       if (newValue) {
@@ -688,12 +623,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
       newBwdlJson[index].question.immediateNext = newValue;
     });
-  };
-
-  handleCountryChange = item => {
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson[index].ai.country = item.value)
-    );
   };
 
   handleMakeFirst = () => {
@@ -896,17 +825,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             onChangeIndex={this.handleIndexChanged}
             onChangeQuestion={this.handleQuestionChange}
             onChangeQuickReplies={this.handleQuickRepliesChange}
-            onChangeAI={this.handleAIChange}
+            aiHandlers={getAiHandlers(this)}
             serverHandlers={getServerHandlers(this)}
-            onChangeAiQuestionStr={this.handleAiQuestionStrChange}
-            onChangePredictionDataOptions={
-              this.handlePredictionDataOptionsChange
-            }
-            onChangeLang={this.handleLangChange}
-            onChangeMinSimilarity={this.handleMinSimilarityChange}
-            onChangeIntentResponse={this.handleIntentResponseChange}
             onChangeImmediateNext={this.handleImmediateNextChange}
-            onChangeCountry={this.handleCountryChange}
             onMakeFirst={this.handleMakeFirst}
             onChangeConn={this.handleConnChange}
             onMakeDefaultConn={this.handleConnMakeDefault}

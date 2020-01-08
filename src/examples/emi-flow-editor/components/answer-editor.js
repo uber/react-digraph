@@ -11,14 +11,8 @@ class AnswerEditor extends React.Component {
       children,
       onChangeQuestion,
       onChangeQuickReplies,
-      onChangeAI,
+      aiHandlers,
       serverHandlers,
-      onChangeAiQuestionStr,
-      onChangePredictionDataOptions,
-      onChangeLang,
-      onChangeMinSimilarity,
-      onChangeIntentResponse,
-      onChangeCountry,
     } = this.props;
     const node = children;
     const question = node.gnode.question;
@@ -85,17 +79,19 @@ class AnswerEditor extends React.Component {
             name="ai"
             type="checkbox"
             checked={'ai' in node.gnode}
-            onChange={e => onChangeAI(e.target.checked)}
+            onChange={e => aiHandlers.onChangeAI(e.target.checked)}
           />
         </label>
         {'ai' in node.gnode && (
           <AiEditor
-            onChangeAiQuestionStr={onChangeAiQuestionStr}
-            onChangePredictionDataOptions={onChangePredictionDataOptions}
-            onChangeLang={onChangeLang}
-            onChangeMinSimilarity={onChangeMinSimilarity}
-            onChangeIntentResponse={onChangeIntentResponse}
-            onChangeCountry={onChangeCountry}
+            onChangeAiQuestionStr={aiHandlers.onChangeAiQuestionStr}
+            onChangePredictionDataOptions={
+              aiHandlers.onChangePredictionDataOptions
+            }
+            onChangeLang={aiHandlers.onChangeLang}
+            onChangeMinSimilarity={aiHandlers.onChangeMinSimilarity}
+            onChangeIntentResponse={aiHandlers.onChangeIntentResponse}
+            onChangeCountry={aiHandlers.onChangeCountry}
           >
             {children}
           </AiEditor>

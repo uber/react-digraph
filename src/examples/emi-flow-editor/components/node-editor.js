@@ -11,14 +11,8 @@ class NodeEditor extends React.Component {
       onChangeQuestion,
       onChangeImmediateNext,
       onChangeQuickReplies,
-      onChangeAI,
+      aiHandlers,
       serverHandlers,
-      onChangeAiQuestionStr,
-      onChangePredictionDataOptions,
-      onChangeLang,
-      onChangeMinSimilarity,
-      onChangeIntentResponse,
-      onChangeCountry,
       onMakeFirst,
       onChangeConn,
       onMakeDefaultConn,
@@ -102,14 +96,8 @@ class NodeEditor extends React.Component {
             <AnswerEditor
               onChangeQuestion={onChangeQuestion}
               onChangeQuickReplies={onChangeQuickReplies}
-              onChangeAI={onChangeAI}
+              aiHandlers={aiHandlers}
               serverHandlers={serverHandlers}
-              onChangeAiQuestionStr={onChangeAiQuestionStr}
-              onChangePredictionDataOptions={onChangePredictionDataOptions}
-              onChangeLang={onChangeLang}
-              onChangeMinSimilarity={onChangeMinSimilarity}
-              onChangeIntentResponse={onChangeIntentResponse}
-              onChangeCountry={onChangeCountry}
             >
               {children}
             </AnswerEditor>
