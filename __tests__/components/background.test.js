@@ -40,7 +40,7 @@ describe('Background component', () => {
 
   describe('renderBackground method', () => {
     it('uses the renderBackground callback', () => {
-      const renderBackground = jasmine.createSpy().and.returnValue('test');
+      const renderBackground = jest.fn().mockReturnValue('test');
 
       output.setProps({
         gridSize: 1000,

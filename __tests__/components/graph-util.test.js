@@ -1,7 +1,6 @@
 // @flow
 
 import GraphUtils from '../../src/utilities/graph-util';
-import { Edge } from '../../src';
 
 describe('GraphUtils class', () => {
   describe('getNodesMap method', () => {
@@ -127,11 +126,11 @@ describe('GraphUtils class', () => {
     it('removes an element using an id', () => {
       const fakeElement = {
         parentNode: {
-          removeChild: jasmine.createSpy(),
+          removeChild: jest.fn(),
         },
       };
 
-      spyOn(document, 'getElementById').and.returnValue(fakeElement);
+      jest.spyOn(document, 'getElementById').mockReturnValue(fakeElement);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
@@ -141,7 +140,7 @@ describe('GraphUtils class', () => {
     });
 
     it("does nothing when it can't find the element", () => {
-      spyOn(document, 'getElementById').and.returnValue(undefined);
+      jest.spyOn(document, 'getElementById').mockReturnValue(undefined);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(result).toEqual(false);
@@ -151,7 +150,7 @@ describe('GraphUtils class', () => {
   describe('findParent method', () => {
     it('returns the element if an element matches a selector', () => {
       const element = {
-        matches: jasmine.createSpy().and.returnValue(true),
+        matches: jest.fn().mockReturnValue(true),
       };
       const parent = GraphUtils.findParent(element, 'fake');
 
@@ -161,7 +160,7 @@ describe('GraphUtils class', () => {
     it('returns the parent if an element contains a parentNode property', () => {
       const element = {
         parentNode: {
-          matches: jasmine.createSpy().and.returnValue(true),
+          matches: jest.fn().mockReturnValue(true),
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');
@@ -172,7 +171,7 @@ describe('GraphUtils class', () => {
     it('returns null when there is no match', () => {
       const element = {
         parentNode: {
-          matches: jasmine.createSpy().and.returnValue(false),
+          matches: jest.fn().mockReturnValue(false),
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');

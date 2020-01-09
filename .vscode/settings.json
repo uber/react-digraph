@@ -1,0 +1,15 @@
+{
+  "flow.useNPMPackagedFlow": true,
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+  "search.exclude": {
+    "**/flow-typed": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/dist*": true
+  },
+  "prettier.eslintIntegration": true,
+  "eslint.enable": true,
+  "workbench.colorCustomizations": {},
+  "editor.tabSize": 2
+}

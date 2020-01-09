@@ -19,7 +19,6 @@ import * as d3 from 'd3';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/main.scss';
-
 import { LayoutEngines } from '../utilities/layout-engine/layout-engine-config';
 import { type IGraphViewProps } from './graph-view-props';
 import Background from './background';
@@ -195,8 +194,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .zoom()
       .filter(this.zoomFilter)
       .scaleExtent([minZoom || 0, maxZoom || 0])
-      .on('start', this.handleZoomStart)
-      .on('zoom', this.handleZoom)
+      .on('start', () => {
+        this.handleZoomStart(d3.event);
+      })
+      .on('zoom', () => {
+        this.handleZoom(d3.event);
+      })
       .on('end', this.handleZoomEnd);
 
     d3.select(this.viewWrapper.current)
@@ -902,10 +905,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleZoomStart = () => {
+  handleZoomStart = (event: any) => {
     // Zoom start events also handle edge clicks. We need to determine if an edge
     // was clicked and deal with that scenario.
-    const sourceEvent = d3.event.sourceEvent;
+    const sourceEvent = event.sourceEvent;
 
     if (
       // graph can't be modified
@@ -936,20 +939,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.removeEdgeElement(edge.source, edge.target);
     this.setState({ draggingEdge: true, draggedEdge: edge });
-    this.dragEdge(edge);
+    this.dragEdge(edge, d3.mouse);
   };
 
-  getMouseCoordinates() {
+  getMouseCoordinates(mouse: typeof d3.mouse) {
     let mouseCoordinates = [0, 0];
 
-    if (this.selectedView) {
-      mouseCoordinates = d3.mouse(this.selectedView.node());
+    if (this.selectedView && mouse) {
+      mouseCoordinates = mouse(this.selectedView.node());
     }
 
     return mouseCoordinates;
   }
 
-  dragEdge(draggedEdge?: IEdge) {
+  dragEdge(draggedEdge?: IEdge, mouse: typeof d3.mouse) {
     const { nodeSize, nodeKey } = this.props;
 
     draggedEdge = draggedEdge || this.state.draggedEdge;
@@ -958,11 +961,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const mouseCoordinates = this.getMouseCoordinates();
+    const mouseCoordinates = this.getMouseCoordinates(mouse);
     const targetPosition = {
       x: mouseCoordinates[0],
       y: mouseCoordinates[1],
     };
+
     const off = Edge.calculateOffset(
       nodeSize,
       (this.getNodeById(draggedEdge.source): any).node,
@@ -980,9 +984,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   // View 'zoom' handler
-  handleZoom = () => {
+  handleZoom = (event: any) => {
     const { draggingEdge } = this.state;
-    const transform: IViewTransform = d3.event.transform;
+    const transform: IViewTransform = event.transform;
 
     if (!draggingEdge) {
       d3.select(this.view).attr('transform', transform);
@@ -1002,7 +1006,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         );
       }
     } else if (draggingEdge) {
-      this.dragEdge();
+      this.dragEdge(undefined, d3.mouse);
 
       return false;
     }

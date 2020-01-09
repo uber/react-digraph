@@ -136,19 +136,30 @@ class Node extends React.Component<INodeProps, INodeState> {
   componentDidMount() {
     const dragFunction = d3
       .drag()
-      .on('drag', this.handleMouseMove)
+      .on('drag', () => {
+        this.handleMouseMove(d3.event);
+      })
       .on('start', this.handleDragStart)
-      .on('end', this.handleDragEnd);
+      .on('end', () => {
+        this.handleDragEnd(d3.event);
+      });
 
     d3.select(this.nodeRef.current)
       .on('mouseout', this.handleMouseOut)
       .call(dragFunction);
   }
 
-  handleMouseMove = () => {
-    const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
-    const shiftKey = d3.event.sourceEvent.shiftKey;
-    const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
+  handleMouseMove = (event: any) => {
+    const mouseButtonDown = event.sourceEvent.buttons === 1;
+    const shiftKey = event.sourceEvent.shiftKey;
+    const {
+      nodeSize,
+      layoutEngine,
+      nodeKey,
+      viewWrapperElem,
+      data,
+    } = this.props;
+    const { pointerOffset } = this.state;
 
     if (!mouseButtonDown) {
       return;
@@ -156,14 +167,15 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     // While the mouse is down, this function handles all mouse movement
     const newState = {
-      x: d3.event.x,
-      y: d3.event.y,
+      x: event.x,
+      y: event.y,
+      pointerOffset,
     };
 
     if (!this.props.centerNodeOnMove) {
-      newState.pointerOffset = this.state.pointerOffset || {
-        x: d3.event.x - this.props.data.x,
-        y: d3.event.y - this.props.data.y,
+      newState.pointerOffset = pointerOffset || {
+        x: event.x - (data.x || 0),
+        y: event.y - (data.y || 0),
       };
       newState.x -= newState.pointerOffset.x;
       newState.y -= newState.pointerOffset.y;
@@ -191,8 +203,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     this.setState(newState);
-    // Never use this.props.index because if the nodes array changes order
-    // then this function could move the wrong node.
     this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
   };
 
@@ -211,14 +221,14 @@ class Node extends React.Component<INodeProps, INodeState> {
     );
   };
 
-  handleDragEnd = () => {
+  handleDragEnd = (event: any) => {
     if (!this.nodeRef.current) {
       return;
     }
 
     const { x, y, drawingEdge } = this.state;
     const { data, nodeKey, onNodeSelected, onNodeUpdate } = this.props;
-    const { sourceEvent } = d3.event;
+    const { sourceEvent } = event;
 
     this.setState({
       mouseDown: false,
@@ -244,10 +254,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     // Detect if mouse is already down and do nothing.
     let hovered = false;
 
-    if (
-      (d3.event && d3.event.buttons !== 1) ||
-      (event && event.buttons !== 1)
-    ) {
+    if (event && event.buttons !== 1) {
       hovered = true;
       this.setState({ hovered });
     }
@@ -285,14 +292,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   }
 
   renderShape() {
-    const {
-      renderNode,
-      data,
-      index,
-      nodeTypes,
-      nodeSubtypes,
-      nodeKey,
-    } = this.props;
+    const { renderNode, data, nodeTypes, nodeSubtypes, nodeKey } = this.props;
     const { hovered, selected } = this.state;
     const props = {
       height: this.props.nodeSize || 0,
@@ -329,7 +329,6 @@ class Node extends React.Component<INodeProps, INodeState> {
         <g className={nodeShapeContainerClassName} {...props}>
           {!!data.subtype && (
             <use
-              data-index={index}
               className={nodeSubtypeClassName}
               x={-props.width / 2}
               y={-props.height / 2}
@@ -339,7 +338,6 @@ class Node extends React.Component<INodeProps, INodeState> {
             />
           )}
           <use
-            data-index={index}
             className={nodeClassName}
             x={-props.width / 2}
             y={-props.height / 2}
