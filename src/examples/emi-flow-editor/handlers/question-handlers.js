@@ -6,11 +6,7 @@ const getQuestionHandlers = bwdlEditable => {
       node => node.gnode.question.index === newIndex
     );
 
-    if (
-      !newIndex ||
-      alreadyExists ||
-      ['name', 'current', 'faqs'].includes(newIndex)
-    ) {
+    if (alreadyExists || ['name', 'current', 'faqs'].includes(newIndex)) {
       return;
     }
 

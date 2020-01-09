@@ -45,6 +45,10 @@ class NodeText extends React.Component<INodeTextProps> {
   }
 
   getWrappedLines = text => {
+    if (!text) {
+      return [];
+    }
+
     const lines = text.split('::next::');
 
     return lines.map(line => line.match(this.re)).flat();
