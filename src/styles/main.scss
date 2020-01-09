@@ -94,6 +94,7 @@ $background-color: #f9f9f9;
       color: $primary-color;
       stroke: $primary-color;
       stroke-width: 5px;
+      stroke-dasharray: 0;
 
       .edge-text {
         fill: $light-color;

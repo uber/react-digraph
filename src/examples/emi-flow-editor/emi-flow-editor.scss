@@ -205,3 +205,17 @@ label {
   align-items: baseline;
 }
 
+.edgeTextBkg {
+  fill: white;
+  fill-opacity: 0.5;
+  stroke: none;
+
+  &.selected {
+    fill-opacity: 0.9;
+    stroke: orangered;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+    stroke-dasharray: 0;
+  }
+}
+

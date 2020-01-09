@@ -520,6 +520,7 @@ class Edge extends React.Component<IEdgeProps> {
   constructor(props: IEdgeProps) {
     super(props);
     this.edgeOverlayRef = React.createRef();
+    this.textGroupRef = React.createRef();
   }
 
   getEdgeHandleTranslation = () => {
@@ -671,8 +672,43 @@ class Edge extends React.Component<IEdgeProps> {
     );
   }
 
-  renderLabelText(data: any) {
+  adjustTextBkgRectShape = () => {
+    const group = this.textGroupRef.current;
+
+    if (!group) {
+      return;
+    }
+
+    const shape = group.firstChild;
+
+    if (!shape.getAttribute || shape.getAttribute('class') !== 'edgeTextBkg') {
+      return;
+    }
+
+    const X_MARGIN = 10;
+    const Y_MARGIN = 10;
+
+    shape.setAttribute('transform', `scale(0, 0)`);
+    const SVGRect = group.getBBox();
+
+    const xScale = (SVGRect.width + X_MARGIN * 2) / 100.0;
+    const yScale = (SVGRect.height + Y_MARGIN * 2) / 100.0;
+
+    shape.setAttribute('transform', `scale(${xScale}, ${yScale})`);
+  };
+
+  componentDidUpdate() {
+    this.adjustTextBkgRectShape();
+  }
+
+  componentDidMount() {
+    this.adjustTextBkgRectShape();
+  }
+
+  renderLabelText() {
+    const { data, isSelected } = this.props;
     // let [rotation, isRotated] = this.getEdgeHandleRotation();
+
     if (!data.conn) {
       return;
     }
@@ -683,16 +719,42 @@ class Edge extends React.Component<IEdgeProps> {
     //   ? `${data.label_to} ↔ ${data.label_from}`
     //   : `${data.label_from} ↔ ${data.label_to}`;
     const rotation = 'rotate(0)';
+    const className = GraphUtils.classNames('edgeTextBkg', {
+      selected: isSelected,
+    });
+    const width = 100;
+    const height = 100;
+
+    if (isSelected && this.textGroupRef.current) {
+      // Moves child to the end of the element stack to re-arrange the z-index
+      this.textGroupRef.current.parentElement.parentElement.parentElement.parentElement.appendChild(
+        this.textGroupRef.current.parentElement.parentElement.parentElement
+      );
+    }
 
     return (
-      <g>
+      <g
+        ref={this.textGroupRef}
+        transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
+      >
+        {labels.length && (
+          <rect
+            data-index={`${data.source}-${data.target}`}
+            className={className}
+            x={-width / 2}
+            y={-height / 2}
+            width={width}
+            height={height}
+            rx="15"
+            transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
+          />
+        )}
         {labels.map((label, index) => (
           <text
             className="edge-text"
             textAnchor="middle"
             alignmentBaseline="central"
-            style={{ fontSize: '14px', stroke: 'none', fill: 'black' }}
-            transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
+            style={{ fontSize: '12px', stroke: 'none', fill: 'black' }}
             key={label}
           >
             <tspan dy={labelsFirstDy + LINE_GAP * index}>{label}</tspan>
@@ -703,7 +765,13 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   render() {
-    const { data, edgeTypes, edgeHandleSize, viewWrapperElem } = this.props;
+    const {
+      data,
+      edgeTypes,
+      edgeHandleSize,
+      isSelected,
+      viewWrapperElem,
+    } = this.props;
 
     if (!viewWrapperElem) {
       return null;
@@ -712,7 +780,7 @@ class Edge extends React.Component<IEdgeProps> {
     const isDefault = data.conn && data.conn.isDefault;
     const id = `${data.source || ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
-      selected: this.props.isSelected,
+      selected: isSelected,
       default: isDefault,
     });
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
@@ -737,7 +805,7 @@ class Edge extends React.Component<IEdgeProps> {
           />
           {data.handleText && this.renderHandleText(data)}
           {/*data.label_from && data.label_to && this.renderLabelText(data)*/}
-          {this.renderLabelText(data)}
+          {this.renderLabelText()}
         </g>
         <g className="edge-mouse-handler">
           <title>{data.handleTooltipText}</title>
