@@ -93,8 +93,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   stringify = bwdlJson => JSON.stringify(bwdlJson, null, 2);
 
   linkEdge(sourceNode: INode, targetNode: INode, edge?: IEdge) {
-    if (targetNode.first) {
-      // cannot link to first node.
+    if (
+      targetNode.first &&
+      !this.getAncestorIndexes(sourceNode.title).includes(targetNode.title)
+    ) {
+      // cannot link to first node, unless it's a loop.
       return;
     }
 
@@ -531,6 +534,27 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         bwdlText: this.stringify(newBwdlJson),
       });
     });
+  };
+
+  getAncestorIndexes = function(index, edgeCallback) {
+    const ancestorIndexes = new Set();
+
+    let prevSize = -1;
+
+    while (ancestorIndexes.size > prevSize) {
+      prevSize = ancestorIndexes.size;
+      this.state.edges.forEach(edge => {
+        if (ancestorIndexes.has(edge.target) || edge.target === index) {
+          ancestorIndexes.add(edge.source);
+
+          if (edgeCallback) {
+            edgeCallback(edge);
+          }
+        }
+      });
+    }
+
+    return Array.from(ancestorIndexes);
   };
 
   renderTextEditor() {
