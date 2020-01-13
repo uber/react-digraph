@@ -63,10 +63,10 @@ const getAiHandlers = bwdlEditable => {
     );
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeIntentResponse = function(key, newValue) {
+  bwdlEditable.onChangeIntentResponses = function(newValue) {
     this.changeSelectedNode(
       (newBwdlJson, index) =>
-        (newBwdlJson[index].ai.prediction_data.intent_responses[key] = newValue)
+        (newBwdlJson[index].ai.prediction_data.intent_responses = newValue)
     );
   }.bind(bwdlEditable);
 

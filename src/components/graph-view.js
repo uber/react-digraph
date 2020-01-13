@@ -1418,7 +1418,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   syncRenderEdge(edge: IEdge | any, nodeMoving: boolean = false) {
-    if (!edge.source) {
+    if (
+      !edge.source ||
+      !this.getNodeById(edge.source) ||
+      (edge.target && !this.getNodeById(edge.target))
+    ) {
+      // node index probably being renamed.
       return;
     }
 
@@ -1523,6 +1528,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   /* Imperative API */
   panToEntity(entity: IEdge | INode, zoom: boolean) {
+    if (!entity) {
+      return;
+    }
+
     const { viewTransform } = this.state;
     const parent = this.viewWrapper.current;
     const entityBBox = entity ? entity.getBBox() : null;

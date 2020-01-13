@@ -3,6 +3,18 @@ import ReactListInput from 'react-list-input';
 import Select from 'react-select';
 import ServerEditor from './server-editor';
 import { selectTheme, Item, StagingItem } from './common';
+import {
+  StagingIntentTranslateItemHOC,
+  IntentTranslateItemHOC,
+} from './intent-translate';
+import { intentsByQuestionStr } from '../empathy.js';
+
+const getSupportedIntents = ai => intentsByQuestionStr[ai.question_str];
+
+const getValidIntentsHOC = ai => () =>
+  getSupportedIntents(ai).filter(
+    i => !Object.keys(ai.prediction_data.intent_responses).includes(i)
+  );
 
 class AiEditor extends React.Component {
   constructor(props) {
@@ -50,6 +62,34 @@ class AiEditor extends React.Component {
   getLangItem = key => ({ value: key, label: this.langLabels[key] });
   getCountryItem = key => ({ value: key, label: this.countryLabels[key] });
 
+  getIntentTranslateItems = intent_responses =>
+    Object.keys(intent_responses).map(key => ({
+      intent: key,
+      translation: intent_responses[key],
+    }));
+
+  getIntentTranslateFromItems = items => {
+    const intent_responses = {};
+
+    items.forEach(item => {
+      intent_responses[item.intent] = item.translation;
+    });
+
+    return intent_responses;
+  };
+
+  getFilterFromItems = items => {
+    const filters = {};
+
+    items.forEach(item => {
+      const key = `${item.key}_${item.op}`;
+
+      filters[key] = item.value;
+    });
+
+    return filters;
+  };
+
   render() {
     const { children, aiHandlers } = this.props;
     const {
@@ -58,7 +98,7 @@ class AiEditor extends React.Component {
       onChangePredictionDataOptions,
       onChangeLang,
       onChangeMinSimilarity,
-      onChangeIntentResponse,
+      onChangeIntentResponses,
       onChangeCountry,
       aiServerHandlers,
     } = aiHandlers;
@@ -142,19 +182,28 @@ class AiEditor extends React.Component {
                   />
                 </label>
               ))}
-            {ai.prediction_data &&
-              'intent_responses' in ai.prediction_data &&
-              Object.keys(ai.prediction_data.intent_responses).map(key => (
-                <label key={key}>
-                  {key}:
-                  <input
-                    type="text"
-                    name={`intent_response_${key}`}
-                    value={ai.prediction_data.intent_responses[key]}
-                    onChange={e => onChangeIntentResponse(key, e.target.value)}
-                  />
-                </label>
-              ))}
+            {ai.prediction_data && 'intent_responses' in ai.prediction_data && (
+              <label className="inputList">
+                Intent translation:
+                <ReactListInput
+                  initialStagingValue={{ intent: null, translation: '' }}
+                  onChange={value =>
+                    onChangeIntentResponses(
+                      this.getIntentTranslateFromItems(value)
+                    )
+                  }
+                  maxItems={20}
+                  minItems={0}
+                  ItemComponent={IntentTranslateItemHOC(getValidIntentsHOC(ai))}
+                  StagingComponent={StagingIntentTranslateItemHOC(
+                    getValidIntentsHOC(ai)
+                  )}
+                  value={this.getIntentTranslateItems(
+                    ai.prediction_data.intent_responses
+                  )}
+                />
+              </label>
+            )}
             <ServerEditor serverHandlers={aiServerHandlers} parentProp="ai">
               {children}
             </ServerEditor>
