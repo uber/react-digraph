@@ -58,7 +58,7 @@ class AnswerEditor extends React.Component {
           <input
             name="isAudio"
             type="checkbox"
-            checked={question.isAudio}
+            checked={question.isAudio || false}
             onChange={e => onChangeQuestion('isAudio', e.target.checked)}
           />
           {question.isAudio && (
