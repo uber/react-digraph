@@ -78,6 +78,23 @@ const getQuestionHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
+  bwdlEditable.onChangeCards = function(newValue) {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      const question = newBwdlJson[index].question;
+
+      if (!question.cards) {
+        question.cards = {};
+      }
+
+      question.cards.buttons = newValue;
+
+      if (newValue.length == 0) {
+        question.exactMatch = false;
+        question.cards = null;
+      }
+    });
+  }.bind(bwdlEditable);
+
   bwdlEditable.onChangeImmediateNext = function(newValue) {
     const { question, ai, server } = this.state.selected.gnode;
 

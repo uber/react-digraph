@@ -1533,6 +1533,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     const { viewTransform } = this.state;
+
+    if (!viewTransform) {
+      return;
+    }
+
     const parent = this.viewWrapper.current;
     const entityBBox = entity ? entity.getBBox() : null;
     const maxZoom = this.props.maxZoom || 2;

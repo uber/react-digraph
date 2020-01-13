@@ -7,15 +7,17 @@ class NodeEditor extends React.Component {
   render() {
     const {
       children,
-      onChangeIndex,
-      onChangeQuestion,
-      onChangeImmediateNext,
-      onChangeQuickReplies,
+      questionHandlers,
       aiHandlers,
       serverHandlers,
-      onMakeFirst,
       edgeHandlers,
     } = this.props;
+    const {
+      onChangeIndex,
+      onChangeImmediateNext,
+      onMakeFirst,
+      onChangeQuestion,
+    } = questionHandlers;
 
     if (!children) {
       return (
@@ -89,8 +91,7 @@ class NodeEditor extends React.Component {
           </label>
           {!question.immediateNext && (
             <AnswerEditor
-              onChangeQuestion={onChangeQuestion}
-              onChangeQuickReplies={onChangeQuickReplies}
+              questionHandlers={questionHandlers}
               aiHandlers={aiHandlers}
               serverHandlers={serverHandlers}
             >

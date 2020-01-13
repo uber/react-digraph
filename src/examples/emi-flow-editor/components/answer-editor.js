@@ -9,11 +9,15 @@ class AnswerEditor extends React.Component {
   render() {
     const {
       children,
-      onChangeQuestion,
-      onChangeQuickReplies,
+      questionHandlers,
       aiHandlers,
       serverHandlers,
     } = this.props;
+    const {
+      onChangeQuestion,
+      onChangeQuickReplies,
+      onChangeCards,
+    } = questionHandlers;
     const node = children;
     const question = node.gnode.question;
 
@@ -29,6 +33,18 @@ class AnswerEditor extends React.Component {
             ItemComponent={Item}
             StagingComponent={StagingItem}
             value={question.quickReplies}
+          />
+        </label>
+        <label className="inputList">
+          Cards:
+          <ReactListInput
+            initialStagingValue=""
+            onChange={onChangeCards}
+            maxItems={20}
+            minItems={0}
+            ItemComponent={Item}
+            StagingComponent={StagingItem}
+            value={question.cards ? question.cards.buttons : []}
           />
         </label>
         {question.quickReplies.length > 0 && (

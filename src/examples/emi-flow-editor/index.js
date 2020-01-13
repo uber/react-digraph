@@ -639,19 +639,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 
   render() {
-    const questionHandlers = getQuestionHandlers(this);
-
     return (
       <div id="bwdl-editable-graph">
         {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
         <div id="rightBar">
           <NodeEditor
-            onChangeIndex={questionHandlers.onChangeIndex}
-            onChangeImmediateNext={questionHandlers.onChangeImmediateNext}
-            onMakeFirst={questionHandlers.onMakeFirst}
-            onChangeQuestion={questionHandlers.onChangeQuestion}
-            onChangeQuickReplies={questionHandlers.onChangeQuickReplies}
+            questionHandlers={getQuestionHandlers(this)}
             aiHandlers={getAiHandlers(this)}
             serverHandlers={getServerHandlers(this)}
             edgeHandlers={getEdgeHandlers(this)}
