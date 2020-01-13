@@ -295,9 +295,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  onUndo() {
-    alert('Undo is not supported yet.');
-  }
+  onUndo = () => this.state.editor.undo();
+
+  onRedo = () => this.state.editor.redo();
 
   onCopySelected = () => {
     const { selected, bwdlJson } = this.state;
@@ -629,6 +629,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           onSwapEdge={this.onSwapEdge}
           onDeleteEdge={this.onDeleteEdge}
           onUndo={this.onUndo}
+          onRedo={this.onRedo}
           onCopySelected={this.onCopySelected}
           onPasteSelected={this.onPasteSelected}
           layoutEngineType={this.state.layoutEngineType}

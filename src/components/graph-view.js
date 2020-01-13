@@ -533,7 +533,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleWrapperKeydown: KeyboardEventListener = d => {
-    const { selected, onUndo, onCopySelected, onPasteSelected } = this.props;
+    const {
+      selected,
+      onUndo,
+      onRedo,
+      onCopySelected,
+      onPasteSelected,
+    } = this.props;
     const { focused, selectedNodeObj } = this.state;
 
     // Conditionally ignore keypress events on the window
@@ -550,8 +556,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         break;
       case 'z':
-        if ((d.metaKey || d.ctrlKey) && onUndo) {
-          onUndo();
+        if (d.metaKey || d.ctrlKey) {
+          if (d.shiftKey) {
+            if (onRedo) {
+              onRedo();
+            }
+          } else if (onUndo) {
+            onUndo();
+          }
         }
 
         break;
