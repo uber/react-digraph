@@ -61,6 +61,8 @@ const getQuestionHandlers = bwdlEditable => {
   bwdlEditable.onChangeQuestion = function(property, newValue) {
     if (property === 'isAudio' && !newValue) {
       this.state.selected.gnode.question.audioErrorMessage = '';
+    } else if (property === 'exactMatch' && !newValue) {
+      this.state.selected.gnode.question.errorMessageNotMatch = '';
     }
 
     this.changeSelectedNode(
@@ -74,6 +76,7 @@ const getQuestionHandlers = bwdlEditable => {
 
       if (newValue.length == 0) {
         newBwdlJson[index].question.exactMatch = false;
+        newBwdlJson[index].question.errorMessageNotMatch = '';
       }
     });
   }.bind(bwdlEditable);
@@ -90,6 +93,7 @@ const getQuestionHandlers = bwdlEditable => {
 
       if (newValue.length == 0) {
         question.exactMatch = false;
+        question.errorMessageNotMatch = '';
         question.cards = null;
       }
     });

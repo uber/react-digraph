@@ -24,36 +24,40 @@ class AnswerEditor extends React.Component {
 
     return (
       <div id="answerEditor" className="someNodeEditor">
-        <label className="inputList">
-          Quick replies:
-          <ReactListInput
-            initialStagingValue=""
-            onChange={onChangeQuickReplies}
-            maxItems={20}
-            minItems={0}
-            ItemComponent={Item}
-            StagingComponent={StagingItem}
-            value={question.quickReplies}
-          />
-        </label>
-        <label className="inputList">
-          Cards:
-          <ReactListInput
-            initialStagingValue={{
-              type: null,
-              title: '',
-              payload: null,
-              url: null,
-            }}
-            onChange={onChangeCards}
-            maxItems={20}
-            minItems={0}
-            ItemComponent={CardItem}
-            StagingComponent={StagingCardItem}
-            value={question.cards ? question.cards.buttons : []}
-          />
-        </label>
-        {question.quickReplies.length > 0 && (
+        {!question.cards && (
+          <label className="inputList">
+            Quick replies:
+            <ReactListInput
+              initialStagingValue=""
+              onChange={onChangeQuickReplies}
+              maxItems={20}
+              minItems={0}
+              ItemComponent={Item}
+              StagingComponent={StagingItem}
+              value={question.quickReplies}
+            />
+          </label>
+        )}
+        {question.quickReplies.length === 0 && (
+          <label className="inputList">
+            Cards:
+            <ReactListInput
+              initialStagingValue={{
+                type: null,
+                title: '',
+                payload: null,
+                url: null,
+              }}
+              onChange={onChangeCards}
+              maxItems={20}
+              minItems={0}
+              ItemComponent={CardItem}
+              StagingComponent={StagingCardItem}
+              value={question.cards ? question.cards.buttons : []}
+            />
+          </label>
+        )}
+        {(question.quickReplies.length > 0 || question.cards) && (
           <label>
             Exact match:
             <input
