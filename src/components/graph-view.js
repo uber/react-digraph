@@ -635,7 +635,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         svgClicked: true,
       });
     } else {
-      if (!d3.event.shiftKey && onBackgroundClick) {
+      if (
+        !d3.event.shiftKey &&
+        onBackgroundClick &&
+        d3.event.target.classList.contains('background')
+      ) {
         const xycoords = d3.mouse(d3.event.target);
 
         onBackgroundClick(xycoords[0], xycoords[1], d3.event);
