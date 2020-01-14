@@ -4,6 +4,7 @@ import ReactListInput from 'react-list-input';
 import { Item, StagingItem } from './common';
 import AiEditor from './ai-editor';
 import ServerEditor from './server-editor';
+import { CardItem, StagingCardItem } from './cards';
 
 class AnswerEditor extends React.Component {
   render() {
@@ -38,12 +39,17 @@ class AnswerEditor extends React.Component {
         <label className="inputList">
           Cards:
           <ReactListInput
-            initialStagingValue=""
+            initialStagingValue={{
+              type: null,
+              title: '',
+              payload: null,
+              url: null,
+            }}
             onChange={onChangeCards}
             maxItems={20}
             minItems={0}
-            ItemComponent={Item}
-            StagingComponent={StagingItem}
+            ItemComponent={CardItem}
+            StagingComponent={StagingCardItem}
             value={question.cards ? question.cards.buttons : []}
           />
         </label>
