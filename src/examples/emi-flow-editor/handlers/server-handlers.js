@@ -48,16 +48,16 @@ const getServerHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeServerIncludeAnswers = function(enabled, parentProp) {
+  bwdlEditable.onChangeServerIncludeAnswer = function(enabled, parentProp) {
     this.changeSelectedNode((newBwdlJson, index) => {
       const serverParent = this.getServerParent(parentProp);
 
       if (enabled) {
-        serverParent.server.includeAnswers = [
+        serverParent.server.includeAnswer = [
           newBwdlJson[index].question.quickReplies[0],
         ];
       } else {
-        delete serverParent.server.includeAnswers;
+        delete serverParent.server.includeAnswer;
       }
     });
   }.bind(bwdlEditable);

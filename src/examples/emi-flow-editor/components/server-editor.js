@@ -24,7 +24,7 @@ class ServerEditor extends React.Component {
     const {
       onChangeServer,
       onChangeServerProp,
-      onChangeServerIncludeAnswers,
+      onChangeServerIncludeAnswer,
       onChangeServerParam,
       onChangeServerTranslate,
       getServerParent,
@@ -87,11 +87,11 @@ class ServerEditor extends React.Component {
               <label>
                 includeAnswers:
                 <input
-                  name="includeAnswers"
+                  name="includeAnswer"
                   type="checkbox"
-                  checked={'includeAnswers' in server}
+                  checked={'includeAnswer' in server}
                   onChange={e =>
-                    onChangeServerIncludeAnswers(e.target.checked, parentProp)
+                    onChangeServerIncludeAnswer(e.target.checked, parentProp)
                   }
                 />
               </label>
