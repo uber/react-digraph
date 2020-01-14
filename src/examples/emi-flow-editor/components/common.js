@@ -105,15 +105,16 @@ const SelectItem = function({
 }) {
   return (
     <div className="listItem">
-      <Select
-        className="selectContainer"
-        theme={selectTheme}
-        value={getSimpleItem(value)}
-        onChange={item => onChange(item.value)}
-        options={getOptions().map(option => getSimpleItem(option))}
-        isSearchable={true}
-        isDisabled={true}
-      />
+      <label>
+        <Select
+          className="selectContainer"
+          theme={selectTheme}
+          value={getSimpleItem(value)}
+          onChange={item => onChange(item.value)}
+          options={getOptions().map(option => getSimpleItem(option))}
+          isSearchable={true}
+        />
+      </label>
       {decorateHandle(
         <span
           style={{

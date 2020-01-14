@@ -76,7 +76,7 @@ class ServerEditor extends React.Component {
                 }
                 maxItems={20}
                 minItems={0}
-                ItemComponent={SelectItemHOC(getSupportedParams)}
+                ItemComponent={SelectItemHOC(getValidParamsHOC(server))}
                 StagingComponent={StagingSelectItemHOC(
                   getValidParamsHOC(server)
                 )}
