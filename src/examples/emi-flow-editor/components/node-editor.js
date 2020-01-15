@@ -2,15 +2,18 @@ import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import EdgeEditor from './edge-editor';
 import AnswerEditor from './answer-editor';
+import FaqEditor from './faq-editor';
 
 class NodeEditor extends React.Component {
   render() {
     const {
       children,
+      faqMode,
       questionHandlers,
       aiHandlers,
       serverHandlers,
       edgeHandlers,
+      faqHandlers,
     } = this.props;
     const {
       onChangeIndex,
@@ -19,12 +22,16 @@ class NodeEditor extends React.Component {
       onChangeQuestion,
     } = questionHandlers;
 
-    if (!children) {
+    if (!children && !faqMode) {
       return (
         <div id="nodeEditor" className="someNodeEditor">
-          <h1>Select a node or an edge...</h1>
+          <h1>Select a node or an edge, or click on FAQ...</h1>
         </div>
       );
+    }
+
+    if (faqMode) {
+      return <FaqEditor faqHandlers={faqHandlers} />;
     }
 
     if (children.source) {

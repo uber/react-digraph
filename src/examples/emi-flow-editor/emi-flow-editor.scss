@@ -56,7 +56,7 @@
   height: 90vh;
 }
 
-#nodeEditor {
+#nodeEditor, #faqEditor {
   color: white;
   display: flex;
   flex-direction: column;
@@ -221,6 +221,25 @@ label {
     stroke-width: 1;
     stroke-opacity: 0.5;
     stroke-dasharray: 0;
+  }
+}
+
+#faq {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 5%;
+  width: 10%;
+
+  &:hover {
+    stroke: aqua;
+    stroke-width: 10px;
+  }
+
+  &.selected {
+    stroke: none;
+    background: greenyellow;
+    border-radius: 10px;
   }
 }
 

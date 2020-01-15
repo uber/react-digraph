@@ -1,3 +1,5 @@
+import { getSimpleItem } from './components/common';
+
 const defaultQuestionStr = 'generic_yes_no_v2';
 const empathyDefaults = {
   phone: {
@@ -143,4 +145,20 @@ const intentsByQuestionStr = {
   ],
 };
 
-export { defaultQuestionStr, empathyDefaults, intentsByQuestionStr };
+const langLabels = ['ES', 'ES_419', 'ES_AR', 'ES_MX'];
+const countryLabels = ['MX', 'AR'];
+
+const questionStrItems = Object.keys(empathyDefaults).map(q =>
+  getSimpleItem(q)
+);
+const langItems = langLabels.map(l => getSimpleItem(l));
+const countryItems = countryLabels.map(c => getSimpleItem(c));
+
+export {
+  defaultQuestionStr,
+  empathyDefaults,
+  intentsByQuestionStr,
+  questionStrItems,
+  langItems,
+  countryItems,
+};

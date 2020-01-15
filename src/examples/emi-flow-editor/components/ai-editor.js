@@ -2,12 +2,17 @@ import * as React from 'react';
 import ReactListInput from 'react-list-input';
 import Select from 'react-select';
 import ServerEditor from './server-editor';
-import { selectTheme, Item, StagingItem } from './common';
+import { selectTheme, getSimpleItem, Item, StagingItem } from './common';
 import {
   StagingIntentTranslateItemHOC,
   IntentTranslateItemHOC,
 } from './intent-translate';
-import { intentsByQuestionStr } from '../empathy.js';
+import {
+  intentsByQuestionStr,
+  questionStrItems,
+  langItems,
+  countryItems,
+} from '../empathy.js';
 
 const getSupportedIntents = ai => intentsByQuestionStr[ai.question_str];
 
@@ -17,51 +22,6 @@ const getValidIntentsHOC = ai => () =>
   );
 
 class AiEditor extends React.Component {
-  constructor(props) {
-    super(props);
-    this.questionLabels = {
-      phone: 'phone',
-      best_match_no_retry: 'best_match_no_retry',
-      best_match: 'best_match',
-      prepa: 'prepa',
-      salary: 'salary',
-      secondary_v2: 'secondary_v2',
-      nickname: 'nickname',
-      duration: 'duration',
-      generic_yes_no_v2: 'generic_yes_no_v2',
-      welcome_idle: 'welcome_idle',
-      interest_v2: 'interest_v2',
-      schedule_v2: 'schedule_v2',
-      sentiment: 'sentiment',
-      time_interval: 'time_interval',
-      datetime: 'datetime',
-      dates: 'dates',
-    };
-    this.questionItems = Object.keys(this.questionLabels).map(key =>
-      this.getQuestionStrItem(key)
-    );
-    this.langLabels = {
-      ES: 'ES',
-      ES_419: 'ES_419',
-      ES_AR: 'ES_AR',
-      ES_MX: 'ES_MX',
-    };
-    this.langItems = Object.keys(this.langLabels).map(key =>
-      this.getLangItem(key)
-    );
-    this.countryLabels = {
-      MX: 'MX',
-      AR: 'AR',
-    };
-    this.countryItems = Object.keys(this.countryLabels).map(key =>
-      this.getCountryItem(key)
-    );
-  }
-
-  getQuestionStrItem = key => ({ value: key, label: this.questionLabels[key] });
-  getLangItem = key => ({ value: key, label: this.langLabels[key] });
-  getCountryItem = key => ({ value: key, label: this.countryLabels[key] });
-
   getIntentTranslateItems = intent_responses =>
     Object.keys(intent_responses).map(key => ({
       intent: key,
@@ -121,9 +81,9 @@ class AiEditor extends React.Component {
               <Select
                 className="selectContainer"
                 theme={selectTheme}
-                value={this.getQuestionStrItem(ai.question_str)}
+                value={getSimpleItem(ai.question_str)}
                 onChange={onChangeAiQuestionStr}
-                options={this.questionItems}
+                options={questionStrItems}
                 isSearchable={true}
               />
             </label>
@@ -133,9 +93,9 @@ class AiEditor extends React.Component {
                 <Select
                   className="selectContainer"
                   theme={selectTheme}
-                  value={this.getLangItem(ai.lang)}
+                  value={getSimpleItem(ai.lang)}
                   onChange={onChangeLang}
-                  options={this.langItems}
+                  options={langItems}
                   isSearchable={true}
                 />
               </label>
@@ -146,9 +106,9 @@ class AiEditor extends React.Component {
                 <Select
                   className="selectContainer"
                   theme={selectTheme}
-                  value={this.getCountryItem(ai.country)}
+                  value={getSimpleItem(ai.country)}
                   onChange={onChangeCountry}
-                  options={this.countryItems}
+                  options={countryItems}
                   isSearchable={true}
                 />
               </label>
