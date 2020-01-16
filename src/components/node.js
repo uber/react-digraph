@@ -150,6 +150,13 @@ class Node extends React.Component<INodeProps, INodeState> {
       y: data.y,
     };
 
+    // Moves child to the end of the element stack to re-arrange the z-index
+    const container = this.nodeRef.current.parentElement;
+
+    if (container.parentElement.lastElementChild !== container) {
+      container.parentElement.appendChild(container);
+    }
+
     if (!this.props.centerNodeOnMove) {
       newState.pointerOffset = this.state.pointerOffset || {
         x: data.x - this.props.data.x,
@@ -190,11 +197,6 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     const { drawingEdge } = this.state;
     const { data, onNodeSelected } = this.props;
-
-    // Moves child to the end of the element stack to re-arrange the z-index
-    this.nodeRef.current.parentElement.parentElement.appendChild(
-      this.nodeRef.current.parentElement
-    );
 
     onNodeSelected(data, e.shiftKey || drawingEdge, e);
   };
