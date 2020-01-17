@@ -141,6 +141,10 @@
   display: flex;
   align-items: center;
 
+  > input, span {
+    flex: 1;
+  }
+
   > label {
     margin: 0px;
     padding: 0px;

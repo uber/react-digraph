@@ -3,7 +3,7 @@ import Select from 'react-select';
 import { Input, getSimpleItem, selectTheme } from './common';
 
 const POSTBACK = 'postback';
-const WEB_URI = 'web_uri';
+const WEB_URI = 'web_url';
 const cardTypes = [POSTBACK, WEB_URI];
 
 const changeType = (value, newType, onChange) => {
@@ -26,7 +26,6 @@ const CardItem = function({
   return (
     <div className="filterItem">
       <Input
-        style={{ width: '50px' }}
         value={value.title}
         onChange={text => {
           value.title = text;
@@ -97,7 +96,6 @@ const StagingCardItem = function({ value, onAdd, canAdd, add, onChange }) {
       <label>
         Title:
         <Input
-          style={{ width: '50px' }}
           value={value.title}
           onChange={text => {
             value.title = text;
