@@ -86,15 +86,15 @@ const getQuestionHandlers = bwdlEditable => {
       const question = newBwdlJson[index].question;
 
       if (!question.cards) {
-        question.cards = {};
+        question.cards = [{}];
       }
 
-      question.cards.buttons = newValue;
+      question.cards[0].buttons = newValue;
 
       if (newValue.length == 0) {
         question.exactMatch = false;
         question.errorMessageNotMatch = '';
-        question.cards = null;
+        delete question.cards;
       }
     });
   }.bind(bwdlEditable);

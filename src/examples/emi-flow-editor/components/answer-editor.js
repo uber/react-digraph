@@ -53,7 +53,7 @@ class AnswerEditor extends React.Component {
               minItems={0}
               ItemComponent={CardItem}
               StagingComponent={StagingCardItem}
-              value={question.cards ? question.cards.buttons : []}
+              value={question.cards ? question.cards[0].buttons : []}
             />
           </label>
         )}
