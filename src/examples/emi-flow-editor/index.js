@@ -110,15 +110,16 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       return;
     }
 
-    const newBwdlJson = {
-      ...this.state.bwdlJson,
-    };
-    const sourceNodeBwdl = newBwdlJson[sourceNode.title];
-    const isDefault = sourceNodeBwdl.question.connections.every(
-      conn => !conn.isDefault
-    );
+    this.setState(prevState => {
+      const newBwdlJson = {
+        ...prevState.bwdlJson,
+      };
 
-    if (sourceNodeBwdl.Type === 'Choice') {
+      const sourceNodeBwdl = newBwdlJson[sourceNode.title];
+      const isDefault = sourceNodeBwdl.question.connections.every(
+        conn => !conn.isDefault
+      );
+
       const newConnection = {
         goto: targetNode.title,
         isString: '',
@@ -156,15 +157,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       } else {
         sourceNodeBwdl.question.connections = [newConnection];
       }
-    } else {
-      sourceNodeBwdl.goto = targetNode.title;
-    }
 
-    this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: this.stringify(newBwdlJson),
+      return this.updateNodesFromBwdl({
+        bwdlJson: newBwdlJson,
+        bwdlText: this.stringify(newBwdlJson),
+      });
     });
-    this.updateBwdl();
   }
 
   scrollToLine = node => {
