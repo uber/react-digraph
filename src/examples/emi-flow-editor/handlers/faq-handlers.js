@@ -1,3 +1,5 @@
+import { faqDefaults } from '../empathy';
+
 const getFaqHandlers = bwdlEditable => {
   bwdlEditable.getFaqs = function() {
     return this.state.bwdlJson.faqs;
@@ -25,7 +27,7 @@ const getFaqHandlers = bwdlEditable => {
       };
 
       if (enable) {
-        newBwdlJson['faqs'] = {};
+        newBwdlJson['faqs'] = Object.assign({}, faqDefaults);
       } else {
         delete newBwdlJson['faqs'];
       }
@@ -35,6 +37,22 @@ const getFaqHandlers = bwdlEditable => {
         bwdlText: this.stringify(newBwdlJson),
       });
     });
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeFaqsLang = function(item) {
+    this.changeFaqs(faqs => (faqs.lang = item.value));
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeFaqsMinSimilarity = function(newValue) {
+    if (newValue !== '' && (newValue > 100 || newValue < 1)) {
+      return;
+    }
+
+    this.changeFaqs(faqs => (faqs.min_similarity = newValue));
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeFaqOptions = function(options) {
+    this.changeFaqs(faqs => (faqs.options = options));
   }.bind(bwdlEditable);
 
   return bwdlEditable;

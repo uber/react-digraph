@@ -145,6 +145,13 @@ const intentsByQuestionStr = {
   ],
 };
 
+const faqDefaults = {
+  lang: 'ES',
+  min_similarity: 90,
+  options: {},
+  question_str: 'best_match',
+};
+
 const deprecatedQuestionStrs = ['best_match'];
 const langLabels = ['ES', 'ES_419', 'ES_AR', 'ES_MX'];
 const countryLabels = ['MX', 'AR'];
@@ -168,4 +175,5 @@ export {
   langItems,
   countryItems,
   deprecatedQuestionStrs,
+  faqDefaults,
 };
