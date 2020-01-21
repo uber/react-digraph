@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactListInput from 'react-list-input';
 import Select from 'react-select';
+import GraphUtils from '../../../utilities/graph-util';
 import ServerEditor from './server-editor';
 import { selectTheme, getSimpleItem, Item, StagingItem } from './common';
 import {
@@ -12,6 +13,7 @@ import {
   questionStrItems,
   langItems,
   countryItems,
+  deprecatedQuestionStrs,
 } from '../empathy.js';
 
 const getSupportedIntents = ai => intentsByQuestionStr[ai.question_str];
@@ -50,6 +52,11 @@ class AiEditor extends React.Component {
     return filters;
   };
 
+  modelClasses = ai =>
+    GraphUtils.classNames(
+      deprecatedQuestionStrs.includes(ai.question_str) ? ['deprecated'] : []
+    );
+
   render() {
     const { children, aiHandlers } = this.props;
     const {
@@ -76,7 +83,7 @@ class AiEditor extends React.Component {
         />
         {'ai' in node.gnode && (
           <div id="aiEditor" className="someNodeEditor">
-            <label>
+            <label className={this.modelClasses(ai)}>
               AI-Model:
               <Select
                 className="selectContainer"

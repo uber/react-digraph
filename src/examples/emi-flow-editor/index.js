@@ -53,6 +53,7 @@ const nodeStartLineRegex = /^ {2}"((?!faqs).)*": {/;
 const nodeEndLineRegex = /^ {2}}/;
 
 const connsStartLineRegex = /^ {6}"connections": \[/;
+const noConnsLineRegex = /^ {6}"connections": \[\]/;
 const connsEndLineRegex = /^ {6}]/;
 
 const connStartLineRegex = /^ {8}{/;
@@ -460,19 +461,25 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   gotoIndexForRow = row => {
     const lines = this.state.bwdlText.split('\n');
     const prevLines = lines.slice(0, row).reverse();
-    const findStartIndex = prevLines.findIndex(line =>
+    const startIndex = prevLines.findIndex(line =>
       connsStartLineRegex.test(line)
     );
 
-    if (findStartIndex === -1) {
+    if (startIndex === -1) {
       return -1;
     }
 
-    const findEndIndex = prevLines.findIndex(line =>
-      connsEndLineRegex.test(line)
+    const nNoConnsIndex = prevLines.findIndex(line =>
+      noConnsLineRegex.test(line)
     );
 
-    if (findEndIndex != -1 && findEndIndex < findStartIndex) {
+    if (nNoConnsIndex !== -1 && nNoConnsIndex <= startIndex) {
+      return -1;
+    }
+
+    const endIndex = prevLines.findIndex(line => connsEndLineRegex.test(line));
+
+    if (endIndex != -1 && endIndex < startIndex) {
       return -1;
     }
 

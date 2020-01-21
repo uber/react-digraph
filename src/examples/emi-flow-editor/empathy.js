@@ -145,12 +145,18 @@ const intentsByQuestionStr = {
   ],
 };
 
+const deprecatedQuestionStrs = ['best_match'];
 const langLabels = ['ES', 'ES_419', 'ES_AR', 'ES_MX'];
 const countryLabels = ['MX', 'AR'];
+const questionStrItems = Object.keys(empathyDefaults).map(q => {
+  const item = getSimpleItem(q);
 
-const questionStrItems = Object.keys(empathyDefaults).map(q =>
-  getSimpleItem(q)
-);
+  if (deprecatedQuestionStrs.includes(q)) {
+    item.label += '(deprecated)';
+  }
+
+  return item;
+});
 const langItems = langLabels.map(l => getSimpleItem(l));
 const countryItems = countryLabels.map(c => getSimpleItem(c));
 
@@ -161,4 +167,5 @@ export {
   questionStrItems,
   langItems,
   countryItems,
+  deprecatedQuestionStrs,
 };
