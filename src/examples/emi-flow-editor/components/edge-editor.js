@@ -55,7 +55,6 @@ class EdgeEditor extends React.Component {
       onMakeDefaultConn,
       getPrevIndexes,
       getPrevContextVars,
-      onChangeArrayFilterValue,
       getIntents,
     } = this.props;
     const edge = children;
@@ -175,10 +174,7 @@ class EdgeEditor extends React.Component {
               }
               maxItems={20}
               minItems={0}
-              ItemComponent={IntentFilterItemHOC(
-                getIntents,
-                onChangeArrayFilterValue
-              )}
+              ItemComponent={IntentFilterItemHOC(getIntents)}
               StagingComponent={StagingIntentFilterItemHOC(getIntents)}
               value={this.getFilterItems(conn.nlp)}
             />
@@ -193,10 +189,7 @@ class EdgeEditor extends React.Component {
             }
             maxItems={20}
             minItems={0}
-            ItemComponent={FilterItemHOC(
-              getPrevIndexes,
-              onChangeArrayFilterValue
-            )}
+            ItemComponent={FilterItemHOC(getPrevIndexes)}
             StagingComponent={StagingFilterItemHOC(getPrevIndexes)}
             value={this.getFilterItems(conn.answers)}
           />
@@ -210,10 +203,7 @@ class EdgeEditor extends React.Component {
             }
             maxItems={20}
             minItems={0}
-            ItemComponent={FilterItemHOC(
-              getPrevContextVars,
-              onChangeArrayFilterValue
-            )}
+            ItemComponent={FilterItemHOC(getPrevContextVars)}
             StagingComponent={StagingFilterItemHOC(getPrevContextVars)}
             value={this.getFilterItems(conn.context)}
           />

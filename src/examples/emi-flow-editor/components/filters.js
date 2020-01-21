@@ -44,7 +44,6 @@ const FilterItem = function({
   onRemove,
   value,
   getOptions,
-  onChangeArrayFilterValue,
 }) {
   // clone, or bad stuff happens.
   value = Object.assign({}, value);
@@ -78,9 +77,10 @@ const FilterItem = function({
         <label className="inputList">
           <ReactListInput
             initialStagingValue=""
-            onChange={list =>
-              onChangeArrayFilterValue('answers', value.key, value.op, list)
-            }
+            onChange={list => {
+              value.value = list;
+              onChange(value);
+            }}
             maxItems={20}
             minItems={0}
             ItemComponent={Item}
@@ -123,8 +123,8 @@ const FilterItem = function({
   );
 };
 
-const FilterItemHOC = (getOptions, onChangeArrayFilterValue) => props =>
-  FilterItem({ ...props, getOptions, onChangeArrayFilterValue });
+const FilterItemHOC = getOptions => props =>
+  FilterItem({ ...props, getOptions });
 
 const StagingFilterItem = function({
   value,

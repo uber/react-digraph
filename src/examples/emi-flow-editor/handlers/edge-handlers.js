@@ -59,18 +59,6 @@ const getEdgeHandlers = bwdlEditable => {
     return Array.from(vars);
   }.bind(bwdlEditable);
 
-  bwdlEditable.onChangeArrayFilterValue = function(
-    connProperty,
-    key,
-    op,
-    value
-  ) {
-    this._changeSelectedConn(conn => {
-      key = `${key}_${op}`;
-      conn[connProperty][key] = value;
-    });
-  }.bind(bwdlEditable);
-
   return bwdlEditable;
 };
 

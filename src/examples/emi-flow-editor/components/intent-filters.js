@@ -43,7 +43,6 @@ const IntentFilterItem = function({
   onRemove,
   value,
   getOptions,
-  onChangeArrayFilterValue,
 }) {
   // clone, or bad stuff happens.
   value = Object.assign({}, value);
@@ -71,9 +70,10 @@ const IntentFilterItem = function({
         <label className="inputList">
           <ReactListInput
             initialStagingValue=""
-            onChange={list =>
-              onChangeArrayFilterValue('nlp', value.key, value.op, list)
-            }
+            onChange={list => {
+              value.value = list;
+              onChange(value);
+            }}
             maxItems={20}
             minItems={0}
             ItemComponent={SelectItemHOC(getOptions)}
@@ -120,8 +120,8 @@ const IntentFilterItem = function({
   );
 };
 
-const IntentFilterItemHOC = (getOptions, onChangeArrayFilterValue) => props =>
-  IntentFilterItem({ ...props, getOptions, onChangeArrayFilterValue });
+const IntentFilterItemHOC = getOptions => props =>
+  IntentFilterItem({ ...props, getOptions });
 
 const StagingIntentFilterItem = function({
   value,

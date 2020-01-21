@@ -43,7 +43,6 @@ class NodeEditor extends React.Component {
             getPrevIndexes={edgeHandlers.getPrevIndexes}
             getIntents={edgeHandlers.getIntents}
             getPrevContextVars={edgeHandlers.getPrevContextVars}
-            onChangeArrayFilterValue={edgeHandlers.onChangeArrayFilterValue}
           >
             {children}
           </EdgeEditor>
