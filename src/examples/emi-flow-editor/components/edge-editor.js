@@ -49,14 +49,14 @@ class EdgeEditor extends React.Component {
   };
 
   render() {
+    const { children, edgeHandlers } = this.props;
     const {
-      children,
       onChangeConn,
       onMakeDefaultConn,
       getPrevIndexes,
       getPrevContextVars,
       getIntents,
-    } = this.props;
+    } = edgeHandlers;
     const edge = children;
     const conns = edge.sourceNode.gnode.question.connections;
     const targetIndex = edge.targetNode.gnode.question.index;

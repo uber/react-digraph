@@ -37,15 +37,7 @@ class NodeEditor extends React.Component {
     if (children.source) {
       return (
         <div id="nodeEditor">
-          <EdgeEditor
-            onChangeConn={edgeHandlers.onChangeConn}
-            onMakeDefaultConn={edgeHandlers.onMakeDefaultConn}
-            getPrevIndexes={edgeHandlers.getPrevIndexes}
-            getIntents={edgeHandlers.getIntents}
-            getPrevContextVars={edgeHandlers.getPrevContextVars}
-          >
-            {children}
-          </EdgeEditor>
+          <EdgeEditor edgeHandlers={edgeHandlers}>{children}</EdgeEditor>
         </div>
       );
     }
