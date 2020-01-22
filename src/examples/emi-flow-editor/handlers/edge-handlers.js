@@ -1,6 +1,14 @@
 import { intentsByQuestionStr } from '../empathy';
 
 const getEdgeHandlers = bwdlEditable => {
+  bwdlEditable.setSelectedConnIndex = function(connIndex) {
+    this.selectedConnIndex = connIndex;
+  }.bind(bwdlEditable);
+
+  bwdlEditable.getSelectedConnIndex = function() {
+    return this.selectedConnIndex || 0;
+  }.bind(bwdlEditable);
+
   bwdlEditable._changeSelectedConn = function(f) {
     const index = this.state.selected.sourceNode.gnode.question.index;
     const targetIndex = this.state.selected.targetNode.gnode.question.index;
@@ -10,9 +18,14 @@ const getEdgeHandlers = bwdlEditable => {
         ...prevState.bwdlJson,
       };
       const conns = newBwdlJson[index].question.connections;
-      const conn = conns.find(conn => conn.goto === targetIndex);
 
-      f(conn, conns, newBwdlJson, index, targetIndex);
+      f(
+        conns[this.getSelectedConnIndex()],
+        conns,
+        newBwdlJson,
+        index,
+        targetIndex
+      );
 
       return this.updateNodesFromBwdl({
         bwdlJson: newBwdlJson,
@@ -53,7 +66,7 @@ const getEdgeHandlers = bwdlEditable => {
     const vars = new Set();
 
     this.getAncestorIndexes(this.state.selected.source, edge => {
-      Object.keys(edge.conn.setContext).forEach(vars.add, vars);
+      Object.keys(edge.conns[0].setContext).forEach(vars.add, vars);
     });
 
     return Array.from(vars);

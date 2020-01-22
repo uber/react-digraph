@@ -57,12 +57,20 @@ export default class FlowV1Transformer extends Transformer {
       // create edges
       q.connections.forEach(connection => {
         if (input[connection.goto]) {
-          edges.push({
-            source: name,
-            target: connection.goto,
-            sourceNode: nodeToAdd,
-            conn: connection,
-          });
+          const edge = edges.find(e => e.target == connection.goto);
+
+          if (edge) {
+            edge.conns.push(connection);
+            edge.isDefault = edge.isDefault || connection.isDefault;
+          } else {
+            edges.push({
+              source: name,
+              target: connection.goto,
+              sourceNode: nodeToAdd,
+              conns: [connection],
+              isDefault: connection.isDefault,
+            });
+          }
         }
       });
     });

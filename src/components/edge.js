@@ -709,11 +709,11 @@ class Edge extends React.Component<IEdgeProps> {
     const { data, isSelected } = this.props;
     // let [rotation, isRotated] = this.getEdgeHandleRotation();
 
-    if (!data.conn) {
+    if (!(data.conns && data.conns.length)) {
       return;
     }
 
-    const labels = this.getLabels(data.conn);
+    const labels = this.getLabels(data.conns[0]);
     const labelsFirstDy = -1 * ((labels.length - 1) / 2) * LINE_GAP;
     // const title = isRotated
     //   ? `${data.label_to} ↔ ${data.label_from}`
@@ -777,7 +777,7 @@ class Edge extends React.Component<IEdgeProps> {
       return null;
     }
 
-    const isDefault = data.conn && data.conn.isDefault;
+    const isDefault = data.isDefault;
     const id = `${data.source || ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
       selected: isSelected,

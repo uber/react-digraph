@@ -1,6 +1,6 @@
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import EdgeEditor from './edge-editor';
+import MultiEdgeEditor from './multi-edge-editor';
 import AnswerEditor from './answer-editor';
 import FaqEditor from './faq-editor';
 
@@ -37,7 +37,9 @@ class NodeEditor extends React.Component {
     if (children.source) {
       return (
         <div id="nodeEditor">
-          <EdgeEditor edgeHandlers={edgeHandlers}>{children}</EdgeEditor>
+          <MultiEdgeEditor edgeHandlers={edgeHandlers}>
+            {children}
+          </MultiEdgeEditor>
         </div>
       );
     }

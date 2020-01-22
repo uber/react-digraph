@@ -49,7 +49,7 @@ class EdgeEditor extends React.Component {
   };
 
   render() {
-    const { children, edgeHandlers } = this.props;
+    const { children, edge, edgeHandlers } = this.props;
     const {
       onChangeConn,
       onMakeDefaultConn,
@@ -57,17 +57,13 @@ class EdgeEditor extends React.Component {
       getPrevContextVars,
       getIntents,
     } = edgeHandlers;
-    const edge = children;
-    const conns = edge.sourceNode.gnode.question.connections;
-    const targetIndex = edge.targetNode.gnode.question.index;
-    const conn = conns.find(conn => conn.goto === targetIndex);
+    const conn = children;
     const ai = edge.sourceNode.gnode.ai;
     const hasIntents =
       ai && ai.prediction_data && ai.prediction_data.intent_responses;
 
     return (
       <div id="edgeEditor" className="someNodeEditor">
-        <h1>{`${edge.source} => ${edge.target}`}</h1>
         {conn.isDefault && (
           <label className="defaultConnection">Default connection</label>
         )}
