@@ -713,7 +713,9 @@ class Edge extends React.Component<IEdgeProps> {
       return;
     }
 
-    const labels = this.getLabels(data.conns[0]);
+    const index = data.conns.findIndex(c => c.isSelected);
+    const conn = data.conns[index === -1 ? 0 : index];
+    const labels = this.getLabels(conn);
     const labelsFirstDy = -1 * ((labels.length - 1) / 2) * LINE_GAP;
     // const title = isRotated
     //   ? `${data.label_to} ↔ ${data.label_from}`
@@ -807,7 +809,7 @@ class Edge extends React.Component<IEdgeProps> {
           />
           {data.handleText && this.renderHandleText(data)}
           {/*data.label_from && data.label_to && this.renderLabelText(data)*/}
-          {/*this.renderLabelText()*/}
+          {this.renderLabelText()}
         </g>
         <g className="edge-mouse-handler">
           <title>{data.handleTooltipText}</title>
