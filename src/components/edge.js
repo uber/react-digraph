@@ -681,7 +681,10 @@ class Edge extends React.Component<IEdgeProps> {
 
     const shape = group.firstChild;
 
-    if (!shape.getAttribute || shape.getAttribute('class') !== 'edgeTextBkg') {
+    if (
+      !shape.getAttribute ||
+      !shape.getAttribute('class').includes('edgeTextBkg')
+    ) {
       return;
     }
 
@@ -690,7 +693,6 @@ class Edge extends React.Component<IEdgeProps> {
 
     shape.setAttribute('transform', `scale(0, 0)`);
     const SVGRect = group.getBBox();
-
     const xScale = (SVGRect.width + X_MARGIN * 2) / 100.0;
     const yScale = (SVGRect.height + Y_MARGIN * 2) / 100.0;
 
