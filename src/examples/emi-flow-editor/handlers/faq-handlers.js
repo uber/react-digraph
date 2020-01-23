@@ -6,36 +6,18 @@ const getFaqHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.changeFaqs = function(f) {
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      f(newBwdlJson['faqs'], newBwdlJson);
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-      });
+    this.changeJson(json => {
+      f(json['faqs'], json);
     });
   };
 
   bwdlEditable.onEnableFaqs = function(enable) {
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
+    this.changeJson(json => {
       if (enable) {
-        newBwdlJson['faqs'] = Object.assign({}, faqDefaults);
+        json['faqs'] = Object.assign({}, faqDefaults);
       } else {
-        delete newBwdlJson['faqs'];
+        delete json['faqs'];
       }
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-      });
     });
   }.bind(bwdlEditable);
 

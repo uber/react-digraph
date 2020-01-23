@@ -111,13 +111,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       return;
     }
 
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-
-      const sourceNodeBwdl = newBwdlJson[sourceNode.title];
-      const isDefault = sourceNodeBwdl.question.connections.every(
+    this.changeJson(json => {
+      const nodeJson = json[sourceNode.title];
+      const isDefault = nodeJson.question.connections.every(
         conn => !conn.isDefault
       );
 
@@ -137,7 +133,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         nlp: {},
       };
 
-      const connections = sourceNodeBwdl.question.connections;
+      const connections = nodeJson.question.connections;
 
       if (connections) {
         // check if swapping edge
@@ -156,13 +152,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           connections.push(newConnection);
         }
       } else {
-        sourceNodeBwdl.question.connections = [newConnection];
+        nodeJson.question.connections = [newConnection];
       }
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-      });
     });
   }
 
@@ -198,64 +189,49 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onCreateNode = (x: number, y: number) => {
-    const newBwdlJson = {
-      ...this.state.bwdlJson,
-    };
+    this.changeJson(json => {
+      const index = `node-${makeid(4)}`;
 
-    const index = `node-${makeid(4)}`;
+      json[index] = {
+        // id: index,
+        Type: CHOICE_TYPE,
+        question: {
+          errorMessageNotMatch: '',
+          exactMatch: false,
+          index: index,
+          connections: [],
+          text: '',
+          immediateNext: false,
+          isAudio: false,
+          audioErrorMessage: '',
+          quickReplies: [],
+        },
+        x,
+        y,
+      };
 
-    newBwdlJson[index] = {
-      // id: index,
-      Type: CHOICE_TYPE,
-      question: {
-        errorMessageNotMatch: '',
-        exactMatch: false,
-        index: index,
-        connections: [],
-        text: '',
-        immediateNext: false,
-        isAudio: false,
-        audioErrorMessage: '',
-        quickReplies: [],
-      },
-      x,
-      y,
-    };
-
-    if (!('current' in newBwdlJson)) {
-      newBwdlJson['current'] = index;
-    }
-
-    this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: this.stringify(newBwdlJson),
+      if (!('current' in json)) {
+        json['current'] = index;
+      }
     });
-    this.updateBwdl();
   };
   onUpdateNode = (node: INode) => {
     return;
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
-    const newBwdlJson = {
-      ...this.state.bwdlJson,
-    };
+    this.changeJson(json => {
+      if (selected.first) {
+        if (this.state.nodes.length > 1) {
+          // cannot delete first node without picking a new first one
+          return;
+        }
 
-    if (selected.first) {
-      if (this.state.nodes.length > 1) {
-        // cannot delete first node without picking a new first one
-        return;
+        delete json['current'];
       }
 
-      delete newBwdlJson['current'];
-    }
-
-    delete newBwdlJson[selected.title];
-    this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: this.stringify(newBwdlJson),
+      delete json[selected.title];
     });
-    this.updateBwdl();
   };
 
   onSelectEdge = (edge: IEdge) => {
@@ -285,28 +261,20 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onDeleteEdge = (selectedEdge: IEdge, edges: IEdge[]) => {
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
+    this.changeJson(json => {
+      const nodeJson = json[selectedEdge.source];
 
-      const sourceNodeBwdl = newBwdlJson[selectedEdge.source];
-
-      const connections = sourceNodeBwdl.question.connections;
+      const connections = nodeJson.question.connections;
 
       // if (connections) {
-      sourceNodeBwdl.question.connections = connections.filter(connection => {
+      nodeJson.question.connections = connections.filter(connection => {
         return connection.goto !== selectedEdge.target;
       });
       // } else {
       //   delete sourceNodeBwdl.Next;
       // }
 
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-        selected: null,
-      });
+      return null;
     });
   };
 
@@ -330,19 +298,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onPasteSelected = () => {
-    const { copiedNode, bwdlJson } = this.state;
-
-    bwdlJson[`new-node${Date.now()}`] = copiedNode;
-
-    const newBwdlJson = {
-      ...bwdlJson,
-    };
-
-    this.setState({
-      bwdlJson: newBwdlJson,
-      bwdlText: this.stringify(newBwdlJson),
+    this.changeJson(json => {
+      json[`new-node${Date.now()}`] = this.state.copiedNode;
     });
-    this.updateBwdl();
   };
 
   getNewStateWithUpdatedSelected = (newState, transformed) => {
@@ -540,21 +498,31 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({ editor: editor });
   };
 
-  changeSelectedNode = f => {
-    const index = this.state.selected.gnode.question.index;
-
+  changeJson = f => {
     this.setState(prevState => {
-      const newBwdlJson = {
+      const json = {
         ...prevState.bwdlJson,
       };
 
-      f(newBwdlJson, index);
+      const selected = f(json, prevState);
 
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-      });
+      const updateObj = {
+        bwdlJson: json,
+        bwdlText: this.stringify(json),
+      };
+
+      if (selected !== undefined) {
+        updateObj.selected = selected;
+      }
+
+      return this.updateNodesFromBwdl(updateObj);
     });
+  };
+
+  changeSelectedNode = f => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.changeJson(json => f(json, index));
   };
 
   getAncestorIndexes = (index, edgeCallback) => {

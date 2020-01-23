@@ -2,35 +2,35 @@ import { intentsByQuestionStr } from '../empathy';
 
 const getEdgeHandlers = bwdlEditable => {
   bwdlEditable.setSelectedConnIndex = function(connIndex) {
-    this.selectedConnIndex = connIndex;
+    this._changeSelectedConn((conn, nodeConns, edgeConns) => {
+      conn.isSelected = false;
+      edgeConns[connIndex].isSelected = true;
+    });
   }.bind(bwdlEditable);
 
   bwdlEditable.getSelectedConnIndex = function() {
-    return this.selectedConnIndex || 0;
+    const index = this.state.selected.conns.findIndex(c => c.isSelected);
+
+    return index == -1 ? 0 : index;
   }.bind(bwdlEditable);
 
   bwdlEditable._changeSelectedConn = function(f) {
     const index = this.state.selected.sourceNode.gnode.question.index;
     const targetIndex = this.state.selected.targetNode.gnode.question.index;
 
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
-      const conns = newBwdlJson[index].question.connections;
+    this.changeJson(json => {
+      const nodeConns = json[index].question.connections;
+      const edgeConns = nodeConns.filter(c => c.goto == targetIndex);
+      const conn = edgeConns[this.getSelectedConnIndex()];
 
       f(
-        conns[this.getSelectedConnIndex()],
-        conns,
-        newBwdlJson,
-        index,
-        targetIndex
+        conn,
+        nodeConns,
+        edgeConns
+        // json,
+        // index,
+        // targetIndex
       );
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-      });
     });
   }.bind(bwdlEditable);
 
@@ -39,9 +39,9 @@ const getEdgeHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.onMakeDefaultConn = function(enabling) {
-    this._changeSelectedConn((conn, conns) => {
+    this._changeSelectedConn((conn, nodeConns) => {
       if (enabling) {
-        const defaultConn = conns.find(conn => conn.isDefault);
+        const defaultConn = nodeConns.find(conn => conn.isDefault);
 
         if (defaultConn) {
           defaultConn.isDefault = false;

@@ -10,28 +10,25 @@ const getQuestionHandlers = bwdlEditable => {
       return;
     }
 
-    this.setState(prevState => {
-      const newBwdlJson = {
-        ...prevState.bwdlJson,
-      };
+    this.changeJson((json, prevState) => {
       const selected = { ...prevState.selected };
       const prevIndex = selected.gnode.question.index;
-      const nodeJson = newBwdlJson[prevIndex];
+      const nodeJson = json[prevIndex];
 
-      delete newBwdlJson[prevIndex];
+      delete json[prevIndex];
 
       nodeJson.question.index = newIndex;
 
-      newBwdlJson[newIndex] = nodeJson;
+      json[newIndex] = nodeJson;
 
-      if (newBwdlJson.current === prevIndex) {
-        newBwdlJson.current = newIndex;
+      if (json.current === prevIndex) {
+        json.current = newIndex;
       }
 
-      const nodeNames = Object.keys(newBwdlJson);
+      const nodeNames = Object.keys(json);
 
       nodeNames.forEach(name => {
-        const currentNode = newBwdlJson[name];
+        const currentNode = json[name];
 
         if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
           return;
@@ -45,15 +42,6 @@ const getQuestionHandlers = bwdlEditable => {
             connection.goto = newIndex;
           }
         });
-      });
-
-      // selected.title = newIndex;
-      // selected.gnode.question.index = newIndex;
-
-      return this.updateNodesFromBwdl({
-        bwdlJson: newBwdlJson,
-        bwdlText: this.stringify(newBwdlJson),
-        // selected,
       });
     });
   }.bind(bwdlEditable);
