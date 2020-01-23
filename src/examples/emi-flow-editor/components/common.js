@@ -36,6 +36,12 @@ const Input = ({
   />
 );
 
+const Button = ({ onClick, children }) => (
+  <button className="btn btn-default" onClick={onClick}>
+    {children}
+  </button>
+);
+
 const Item = function({
   decorateHandle,
   removable,
@@ -187,6 +193,7 @@ const StagingSelectItemHOC = getOptions => props => {
 };
 
 export {
+  Button,
   selectTheme,
   getSimpleItem,
   Input,

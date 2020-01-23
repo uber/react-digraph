@@ -304,11 +304,21 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   getNewStateWithUpdatedSelected = (newState, transformed) => {
-    if (this.state.selected && this.state.selected.gnode) {
-      const selected = transformed.nodes.find(
-        node =>
-          node.gnode.question.index === this.state.selected.gnode.question.index
-      );
+    let selected = this.state.selected;
+
+    if (selected) {
+      if (selected.gnode) {
+        selected = transformed.nodes.find(
+          node => node.gnode.question.index === selected.gnode.question.index
+        );
+      } else if (selected.source) {
+        selected = transformed.edges.find(
+          edge => edge.source === selected.source
+        );
+        selected.targetNode = this.state.nodes.find(
+          node => node.title === selected.target
+        );
+      }
 
       newState = Object.assign({}, newState, { selected });
     }

@@ -64,30 +64,33 @@ class EdgeEditor extends React.Component {
 
     return (
       <div id="edgeEditor" className="someNodeEditor">
-        {conn.isDefault && (
-          <label className="defaultConnection">Default connection</label>
-        )}
-        {conn.isDefault ? (
-          <label>
-            Click to remove default behavior:
-            <input
-              name="deafultConn"
-              type="button"
-              value="Remove default"
-              onClick={e => onMakeDefaultConn(false)}
-            />
-          </label>
-        ) : (
-          <label>
-            Click to make this connection the default one:
-            <input
-              name="deafultConn"
-              type="button"
-              value="Make default"
-              onClick={e => onMakeDefaultConn(true)}
-            />
-          </label>
-        )}
+        <label>
+          Default:
+          {conn.isDefault && (
+            <label className="defaultConnection">Default connection</label>
+          )}
+          {conn.isDefault ? (
+            <label>
+              Click to remove default behavior:
+              <input
+                name="deafultConn"
+                type="button"
+                value="Remove default"
+                onClick={e => onMakeDefaultConn(false)}
+              />
+            </label>
+          ) : (
+            <label>
+              Click to make this connection the default one:
+              <input
+                name="deafultConn"
+                type="button"
+                value="Make default"
+                onClick={e => onMakeDefaultConn(true)}
+              />
+            </label>
+          )}
+        </label>
         <label className="inputList">
           containsAny:
           <ReactListInput

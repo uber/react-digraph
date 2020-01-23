@@ -14,6 +14,44 @@ const getEdgeHandlers = bwdlEditable => {
     return index == -1 ? 0 : index;
   }.bind(bwdlEditable);
 
+  bwdlEditable.onDeleteSelectedEdgeConn = function() {
+    if (this.state.selected.conns.length > 1) {
+      this._changeSelectedConn((conn, nodeConns, edgeConns) => {
+        const newSelectedConnIndex = Math.max(
+          this.getSelectedConnIndex() - 1,
+          0
+        );
+
+        nodeConns.splice(nodeConns.indexOf(conn), 1);
+        edgeConns[newSelectedConnIndex].isSelected = true;
+      });
+    }
+  }.bind(bwdlEditable);
+
+  bwdlEditable.newEdgeConn = function() {
+    const targetIndex = this.state.selected.targetNode.gnode.question.index;
+
+    this._changeSelectedConn((conn, nodeConns) => {
+      conn.isSelected = false;
+      nodeConns.push({
+        goto: targetIndex,
+        isString: '',
+        isDefault: false,
+        answers: {},
+        containsAny: [],
+        context: {},
+        greaterThan: '',
+        inArray: [],
+        isNotString: '',
+        lessThan: '',
+        notInArray: [],
+        setContext: {},
+        nlp: {},
+        isSelected: true,
+      });
+    });
+  }.bind(bwdlEditable);
+
   bwdlEditable._changeSelectedConn = function(f) {
     const index = this.state.selected.sourceNode.gnode.question.index;
     const targetIndex = this.state.selected.targetNode.gnode.question.index;

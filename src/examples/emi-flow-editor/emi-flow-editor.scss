@@ -76,10 +76,6 @@
   }
 }
 
-.deprecated {
-  background: darksalmon;
-}
-
 .someNodeEditor {
   > label {
     flex: 1;
@@ -251,3 +247,18 @@ label {
   }
 }
 
+#deleteEdgeConn {
+  height: 20px;
+
+  &.enabled{
+    fill: white;
+    &:hover {
+      stroke: aqua;
+      stroke-width: 10px;
+    }
+  }
+
+  &.disabled {
+    fill: grey;
+  }
+}
