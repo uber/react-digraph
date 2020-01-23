@@ -632,7 +632,7 @@ class Edge extends React.Component<IEdgeProps> {
       return '';
     }
 
-    const nonFilterProps = ['goto', 'isDefault'];
+    const nonFilterProps = ['goto', 'isDefault', 'isSelected'];
 
     const empty = function(e) {
       return !e || (typeof e === 'object' && Object.entries(e).length === 0);
@@ -779,9 +779,11 @@ class Edge extends React.Component<IEdgeProps> {
 
     const isDefault = data.isDefault;
     const id = `${data.source || ''}_${data.target}`;
+    const multiple = data.conns && data.conns.length > 1;
     const className = GraphUtils.classNames('edge', {
       selected: isSelected,
       default: isDefault,
+      multiple,
     });
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
 
@@ -805,7 +807,7 @@ class Edge extends React.Component<IEdgeProps> {
           />
           {data.handleText && this.renderHandleText(data)}
           {/*data.label_from && data.label_to && this.renderLabelText(data)*/}
-          {this.renderLabelText()}
+          {/*this.renderLabelText()*/}
         </g>
         <g className="edge-mouse-handler">
           <title>{data.handleTooltipText}</title>

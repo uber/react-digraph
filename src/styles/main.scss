@@ -79,7 +79,6 @@ $background-color: #f9f9f9;
     stroke-width: 2px;
     marker-end: url(#end-arrow);
     cursor: pointer;
-    stroke-dasharray: 5;
 
     .edge-text {
       stroke-width: 0.5px;
@@ -91,10 +90,7 @@ $background-color: #f9f9f9;
     }
 
     &.selected {
-      color: $primary-color;
-      stroke: $primary-color;
       stroke-width: 5px;
-      stroke-dasharray: 0;
 
       .edge-text {
         fill: $light-color;
@@ -102,8 +98,11 @@ $background-color: #f9f9f9;
       }
     }
 
+    &.multiple {
+      stroke-dasharray: 10px;
+    }
+
     &.default {
-      stroke-dasharray: none;
       stroke: violet;
     }
 
