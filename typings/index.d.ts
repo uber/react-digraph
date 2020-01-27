@@ -29,6 +29,13 @@ declare module 'react-digraph' {
     y: number;
   };
 
+  export type IBBox = {
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  };
+
   export type INodeProps = {
     data: INode;
     id: string;
@@ -105,6 +112,9 @@ declare module 'react-digraph' {
     nodeKey: string;
     nodes: any[];
     nodeSize?: number;
+    nodeHeight?: number,
+    nodeWidth?: number,
+    nodeSpacingMultiplier?: number,
     nodeSubtypes: any;
     nodeTypes: any;
     readOnly?: boolean;
@@ -115,6 +125,7 @@ declare module 'react-digraph' {
     canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
     canDeleteEdge?: (selected: any) => boolean;
     canDeleteNode?: (selected: any) => boolean;
+    onBackgroundClick?: (x: number, y: number, event: any) => void,
     onCopySelected?: () => void;
     onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
     onCreateNode: (x: number, y: number, event: any) => void;
@@ -147,6 +158,9 @@ declare module 'react-digraph' {
       id: string | number,
       isSelected: boolean
     ) => any;
+    rotateEdgeHandle?: boolean;
+    centerNodeOnMove?: boolean;
+    initialBBox: IBBox;
   };
 
   export type IGraphInput = {
