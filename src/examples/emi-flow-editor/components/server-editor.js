@@ -7,8 +7,19 @@ import {
   SelectItemHOC,
   StagingSelectItemHOC,
 } from './common';
+import {
+  ENDPOINT_TYPE,
+  CUSTOM_TYPE,
+  ENDPOINTS,
+  URL_TYPES,
+} from '../flow-defs-api';
 
 const methods = ['POST', 'PUT', 'GET'];
+
+const ENDPOINTS_ITEMS = ENDPOINTS.map(e => ({
+  value: `{{${e}}}`,
+  label: e,
+}));
 
 const getSupportedParams = () => ['candidate_id', 'job_id', 'channel_user_id'];
 
@@ -28,6 +39,8 @@ class ServerEditor extends React.Component {
       onChangeServerParam,
       onChangeServerTranslate,
       getServerParent,
+      onChangeUrlType,
+      getUrlType,
     } = serverHandlers;
     const node = children;
     const question = node.gnode.question;
@@ -45,15 +58,43 @@ class ServerEditor extends React.Component {
         {server !== undefined && (
           <div id="serverEditor" className="someNodeEditor">
             <label>
-              URL:
-              <input
-                name="url"
-                value={server.url}
-                onChange={e =>
-                  onChangeServerProp('url', e.target.value, parentProp)
-                }
+              URL Type:
+              <Select
+                className="selectContainer"
+                theme={selectTheme}
+                value={getSimpleItem(getUrlType(parentProp))}
+                onChange={item => onChangeUrlType(item.value, parentProp)}
+                options={URL_TYPES.map(type => getSimpleItem(type))}
+                isSearchable={false}
               />
             </label>
+            {getUrlType(parentProp) === CUSTOM_TYPE && (
+              <label>
+                URL:
+                <input
+                  name="url"
+                  value={server.url}
+                  onChange={e =>
+                    onChangeServerProp('url', e.target.value, parentProp)
+                  }
+                />
+              </label>
+            )}
+            {getUrlType(parentProp) === ENDPOINT_TYPE && (
+              <label>
+                ENDPOINT:
+                <Select
+                  className="selectContainer"
+                  theme={selectTheme}
+                  value={ENDPOINTS_ITEMS.find(i => i.value === server.url)}
+                  onChange={item =>
+                    onChangeServerProp('url', item.value, parentProp)
+                  }
+                  options={ENDPOINTS_ITEMS}
+                  isSearchable={false}
+                />
+              </label>
+            )}
             <label>
               Method:
               <Select
