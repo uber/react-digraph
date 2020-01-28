@@ -26,8 +26,8 @@ const getSupportedParams = () => ['candidate_id', 'job_id', 'channel_user_id'];
 const getValidParamsHOC = server => () =>
   getSupportedParams().filter(p => !server.params.includes(p));
 
-const getValidIncludeAnswersHOC = (question, server) => () =>
-  question.quickReplies.filter(a => !server.includeAnswers.includes(a));
+const getValidIncludeAnswerHOC = (question, server) => () =>
+  question.quickReplies.filter(a => !server.includeAnswer.includes(a));
 
 class ServerEditor extends React.Component {
   render() {
@@ -126,7 +126,7 @@ class ServerEditor extends React.Component {
             </label>
             {question.quickReplies.length > 0 && (
               <label>
-                includeAnswers:
+                includeAnswer:
                 <input
                   name="includeAnswer"
                   type="checkbox"
@@ -137,21 +137,21 @@ class ServerEditor extends React.Component {
                 />
               </label>
             )}
-            {'includeAnswers' in server && (
+            {'includeAnswer' in server && (
               <label className="inputList">
                 Answers:
                 <ReactListInput
                   initialStagingValue=""
                   onChange={list =>
-                    onChangeServerProp('includeAnswers', list, parentProp)
+                    onChangeServerProp('includeAnswer', list, parentProp)
                   }
                   maxItems={20}
                   minItems={1}
                   ItemComponent={SelectItemHOC(() => question.quickReplies)}
                   StagingComponent={StagingSelectItemHOC(
-                    getValidIncludeAnswersHOC(question, server)
+                    getValidIncludeAnswerHOC(question, server)
                   )}
-                  value={server.includeAnswers}
+                  value={server.includeAnswer}
                 />
               </label>
             )}

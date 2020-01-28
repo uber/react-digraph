@@ -10,7 +10,7 @@ const SERVER_URL_MACROS = {
   },
 };
 const ENDPOINTS = Object.keys(SERVER_URL_MACROS[ENDPOINT_TYPE])
-  .map(server => SERVER_URL_MACROS[ENDPOINT_TYPE][server])
+  .map(server => `${server}.${SERVER_URL_MACROS[ENDPOINT_TYPE][server]}`)
   .flat();
 const URL_TYPES_DEFAULTS = {
   [ENDPOINT_TYPE]: `{{${ENDPOINTS[0]}}}`,
