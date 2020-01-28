@@ -65,6 +65,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
+    onNodeMove: () => true,
     edgeArrowSize: 8,
     gridSpacing: 36,
     maxZoom: 1.5,
@@ -714,6 +715,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
       this.setState({ draggingEdge: true });
     }
+
+    this.props.onNodeMove(position, node);
   };
 
   createNewEdge() {
