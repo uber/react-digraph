@@ -316,9 +316,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           edge =>
             edge.source === selected.source && edge.target === selected.target
         );
-        selected.targetNode = this.state.nodes.find(
-          node => node.title === selected.target
-        );
+
+        if (selected) {
+          selected.targetNode = this.state.nodes.find(
+            node => node.title === selected.target
+          );
+        }
       }
 
       newState = Object.assign({}, newState, { selected });
