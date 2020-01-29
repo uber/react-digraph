@@ -31,13 +31,26 @@ import BwdlEditable from './bwdl-editable';
 import GraphFast from './fast';
 
 import './app.scss';
+import GoogleLogin from 'react-google-login';
+import connect from './emi-flow-editor/cognito';
 
 class App extends React.Component {
+  responseGoogle = response => {
+    connect(response.getAuthResponse());
+  };
+
   render() {
     return (
       <Router>
         <div>
           <header className="app-header">
+            <GoogleLogin
+              clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
+              buttonText="Login"
+              onSuccess={this.responseGoogle}
+              onFailure={this.responseGoogle}
+              cookiePolicy={'single_host_origin'}
+            />
             <div
               style={{
                 flex: 1,

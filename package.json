@@ -29,6 +29,7 @@
     "react-dom": "^16.4.1"
   },
   "dependencies": {
+    "aws-sdk": "^2.610.0",
     "classnames": "^2.2.6",
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
@@ -37,11 +38,13 @@
     "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
+    "react-google-login": "^5.0.7",
     "react-list-input": "^1.1.0",
     "react-select": "^3.0.8",
     "react-select-item": "^3.1.0",
     "react-textarea-autosize": "^7.1.2",
-    "svg-intersections": "^0.4.0"
+    "svg-intersections": "^0.4.0",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",

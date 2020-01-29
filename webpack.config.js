@@ -6,6 +6,7 @@ module.exports = {
   mode: 'development',
   context: __dirname + '/src',
   entry: {
+    'babel-polyfill': './index.js',
     main: './index.js',
     example: './examples/app.js',
     exampleCss: './examples/app.scss',
