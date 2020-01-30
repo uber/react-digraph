@@ -31,7 +31,7 @@ import Sidebar from '../sidebar';
 import NodeEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import GraphUtils from '../../utilities/graph-util';
-import bwdlExample from './bwdl-example-data';
+// import bwdlExample from './bwdl-example-data';
 import getServerHandlers from './handlers/server-handlers';
 import getAiHandlers from './handlers/ai-handlers';
 import getEdgeHandlers from './handlers/edge-handlers';
@@ -84,12 +84,16 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.serverHandlers = getServerHandlers(this);
     this.edgeHandlers = getEdgeHandlers(this);
     this.faqHandlers = getFaqHandlers(this);
+    this.state = this.getInitialState();
+  }
 
-    const transformed = FlowV1Transformer.transform(bwdlExample);
+  getInitialState = () => {
+    const jsonObj = JSON.parse(this.props.initialJsonText || '{}');
+    const transformed = FlowV1Transformer.transform(jsonObj);
 
-    this.state = {
-      bwdlJson: bwdlExample,
-      bwdlText: this.stringify(bwdlExample),
+    return {
+      bwdlJson: jsonObj,
+      bwdlText: this.stringify(jsonObj),
       copiedNode: null,
       edges: transformed.edges,
       layoutEngineType: 'VerticalTree',
@@ -97,7 +101,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       selected: null,
       locked: true,
       faqSelected: false,
+      initializing: true,
     };
+  };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.flowName !== this.props.flowName) {
+      this.setState(this.getInitialState());
+    }
   }
 
   stringify = bwdlJson => JSON.stringify(bwdlJson, null, 2);

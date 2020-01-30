@@ -34,23 +34,42 @@ import './app.scss';
 import GoogleLogin from 'react-google-login';
 import connect from './emi-flow-editor/cognito';
 
+// import S3Context from './emi-flow-editor/s3-context';
+import FlowManagement from './emi-flow-editor/components/flow-management';
+import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-management-handlers';
+
+const DEV = window.location.href.includes('127.0.0.1');
+
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { s3: null };
+  }
+
   responseGoogle = response => {
-    connect(response.getAuthResponse());
+    if (DEV) {
+      // S3 mock - for dev testing
+      this.setState({
+        s3: {
+          listObjects: (params, f) =>
+            f('', { Contents: [{ Key: 'flow1' }, { Key: 'flow2' }] }),
+          getObject: (params, f) => f('', { Body: { toString: () => '{}' } }),
+        },
+      });
+    } else {
+      connect(response.getAuthResponse()).then(s3 => {
+        this.setState({ s3 });
+      });
+    }
   };
 
   render() {
+    const { jsonText, flowName } = this.state;
+
     return (
       <Router>
         <div>
           <header className="app-header">
-            <GoogleLogin
-              clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
-              buttonText="Login"
-              onSuccess={this.responseGoogle}
-              onFailure={this.responseGoogle}
-              cookiePolicy={'single_host_origin'}
-            />
             <div
               style={{
                 flex: 1,
@@ -67,6 +86,22 @@ class App extends React.Component {
                 }}
               />
             </div>
+            {this.state.s3 && (
+              <FlowManagement
+                style={{
+                  flexGrow: 0.1,
+                }}
+                flowName={flowName}
+                flowManagementHandlers={getFlowManagementHandlers(this)}
+              />
+            )}
+            <GoogleLogin
+              clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
+              buttonText="Login"
+              onSuccess={this.responseGoogle}
+              onFailure={this.responseGoogle}
+              cookiePolicy={'single_host_origin'}
+            />
             <svg
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +147,17 @@ class App extends React.Component {
           </header>
 
           {/* <Route exact={true} path="/" component={Graph} /> */}
-          <Route path="/" component={EmiFlowEditor} />
+          {/* <Route path="/" component={EmiFlowEditor} /> */}
+          <Route
+            path="/"
+            render={props => (
+              <EmiFlowEditor
+                {...props}
+                flowName={flowName}
+                initialJsonText={jsonText}
+              />
+            )}
+          />
           <Switch>
             <Route path="/bwdl" component={Bwdl} />
             {/* The following is for typos */}

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Select from 'react-select';
+import SkeletonLoader from 'tiny-skeleton-loader-react';
 
 const selectTheme = function(theme) {
   return {
@@ -192,6 +193,20 @@ const StagingSelectItemHOC = getOptions => props => {
   return StagingSelectItem({ ...props, getOptions });
 };
 
+class Loading extends React.Component {
+  render() {
+    return <SkeletonLoader />;
+  }
+}
+
+class LoadingWrapper extends React.Component {
+  render() {
+    const { isLoading, children } = this.props;
+
+    return <div>{isLoading ? <Loading /> : children}</div>;
+  }
+}
+
 export {
   Button,
   selectTheme,
@@ -202,4 +217,5 @@ export {
   StagingItem,
   SelectItemHOC,
   StagingSelectItemHOC,
+  LoadingWrapper,
 };
