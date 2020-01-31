@@ -21,15 +21,21 @@ class FlowManagement extends React.Component {
     }
   }
 
+  getDisplayName = () => {
+    const { flowName, unsavedChanges } = this.props;
+
+    return `${flowName ? flowName : 'unnamed'}${
+      unsavedChanges ? ' (unsaved)' : ''
+    }`;
+  };
+
   render() {
-    const { flowManagementHandlers, flowName, s3Available } = this.props;
+    const { flowManagementHandlers, s3Available } = this.props;
     const { openFlow } = flowManagementHandlers;
 
     return (
       <div style={{ display: 'flex' }}>
-        <h1 style={{ flex: 1, margin: '20px' }}>
-          {flowName ? flowName : 'unnamed'}
-        </h1>
+        <h1 style={{ flex: 1, margin: '20px' }}>{this.getDisplayName()}</h1>
         {s3Available && (
           <label>
             Open:

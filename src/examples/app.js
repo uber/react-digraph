@@ -63,8 +63,12 @@ class App extends React.Component {
     }
   };
 
+  handleUnsavedChanges = unsavedChanges => {
+    this.setState({ unsavedChanges });
+  };
+
   render() {
-    const { jsonText, flowName, s3 } = this.state;
+    const { jsonText, flowName, s3, unsavedChanges } = this.state;
 
     return (
       <Router>
@@ -93,6 +97,7 @@ class App extends React.Component {
               s3Available={s3}
               flowName={flowName}
               flowManagementHandlers={getFlowManagementHandlers(this)}
+              unsavedChanges={unsavedChanges}
             />
             <GoogleLogin
               clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
@@ -146,7 +151,6 @@ class App extends React.Component {
           </header>
 
           {/* <Route exact={true} path="/" component={Graph} /> */}
-          {/* <Route path="/" component={EmiFlowEditor} /> */}
           <Route
             path="/"
             render={props => (
@@ -154,6 +158,7 @@ class App extends React.Component {
                 {...props}
                 flowName={flowName}
                 initialJsonText={jsonText}
+                onUnsavedChanges={this.handleUnsavedChanges}
               />
             )}
           />

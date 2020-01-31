@@ -21,8 +21,9 @@ const getFlowManagementHandlers = app => {
           throw new Error(err);
         } else {
           const jsonText = data.Body.toString();
+          const unsavedChanges = false;
 
-          this.setState({ jsonText, flowName });
+          this.setState({ jsonText, flowName, unsavedChanges });
         }
       }.bind(app)
     );

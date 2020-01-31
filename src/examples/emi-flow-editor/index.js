@@ -90,10 +90,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   getInitialState = () => {
     const jsonObj = JSON.parse(this.props.initialJsonText || '{}');
     const transformed = FlowV1Transformer.transform(jsonObj);
+    const jsonText = this.stringify(jsonObj);
 
     return {
+      unsavedChanges: false,
+      initialText: jsonText,
       bwdlJson: jsonObj,
-      bwdlText: this.stringify(jsonObj),
+      bwdlText: jsonText,
       copiedNode: null,
       edges: transformed.edges,
       layoutEngineType: 'VerticalTree',
@@ -314,16 +317,25 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  getNewStateWithUpdatedSelected = (newState, transformed) => {
+  updateUnsavedChanges = newState => {
+    const unsavedChanges = newState.bwdlText != this.state.initialText;
+
+    if (unsavedChanges != newState.unsavedChanges) {
+      newState.unsavedChanges = unsavedChanges;
+      this.props.onUnsavedChanges(unsavedChanges);
+    }
+  };
+
+  updateSelected = newState => {
     let selected = this.state.selected;
 
     if (selected) {
       if (selected.gnode) {
-        selected = transformed.nodes.find(
+        selected = newState.nodes.find(
           node => node.gnode.question.index === selected.gnode.question.index
         );
       } else if (selected.source) {
-        selected = transformed.edges.find(
+        selected = newState.edges.find(
           edge =>
             edge.source === selected.source && edge.target === selected.target
         );
@@ -335,54 +347,44 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         }
       }
 
-      newState = Object.assign({}, newState, { selected });
+      newState.selected = selected;
     }
+  };
+
+  updateState = (json, text, selected) => {
+    const transformed = FlowV1Transformer.transform(json);
+    const newState = {
+      bwdlJson: json,
+      bwdlText: text,
+      edges: transformed.edges,
+      nodes: transformed.nodes,
+    };
+
+    if (selected !== undefined) {
+      newState.selected = selected;
+    }
+
+    this.updateSelected(newState);
+    this.updateUnsavedChanges(newState);
 
     return newState;
   };
 
-  updateBwdl = () => {
-    const transformed = FlowV1Transformer.transform(this.state.bwdlJson);
-    const newState = this.getNewStateWithUpdatedSelected({}, transformed);
+  updatedStateFromJson = (json, selected) =>
+    this.updateState(json, this.stringify(json), selected);
 
-    this.setState(
-      Object.assign({}, newState, {
-        edges: transformed.edges,
-        nodes: transformed.nodes,
-      })
-    );
-  };
-
-  updateNodesFromBwdl = newState => {
-    const transformed = FlowV1Transformer.transform(newState.bwdlJson);
-
-    newState = this.getNewStateWithUpdatedSelected(newState, transformed);
-
-    return Object.assign({}, newState, {
-      edges: transformed.edges,
-      nodes: transformed.nodes,
-    });
-  };
-
-  handleTextAreaChange = (value: string, event: any) => {
-    let input = null;
-    const bwdlText = value;
-
-    this.setState({
-      bwdlText,
-    });
-
+  updatedStateFromText = (text, selected) => {
     try {
-      input = JSON.parse(bwdlText);
+      this.setState({ bwdlText: text });
+
+      return this.updateState(JSON.parse(text), text, selected);
     } catch (e) {
       return;
     }
+  };
 
-    this.setState({
-      bwdlJson: input,
-    });
-
-    this.updateBwdl();
+  handleTextAreaChange = (value: string, event: any) => {
+    this.setState(this.updatedStateFromText(value));
   };
 
   handleChangeLayoutEngineType = (event: any) => {
@@ -476,20 +478,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     );
   };
 
-  updateSelectedFromBwdl = () => {
-    if (!this.state.selected) {
-      return;
-    }
-
-    const selected = this.state.nodes.find(
-      node => node.index === this.state.selected.index
-    );
-
-    this.setState({
-      selected,
-    });
-  };
-
   handleCursorChanged = selection => {
     if (this.state.locked && this.GraphView) {
       const nodeIndex = this.nodeIndexForRow(selection.getCursor().row);
@@ -531,16 +519,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
       const selected = f(json, prevState);
 
-      const updateObj = {
-        bwdlJson: json,
-        bwdlText: this.stringify(json),
-      };
-
-      if (selected !== undefined) {
-        updateObj.selected = selected;
-      }
-
-      return this.updateNodesFromBwdl(updateObj);
+      return this.updatedStateFromJson(json, selected);
     });
   };
 
