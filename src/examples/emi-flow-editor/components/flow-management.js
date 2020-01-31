@@ -8,17 +8,21 @@ class FlowManagement extends React.Component {
     this.state = { isLoading: true };
   }
 
-  componentDidMount() {
-    this.props.flowManagementHandlers.getFlows().then(flows => {
-      this.setState({
-        flows: flows.map(f => getSimpleItem(f.Key)),
-        isLoading: false,
+  componentDidUpdate(prevProps) {
+    const { flowManagementHandlers, s3Available } = this.props;
+
+    if (prevProps.s3Available !== s3Available && s3Available) {
+      flowManagementHandlers.getFlows().then(flows => {
+        this.setState({
+          flows: flows.map(f => getSimpleItem(f.Key)),
+          isLoading: false,
+        });
       });
-    });
+    }
   }
 
   render() {
-    const { flowManagementHandlers, flowName } = this.props;
+    const { flowManagementHandlers, flowName, s3Available } = this.props;
     const { openFlow } = flowManagementHandlers;
 
     return (
@@ -26,18 +30,20 @@ class FlowManagement extends React.Component {
         <h1 style={{ flex: 1, margin: '20px' }}>
           {flowName ? flowName : 'unnamed'}
         </h1>
-        <label>
-          Open:
-          <LoadingWrapper isLoading={this.state.isLoading}>
-            <Select
-              className="selectContainer"
-              value=""
-              onChange={item => openFlow(item.value)}
-              options={this.state.flows}
-              isSearchable={true}
-            />
-          </LoadingWrapper>
-        </label>
+        {s3Available && (
+          <label>
+            Open:
+            <LoadingWrapper isLoading={this.state.isLoading}>
+              <Select
+                className="selectContainer"
+                value=""
+                onChange={item => openFlow(item.value)}
+                options={this.state.flows}
+                isSearchable={true}
+              />
+            </LoadingWrapper>
+          </label>
+        )}
       </div>
     );
   }

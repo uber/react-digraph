@@ -64,7 +64,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { jsonText, flowName } = this.state;
+    const { jsonText, flowName, s3 } = this.state;
 
     return (
       <Router>
@@ -86,15 +86,14 @@ class App extends React.Component {
                 }}
               />
             </div>
-            {this.state.s3 && (
-              <FlowManagement
-                style={{
-                  flexGrow: 0.1,
-                }}
-                flowName={flowName}
-                flowManagementHandlers={getFlowManagementHandlers(this)}
-              />
-            )}
+            <FlowManagement
+              style={{
+                flexGrow: 0.1,
+              }}
+              s3Available={s3}
+              flowName={flowName}
+              flowManagementHandlers={getFlowManagementHandlers(this)}
+            />
             <GoogleLogin
               clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
               buttonText="Login"
