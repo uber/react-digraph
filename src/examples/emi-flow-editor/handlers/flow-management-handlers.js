@@ -21,9 +21,29 @@ const getFlowManagementHandlers = app => {
           throw new Error(err);
         } else {
           const jsonText = data.Body.toString();
-          const unsavedChanges = false;
 
-          this.setState({ jsonText, flowName, unsavedChanges });
+          this.setOpenedFlow(flowName, jsonText);
+        }
+      }.bind(app)
+    );
+  }.bind(app);
+
+  app.saveFlow = function() {
+    const { flowName, jsonText } = this.state;
+    const params = {
+      Key: flowName,
+      Body: jsonText,
+    };
+    const options = {};
+
+    this.state.s3.upload(
+      params,
+      options,
+      function(err, data) {
+        if (err) {
+          throw new Error(err);
+        } else {
+          this.setOpenedFlow(flowName, jsonText);
         }
       }.bind(app)
     );

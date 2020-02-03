@@ -104,13 +104,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       selected: null,
       locked: true,
       faqSelected: false,
-      initializing: true,
     };
   };
 
   componentDidUpdate(prevProps) {
     if (prevProps.flowName !== this.props.flowName) {
       this.setState(this.getInitialState());
+      setTimeout(() => this.GraphView.handleZoomToFit(), 100);
     }
   }
 
@@ -317,15 +317,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  updateUnsavedChanges = newState => {
-    const unsavedChanges = newState.bwdlText != this.state.initialText;
-
-    if (unsavedChanges != newState.unsavedChanges) {
-      newState.unsavedChanges = unsavedChanges;
-      this.props.onUnsavedChanges(unsavedChanges);
-    }
-  };
-
   updateSelected = newState => {
     let selected = this.state.selected;
 
@@ -365,7 +356,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
 
     this.updateSelected(newState);
-    this.updateUnsavedChanges(newState);
+    this.props.onJsonTextChange(text);
 
     return newState;
   };

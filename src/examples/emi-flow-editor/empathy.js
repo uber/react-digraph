@@ -86,6 +86,9 @@ const empathyDefaults = {
   sentiment: {
     lang: 'ES',
     country: 'AR',
+    prediction_data: {
+      intent_responses: {},
+    },
   },
   time_interval: {
     lang: 'ES',

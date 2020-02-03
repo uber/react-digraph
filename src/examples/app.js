@@ -38,8 +38,6 @@ import connect from './emi-flow-editor/cognito';
 import FlowManagement from './emi-flow-editor/components/flow-management';
 import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-management-handlers';
 
-const DEV = window.location.href.includes('127.0.0.1');
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -47,28 +45,20 @@ class App extends React.Component {
   }
 
   responseGoogle = response => {
-    if (DEV) {
-      // S3 mock - for dev testing
-      this.setState({
-        s3: {
-          listObjects: (params, f) =>
-            f('', { Contents: [{ Key: 'flow1' }, { Key: 'flow2' }] }),
-          getObject: (params, f) => f('', { Body: { toString: () => '{}' } }),
-        },
-      });
-    } else {
-      connect(response.getAuthResponse()).then(s3 => {
-        this.setState({ s3 });
-      });
-    }
+    connect(response).then(s3 => {
+      this.setState({ s3 });
+    });
   };
 
-  handleUnsavedChanges = unsavedChanges => {
-    this.setState({ unsavedChanges });
-  };
+  unsavedChanges = () => this.state.openedJsonText != this.state.jsonText;
+
+  setOpenedFlow = (flowName, jsonText) =>
+    this.setState({ flowName, openedJsonText: jsonText });
+
+  handleJsonTextChange = jsonText => this.setState({ jsonText });
 
   render() {
-    const { jsonText, flowName, s3, unsavedChanges } = this.state;
+    const { openedJsonText, flowName, s3 } = this.state;
 
     return (
       <Router>
@@ -97,7 +87,7 @@ class App extends React.Component {
               s3Available={s3}
               flowName={flowName}
               flowManagementHandlers={getFlowManagementHandlers(this)}
-              unsavedChanges={unsavedChanges}
+              unsavedChanges={this.unsavedChanges()}
             />
             <GoogleLogin
               clientId="324398625718-llvsda7bg9aai1epu61i3mdofbj2iokd.apps.googleusercontent.com"
@@ -157,8 +147,8 @@ class App extends React.Component {
               <EmiFlowEditor
                 {...props}
                 flowName={flowName}
-                initialJsonText={jsonText}
-                onUnsavedChanges={this.handleUnsavedChanges}
+                initialJsonText={openedJsonText}
+                onJsonTextChange={this.handleJsonTextChange}
               />
             )}
           />
