@@ -6,7 +6,7 @@ import { getSimpleItem, LoadingWrapper } from './common';
 class FlowManagement extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, showSelector: false };
+    this.state = { isLoading: true, showSelector: false, legacy: false };
   }
 
   componentDidUpdate(prevProps) {
@@ -25,23 +25,36 @@ class FlowManagement extends React.Component {
     }
 
     if (prevProps.flowName != flowName) {
-      this.setState({ showSelector: false });
+      const legacy = flowName.endsWith('.py');
+
+      this.setState({ showSelector: false, legacy });
     }
   }
 
   onClickOpenIcon = () =>
     this.setState(prevState => ({ showSelector: !prevState.showSelector }));
 
-  saveClasses = () =>
-    GraphUtils.classNames(
-      ['managerButton'].concat(this.props.unsavedChanges ? ['enabled'] : [])
+  saveClasses = () => {
+    const enabled = this.props.unsavedChanges && !this.state.legacy;
+
+    return GraphUtils.classNames(
+      ['managerButton'].concat(enabled ? ['enabled'] : [])
     );
+  };
+
+  getDisplayName = () => {
+    const { flowName, unsavedChanges } = this.props;
+    const { legacy } = this.state;
+
+    return `${flowName ? flowName : 'unnamed'}${
+      legacy ? '(legacy,readonly)' : unsavedChanges ? '*' : ''
+    }`;
+  };
 
   render() {
-    const { isLoading, showSelector, flows } = this.state;
-    const { flowManagementHandlers, s3Available, unsavedChanges } = this.props;
+    const { isLoading, showSelector, flows, legacy } = this.state;
+    const { flowManagementHandlers, s3Available } = this.props;
     const { openFlow, saveFlow } = flowManagementHandlers;
-    const name = `flowName${unsavedChanges ? '*' : ''}`;
 
     return (
       <div style={{ display: 'flex' }}>
@@ -81,7 +94,9 @@ class FlowManagement extends React.Component {
             )}
           </div>
         )}
-        <h2 style={{ flex: 1 }}>{name}</h2>
+        <h2 style={{ flex: 1, color: legacy ? 'crimson' : 'black' }}>
+          {this.getDisplayName()}
+        </h2>
         {s3Available && (
           <svg
             id="saveFlowBtn"

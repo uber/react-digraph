@@ -463,7 +463,7 @@ const JSON1 = {
 
 const s3Mock = {
   listObjects: (params, f) =>
-    f('', { Contents: [{ Key: 'flow1' }, { Key: 'flow2' }] }),
+    f('', { Contents: [{ Key: 'flow1.json' }, { Key: 'flow2.py' }] }),
   getObject: (params, f) =>
     f('', { Body: { toString: () => JSON.stringify(JSON1, null, 2) } }),
   upload: (params, options, f) => f(null, {}),
