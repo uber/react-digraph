@@ -1,5 +1,8 @@
 import * as React from 'react';
 import Select from 'react-select';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+
 import GraphUtils from '../../../utilities/graph-util';
 import { getSimpleItem, LoadingWrapper } from './common';
 
@@ -8,6 +11,28 @@ class FlowManagement extends React.Component {
     super(props);
     this.state = { isLoading: true, showSelector: false, legacy: false };
   }
+
+  safeOpen = (flowName, openFlow) => {
+    if (this.props.unsavedChanges) {
+      confirmAlert({
+        title: 'You have unsaved changes',
+        message:
+          'If you open a new flow, your unsaved changes will be lost. Do you still want to continue?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: () => openFlow(flowName),
+          },
+          {
+            label: 'No',
+            onClick: () => null,
+          },
+        ],
+      });
+    } else {
+      openFlow(flowName);
+    }
+  };
 
   componentDidUpdate(prevProps) {
     const { flowManagementHandlers, s3Available, flowName } = this.props;
@@ -85,7 +110,7 @@ class FlowManagement extends React.Component {
                   <Select
                     className="selectContainer"
                     value=""
-                    onChange={item => openFlow(item.value)}
+                    onChange={item => this.safeOpen(item.value, openFlow)}
                     options={flows}
                     isSearchable={true}
                   />

@@ -53,7 +53,7 @@ class App extends React.Component {
   unsavedChanges = () => this.state.openedJsonText != this.state.jsonText;
 
   setOpenedFlow = (flowName, jsonText) =>
-    this.setState({ flowName, openedJsonText: jsonText });
+    this.setState({ flowName, openedJsonText: jsonText, jsonText: jsonText });
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
