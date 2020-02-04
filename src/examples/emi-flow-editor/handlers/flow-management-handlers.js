@@ -1,3 +1,5 @@
+import { BUCKET } from '../cognito';
+
 const getFlowManagementHandlers = app => {
   app.getFlows = function() {
     return new Promise(
@@ -11,6 +13,10 @@ const getFlowManagementHandlers = app => {
         });
       }.bind(app)
     );
+  }.bind(app);
+
+  app.newFlow = function() {
+    this.setOpenedFlow(null, '{}');
   }.bind(app);
 
   app.openFlow = function(flowName) {
@@ -28,15 +34,18 @@ const getFlowManagementHandlers = app => {
     );
   }.bind(app);
 
-  app.saveFlow = function() {
-    const { flowName, jsonText } = this.state;
+  app.saveFlow = function(newFlowName) {
+    let { flowName } = this.state;
+    const { jsonText, s3 } = this.state;
+
+    flowName = newFlowName || flowName;
     const params = {
       Key: flowName,
       Body: jsonText,
     };
     const options = {};
 
-    this.state.s3.upload(
+    s3.upload(
       params,
       options,
       function(err, data) {
@@ -48,6 +57,49 @@ const getFlowManagementHandlers = app => {
       }.bind(app)
     );
   }.bind(app);
+
+  app._flowExists = function(flowName) {
+    const params = { Key: flowName };
+
+    return this.state.s3
+      .headObject(params)
+      .promise()
+      .then(() => true)
+      .catch(err => err.code !== 'NotFound');
+  }.bind(app);
+
+  app.renameFlow = function(newFlowName) {
+    const { flowName, jsonText, s3 } = this.state;
+
+    this._flowExists(newFlowName).then(exists => {
+      if (exists) {
+        return;
+      } else {
+        if (!flowName) {
+          this.saveFlow(newFlowName);
+
+          return;
+        }
+        // Copy the object to a new location
+
+        s3.copyObject({
+          Bucket: BUCKET,
+          CopySource: encodeURIComponent(`/${BUCKET}/${flowName}`),
+          Key: encodeURIComponent(newFlowName),
+        })
+          .promise()
+          .then(() =>
+            // Delete the old object
+            s3
+              .deleteObject({
+                Key: flowName,
+              })
+              .promise()
+              .then(() => this.setOpenedFlow(newFlowName, jsonText))
+          );
+      }
+    });
+  };
 
   return app;
 };

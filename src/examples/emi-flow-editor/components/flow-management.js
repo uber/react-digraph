@@ -4,7 +4,7 @@ import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 import GraphUtils from '../../../utilities/graph-util';
-import { getSimpleItem, LoadingWrapper } from './common';
+import { getSimpleItem, LoadingWrapper, Input } from './common';
 
 class FlowManagement extends React.Component {
   constructor(props) {
@@ -12,16 +12,16 @@ class FlowManagement extends React.Component {
     this.state = { isLoading: true, showSelector: false, legacy: false };
   }
 
-  safeOpen = (flowName, openFlow) => {
+  safeExecute = f => {
     if (this.props.unsavedChanges) {
       confirmAlert({
         title: 'You have unsaved changes',
         message:
-          'If you open a new flow, your unsaved changes will be lost. Do you still want to continue?',
+          'If you click "Yes", your unsaved changes will be lost. Do you still want to continue?',
         buttons: [
           {
             label: 'Yes',
-            onClick: () => openFlow(flowName),
+            onClick: () => f(),
           },
           {
             label: 'No',
@@ -30,34 +30,41 @@ class FlowManagement extends React.Component {
         ],
       });
     } else {
-      openFlow(flowName);
+      f();
     }
   };
 
-  componentDidUpdate(prevProps) {
-    const { flowManagementHandlers, s3Available, flowName } = this.props;
+  safeOpen = (flowName, openFlow) => this.safeExecute(() => openFlow(flowName));
 
-    if (prevProps.s3Available !== s3Available && s3Available) {
-      this.setState({
-        isLoading: true,
-      });
-      flowManagementHandlers.getFlows().then(flows => {
-        this.setState({
-          flows: flows.map(f => getSimpleItem(f.Key)),
-          isLoading: false,
-        });
-      });
-    }
+  safeNew = newFlow => this.safeExecute(newFlow);
+
+  componentDidUpdate(prevProps) {
+    const { flowName } = this.props;
 
     if (prevProps.flowName != flowName) {
-      const legacy = flowName.endsWith('.py');
+      const legacy = flowName && flowName.endsWith('.py');
 
       this.setState({ showSelector: false, legacy });
     }
   }
 
-  onClickOpenIcon = () =>
-    this.setState(prevState => ({ showSelector: !prevState.showSelector }));
+  onClickOpenIcon = () => {
+    if (this.state.showSelector) {
+      this.setState({ showSelector: false });
+    } else {
+      this.setState({
+        isLoading: true,
+        renaming: false,
+      });
+      this.props.flowManagementHandlers.getFlows().then(flows => {
+        this.setState({
+          flows: flows.map(f => getSimpleItem(f.Key)),
+          isLoading: false,
+          showSelector: true,
+        });
+      });
+    }
+  };
 
   saveClasses = () => {
     const enabled = this.props.unsavedChanges && !this.state.legacy;
@@ -76,15 +83,66 @@ class FlowManagement extends React.Component {
     }`;
   };
 
+  handleKeyDown = e => {
+    this.executeOnEnter(e, this.rename);
+    this.executeOnEsc(e, this.cancelRename);
+  };
+
+  executeOnEnter = (e, f) => {
+    if (e.key === 'Enter') {
+      f();
+    }
+  };
+
+  executeOnEsc = (e, f) => {
+    if (e.keyCode === 27) {
+      f();
+    }
+  };
+
+  cancelRename = () => {
+    this.setState({ renaming: false });
+  };
+
+  rename = () => {
+    this.setState({ renaming: false });
+    const flowName = `${this.state.newFlowName}.json`;
+
+    this.props.flowManagementHandlers.renameFlow(flowName);
+  };
+
   render() {
-    const { isLoading, showSelector, flows, legacy } = this.state;
-    const { flowManagementHandlers, s3Available } = this.props;
-    const { openFlow, saveFlow } = flowManagementHandlers;
+    const {
+      isLoading,
+      showSelector,
+      flows,
+      legacy,
+      renaming,
+      newFlowName,
+    } = this.state;
+    const {
+      flowManagementHandlers,
+      s3Available,
+      flowName,
+      unsavedChanges,
+    } = this.props;
+    const { openFlow, saveFlow, newFlow } = flowManagementHandlers;
 
     return (
       <div style={{ display: 'flex' }}>
         {s3Available && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
+            <svg
+              className="managerButton enabled"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              onClick={() => this.safeNew(newFlow)}
+            >
+              <path d="m262.96875 8.785156v119.746094h119.746094zm0 0" />
+              <path d="m211 376.5c0-91.257812 74.242188-165.5 165.5-165.5 5.058594 0 10.058594.242188 15 .6875v-53.152344h-143.53125c-8.285156 0-15-6.71875-15-15v-143.535156h-217.96875c-8.285156 0-15 6.714844-15 15v482c0 8.285156 6.714844 15 15 15h266.585938c-42.652344-29.96875-70.585938-79.527344-70.585938-135.5zm0 0" />
+              <path d="m416.667969 361.5h-25.167969v-25.167969c0-8.28125-6.714844-15-15-15s-15 6.71875-15 15v25.167969h-25.164062c-8.285157 0-15 6.714844-15 15s6.714843 15 15 15h25.164062v25.167969c0 8.28125 6.714844 15 15 15s15-6.71875 15-15v-25.167969h25.167969c8.285156 0 15-6.714844 15-15s-6.714844-15-15-15zm0 0" />
+              <path d="m376.5 241c-74.714844 0-135.5 60.785156-135.5 135.5s60.785156 135.5 135.5 135.5 135.5-60.785156 135.5-135.5-60.785156-135.5-135.5-135.5zm0 241c-58.171875 0-105.5-47.328125-105.5-105.5s47.328125-105.5 105.5-105.5 105.5 47.328125 105.5 105.5-47.328125 105.5-105.5 105.5zm0 0" />
+            </svg>
             <svg
               className="managerButton enabled"
               version="1.1"
@@ -119,9 +177,43 @@ class FlowManagement extends React.Component {
             )}
           </div>
         )}
-        <h2 style={{ flex: 1, color: legacy ? 'crimson' : 'black' }}>
-          {this.getDisplayName()}
-        </h2>
+        {!renaming ? (
+          <h2
+            style={{ flex: 1, color: legacy ? 'crimson' : 'black' }}
+            onClick={() =>
+              !legacy &&
+              this.setState({
+                renaming: true,
+                newFlowName: (flowName && flowName.slice(0, -5)) || '',
+              })
+            }
+          >
+            {this.getDisplayName()}
+          </h2>
+        ) : (
+          <div style={{ display: 'flex' }}>
+            <Input
+              name="flowName"
+              value={newFlowName}
+              onKeyDown={this.handleKeyDown}
+              onBlur={this.cancelRename}
+              onChange={value => this.setState({ newFlowName: value })}
+              style={{
+                height: 30,
+                alignSelf: 'center',
+                fontSize: '1.5em',
+                marginBlockStart: '0.83em',
+                marginBlockEnd: '0.83em',
+                marginInlineStart: '0px',
+                marginInlineEnd: '0px',
+                fontWeight: 'bold',
+                fontFamily: 'sans-serif',
+              }}
+              autoFocus
+            />
+            <h2 style={{ flex: 1 }}>{`.json${unsavedChanges ? '*' : ''}`}</h2>
+          </div>
+        )}
         {s3Available && (
           <svg
             id="saveFlowBtn"

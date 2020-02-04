@@ -1,7 +1,6 @@
 import AWS from 'aws-sdk';
 import s3Mock from './cognito-localmock';
 
-// console.log('loading cognito');
 const ID_POOL_ID = 'us-east-1:c21c376e-3be7-433a-a5e2-970abf8f115b';
 const AWS_REGION = 'us-east-1';
 const BUCKET = 'emi-floweditor-flow-defs';
@@ -46,4 +45,4 @@ const connect = response => {
   return promise;
 };
 
-export { connect, GOOGLE_CLIENT_ID };
+export { connect, GOOGLE_CLIENT_ID, BUCKET };

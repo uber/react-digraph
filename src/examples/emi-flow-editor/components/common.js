@@ -26,6 +26,7 @@ const Input = ({
   className = '',
   disabled = '',
   style,
+  ...props
 }) => (
   <input
     style={style}
@@ -34,6 +35,7 @@ const Input = ({
     value={value}
     disabled={disabled}
     onChange={e => onChange(e.target.value)}
+    {...props}
   />
 );
 

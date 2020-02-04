@@ -57,6 +57,8 @@ class App extends React.Component {
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
+  handleFlowNameChange = flowName => this.setState({ flowName });
+
   render() {
     const { openedJsonText, flowName, s3 } = this.state;
 
@@ -88,6 +90,7 @@ class App extends React.Component {
               flowName={flowName}
               flowManagementHandlers={getFlowManagementHandlers(this)}
               unsavedChanges={this.unsavedChanges()}
+              onFlowNameChanged={this.handleFlowNameChange}
             />
             {!s3 && (
               <GoogleLogin
