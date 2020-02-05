@@ -116,11 +116,11 @@ export default class Sidebar extends React.Component<
   }
 
   render() {
-    const { children, direction, onLockChanged } = this.props;
+    const { children, direction, onLockChanged, refx } = this.props;
     const sidebarClassName = GraphUtils.classNames('sidebar', direction);
 
     return (
-      <div className={sidebarClassName}>
+      <div className={sidebarClassName} ref={refx}>
         <div id="textEditorDiv" className={this.getContainerClasses()}>
           {children}
         </div>

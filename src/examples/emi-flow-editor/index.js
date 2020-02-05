@@ -85,6 +85,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.edgeHandlers = getEdgeHandlers(this);
     this.faqHandlers = getFaqHandlers(this);
     this.state = this.getInitialState();
+
+    this.sidebarRef = React.createRef();
+    setTimeout(() => (this.sidebarRef.current.style.width = '20vw'), 100);
   }
 
   getInitialState = () => {
@@ -559,6 +562,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         size={'100%'}
         locked={this.state.locked}
         onLockChanged={this.handleToggleLock}
+        refx={this.sidebarRef}
       >
         <div>
           <AceEditor
