@@ -93,7 +93,6 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const jsonText = this.stringify(jsonObj);
 
     return {
-      unsavedChanges: false,
       initialText: jsonText,
       bwdlJson: jsonObj,
       bwdlText: jsonText,

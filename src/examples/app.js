@@ -41,7 +41,12 @@ import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-managemen
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { s3: null, initialJsonText: '{}', flowName: null };
+    this.state = {
+      s3: null,
+      initialJsonText: '{}',
+      jsonText: '{}',
+      flowName: null,
+    };
   }
 
   onGoogleResponse = response => {
@@ -108,6 +113,7 @@ class App extends React.Component {
               height="14.72000000pt"
               viewBox="0 0 1987.000000 736.000000"
               preserveAspectRatio="xMidYMid meet"
+              style={{ alignSelf: 'center' }}
             >
               <metadata>
                 Created by potrace 1.15, written by Peter Selinger 2001-2017

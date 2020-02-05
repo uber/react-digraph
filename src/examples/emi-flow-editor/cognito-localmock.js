@@ -467,6 +467,12 @@ const s3Mock = {
   getObject: (params, f) =>
     f('', { Body: { toString: () => JSON.stringify(JSON1, null, 2) } }),
   upload: (params, options, f) => f(null, {}),
+  headObject: () => ({
+    promise: () =>
+      new Promise((resove, reject) => reject({ code: 'NotFound' })),
+  }),
+  copyObject: () => ({ promise: () => new Promise(resolve => resolve()) }),
+  deleteObject: () => ({ promise: () => new Promise(resolve => resolve()) }),
 };
 
 export default s3Mock;
