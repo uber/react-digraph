@@ -9,7 +9,7 @@ import { getSimpleItem, LoadingWrapper, Input } from './common';
 class FlowManagement extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, showSelector: false, legacy: false };
+    this.state = { s3Loading: true, showSelector: false, legacy: false };
   }
 
   safeExecute = f => {
@@ -53,13 +53,13 @@ class FlowManagement extends React.Component {
       this.setState({ showSelector: false });
     } else {
       this.setState({
-        isLoading: true,
+        s3Loading: true,
         renaming: false,
       });
       this.props.flowManagementHandlers.getFlows().then(flows => {
         this.setState({
           flows: flows.map(f => getSimpleItem(f.Key)),
-          isLoading: false,
+          s3Loading: false,
           showSelector: true,
         });
       });
@@ -111,21 +111,27 @@ class FlowManagement extends React.Component {
     this.props.flowManagementHandlers.renameFlow(flowName);
   };
 
+  startRename = () => {
+    const { flowName, s3Available } = this.props;
+
+    if (!this.state.legacy && s3Available) {
+      this.setState({
+        renaming: true,
+        newFlowName: (flowName && flowName.slice(0, -5)) || '',
+      });
+    }
+  };
+
   render() {
     const {
-      isLoading,
+      s3Loading,
       showSelector,
       flows,
       legacy,
       renaming,
       newFlowName,
     } = this.state;
-    const {
-      flowManagementHandlers,
-      s3Available,
-      flowName,
-      unsavedChanges,
-    } = this.props;
+    const { flowManagementHandlers, s3Available, unsavedChanges } = this.props;
     const { openFlow, saveFlow, newFlow } = flowManagementHandlers;
 
     return (
@@ -164,7 +170,7 @@ class FlowManagement extends React.Component {
             </svg>
             {showSelector && (
               <label style={{ display: 'flex', border: 'none' }}>
-                <LoadingWrapper isLoading={isLoading}>
+                <LoadingWrapper s3Loading={s3Loading}>
                   <Select
                     className="selectContainer"
                     value=""
@@ -180,13 +186,7 @@ class FlowManagement extends React.Component {
         {!renaming ? (
           <h2
             style={{ flex: 1, color: legacy ? 'crimson' : 'black' }}
-            onClick={() =>
-              !legacy &&
-              this.setState({
-                renaming: true,
-                newFlowName: (flowName && flowName.slice(0, -5)) || '',
-              })
-            }
+            onClick={this.startRename}
           >
             {this.getDisplayName()}
           </h2>

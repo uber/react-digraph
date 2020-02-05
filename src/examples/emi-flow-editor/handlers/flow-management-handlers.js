@@ -16,7 +16,7 @@ const getFlowManagementHandlers = app => {
   }.bind(app);
 
   app.newFlow = function() {
-    this.setOpenedFlow(null, '{}');
+    this.setFlow(null, '{}');
   }.bind(app);
 
   app.openFlow = function(flowName) {
@@ -28,17 +28,15 @@ const getFlowManagementHandlers = app => {
         } else {
           const jsonText = data.Body.toString();
 
-          this.setOpenedFlow(flowName, jsonText);
+          this.setFlow(flowName, jsonText);
         }
       }.bind(app)
     );
   }.bind(app);
 
   app.saveFlow = function(newFlowName) {
-    let { flowName } = this.state;
     const { jsonText, s3 } = this.state;
-
-    flowName = newFlowName || flowName;
+    const flowName = newFlowName || this.state.flowName;
     const params = {
       Key: flowName,
       Body: jsonText,
@@ -52,7 +50,7 @@ const getFlowManagementHandlers = app => {
         if (err) {
           throw new Error(err);
         } else {
-          this.setOpenedFlow(flowName, jsonText);
+          this.setFlow(flowName, jsonText);
         }
       }.bind(app)
     );
@@ -95,7 +93,7 @@ const getFlowManagementHandlers = app => {
                 Key: flowName,
               })
               .promise()
-              .then(() => this.setOpenedFlow(newFlowName, jsonText))
+              .then(() => this.setFlow(newFlowName, jsonText))
           );
       }
     });

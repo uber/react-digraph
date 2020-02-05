@@ -41,7 +41,7 @@ import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-managemen
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { s3: null };
+    this.state = { s3: null, initialJsonText: '{}', flowName: null };
   }
 
   onGoogleResponse = response => {
@@ -50,17 +50,17 @@ class App extends React.Component {
     });
   };
 
-  unsavedChanges = () => this.state.openedJsonText != this.state.jsonText;
+  unsavedChanges = () => this.state.initialJsonText != this.state.jsonText;
 
-  setOpenedFlow = (flowName, jsonText) =>
-    this.setState({ flowName, openedJsonText: jsonText, jsonText: jsonText });
+  setFlow = (flowName, jsonText) =>
+    this.setState({ flowName, initialJsonText: jsonText, jsonText: jsonText });
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
   handleFlowNameChange = flowName => this.setState({ flowName });
 
   render() {
-    const { openedJsonText, flowName, s3 } = this.state;
+    const { initialJsonText, flowName, s3 } = this.state;
 
     return (
       <Router>
@@ -152,7 +152,7 @@ class App extends React.Component {
               <EmiFlowEditor
                 {...props}
                 flowName={flowName}
-                initialJsonText={openedJsonText}
+                initialJsonText={initialJsonText}
                 onJsonTextChange={this.handleJsonTextChange}
               />
             )}
