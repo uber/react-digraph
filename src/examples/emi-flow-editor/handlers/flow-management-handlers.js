@@ -34,6 +34,10 @@ const getFlowManagementHandlers = app => {
     );
   }.bind(app);
 
+  app.cloneFlow = function() {
+    this.saveFlow(`${this.state.flowName.slice(0, -5)}-copy.json`);
+  }.bind(app);
+
   app.saveFlow = function(newFlowName) {
     const { jsonText, s3 } = this.state;
     const flowName = newFlowName || this.state.flowName;
@@ -64,6 +68,14 @@ const getFlowManagementHandlers = app => {
       .promise()
       .then(() => true)
       .catch(err => err.code !== 'NotFound');
+  }.bind(app);
+
+  app.deleteFlow = function() {
+    const { s3, flowName } = this.state;
+
+    s3.deleteObject({ Key: flowName })
+      .promise()
+      .then(() => this.newFlow());
   }.bind(app);
 
   app.renameFlow = function(newFlowName) {

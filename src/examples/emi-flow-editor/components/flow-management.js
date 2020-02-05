@@ -9,15 +9,29 @@ import { getSimpleItem, LoadingWrapper, Input } from './common';
 class FlowManagement extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { s3Loading: true, showSelector: false, legacy: false };
+    this.state = { showSelector: false, legacy: false, s3stored: false };
   }
 
-  safeExecute = f => {
-    if (this.props.unsavedChanges) {
+  componentDidUpdate(prevProps) {
+    const { flowName } = this.props;
+
+    if (prevProps.flowName != flowName) {
+      const legacy = flowName && flowName.endsWith('.py.json');
+
+      this.setState({ showSelector: false, legacy });
+    }
+  }
+
+  safeExecute = (
+    f,
+    mustConfirm,
+    title = 'You have unsaved changes',
+    message = 'If you click "Yes", your unsaved changes will be lost. Do you still want to continue?'
+  ) => {
+    if (mustConfirm) {
       confirmAlert({
-        title: 'You have unsaved changes',
-        message:
-          'If you click "Yes", your unsaved changes will be lost. Do you still want to continue?',
+        title: title,
+        message: message,
         buttons: [
           {
             label: 'Yes',
@@ -34,19 +48,40 @@ class FlowManagement extends React.Component {
     }
   };
 
-  safeOpen = (flowName, openFlow) => this.safeExecute(() => openFlow(flowName));
+  safeOpen = (flowName, openFlow) =>
+    this.safeExecute(() => {
+      openFlow(flowName);
+      this.setState({ s3stored: true });
+    }, this.props.unsavedChanges);
 
-  safeNew = newFlow => this.safeExecute(newFlow);
+  safeNew = newFlow => {
+    this.safeExecute(() => {
+      newFlow();
+      this.setState({ s3stored: false });
+    }, this.props.unsavedChanges);
+  };
 
-  componentDidUpdate(prevProps) {
-    const { flowName } = this.props;
+  safeDelete = deleteFlow =>
+    this.deleteEnabled() &&
+    this.safeExecute(
+      () => {
+        deleteFlow();
+        this.setState({ s3stored: false });
+      },
+      true,
+      'Delete the flow?',
+      'This flow will be deleted remotely from s3 and will be no longer available'
+    );
 
-    if (prevProps.flowName != flowName) {
-      const legacy = flowName && flowName.endsWith('.py');
+  safeClone = cloneFlow =>
+    this.cloneEnabled() &&
+    this.safeExecute(() => {
+      cloneFlow();
+      this.setState({ s3stored: true });
+    }, this.props.unsavedChanges);
 
-      this.setState({ showSelector: false, legacy });
-    }
-  }
+  saveFlow = saveFlow =>
+    this.saveEnabled() && saveFlow() && this.setState({ s3stored: true });
 
   onClickOpenIcon = () => {
     if (this.state.showSelector) {
@@ -65,17 +100,6 @@ class FlowManagement extends React.Component {
       });
     }
   };
-
-  saveEnabled = () => {
-    const { unsavedChanges, flowName } = this.props;
-
-    return unsavedChanges && flowName && !this.state.legacy;
-  };
-
-  saveClasses = () =>
-    GraphUtils.classNames(
-      ['managerButton'].concat(this.saveEnabled() ? ['enabled'] : [])
-    );
 
   getDisplayName = () => {
     const { flowName, unsavedChanges } = this.props;
@@ -125,6 +149,41 @@ class FlowManagement extends React.Component {
     }
   };
 
+  saveEnabled = () => {
+    const { unsavedChanges, flowName } = this.props;
+
+    return unsavedChanges && flowName && !this.state.legacy;
+  };
+
+  saveClasses = () =>
+    GraphUtils.classNames(
+      ['managerButton'].concat(this.saveEnabled() ? ['enabled'] : [])
+    );
+
+  deleteEnabled = () => {
+    const { s3stored, legacy } = this.state;
+
+    return s3stored && !legacy;
+  };
+
+  deleteClasses = () => {
+    const classes = ['managerButton svg-inline--fa fa-trash fa-w-14'];
+
+    return GraphUtils.classNames(
+      classes.concat(this.deleteEnabled() ? ['enabled'] : [])
+    );
+  };
+
+  cloneEnabled = () => this.state.s3stored;
+
+  cloneClasses = () => {
+    const classes = ['managerButton svg-inline--fa fa-copy fa-w-14'];
+
+    return GraphUtils.classNames(
+      classes.concat(this.cloneEnabled() ? ['enabled'] : [])
+    );
+  };
+
   render() {
     const {
       s3Loading,
@@ -135,7 +194,13 @@ class FlowManagement extends React.Component {
       newFlowName,
     } = this.state;
     const { flowManagementHandlers, s3Available, unsavedChanges } = this.props;
-    const { openFlow, saveFlow, newFlow } = flowManagementHandlers;
+    const {
+      openFlow,
+      saveFlow,
+      newFlow,
+      deleteFlow,
+      cloneFlow,
+    } = flowManagementHandlers;
 
     return (
       <div style={{ display: 'flex' }}>
@@ -151,6 +216,19 @@ class FlowManagement extends React.Component {
               <path d="m211 376.5c0-91.257812 74.242188-165.5 165.5-165.5 5.058594 0 10.058594.242188 15 .6875v-53.152344h-143.53125c-8.285156 0-15-6.71875-15-15v-143.535156h-217.96875c-8.285156 0-15 6.714844-15 15v482c0 8.285156 6.714844 15 15 15h266.585938c-42.652344-29.96875-70.585938-79.527344-70.585938-135.5zm0 0" />
               <path d="m416.667969 361.5h-25.167969v-25.167969c0-8.28125-6.714844-15-15-15s-15 6.71875-15 15v25.167969h-25.164062c-8.285157 0-15 6.714844-15 15s6.714843 15 15 15h25.164062v25.167969c0 8.28125 6.714844 15 15 15s15-6.71875 15-15v-25.167969h25.167969c8.285156 0 15-6.714844 15-15s-6.714844-15-15-15zm0 0" />
               <path d="m376.5 241c-74.714844 0-135.5 60.785156-135.5 135.5s60.785156 135.5 135.5 135.5 135.5-60.785156 135.5-135.5-60.785156-135.5-135.5-135.5zm0 241c-58.171875 0-105.5-47.328125-105.5-105.5s47.328125-105.5 105.5-105.5 105.5 47.328125 105.5 105.5-47.328125 105.5-105.5 105.5zm0 0" />
+            </svg>
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fas"
+              data-icon="copy"
+              className={this.cloneClasses()}
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512"
+              onClick={() => this.safeClone(cloneFlow)}
+            >
+              <path d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"></path>
             </svg>
             <svg
               className="managerButton enabled"
@@ -195,12 +273,25 @@ class FlowManagement extends React.Component {
               style={{
                 enableBackground: 'new 0 0 1000 1000',
               }}
-              onClick={() => this.saveEnabled() && saveFlow()}
+              onClick={() => this.saveFlow(saveFlow)}
             >
               <g>
                 <path d="M888.6,990c-259,0-518.1,0-777.1,0c-1.8-0.6-3.5-1.5-5.3-1.8c-45-8.1-74.9-33.8-90.2-76.7c-2.6-7.4-4-15.3-5.9-22.9c0-259,0-518.1,0-777.1c0.6-1.8,1.5-3.5,1.8-5.4c9.2-49.4,38.6-80,86.8-93c4.3-1.2,8.6-2.1,12.8-3.1c222.7,0,445.3,0,668,0c27.8,6.1,49.6,22.7,69.5,41.7c32.9,31.5,65.2,63.7,96.8,96.6c19.9,20.6,37.8,43.1,44.3,72.3c0,222.7,0,445.3,0,668c-0.6,1.8-1.5,3.5-1.8,5.3c-9.2,49.4-38.5,80-86.8,93C897.2,988,892.8,989,888.6,990z M500.1,952.5c111.3,0,222.6,0,333.9,0c28.3,0,43.2-14.9,43.2-42.9c0-122.2,0-244.3,0-366.5c0-28.1-15-43.3-42.9-43.3c-223,0-445.9,0-668.8,0c-27.4,0-42.8,15.2-42.8,42.5c0,122.5,0,244.9,0,367.4c0,4.4,0.1,9,1.1,13.3c4.6,19.4,19.1,29.5,42.2,29.5C277.5,952.5,388.8,952.5,500.1,952.5z M480.9,387.3c79.4,0,158.8,0,238.2,0c30.5,0,45.2-14.6,45.2-45c0-83.2,0-166.4,0-249.7c0-30.6-14.4-45-45.1-45c-158.8,0-317.6,0-476.4,0C212.7,47.5,198,62.1,198,92c-0.1,83.5-0.1,167.1,0,250.6c0,29.9,14.9,44.7,44.7,44.7C322.1,387.3,401.5,387.3,480.9,387.3z" />
                 <path d="M576.4,86.1c37.3,0,73.6,0,110.7,0c0,87.5,0,174.5,0,262.1c-36.8,0-73.4,0-110.7,0C576.4,261.1,576.4,174,576.4,86.1z" />
               </g>
+            </svg>
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fas"
+              data-icon="trash"
+              className={this.deleteClasses()}
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 448 512"
+              onClick={() => this.safeDelete(deleteFlow)}
+            >
+              <path d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path>
             </svg>
           </div>
         )}
