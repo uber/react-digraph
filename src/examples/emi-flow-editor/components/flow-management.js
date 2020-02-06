@@ -6,10 +6,7 @@ import { withAlert } from 'react-alert';
 
 import GraphUtils from '../../../utilities/graph-util';
 import { getSimpleItem, LoadingWrapper, Input } from './common';
-
-const STG = 'staging';
-const PROD = 'production';
-const ENVS = [STG, PROD];
+import { STG, PROD, ENVS } from '../handlers/flow-management-handlers';
 
 class FlowManagement extends React.Component {
   constructor(props) {
@@ -19,6 +16,7 @@ class FlowManagement extends React.Component {
       legacy: false,
       s3stored: false,
       env: STG,
+      prodFlow: false,
     };
     this.alert = this.props.alert;
   }
@@ -60,20 +58,20 @@ class FlowManagement extends React.Component {
   };
 
   _openFlow = (flowName, openFlow) =>
-    openFlow(flowName).catch(err =>
+    openFlow(this.state.env, flowName).catch(err =>
       this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
     );
 
   safeOpen = (flowName, openFlow) =>
     this.safeExecute(() => {
       this._openFlow(flowName, openFlow);
-      this.setState({ s3stored: true });
+      this.setState({ s3stored: true, prodFlow: this.state.env === PROD });
     }, this.props.unsavedChanges);
 
   safeNew = newFlow => {
     this.safeExecute(() => {
       newFlow();
-      this.setState({ s3stored: false });
+      this.setState({ s3stored: false, prodFlow: false });
     }, this.props.unsavedChanges);
   };
 
@@ -82,7 +80,7 @@ class FlowManagement extends React.Component {
     this.safeExecute(
       () => {
         deleteFlow();
-        this.setState({ s3stored: false });
+        this.setState({ s3stored: false, prodFlow: false });
       },
       true,
       'Delete the flow?',
@@ -93,7 +91,7 @@ class FlowManagement extends React.Component {
     this.cloneEnabled() &&
     this.safeExecute(() => {
       cloneFlow();
-      this.setState({ s3stored: true });
+      this.setState({ s3stored: true, prodFlow: false });
     }, this.props.unsavedChanges);
 
   _shipFlow = shipFlow =>
@@ -121,27 +119,35 @@ class FlowManagement extends React.Component {
     if (this.state.showOpenSelectors) {
       this.setState({ showOpenSelectors: false });
     } else {
-      this.setState({
-        s3Loading: true,
-        renaming: false,
-        showOpenSelectors: true,
-      });
-      this.props.flowManagementHandlers.getFlows().then(flows => {
-        this.setState({
-          flows: flows.map(f => getSimpleItem(f.Key)),
-          s3Loading: false,
-        });
-      });
+      this.setState({ showOpenSelectors: true });
+      this._reloadFlows(this.state.env);
     }
+  };
+
+  changeEnv = env => {
+    this.setState({ env });
+    this._reloadFlows(env);
+  };
+
+  _reloadFlows = env => {
+    this.setState({
+      s3Loading: true,
+    });
+    this.props.flowManagementHandlers.getFlows(env).then(flows => {
+      this.setState({
+        flows: flows.map(f => getSimpleItem(f.Key)),
+        s3Loading: false,
+      });
+    });
   };
 
   getDisplayName = () => {
     const { flowName, unsavedChanges } = this.props;
-    const { legacy } = this.state;
+    const { legacy, prodFlow } = this.state;
 
     return `${flowName ? flowName : 'unnamed'}${
-      legacy ? '(legacy,readonly)' : unsavedChanges ? '*' : ''
-    }`;
+      legacy ? '(legacy,readonly)' : ''
+    }${prodFlow ? '(prod,readonly)' : ''}${unsavedChanges ? '*' : ''}`;
   };
 
   handleKeyDown = e => {
@@ -189,9 +195,10 @@ class FlowManagement extends React.Component {
   };
 
   saveEnabled = () => {
+    const { legacy, prodFlow } = this.state;
     const { unsavedChanges, flowName } = this.props;
 
-    return unsavedChanges && flowName && !this.state.legacy;
+    return unsavedChanges && flowName && !legacy && !prodFlow;
   };
 
   saveClasses = () =>
@@ -200,9 +207,9 @@ class FlowManagement extends React.Component {
     );
 
   deleteEnabled = () => {
-    const { s3stored, legacy } = this.state;
+    const { s3stored, legacy, prodFlow } = this.state;
 
-    return s3stored && !legacy;
+    return s3stored && !legacy && !prodFlow;
   };
 
   deleteClasses = () => {
@@ -224,9 +231,9 @@ class FlowManagement extends React.Component {
   };
 
   shipEnabled = () => {
-    const { s3stored, legacy, unsavedChanges } = this.state;
+    const { s3stored, legacy, unsavedChanges, prodFlow } = this.state;
 
-    return s3stored && !legacy && !unsavedChanges;
+    return s3stored && !legacy && !unsavedChanges && !prodFlow;
   };
 
   shipClasses = () => {
@@ -310,7 +317,7 @@ class FlowManagement extends React.Component {
                   <Select
                     className="selectShortContainer"
                     value={getSimpleItem(env)}
-                    onChange={item => this.setState({ env: item.value })}
+                    onChange={item => this.changeEnv(item.value)}
                     options={ENVS.map(env => getSimpleItem(env))}
                     isSearchable={false}
                   />

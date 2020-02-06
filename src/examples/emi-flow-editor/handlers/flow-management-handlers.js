@@ -1,16 +1,30 @@
 import { STG_BUCKET, PROD_BUCKET } from '../cognito';
 
+const STG = 'staging';
+const PROD = 'production';
+const ENVS = [STG, PROD];
+const ENV_BUCKETS = {
+  [STG]: STG_BUCKET,
+  [PROD]: PROD_BUCKET,
+};
+
 const getFlowManagementHandlers = app => {
-  app.getFlows = function() {
+  app.getFlows = function(env) {
     return new Promise(
       function(resolve, reject) {
-        this.state.s3.listObjects({ Delimiter: '/' }, function(err, data) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data.Contents.filter(f => f.Key.endsWith('.json')));
+        this.state.s3.listObjects(
+          {
+            Bucket: ENV_BUCKETS[env],
+            Delimiter: '/',
+          },
+          function(err, data) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data.Contents.filter(f => f.Key.endsWith('.json')));
+            }
           }
-        });
+        );
       }.bind(app)
     );
   }.bind(app);
@@ -19,9 +33,9 @@ const getFlowManagementHandlers = app => {
     this.setFlow(null, '{}');
   }.bind(app);
 
-  app.openFlow = function(flowName) {
+  app.openFlow = function(env, flowName) {
     return this.state.s3
-      .getObject({ Key: flowName })
+      .getObject({ Bucket: ENV_BUCKETS[env], Key: flowName })
       .promise()
       .then(data => this.setFlow(flowName, data.Body.toString()));
   }.bind(app);
@@ -110,4 +124,4 @@ const getFlowManagementHandlers = app => {
   return app;
 };
 
-export default getFlowManagementHandlers;
+export { getFlowManagementHandlers, STG, PROD, ENVS };

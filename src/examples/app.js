@@ -38,7 +38,7 @@ import { connect, GOOGLE_CLIENT_ID } from './emi-flow-editor/cognito';
 
 // import S3Context from './emi-flow-editor/s3-context';
 import FlowManagement from './emi-flow-editor/components/flow-management';
-import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-management-handlers';
+import { getFlowManagementHandlers } from './emi-flow-editor/handlers/flow-management-handlers';
 
 const ALERT_OPTIONS = {
   // you can also just use 'bottom center'
