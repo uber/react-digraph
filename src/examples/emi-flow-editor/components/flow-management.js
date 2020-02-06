@@ -7,10 +7,19 @@ import { withAlert } from 'react-alert';
 import GraphUtils from '../../../utilities/graph-util';
 import { getSimpleItem, LoadingWrapper, Input } from './common';
 
+const STG = 'staging';
+const PROD = 'production';
+const ENVS = [STG, PROD];
+
 class FlowManagement extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showSelector: false, legacy: false, s3stored: false };
+    this.state = {
+      showOpenSelectors: false,
+      legacy: false,
+      s3stored: false,
+      env: STG,
+    };
     this.alert = this.props.alert;
   }
 
@@ -20,7 +29,7 @@ class FlowManagement extends React.Component {
     if (prevProps.flowName != flowName) {
       const legacy = flowName && flowName.endsWith('.py.json');
 
-      this.setState({ showSelector: false, legacy });
+      this.setState({ showOpenSelectors: false, legacy });
     }
   }
 
@@ -109,18 +118,18 @@ class FlowManagement extends React.Component {
     this.saveEnabled() && saveFlow() && this.setState({ s3stored: true });
 
   onClickOpenIcon = () => {
-    if (this.state.showSelector) {
-      this.setState({ showSelector: false });
+    if (this.state.showOpenSelectors) {
+      this.setState({ showOpenSelectors: false });
     } else {
       this.setState({
         s3Loading: true,
         renaming: false,
+        showOpenSelectors: true,
       });
       this.props.flowManagementHandlers.getFlows().then(flows => {
         this.setState({
           flows: flows.map(f => getSimpleItem(f.Key)),
           s3Loading: false,
-          showSelector: true,
         });
       });
     }
@@ -231,11 +240,12 @@ class FlowManagement extends React.Component {
   render() {
     const {
       s3Loading,
-      showSelector,
+      showOpenSelectors,
       flows,
       legacy,
       renaming,
       newFlowName,
+      env,
     } = this.state;
     const { flowManagementHandlers, s3Available, unsavedChanges } = this.props;
     const {
@@ -294,18 +304,33 @@ class FlowManagement extends React.Component {
                 c0-12.219-8.176-21.659-19.25-21.659H30.43c-11.074,0-20.917,9.44-20.917,21.659v24.951c0,1.231,0.68,2.379,1.267,3.39H214.513z"
               />
             </svg>
-            {showSelector && (
-              <label style={{ display: 'flex', border: 'none' }}>
-                <LoadingWrapper s3Loading={s3Loading}>
+            {showOpenSelectors && (
+              <div style={{ display: 'flex' }}>
+                <label style={{ display: 'flex', border: 'none' }}>
                   <Select
-                    className="selectContainer"
-                    value=""
-                    onChange={item => this.safeOpen(item.value, openFlow)}
-                    options={flows}
-                    isSearchable={true}
+                    className="selectShortContainer"
+                    value={getSimpleItem(env)}
+                    onChange={item => this.setState({ env: item.value })}
+                    options={ENVS.map(env => getSimpleItem(env))}
+                    isSearchable={false}
                   />
-                </LoadingWrapper>
-              </label>
+                </label>
+                <label style={{ display: 'flex', border: 'none' }}>
+                  <LoadingWrapper
+                    isLoading={s3Loading}
+                    width="200px"
+                    height="40px"
+                  >
+                    <Select
+                      className="selectContainer"
+                      value=""
+                      onChange={item => this.safeOpen(item.value, openFlow)}
+                      options={flows}
+                      isSearchable={true}
+                    />
+                  </LoadingWrapper>
+                </label>
+              </div>
             )}
             <svg
               id="saveFlowBtn"

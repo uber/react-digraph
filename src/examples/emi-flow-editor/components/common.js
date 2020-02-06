@@ -197,15 +197,15 @@ const StagingSelectItemHOC = getOptions => props => {
 
 class Loading extends React.Component {
   render() {
-    return <SkeletonLoader />;
+    return <SkeletonLoader {...this.props} />;
   }
 }
 
 class LoadingWrapper extends React.Component {
   render() {
-    const { isLoading, children } = this.props;
+    const { isLoading, children, ...props } = this.props;
 
-    return <div>{isLoading ? <Loading /> : children}</div>;
+    return <div>{isLoading ? <Loading {...props} /> : children}</div>;
   }
 }
 
