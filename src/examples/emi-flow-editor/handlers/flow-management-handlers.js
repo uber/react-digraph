@@ -20,18 +20,10 @@ const getFlowManagementHandlers = app => {
   }.bind(app);
 
   app.openFlow = function(flowName) {
-    this.state.s3.getObject(
-      { Key: flowName },
-      function(err, data) {
-        if (err) {
-          throw new Error(err);
-        } else {
-          const jsonText = data.Body.toString();
-
-          this.setFlow(flowName, jsonText);
-        }
-      }.bind(app)
-    );
+    return this.state.s3
+      .getObject({ Key: flowName })
+      .promise()
+      .then(data => this.setFlow(flowName, data.Body.toString()));
   }.bind(app);
 
   app.shipFlow = function() {

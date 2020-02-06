@@ -470,8 +470,12 @@ const s3Mock = {
         { Key: 'flow3.py' },
       ],
     }),
-  getObject: (params, f) =>
-    f('', { Body: { toString: () => JSON.stringify(JSON1, null, 2) } }),
+  getObject: () => ({
+    promise: () =>
+      new Promise(resolve =>
+        resolve({ Body: { toString: () => JSON.stringify(JSON1, null, 2) } })
+      ),
+  }),
   upload: () => ({ promise: () => new Promise(resolve => resolve()) }),
   headObject: () => ({
     promise: () =>

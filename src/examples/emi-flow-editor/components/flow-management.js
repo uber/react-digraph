@@ -50,9 +50,12 @@ class FlowManagement extends React.Component {
     }
   };
 
+  _openFlow = (flowName, openFlow) =>
+    openFlow().catch(err => this.alert.error(`Couldn't open flow: ${err}`));
+
   safeOpen = (flowName, openFlow) =>
     this.safeExecute(() => {
-      openFlow(flowName);
+      this._openFlow(flowName, openFlow);
       this.setState({ s3stored: true });
     }, this.props.unsavedChanges);
 
@@ -82,7 +85,7 @@ class FlowManagement extends React.Component {
       this.setState({ s3stored: true });
     }, this.props.unsavedChanges);
 
-  shipFlow = shipFlow =>
+  _shipFlow = shipFlow =>
     shipFlow()
       .then(() => this.alert.success('Flow successfully shipped!'))
       .catch(err => this.alert.error(`Flow shipping failed: ${err}`));
@@ -90,7 +93,7 @@ class FlowManagement extends React.Component {
   safeShip = shipFlow =>
     this.shipEnabled() &&
     this.safeExecute(
-      () => this.shipFlow(shipFlow),
+      () => this._shipFlow(shipFlow),
       true,
       'Ship this flow to prod?',
       'If a flow with the same name exists in prod, it will be overriden'
