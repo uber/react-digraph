@@ -51,7 +51,9 @@ class FlowManagement extends React.Component {
   };
 
   _openFlow = (flowName, openFlow) =>
-    openFlow().catch(err => this.alert.error(`Couldn't open flow: ${err}`));
+    openFlow().catch(err =>
+      this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
+    );
 
   safeOpen = (flowName, openFlow) =>
     this.safeExecute(() => {
@@ -88,7 +90,11 @@ class FlowManagement extends React.Component {
   _shipFlow = shipFlow =>
     shipFlow()
       .then(() => this.alert.success('Flow successfully shipped!'))
-      .catch(err => this.alert.error(`Flow shipping failed: ${err}`));
+      .catch(err =>
+        this.alert.error(
+          `Flow shipping failed: ${JSON.stringify(err, null, 4)}`
+        )
+      );
 
   safeShip = shipFlow =>
     this.shipEnabled() &&
@@ -150,11 +156,16 @@ class FlowManagement extends React.Component {
     this.setState({ renaming: false });
   };
 
+  _rename = flowName =>
+    this.props.flowManagementHandlers.renameFlow(flowName).catch(err => {
+      this.alert.error(`Flow renaming failed: ${JSON.stringify(err, null, 4)}`);
+    });
+
   rename = () => {
     this.setState({ renaming: false });
     const flowName = `${this.state.newFlowName}.json`;
 
-    this.props.flowManagementHandlers.renameFlow(flowName);
+    this._rename(flowName);
   };
 
   startRename = () => {

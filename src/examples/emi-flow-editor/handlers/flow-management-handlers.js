@@ -33,7 +33,7 @@ const getFlowManagementHandlers = app => {
   app.cloneFlow = function() {
     const newFlowName = `${this.state.flowName.slice(0, -5)}-copy.json`;
 
-    this.saveFlow({ newFlowName });
+    return this.saveFlow({ newFlowName });
   }.bind(app);
 
   app.saveFlow = function({ newFlowName, bucket } = {}) {
@@ -59,7 +59,13 @@ const getFlowManagementHandlers = app => {
       .headObject(params)
       .promise()
       .then(() => true)
-      .catch(err => err.code !== 'NotFound');
+      .catch(err => {
+        if (err.code === 'NotFound') {
+          return false;
+        } else {
+          throw err;
+        }
+      });
   }.bind(app);
 
   app.deleteFlow = function() {
@@ -73,22 +79,20 @@ const getFlowManagementHandlers = app => {
   app.renameFlow = function(newFlowName) {
     const { flowName, jsonText, s3 } = this.state;
 
-    this._flowExists(newFlowName).then(exists => {
+    return this._flowExists(newFlowName).then(exists => {
       if (exists) {
-        return;
+        throw new Error({ message: 'Flow already exists' });
       } else {
         if (!flowName) {
-          this.saveFlow({ newFlowName });
-
-          return;
+          return this.saveFlow({ newFlowName });
         }
-        // Copy the object to a new location
 
-        s3.copyObject({
-          Bucket: STG_BUCKET,
-          CopySource: encodeURIComponent(`/${STG_BUCKET}/${flowName}`),
-          Key: encodeURIComponent(newFlowName),
-        })
+        return s3
+          .copyObject({
+            Bucket: STG_BUCKET,
+            CopySource: encodeURIComponent(`/${STG_BUCKET}/${flowName}`),
+            Key: encodeURIComponent(newFlowName),
+          })
           .promise()
           .then(() =>
             // Delete the old object

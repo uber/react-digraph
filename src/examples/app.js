@@ -43,7 +43,7 @@ import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-managemen
 const ALERT_OPTIONS = {
   // you can also just use 'bottom center'
   position: positions.MIDDLE,
-  timeout: 3000,
+  timeout: 5000,
   offset: '30px',
   // you can also just use 'scale'
   transition: transitions.SCALE,

@@ -479,7 +479,7 @@ const s3Mock = {
   upload: () => ({ promise: () => new Promise(resolve => resolve()) }),
   headObject: () => ({
     promise: () =>
-      new Promise((resove, reject) => reject({ code: 'NotFound' })),
+      new Promise((resolve, reject) => resolve({ code: 'NotFound' })),
   }),
   copyObject: () => ({ promise: () => new Promise(resolve => resolve()) }),
   deleteObject: () => ({ promise: () => new Promise(resolve => resolve()) }),
