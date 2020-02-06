@@ -2,6 +2,7 @@ import * as React from 'react';
 import Select from 'react-select';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import { withAlert } from 'react-alert';
 
 import GraphUtils from '../../../utilities/graph-util';
 import { getSimpleItem, LoadingWrapper, Input } from './common';
@@ -10,6 +11,7 @@ class FlowManagement extends React.Component {
   constructor(props) {
     super(props);
     this.state = { showSelector: false, legacy: false, s3stored: false };
+    this.alert = this.props.alert;
   }
 
   componentDidUpdate(prevProps) {
@@ -80,10 +82,15 @@ class FlowManagement extends React.Component {
       this.setState({ s3stored: true });
     }, this.props.unsavedChanges);
 
+  shipFlow = shipFlow =>
+    shipFlow()
+      .then(() => this.alert.success('Flow successfully shipped!'))
+      .catch(err => this.alert.error(`Flow shipping failed: ${err}`));
+
   safeShip = shipFlow =>
     this.shipEnabled() &&
     this.safeExecute(
-      shipFlow,
+      () => this.shipFlow(shipFlow),
       true,
       'Ship this flow to prod?',
       'If a flow with the same name exists in prod, it will be overriden'
@@ -193,13 +200,17 @@ class FlowManagement extends React.Component {
     );
   };
 
-  shipEnabled = () => this.state.s3stored && !this.state.unsavedChanges;
+  shipEnabled = () => {
+    const { s3stored, legacy, unsavedChanges } = this.state;
+
+    return s3stored && !legacy && !unsavedChanges;
+  };
 
   shipClasses = () => {
     const classes = ['managerButton svg-inline--fa fa-rocket fa-w-16'];
 
     return GraphUtils.classNames(
-      classes.concat(this.cloneEnabled() ? ['enabled'] : [])
+      classes.concat(this.shipEnabled() ? ['enabled'] : [])
     );
   };
 
@@ -369,4 +380,4 @@ class FlowManagement extends React.Component {
   }
 }
 
-export default FlowManagement;
+export default withAlert()(FlowManagement);

@@ -35,7 +35,7 @@ const getFlowManagementHandlers = app => {
   }.bind(app);
 
   app.shipFlow = function() {
-    app.saveFlow({ bucket: PROD_BUCKET });
+    return app.saveFlow({ bucket: PROD_BUCKET });
   }.bind(app);
 
   app.cloneFlow = function() {
@@ -54,17 +54,10 @@ const getFlowManagementHandlers = app => {
     };
     const options = {};
 
-    s3.upload(
-      params,
-      options,
-      function(err, data) {
-        if (err) {
-          throw new Error(err);
-        } else {
-          this.setFlow(flowName, jsonText);
-        }
-      }.bind(app)
-    );
+    return s3
+      .upload(params, options)
+      .promise()
+      .then(() => this.setFlow(flowName, jsonText));
   }.bind(app);
 
   app._flowExists = function(flowName) {
