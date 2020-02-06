@@ -8,7 +8,7 @@ const getFlowManagementHandlers = app => {
           if (err) {
             reject(err);
           } else {
-            resolve(data.Contents);
+            resolve(data.Contents.filter(f => f.Key.endsWith('.json')));
           }
         });
       }.bind(app)

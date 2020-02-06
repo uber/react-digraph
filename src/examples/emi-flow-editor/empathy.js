@@ -38,7 +38,9 @@ const empathyDefaults = {
   salary: {
     lang: 'ES',
     country: 'AR',
-    prediction_data: {},
+    prediction_data: {
+      intent_responses: {},
+    },
   },
   secondary_v2: {
     lang: 'ES',
