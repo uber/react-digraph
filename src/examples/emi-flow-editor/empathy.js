@@ -2,10 +2,6 @@ import { getSimpleItem } from './components/common';
 
 const defaultQuestionStr = 'generic_yes_no_v2';
 const empathyDefaults = {
-  phone: {
-    lang: 'ES',
-    country: 'AR',
-  },
   best_match_no_retry: {
     lang: 'ES',
     prediction_data: {
@@ -19,6 +15,55 @@ const empathyDefaults = {
       min_similarity: 90,
       options: {}, // keys will be added for the answer options
     },
+  },
+  birthdate: {
+    lang: 'ES_419',
+    country: 'AR',
+    prediction_data: {
+      intent_responses: {
+        skip: 'No responder',
+      },
+    },
+  },
+  phone: {
+    lang: 'ES',
+    country: 'AR',
+    prediction_data: {
+      intent_responses: {
+        dontHave: 'No tengo',
+      },
+    },
+  },
+  email: {
+    lang: 'ES',
+    country: 'AR',
+    prediction_data: {
+      intent_responses: {
+        dontHave: 'No tengo',
+      },
+    },
+  },
+  first_name: {
+    lang: 'ES_MX',
+    country: 'MX',
+    prediction_data: {
+      intent_responses: {
+        dontHave: 'No tengo',
+      },
+    },
+  },
+  last_name: {
+    lang: 'ES_MX',
+    country: 'MX',
+    prediction_data: {
+      intent_responses: {
+        dontHave: 'No tengo',
+      },
+    },
+  },
+  geocoder: {
+    lang: 'ES',
+    country: 'AR',
   },
   dates: {
     lang: 'ES',
@@ -103,6 +148,11 @@ const empathyDefaults = {
 };
 
 const intentsByQuestionStr = {
+  birthdate: ['success', 'skip'],
+  phone: ['success', 'dontHave'],
+  email: ['success', 'dontHave'],
+  first_name: ['success', 'dontHave'],
+  last_name: ['success', 'dontHave'],
   dates: ['success'],
   duration: ['didNotWork', 'success'],
   generic_yes_no_v2: [
