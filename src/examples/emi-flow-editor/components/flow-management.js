@@ -51,7 +51,7 @@ class FlowManagement extends React.Component {
   };
 
   _openFlow = (flowName, openFlow) =>
-    openFlow().catch(err =>
+    openFlow(flowName).catch(err =>
       this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
     );
 

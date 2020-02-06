@@ -81,7 +81,7 @@ const getFlowManagementHandlers = app => {
 
     return this._flowExists(newFlowName).then(exists => {
       if (exists) {
-        throw new Error({ message: 'Flow already exists' });
+        throw 'Flow already exists';
       } else {
         if (!flowName) {
           return this.saveFlow({ newFlowName });
