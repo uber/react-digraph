@@ -1,4 +1,4 @@
-import { BUCKET } from '../cognito';
+import { STG_BUCKET, PROD_BUCKET } from '../cognito';
 
 const getFlowManagementHandlers = app => {
   app.getFlows = function() {
@@ -34,14 +34,21 @@ const getFlowManagementHandlers = app => {
     );
   }.bind(app);
 
-  app.cloneFlow = function() {
-    this.saveFlow(`${this.state.flowName.slice(0, -5)}-copy.json`);
+  app.shipFlow = function() {
+    app.saveFlow({ bucket: PROD_BUCKET });
   }.bind(app);
 
-  app.saveFlow = function(newFlowName) {
+  app.cloneFlow = function() {
+    const newFlowName = `${this.state.flowName.slice(0, -5)}-copy.json`;
+
+    this.saveFlow({ newFlowName });
+  }.bind(app);
+
+  app.saveFlow = function({ newFlowName, bucket } = {}) {
     const { jsonText, s3 } = this.state;
     const flowName = newFlowName || this.state.flowName;
     const params = {
+      Bucket: bucket || STG_BUCKET,
       Key: flowName,
       Body: jsonText,
     };
@@ -86,15 +93,15 @@ const getFlowManagementHandlers = app => {
         return;
       } else {
         if (!flowName) {
-          this.saveFlow(newFlowName);
+          this.saveFlow({ newFlowName });
 
           return;
         }
         // Copy the object to a new location
 
         s3.copyObject({
-          Bucket: BUCKET,
-          CopySource: encodeURIComponent(`/${BUCKET}/${flowName}`),
+          Bucket: STG_BUCKET,
+          CopySource: encodeURIComponent(`/${STG_BUCKET}/${flowName}`),
           Key: encodeURIComponent(newFlowName),
         })
           .promise()
