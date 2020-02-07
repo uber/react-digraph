@@ -56,6 +56,14 @@ const getFlowManagementHandlers = app => {
     }
   }.bind(app);
 
+  app.getJsonText = function() {
+    return this.state.jsonText;
+  }.bind(app);
+
+  app.getProdJsonText = function() {
+    return this.state.prodJsonText;
+  }.bind(app);
+
   app.openFlow = function(env, flowName) {
     return this.getFlow(env, flowName).then(flow =>
       this._setFlow(flowName, flow, env === STG)
@@ -79,6 +87,7 @@ const getFlowManagementHandlers = app => {
       Bucket: ENV_BUCKETS[env],
       Key: flowName,
       Body: jsonText,
+      ContentType: 'application/json;charset=utf-8',
     };
     const options = {};
 
