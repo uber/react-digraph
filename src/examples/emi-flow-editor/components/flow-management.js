@@ -32,6 +32,10 @@ class FlowManagement extends React.Component {
     }
   }
 
+  unsavedChanges = () => this.props.initialJsonText != this.props.jsonText;
+
+  unshippedChanges = () => this.props.jsonText != this.props.prodJsonText;
+
   safeExecute = (
     f,
     mustConfirm,
@@ -72,14 +76,14 @@ class FlowManagement extends React.Component {
   safeOpen = (flowName, openFlow) =>
     this.safeExecute(
       () => this._openFlow(flowName, openFlow),
-      this.props.unsavedChanges
+      this.unsavedChanges()
     );
 
   safeNew = newFlow => {
     this.safeExecute(() => {
       newFlow();
       this.setState({ s3stored: false, prodFlow: false });
-    }, this.props.unsavedChanges);
+    }, this.unsavedChanges());
   };
 
   safeDelete = deleteFlow =>
@@ -99,7 +103,7 @@ class FlowManagement extends React.Component {
     this.safeExecute(() => {
       cloneFlow();
       this.setState({ s3stored: true, prodFlow: false });
-    }, this.props.unsavedChanges);
+    }, this.unsavedChanges());
 
   _shipFlow = shipFlow =>
     shipFlow()
@@ -175,12 +179,12 @@ class FlowManagement extends React.Component {
   };
 
   getDisplayName = () => {
-    const { flowName, unsavedChanges } = this.props;
+    const { flowName } = this.props;
     const { legacy, prodFlow } = this.state;
 
     return `${flowName ? flowName : 'unnamed'}${
       legacy ? '(legacy,readonly)' : ''
-    }${prodFlow ? '(prod,readonly)' : ''}${unsavedChanges ? '*' : ''}`;
+    }${prodFlow ? '(prod,readonly)' : ''}${this.unsavedChanges() ? '*' : ''}`;
   };
 
   handleKeyDown = e => {
@@ -205,9 +209,14 @@ class FlowManagement extends React.Component {
   };
 
   _rename = flowName =>
-    this.props.flowManagementHandlers.renameFlow(flowName).catch(err => {
-      this.alert.error(`Flow renaming failed: ${JSON.stringify(err, null, 4)}`);
-    });
+    this.props.flowManagementHandlers
+      .renameFlow(flowName)
+      .catch(err =>
+        this.alert.error(
+          `Flow renaming failed: ${JSON.stringify(err, null, 4)}`
+        )
+      )
+      .then(this.setState({ s3stored: true }));
 
   rename = () => {
     this.setState({ renaming: false });
@@ -229,9 +238,9 @@ class FlowManagement extends React.Component {
 
   saveEnabled = () => {
     const { legacy, prodFlow } = this.state;
-    const { unsavedChanges, flowName } = this.props;
+    const { flowName } = this.props;
 
-    return unsavedChanges && flowName && !legacy && !prodFlow;
+    return this.unsavedChanges() && flowName && !legacy && !prodFlow;
   };
 
   saveClasses = () =>
@@ -265,10 +274,13 @@ class FlowManagement extends React.Component {
 
   shipEnabled = () => {
     const { s3stored, legacy, prodFlow } = this.state;
-    const { unsavedChanges, unshippedChanges } = this.props;
 
     return (
-      s3stored && !legacy && !unsavedChanges && !prodFlow && unshippedChanges
+      s3stored &&
+      !legacy &&
+      !this.unsavedChanges() &&
+      !prodFlow &&
+      this.unshippedChanges()
     );
   };
 
@@ -290,7 +302,7 @@ class FlowManagement extends React.Component {
       newFlowName,
       env,
     } = this.state;
-    const { flowManagementHandlers, s3Available, unsavedChanges } = this.props;
+    const { flowManagementHandlers, s3Available } = this.props;
     const {
       openFlow,
       saveFlow,
@@ -462,7 +474,9 @@ class FlowManagement extends React.Component {
               }}
               autoFocus
             />
-            <h2 style={{ flex: 1 }}>{`.json${unsavedChanges ? '*' : ''}`}</h2>
+            <h2 style={{ flex: 1 }}>{`.json${
+              this.unsavedChanges() ? '*' : ''
+            }`}</h2>
           </div>
         )}
       </div>

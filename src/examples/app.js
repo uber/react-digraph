@@ -52,6 +52,7 @@ const ALERT_OPTIONS = {
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.flowManagementHandlers = getFlowManagementHandlers(this);
     this.state = {
       s3: null,
       initialJsonText: '{}',
@@ -66,24 +67,30 @@ class App extends React.Component {
     });
   };
 
-  unsavedChanges = () => this.state.initialJsonText != this.state.jsonText;
-
-  unshippedChanges = () => this.state.jsonText != this.state.prodJsonText;
-
-  setFlow = (flowName, jsonText, prodJsonText) =>
+  setFlow = (flowName, jsonText, prodJsonText) => {
+    // obscure magic that alternates between null and undefined for
+    // new flows, so the emifloweditor can detect that it changed.
+    flowName = flowName || flowName === null ? undefined : null;
     this.setState({
       flowName,
       initialJsonText: jsonText,
       jsonText,
       prodJsonText,
     });
+  };
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
   handleFlowNameChange = flowName => this.setState({ flowName });
 
   render() {
-    const { initialJsonText, flowName, s3 } = this.state;
+    const {
+      initialJsonText,
+      flowName,
+      s3,
+      jsonText,
+      prodJsonText,
+    } = this.state;
 
     return (
       <Router>
@@ -112,9 +119,10 @@ class App extends React.Component {
                 }}
                 s3Available={s3}
                 flowName={flowName}
-                flowManagementHandlers={getFlowManagementHandlers(this)}
-                unsavedChanges={this.unsavedChanges()}
-                unshippedChanges={this.unshippedChanges()}
+                flowManagementHandlers={this.flowManagementHandlers}
+                jsonText={jsonText}
+                prodJsonText={prodJsonText}
+                initialJsonText={initialJsonText}
                 onFlowNameChanged={this.handleFlowNameChange}
               />
               {!s3 && (
