@@ -70,7 +70,7 @@ class App extends React.Component {
   setFlow = (flowName, jsonText, prodJsonText) => {
     // obscure magic that alternates between null and undefined for
     // new flows, so the emifloweditor can detect that it changed.
-    flowName = flowName || flowName === null ? undefined : null;
+    flowName = flowName || (flowName === null ? undefined : null);
     this.setState({
       flowName,
       initialJsonText: jsonText,

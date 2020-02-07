@@ -33,6 +33,7 @@
     "classnames": "^2.2.6",
     "d3": "^5.7.0",
     "dagre": "^0.8.2",
+    "debounce": "^1.2.0",
     "fast-deep-equal": "^2.0.1",
     "fast-diff": "^1.2.0",
     "html-react-parser": "^0.6.1",
