@@ -61,15 +61,19 @@ class FlowManagement extends React.Component {
   };
 
   _openFlow = (flowName, openFlow) =>
-    openFlow(this.state.env, flowName).catch(err =>
-      this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
-    );
+    openFlow(this.state.env, flowName)
+      .then(() =>
+        this.setState({ s3stored: true, prodFlow: this.state.env === PROD })
+      )
+      .catch(err =>
+        this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
+      );
 
   safeOpen = (flowName, openFlow) =>
-    this.safeExecute(() => {
-      this._openFlow(flowName, openFlow);
-      this.setState({ s3stored: true, prodFlow: this.state.env === PROD });
-    }, this.props.unsavedChanges);
+    this.safeExecute(
+      () => this._openFlow(flowName, openFlow),
+      this.props.unsavedChanges
+    );
 
   safeNew = newFlow => {
     this.safeExecute(() => {
