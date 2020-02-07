@@ -68,8 +68,15 @@ class App extends React.Component {
 
   unsavedChanges = () => this.state.initialJsonText != this.state.jsonText;
 
-  setFlow = (flowName, jsonText) =>
-    this.setState({ flowName, initialJsonText: jsonText, jsonText: jsonText });
+  unshippedChanges = () => this.state.jsonText != this.state.prodJsonText;
+
+  setFlow = (flowName, jsonText, prodJsonText) =>
+    this.setState({
+      flowName,
+      initialJsonText: jsonText,
+      jsonText,
+      prodJsonText,
+    });
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
@@ -107,6 +114,7 @@ class App extends React.Component {
                 flowName={flowName}
                 flowManagementHandlers={getFlowManagementHandlers(this)}
                 unsavedChanges={this.unsavedChanges()}
+                unshippedChanges={this.unshippedChanges()}
                 onFlowNameChanged={this.handleFlowNameChange}
               />
               {!s3 && (

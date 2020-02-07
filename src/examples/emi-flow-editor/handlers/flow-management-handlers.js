@@ -33,15 +33,37 @@ const getFlowManagementHandlers = app => {
     this.setFlow(null, '{}');
   }.bind(app);
 
-  app.openFlow = function(env, flowName) {
+  app.getFlow = function(env, flowName) {
     return this.state.s3
       .getObject({ Bucket: ENV_BUCKETS[env], Key: flowName })
       .promise()
-      .then(data => this.setFlow(flowName, data.Body.toString()));
+      .then(data => data.Body.toString());
+  }.bind(app);
+
+  app._getProdFlow = function(flowName) {
+    return this._flowExists(flowName, PROD).then(
+      exists => exists && this.getFlow(PROD, flowName)
+    );
+  }.bind(app);
+
+  app._setFlow = function(flowName, flow, fetchProdFlow = true) {
+    if (!fetchProdFlow) {
+      this.setFlow(flowName, flow);
+    } else {
+      this._getProdFlow(flowName).then(prodFlow =>
+        this.setFlow(flowName, flow, prodFlow)
+      );
+    }
+  }.bind(app);
+
+  app.openFlow = function(env, flowName) {
+    return this.getFlow(env, flowName).then(flow =>
+      this._setFlow(flowName, flow, env === STG)
+    );
   }.bind(app);
 
   app.shipFlow = function() {
-    return app.saveFlow({ bucket: PROD_BUCKET });
+    return app.saveFlow({ env: PROD });
   }.bind(app);
 
   app.cloneFlow = function() {
@@ -50,11 +72,11 @@ const getFlowManagementHandlers = app => {
     return this.saveFlow({ newFlowName });
   }.bind(app);
 
-  app.saveFlow = function({ newFlowName, bucket } = {}) {
+  app.saveFlow = function({ newFlowName, env = STG } = {}) {
     const { jsonText, s3 } = this.state;
     const flowName = newFlowName || this.state.flowName;
     const params = {
-      Bucket: bucket || STG_BUCKET,
+      Bucket: ENV_BUCKETS[env],
       Key: flowName,
       Body: jsonText,
     };
@@ -63,11 +85,11 @@ const getFlowManagementHandlers = app => {
     return s3
       .upload(params, options)
       .promise()
-      .then(() => this.setFlow(flowName, jsonText));
+      .then(() => this._setFlow(flowName, jsonText));
   }.bind(app);
 
-  app._flowExists = function(flowName) {
-    const params = { Key: flowName };
+  app._flowExists = function(flowName, env = STG) {
+    const params = { Bucket: ENV_BUCKETS[env], Key: flowName };
 
     return this.state.s3
       .headObject(params)
@@ -115,7 +137,7 @@ const getFlowManagementHandlers = app => {
                 Key: flowName,
               })
               .promise()
-              .then(() => this.setFlow(newFlowName, jsonText))
+              .then(() => this._setFlow(newFlowName, jsonText))
           );
       }
     });
