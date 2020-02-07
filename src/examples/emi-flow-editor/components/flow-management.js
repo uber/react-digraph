@@ -72,14 +72,21 @@ class FlowManagement extends React.Component {
     }
   };
 
-  _openFlow = (flowName, openFlow) =>
+  _openFlow = (flowName, openFlow) => {
+    this.setState({ opening: true, showOpenSelectors: false });
     openFlow(this.state.env, flowName)
       .then(() =>
-        this.setState({ s3stored: true, prodFlow: this.state.env === PROD })
+        this.setState({
+          opening: false,
+          s3stored: true,
+          prodFlow: this.state.env === PROD,
+        })
       )
-      .catch(err =>
-        this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`)
-      );
+      .catch(err => {
+        this.setState({ opening: false });
+        this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`);
+      });
+  };
 
   safeOpen = (flowName, openFlow) =>
     this.safeExecute(
@@ -323,6 +330,7 @@ class FlowManagement extends React.Component {
       newFlowName,
       env,
       saving,
+      opening,
     } = this.state;
     const { flowManagementHandlers, s3Available } = this.props;
     const {
@@ -378,7 +386,16 @@ class FlowManagement extends React.Component {
                 c-0.383,4.385-3.99,7.692-8.393,7.692H21.4c-4.301,0-7.9-3.224-8.374-7.497L0.053,87.698c-0.267-2.413,0.478-4.737,2.097-6.546
                 C3.77,79.342,5.999,78.346,8.427,78.346z M214.513,63.346V44.811c0-4.143-2.524-7.465-6.667-7.465h-83.333v-2.341
                 c0-12.219-8.176-21.659-19.25-21.659H30.43c-11.074,0-20.917,9.44-20.917,21.659v24.951c0,1.231,0.68,2.379,1.267,3.39H214.513z"
-              />
+              >
+                {opening && (
+                  <animate
+                    attributeName="fill"
+                    values="gray;violetblue;aqua;gray"
+                    dur="0.8s"
+                    repeatCount="indefinite"
+                  />
+                )}
+              </path>
             </svg>
             {showOpenSelectors && (
               <div style={{ display: 'flex' }}>
