@@ -41,8 +41,8 @@ const getFlowManagementHandlers = app => {
   }.bind(app);
 
   app._getProdFlow = function(flowName) {
-    return this._flowExists(flowName, PROD).then(
-      exists => exists && this.getFlow(PROD, flowName)
+    return this._flowExists(flowName, PROD).then(exists =>
+      exists ? this.getFlow(PROD, flowName) : ''
     );
   }.bind(app);
 
