@@ -86,5 +86,5 @@ export type IGraphViewProps = {
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
-  initialBBox: IBBox,
+  initialBBox?: IBBox,
 };
