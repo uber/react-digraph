@@ -160,7 +160,7 @@ declare module 'react-digraph' {
     ) => any;
     rotateEdgeHandle?: boolean;
     centerNodeOnMove?: boolean;
-    initialBBox: IBBox;
+    initialBBox?: IBBox;
   };
 
   export type IGraphInput = {
