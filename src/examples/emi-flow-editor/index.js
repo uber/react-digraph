@@ -110,7 +110,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   componentDidUpdate(prevProps) {
-    if (prevProps.flowName !== this.props.flowName) {
+    const { flowName, flowVersionId, env } = this.props;
+
+    const flowFileChanged =
+      prevProps.flowName !== flowName ||
+      prevProps.flowVersionId !== flowVersionId ||
+      prevProps.env !== env;
+
+    if (flowFileChanged) {
       this.setState(this.getInitialState());
       setTimeout(() => this.GraphView.handleZoomToFit(), 100);
     }

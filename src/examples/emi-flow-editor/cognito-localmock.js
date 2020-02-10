@@ -470,6 +470,17 @@ const s3Mock = {
         { Key: 'flow3.py' },
       ],
     }),
+  listObjectVersions: () => ({
+    promise: () =>
+      new Promise(resolve =>
+        resolve({
+          Versions: [
+            { VersionId: 1, LastModified: new Date() },
+            { VersionId: 2, LastModified: new Date() },
+          ],
+        })
+      ),
+  }),
   getObject: () => ({
     promise: () =>
       new Promise(resolve =>

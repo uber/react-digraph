@@ -58,6 +58,8 @@ class App extends React.Component {
       initialJsonText: '{}',
       jsonText: '{}',
       flowName: null,
+      env: null,
+      flowVersionId: null,
     };
   }
 
@@ -67,15 +69,18 @@ class App extends React.Component {
     });
   };
 
-  setFlow = (flowName, jsonText, prodJsonText) => {
+  setFlow = (flowName, jsonText, prodJsonText, env, flowVersionId) => {
     // obscure magic that alternates between null and undefined for
     // new flows, so the emifloweditor can detect that it changed.
     flowName = flowName || (flowName === null ? undefined : null);
+
     this.setState({
       flowName,
       initialJsonText: jsonText,
       jsonText,
       prodJsonText,
+      env,
+      flowVersionId,
     });
   };
 
@@ -90,6 +95,8 @@ class App extends React.Component {
       s3,
       jsonText,
       prodJsonText,
+      env,
+      flowVersionId,
     } = this.state;
 
     return (
@@ -124,6 +131,7 @@ class App extends React.Component {
                 prodJsonText={prodJsonText}
                 initialJsonText={initialJsonText}
                 onFlowNameChanged={this.handleFlowNameChange}
+                flowVersionId={flowVersionId}
               />
               {!s3 && (
                 <GoogleLogin
@@ -188,6 +196,8 @@ class App extends React.Component {
                   flowName={flowName}
                   initialJsonText={initialJsonText}
                   onJsonTextChange={this.handleJsonTextChange}
+                  env={env}
+                  flowVersionId={flowVersionId}
                 />
               )}
             />

@@ -19,6 +19,23 @@ const getSimpleItem = function(name) {
   return { value: name, label: name };
 };
 
+const getItem = function(value, label) {
+  return { value: value, label: label };
+};
+
+const formatDate = d =>
+  d.getUTCFullYear() +
+  '/' +
+  ('0' + (d.getUTCMonth() + 1)).slice(-2) +
+  '/' +
+  ('0' + d.getUTCDate()).slice(-2) +
+  ' ' +
+  ('0' + d.getUTCHours()).slice(-2) +
+  ':' +
+  ('0' + d.getUTCMinutes()).slice(-2) +
+  ':' +
+  ('0' + d.getUTCSeconds()).slice(-2);
+
 const Input = ({
   value,
   onChange,
@@ -213,6 +230,8 @@ export {
   Button,
   selectTheme,
   getSimpleItem,
+  getItem,
+  formatDate,
   Input,
   Item,
   StagingItemHOC,

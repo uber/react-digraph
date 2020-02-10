@@ -33,9 +33,21 @@ const getFlowManagementHandlers = app => {
     this.setFlow(null, '{}');
   }.bind(app);
 
-  app.getFlow = function(env, flowName) {
+  app.getVersions = function(env = STG) {
+    const params = {
+      Bucket: ENV_BUCKETS[env],
+      Prefix: this.state.flowName,
+    };
+
     return this.state.s3
-      .getObject({ Bucket: ENV_BUCKETS[env], Key: flowName })
+      .listObjectVersions(params)
+      .promise()
+      .then(data => data.Versions);
+  }.bind(app);
+
+  app.getFlow = function(env, flowName, VersionId) {
+    return this.state.s3
+      .getObject({ Bucket: ENV_BUCKETS[env], Key: flowName, VersionId })
       .promise()
       .then(data => data.Body.toString());
   }.bind(app);
@@ -46,12 +58,14 @@ const getFlowManagementHandlers = app => {
     );
   }.bind(app);
 
-  app._setFlow = function(flowName, flow, fetchProdFlow = true) {
+  app._setFlow = function(flowName, flow, env = STG, versionId) {
+    const fetchProdFlow = env === STG && !versionId;
+
     if (!fetchProdFlow) {
-      this.setFlow(flowName, flow);
+      this.setFlow(flowName, flow, null, env, versionId);
     } else {
       this._getProdFlow(flowName).then(prodFlow =>
-        this.setFlow(flowName, flow, prodFlow)
+        this.setFlow(flowName, flow, prodFlow, env, versionId)
       );
     }
   }.bind(app);
@@ -64,9 +78,9 @@ const getFlowManagementHandlers = app => {
     return this.state.prodJsonText;
   }.bind(app);
 
-  app.openFlow = function(env, flowName) {
-    return this.getFlow(env, flowName).then(flow =>
-      this._setFlow(flowName, flow, env === STG)
+  app.openFlow = function(env, flowName, versionId) {
+    return this.getFlow(env, flowName, versionId).then(flow =>
+      this._setFlow(flowName, flow, env, versionId)
     );
   }.bind(app);
 
