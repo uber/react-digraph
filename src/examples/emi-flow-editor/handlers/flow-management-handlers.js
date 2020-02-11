@@ -130,7 +130,8 @@ const getFlowManagementHandlers = app => {
   app.deleteFlow = function() {
     const { s3, flowName } = this.state;
 
-    s3.deleteObject({ Key: flowName })
+    return s3
+      .deleteObject({ Key: flowName })
       .promise()
       .then(() => this.newFlow());
   }.bind(app);

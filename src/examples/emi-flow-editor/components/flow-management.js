@@ -145,10 +145,20 @@ class FlowManagement extends React.Component {
     const { deleteFlow } = this.props.flowManagementHandlers;
 
     this.safeExecute(
-      () => {
-        deleteFlow();
-        this.setState({ s3stored: false, flowEnv: STG, autosaveEnabled: true });
-      },
+      () =>
+        deleteFlow()
+          .then(() =>
+            this.setState({
+              s3stored: false,
+              flowEnv: STG,
+              autosaveEnabled: true,
+            })
+          )
+          .catch(err =>
+            this.alert.error(
+              `Flow deletion failed: ${JSON.stringify(err, null, 4)}`
+            )
+          ),
       true,
       'Delete the flow?',
       'This flow will be deleted remotely from s3 and will be no longer available'
@@ -158,10 +168,24 @@ class FlowManagement extends React.Component {
   safeClone = () => {
     const { cloneFlow } = this.props.flowManagementHandlers;
 
-    this.cloneEnabled();
+    if (!this.cloneEnabled()) {
+      return;
+    }
+
     this.safeExecute(() => {
-      cloneFlow();
-      this.setState({ s3stored: true, flowEnv: STG, autosaveEnabled: true });
+      cloneFlow()
+        .then(
+          this.setState({
+            s3stored: true,
+            flowEnv: STG,
+            autosaveEnabled: true,
+          })
+        )
+        .catch(err =>
+          this.alert.error(
+            `Flow cloning failed: ${JSON.stringify(err, null, 4)}`
+          )
+        );
     }, this.unsavedChanges());
   };
 
