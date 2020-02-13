@@ -68,10 +68,20 @@ const Item = function({
   onChange,
   onRemove,
   value,
+  maxChars,
 }) {
   return (
     <div className="listItem">
-      <Input value={value} onChange={onChange} />
+      <Input
+        value={value}
+        onChange={v => {
+          if (maxChars && v.length > maxChars) {
+            return;
+          }
+
+          onChange(v);
+        }}
+      />
       {decorateHandle(
         <span
           style={{
@@ -96,10 +106,30 @@ const Item = function({
   );
 };
 
-const StagingItem = function({ value, onAdd, canAdd, add, onChange, style }) {
+const ItemHOC = ({ maxChars }) => props => Item({ ...props, maxChars });
+
+const StagingItem = function({
+  value,
+  onAdd,
+  canAdd,
+  add,
+  onChange,
+  style,
+  maxChars,
+}) {
   return (
     <div className="stagingItem" style={style}>
-      <Input className="stagingTextInput" value={value} onChange={onChange} />
+      <Input
+        className="stagingTextInput"
+        value={value}
+        onChange={v => {
+          if (maxChars && v.length > maxChars) {
+            return;
+          }
+
+          onChange(v);
+        }}
+      />
       <span
         onClick={canAdd ? onAdd : undefined}
         style={{
@@ -119,7 +149,8 @@ const StagingItem = function({ value, onAdd, canAdd, add, onChange, style }) {
   );
 };
 
-const StagingItemHOC = style => props => StagingItem({ ...props, style });
+const StagingItemHOC = ({ style, maxChars }) => props =>
+  StagingItem({ ...props, style, maxChars });
 
 const SelectItem = function({
   decorateHandle,
@@ -234,6 +265,7 @@ export {
   formatDate,
   Input,
   Item,
+  ItemHOC,
   StagingItemHOC,
   StagingItem,
   SelectItemHOC,

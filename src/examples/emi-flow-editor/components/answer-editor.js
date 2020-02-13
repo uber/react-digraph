@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import ReactListInput from 'react-list-input';
-import { Item, StagingItem } from './common';
+import { ItemHOC, StagingItemHOC } from './common';
 import AiEditor from './ai-editor';
 import ServerEditor from './server-editor';
 import { CardItem, StagingCardItem } from './cards';
@@ -34,8 +34,8 @@ class AnswerEditor extends React.Component {
               onChange={onChangeQuickReplies}
               maxItems={20}
               minItems={0}
-              ItemComponent={Item}
-              StagingComponent={StagingItem}
+              ItemComponent={ItemHOC({ maxChars: 20 })}
+              StagingComponent={StagingItemHOC({ maxChars: 20 })}
               value={question.quickReplies}
             />
           </label>
