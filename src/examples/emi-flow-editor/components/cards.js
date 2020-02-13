@@ -2,6 +2,7 @@ import * as React from 'react';
 import Select from 'react-select';
 import { Input, getSimpleItem, selectTheme } from './common';
 
+const MAX_CHARS = 20;
 const POSTBACK = 'postback';
 const WEB_URI = 'web_url';
 const cardTypes = [POSTBACK, WEB_URI];
@@ -28,6 +29,10 @@ const CardItem = function({
       <Input
         value={value.title}
         onChange={text => {
+          if (text.length > MAX_CHARS) {
+            return;
+          }
+
           value.title = text;
           onChange(value);
         }}
@@ -98,6 +103,10 @@ const StagingCardItem = function({ value, onAdd, canAdd, add, onChange }) {
         <Input
           value={value.title}
           onChange={text => {
+            if (text.length > MAX_CHARS) {
+              return;
+            }
+
             value.title = text;
             onChange(value);
           }}

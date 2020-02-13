@@ -6,6 +6,8 @@ import AiEditor from './ai-editor';
 import ServerEditor from './server-editor';
 import { CardItem, StagingCardItem } from './cards';
 
+const MAX_CHARS = 20;
+
 class AnswerEditor extends React.Component {
   render() {
     const {
@@ -34,8 +36,8 @@ class AnswerEditor extends React.Component {
               onChange={onChangeQuickReplies}
               maxItems={20}
               minItems={0}
-              ItemComponent={ItemHOC({ maxChars: 20 })}
-              StagingComponent={StagingItemHOC({ maxChars: 20 })}
+              ItemComponent={ItemHOC({ maxChars: MAX_CHARS })}
+              StagingComponent={StagingItemHOC({ maxChars: MAX_CHARS })}
               value={question.quickReplies}
             />
           </label>
