@@ -245,6 +245,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
+    const deleleIndex = selected.title;
+
     this.changeJson(json => {
       if (selected.first) {
         if (this.state.nodes.length > 1) {
@@ -260,7 +262,21 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         delete json['current'];
       }
 
-      delete json[selected.title];
+      const nodeNames = Object.keys(json);
+
+      nodeNames.forEach(name => {
+        const nodeJson = json[name];
+
+        if (!nodeJson || ['name', 'current', 'faqs'].includes(name)) {
+          return;
+        }
+
+        const q = nodeJson.question;
+
+        q.connections = q.connections.filter(c => c.goto !== deleleIndex);
+      });
+
+      delete json[deleleIndex];
     });
   };
 
