@@ -539,6 +539,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.changeJson(json => f(json, index));
   };
 
+  changeSelectedQuestion = f => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.changeJson(json => f(json[index].question));
+  };
+
   getAncestorIndexes = (index, edgeCallback) => {
     const ancestorIndexes = new Set();
 

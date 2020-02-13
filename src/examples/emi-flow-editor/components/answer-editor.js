@@ -15,9 +15,11 @@ class AnswerEditor extends React.Component {
       serverHandlers,
     } = this.props;
     const {
-      onChangeQuestion,
       onChangeQuickReplies,
       onChangeCards,
+      onChangeIsAudio,
+      onChangeExactMatch,
+      onChangeTextArea,
     } = questionHandlers;
     const node = children;
     const question = node.gnode.question;
@@ -64,7 +66,7 @@ class AnswerEditor extends React.Component {
               name="exactMatch"
               type="checkbox"
               checked={question.exactMatch}
-              onChange={e => onChangeQuestion('exactMatch', e.target.checked)}
+              onChange={e => onChangeExactMatch(e.target.checked)}
             />
           </label>
         )}
@@ -74,7 +76,7 @@ class AnswerEditor extends React.Component {
             <TextareaAutosize
               value={question.errorMessageNotMatch}
               onChange={e =>
-                onChangeQuestion('errorMessageNotMatch', e.target.value)
+                onChangeTextArea('errorMessageNotMatch', e.target.value)
               }
             />
           </label>
@@ -85,7 +87,7 @@ class AnswerEditor extends React.Component {
             name="isAudio"
             type="checkbox"
             checked={question.isAudio || false}
-            onChange={e => onChangeQuestion('isAudio', e.target.checked)}
+            onChange={e => onChangeIsAudio(e.target.checked)}
           />
           {question.isAudio && (
             <label style={{ display: 'flex' }}>
@@ -93,7 +95,7 @@ class AnswerEditor extends React.Component {
               <TextareaAutosize
                 value={question.audioErrorMessage}
                 onChange={e =>
-                  onChangeQuestion('audioErrorMessage', e.target.value)
+                  onChangeTextArea('audioErrorMessage', e.target.value)
                 }
               />
             </label>

@@ -51,7 +51,7 @@ class NodeEditor extends React.Component {
     const {
       onChangeImmediateNext,
       onMakeFirst,
-      onChangeQuestion,
+      onChangeTextArea,
     } = questionHandlers;
     const { newIndex } = this.state;
 
@@ -111,7 +111,7 @@ class NodeEditor extends React.Component {
             Text:
             <TextareaAutosize
               value={question.text}
-              onChange={e => onChangeQuestion('text', e.target.value)}
+              onChange={e => onChangeTextArea('text', e.target.value)}
             />
           </label>
           <label>
