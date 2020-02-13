@@ -123,7 +123,7 @@ class FlowManagement extends React.Component {
     this.safeExecute(
       () =>
         this._openFlow(flowName).then(() =>
-          this.setState({ autosaveEnabled: false })
+          this.setState({ autosaveEnabled: true })
         ),
       this.unsavedChanges()
     );
