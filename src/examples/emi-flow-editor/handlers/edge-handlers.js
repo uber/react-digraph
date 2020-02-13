@@ -104,7 +104,10 @@ const getEdgeHandlers = bwdlEditable => {
     const vars = new Set();
 
     this.getAncestorIndexes(this.state.selected.source, edge => {
-      Object.keys(edge.conns[0].setContext).forEach(vars.add, vars);
+      edge.conns
+        .map(c => Object.keys(c.setContext))
+        .flat()
+        .forEach(vars.add, vars);
     });
 
     return Array.from(vars);
