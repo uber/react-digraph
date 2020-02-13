@@ -1,10 +1,43 @@
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
+import debounce from 'debounce';
+
 import MultiEdgeEditor from './multi-edge-editor';
 import AnswerEditor from './answer-editor';
 import FaqEditor from './faq-editor';
 
 class NodeEditor extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { newIndex: '' };
+    const { onChangeIndex } = this.props.questionHandlers;
+
+    this.onChangeIndex = debounce(onChangeIndex, 200);
+  }
+
+  getIndex = props => {
+    const { children } = props;
+
+    return children && children.gnode && children.gnode.question.index;
+  };
+
+  componentDidUpdate(prevProps) {
+    const index = this.getIndex(this.props);
+    const prevIndex = this.getIndex(prevProps);
+
+    if (index && index !== prevIndex) {
+      this.setState({ newIndex: index });
+    }
+  }
+
+  onChangeNewIndex = newIndex => {
+    this.setState({ newIndex });
+    this.onChangeIndex(newIndex);
+  };
+
+  rollbackNewIndex = newIndex => this.setState({ newIndex });
+
   render() {
     const {
       children,
@@ -16,11 +49,11 @@ class NodeEditor extends React.Component {
       faqHandlers,
     } = this.props;
     const {
-      onChangeIndex,
       onChangeImmediateNext,
       onMakeFirst,
       onChangeQuestion,
     } = questionHandlers;
+    const { newIndex } = this.state;
 
     if (!children && !faqMode) {
       return (
@@ -69,8 +102,9 @@ class NodeEditor extends React.Component {
             <input
               type="text"
               name="index"
-              value={question.index}
-              onChange={onChangeIndex}
+              value={newIndex}
+              onChange={e => this.onChangeNewIndex(e.target.value)}
+              onBlur={() => this.rollbackNewIndex(question.index)}
             />
           </label>
           <label>

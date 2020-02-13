@@ -21,6 +21,7 @@ import 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/json';
 import 'brace/theme/monokai';
+import { withAlert } from 'react-alert';
 import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
 import { type INode } from '../../components/node';
@@ -87,6 +88,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.state = this.getInitialState();
 
     this.sidebarRef = React.createRef();
+    this.alert = this.props.alert;
     setTimeout(() => (this.sidebarRef.current.style.width = '20vw'), 100);
   }
 
@@ -246,7 +248,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.changeJson(json => {
       if (selected.first) {
         if (this.state.nodes.length > 1) {
-          // cannot delete first node without picking a new first one
+          this.alert.error(
+            `Cannot delete first node.
+            Please pick a different node to be the first one,
+            and then delete this node`
+          );
+
           return;
         }
 
@@ -351,7 +358,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
-  updateState = (json, text, selected) => {
+  updatedState = (json, text, selected) => {
     const transformed = FlowV1Transformer.transform(json);
     const newState = {
       bwdlJson: json,
@@ -371,15 +378,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   updatedStateFromJson = (json, selected) =>
-    this.updateState(json, this.stringify(json), selected);
+    this.updatedState(json, this.stringify(json), selected);
 
   updatedStateFromText = (text, selected) => {
     try {
-      this.setState({ bwdlText: text });
-
-      return this.updateState(JSON.parse(text), text, selected);
+      return this.updatedState(JSON.parse(text), text, selected);
     } catch (e) {
-      return;
+      // on json parse error, still update the text, and only the text
+      this.setState({ bwdlText: text });
     }
   };
 
@@ -517,9 +523,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         ...prevState.bwdlJson,
       };
 
-      const selected = f(json, prevState);
+      try {
+        const selected = f(json, prevState);
 
-      return this.updatedStateFromJson(json, selected);
+        return this.updatedStateFromJson(json, selected);
+      } catch (e) {
+        this.alert.error(e.message);
+      }
     });
   };
 
@@ -683,4 +693,4 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 }
 
-export default BwdlEditable;
+export default withAlert()(BwdlEditable);

@@ -1,12 +1,18 @@
 const getQuestionHandlers = bwdlEditable => {
-  bwdlEditable.onChangeIndex = function(e) {
-    const newIndex = e.target.value;
-
+  bwdlEditable.onChangeIndex = function(newIndex) {
     const alreadyExists = this.state.nodes.find(
       node => node.gnode.question.index === newIndex
     );
 
-    if (alreadyExists || ['name', 'current', 'faqs'].includes(newIndex)) {
+    if (alreadyExists) {
+      this.alert.error(
+        `Cannot rename node: There's another node with '${newIndex}' index`
+      );
+
+      return;
+    } else if (['name', 'current', 'faqs'].includes(newIndex)) {
+      this.alert.error(`Cannot rename node: '${newIndex}' is a reserved name`);
+
       return;
     }
 
