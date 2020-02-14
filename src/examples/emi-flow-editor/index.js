@@ -103,7 +103,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       bwdlText: jsonText,
       copiedNode: null,
       edges: transformed.edges,
-      layoutEngineType: 'VerticalTree',
+      layoutEngineType: 'None',
       nodes: transformed.nodes,
       selected: null,
       locked: true,
@@ -111,7 +111,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     };
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { flowName, flowVersionId, env } = this.props;
 
     const flowFileChanged =
@@ -122,6 +122,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     if (flowFileChanged) {
       this.setState(this.getInitialState());
       setTimeout(() => this.GraphView.handleZoomToFit(), 100);
+    }
+
+    if (this.state.layoutEngineType !== prevState.layoutEngineType) {
+      this.updateAllNodesPosition();
     }
   }
 
@@ -240,8 +244,24 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       }
     });
   };
+
+  updateNodePositionOnJson = (json, node) => {
+    const index = node.title;
+
+    json[index].x = node.x;
+    json[index].y = node.y;
+  };
+
   onUpdateNode = (node: INode) => {
-    return;
+    this.changeJson(json => this.updateNodePositionOnJson(json, node));
+  };
+
+  updateAllNodesPosition = () => {
+    this.changeJson(json =>
+      this.state.nodes.forEach(node =>
+        this.updateNodePositionOnJson(json, node)
+      )
+    );
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
