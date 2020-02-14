@@ -537,10 +537,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       selected,
       onUndo,
       onRedo,
-      onCopySelected,
+      onCopySelectedNode,
+      onCopySelectedEdge,
       onPasteSelected,
     } = this.props;
-    const { focused, selectedNodeObj } = this.state;
+    const { focused, selectedNodeObj, selectedEdgeObj } = this.state;
 
     // Conditionally ignore keypress events on the window
     if (!focused) {
@@ -568,19 +569,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         break;
       case 'c':
-        if (
-          (d.metaKey || d.ctrlKey) &&
-          selectedNodeObj.node &&
-          onCopySelected
-        ) {
-          onCopySelected();
+        if (d.metaKey || d.ctrlKey) {
+          if (selectedNodeObj.node && onCopySelectedNode) {
+            onCopySelectedNode();
+          } else if (selectedEdgeObj.edge && onCopySelectedEdge) {
+            onCopySelectedEdge();
+          }
         }
 
         break;
       case 'v':
         if (
           (d.metaKey || d.ctrlKey) &&
-          selectedNodeObj.node &&
+          (selectedNodeObj.node || selectedEdgeObj.edge) &&
           onPasteSelected
         ) {
           onPasteSelected();

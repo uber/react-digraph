@@ -1,6 +1,14 @@
 import { intentsByQuestionStr } from '../empathy';
 
 const getEdgeHandlers = bwdlEditable => {
+  bwdlEditable.getFilterItems = function(filters) {
+    return Object.keys(filters).map(key => ({
+      key: key.substr(0, key.lastIndexOf('_')),
+      op: key.substr(key.lastIndexOf('_') + 1),
+      value: filters[key],
+    }));
+  }.bind(bwdlEditable);
+
   bwdlEditable.setSelectedConnIndex = function(connIndex) {
     this._changeSelectedConn((conn, nodeConns, edgeConns) => {
       conn.isSelected = false;
@@ -100,17 +108,8 @@ const getEdgeHandlers = bwdlEditable => {
     return intentsByQuestionStr[ai.question_str] || [];
   }.bind(bwdlEditable);
 
-  bwdlEditable.getPrevContextVars = function() {
-    const vars = new Set();
-
-    this.getAncestorIndexes(this.state.selected.source, edge => {
-      edge.conns
-        .map(c => Object.keys(c.setContext))
-        .flat()
-        .forEach(vars.add, vars);
-    });
-
-    return Array.from(vars);
+  bwdlEditable.getSelectedNodePrevContextVars = function() {
+    return this.getPrevContextVars(this.state.selected.source);
   }.bind(bwdlEditable);
 
   return bwdlEditable;
