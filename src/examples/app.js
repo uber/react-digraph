@@ -34,6 +34,7 @@ import GraphFast from './fast';
 
 import './app.scss';
 import { GoogleLogin } from 'react-google-login';
+
 import { connect, GOOGLE_CLIENT_ID } from './emi-flow-editor/cognito';
 
 // import S3Context from './emi-flow-editor/s3-context';
@@ -61,7 +62,15 @@ class App extends React.Component {
       env: null,
       flowVersionId: null,
     };
+    this.disableBackButton();
   }
+
+  disableBackButton = () => {
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', () =>
+      history.pushState(null, null, document.URL)
+    );
+  };
 
   onGoogleResponse = response => {
     connect(response).then(s3 => {
