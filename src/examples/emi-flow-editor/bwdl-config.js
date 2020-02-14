@@ -35,58 +35,12 @@ export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
 
-export const nodeTypes = [
-  EMPTY_TYPE,
-  CHOICE_TYPE,
-  TASK_TYPE,
-  PASS_TYPE,
-  WAIT_TYPE,
-  TERMINATOR_TYPE,
-];
+export const nodeTypes = [CHOICE_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
-const EmptyShape = (
-  <symbol viewBox="0 0 100 100" id="empty" width="100" height="100">
-    <circle cx="50" cy="50" r="45" />
-  </symbol>
-);
-
 const ChoiceShape = (
-  // <symbol viewBox="0 0 100 100" id="choice" width="100" height="100">
-  // <rect transform="translate(50, 5) rotate(45)" width="65" height="65" />
-  // </symbol>
   <symbol viewBox="0 0 100 100" id="choice" width="100" height="100">
     <rect width="100" height="100" rx="20" />
-  </symbol>
-);
-
-const TaskShape = (
-  <symbol viewBox="0 0 100 100" id="task" width="100" height="100">
-    <polygon points="50,5 20,98 95,37 5,37 80,98" />
-  </symbol>
-);
-
-const PassShape = (
-  <symbol viewBox="0 0 100 100" id="pass" width="100" height="100">
-    <rect transform="translate(7.5, 10)" width="85" height="85" />
-  </symbol>
-);
-
-const WaitShape = (
-  <symbol viewBox="0 0 100 100" id="wait" width="100" height="100">
-    <circle cx="50" cy="50" r="45" transform="translate(0, 2)" />
-  </symbol>
-);
-
-const TerminatorShape = (
-  <symbol viewBox="0 0 100 100" id="terminator" width="100" height="100">
-    <rect
-      width="80"
-      height="80"
-      rx="15"
-      ry="15"
-      transform="translate(10, 10)"
-    />
   </symbol>
 );
 
@@ -137,31 +91,6 @@ export default {
       shape: ChoiceShape,
       shapeId: '#choice',
       typeText: 'Choice',
-    },
-    emptyNode: {
-      shape: EmptyShape,
-      shapeId: '#empty',
-      typeText: 'None',
-    },
-    Pass: {
-      shape: PassShape,
-      shapeId: '#pass',
-      typeText: 'Pass',
-    },
-    Task: {
-      shape: TaskShape,
-      shapeId: '#task',
-      typeText: 'Task',
-    },
-    Terminator: {
-      shape: TerminatorShape,
-      shapeId: '#terminator',
-      typeText: 'Terminator',
-    },
-    Wait: {
-      shape: WaitShape,
-      shapeId: '#wait',
-      typeText: 'Wait',
     },
   },
 };
