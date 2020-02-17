@@ -713,7 +713,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.renderConnectedEdgesFromNode(nodeMapNode, true);
       this.asyncRenderNode(node);
     } else if (
-      (canCreateEdge && canCreateEdge(nodeId)) ||
+      (canCreateEdge && canCreateEdge(node)) ||
       this.state.draggingEdge
     ) {
       // render new edge
