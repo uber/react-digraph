@@ -149,24 +149,25 @@ const empathyDefaults = {
 
 const intentsByQuestionStr = {
   birthdate: ['success', 'skip'],
-  phone: ['success', 'dontHave'],
-  email: ['success', 'dontHave'],
-  first_name: ['success', 'dontHave'],
-  last_name: ['success', 'dontHave'],
   dates: ['success'],
   duration: ['didNotWork', 'success'],
+  email: ['success', 'dontHave'],
+  first_name: ['success', 'dontHave'],
   generic_yes_no_v2: [
     'generic_yes_no_n',
     'generic_yes_no_maybe',
     'generic_yes_no_y',
   ],
+  geocoder: ['success'],
   interest_v2: [
     'interest-another-time',
     'interest-ask-address',
     'interest-yes',
     'interest-no',
   ],
+  last_name: ['success', 'dontHave'],
   nickname: ['success'],
+  phone: ['success', 'dontHave'],
   prepa: [
     'prepa-trunca',
     'prepa-en-curso',
