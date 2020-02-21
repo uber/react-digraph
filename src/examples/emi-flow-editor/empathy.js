@@ -68,6 +68,11 @@ const empathyDefaults = {
   dates: {
     lang: 'ES',
     country: 'AR',
+    prediction_data: {
+      intent_responses: {
+        skip: 'No responder',
+      },
+    },
   },
   prepa: {
     lang: 'ES',
@@ -153,7 +158,7 @@ const intentsByQuestionStr = {
   email: ['success', 'dontHave'],
   first_name: ['success', 'dontHave'],
   last_name: ['success', 'dontHave'],
-  dates: ['success'],
+  dates: ['success', 'skip'],
   duration: ['didNotWork', 'success'],
   generic_yes_no_v2: [
     'generic_yes_no_n',
