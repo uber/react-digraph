@@ -19,6 +19,23 @@ const getSimpleItem = function(name) {
   return { value: name, label: name };
 };
 
+const getItem = function(value, label) {
+  return { value: value, label: label };
+};
+
+const formatDate = d =>
+  d.getUTCFullYear() +
+  '/' +
+  ('0' + (d.getUTCMonth() + 1)).slice(-2) +
+  '/' +
+  ('0' + d.getUTCDate()).slice(-2) +
+  ' ' +
+  ('0' + d.getUTCHours()).slice(-2) +
+  ':' +
+  ('0' + d.getUTCMinutes()).slice(-2) +
+  ':' +
+  ('0' + d.getUTCSeconds()).slice(-2);
+
 const Input = ({
   value,
   onChange,
@@ -51,10 +68,20 @@ const Item = function({
   onChange,
   onRemove,
   value,
+  maxChars,
 }) {
   return (
     <div className="listItem">
-      <Input value={value} onChange={onChange} />
+      <Input
+        value={value}
+        onChange={v => {
+          if (maxChars && v.length > maxChars) {
+            return;
+          }
+
+          onChange(v);
+        }}
+      />
       {decorateHandle(
         <span
           style={{
@@ -79,10 +106,30 @@ const Item = function({
   );
 };
 
-const StagingItem = function({ value, onAdd, canAdd, add, onChange, style }) {
+const ItemHOC = ({ maxChars }) => props => Item({ ...props, maxChars });
+
+const StagingItem = function({
+  value,
+  onAdd,
+  canAdd,
+  add,
+  onChange,
+  style,
+  maxChars,
+}) {
   return (
     <div className="stagingItem" style={style}>
-      <Input className="stagingTextInput" value={value} onChange={onChange} />
+      <Input
+        className="stagingTextInput"
+        value={value}
+        onChange={v => {
+          if (maxChars && v.length > maxChars) {
+            return;
+          }
+
+          onChange(v);
+        }}
+      />
       <span
         onClick={canAdd ? onAdd : undefined}
         style={{
@@ -102,7 +149,8 @@ const StagingItem = function({ value, onAdd, canAdd, add, onChange, style }) {
   );
 };
 
-const StagingItemHOC = style => props => StagingItem({ ...props, style });
+const StagingItemHOC = ({ style, maxChars }) => props =>
+  StagingItem({ ...props, style, maxChars });
 
 const SelectItem = function({
   decorateHandle,
@@ -213,8 +261,11 @@ export {
   Button,
   selectTheme,
   getSimpleItem,
+  getItem,
+  formatDate,
   Input,
   Item,
+  ItemHOC,
   StagingItemHOC,
   StagingItem,
   SelectItemHOC,

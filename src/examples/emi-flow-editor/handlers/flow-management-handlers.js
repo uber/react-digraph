@@ -1,16 +1,30 @@
 import { STG_BUCKET, PROD_BUCKET } from '../cognito';
 
+const STG = 'staging';
+const PROD = 'production';
+const ENVS = [STG, PROD];
+const ENV_BUCKETS = {
+  [STG]: STG_BUCKET,
+  [PROD]: PROD_BUCKET,
+};
+
 const getFlowManagementHandlers = app => {
-  app.getFlows = function() {
+  app.getFlows = function(env) {
     return new Promise(
       function(resolve, reject) {
-        this.state.s3.listObjects({ Delimiter: '/' }, function(err, data) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data.Contents.filter(f => f.Key.endsWith('.json')));
+        this.state.s3.listObjects(
+          {
+            Bucket: ENV_BUCKETS[env],
+            Delimiter: '/',
+          },
+          function(err, data) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data.Contents.filter(f => f.Key.endsWith('.json')));
+            }
           }
-        });
+        );
       }.bind(app)
     );
   }.bind(app);
@@ -19,15 +33,59 @@ const getFlowManagementHandlers = app => {
     this.setFlow(null, '{}');
   }.bind(app);
 
-  app.openFlow = function(flowName) {
+  app.getVersions = function(env = STG) {
+    const params = {
+      Bucket: ENV_BUCKETS[env],
+      Prefix: this.state.flowName,
+    };
+
     return this.state.s3
-      .getObject({ Key: flowName })
+      .listObjectVersions(params)
       .promise()
-      .then(data => this.setFlow(flowName, data.Body.toString()));
+      .then(data => data.Versions);
+  }.bind(app);
+
+  app.getFlow = function(env, flowName, VersionId) {
+    return this.state.s3
+      .getObject({ Bucket: ENV_BUCKETS[env], Key: flowName, VersionId })
+      .promise()
+      .then(data => data.Body.toString());
+  }.bind(app);
+
+  app._getProdFlow = function(flowName) {
+    return this._flowExists(flowName, PROD).then(exists =>
+      exists ? this.getFlow(PROD, flowName) : ''
+    );
+  }.bind(app);
+
+  app._setFlow = function(flowName, flow, env = STG, versionId) {
+    const fetchProdFlow = env === STG && !versionId;
+
+    if (!fetchProdFlow) {
+      this.setFlow(flowName, flow, null, env, versionId);
+    } else {
+      this._getProdFlow(flowName).then(prodFlow =>
+        this.setFlow(flowName, flow, prodFlow, env, versionId)
+      );
+    }
+  }.bind(app);
+
+  app.getJsonText = function() {
+    return this.state.jsonText;
+  }.bind(app);
+
+  app.getProdJsonText = function() {
+    return this.state.prodJsonText;
+  }.bind(app);
+
+  app.openFlow = function(env, flowName, versionId) {
+    return this.getFlow(env, flowName, versionId).then(flow =>
+      this._setFlow(flowName, flow, env, versionId)
+    );
   }.bind(app);
 
   app.shipFlow = function() {
-    return app.saveFlow({ bucket: PROD_BUCKET });
+    return app.saveFlow({ env: PROD });
   }.bind(app);
 
   app.cloneFlow = function() {
@@ -36,24 +94,25 @@ const getFlowManagementHandlers = app => {
     return this.saveFlow({ newFlowName });
   }.bind(app);
 
-  app.saveFlow = function({ newFlowName, bucket } = {}) {
+  app.saveFlow = function({ newFlowName, env = STG } = {}) {
     const { jsonText, s3 } = this.state;
     const flowName = newFlowName || this.state.flowName;
     const params = {
-      Bucket: bucket || STG_BUCKET,
+      Bucket: ENV_BUCKETS[env],
       Key: flowName,
       Body: jsonText,
+      ContentType: 'application/json;charset=utf-8',
     };
     const options = {};
 
     return s3
       .upload(params, options)
       .promise()
-      .then(() => this.setFlow(flowName, jsonText));
+      .then(() => this._setFlow(flowName, jsonText));
   }.bind(app);
 
-  app._flowExists = function(flowName) {
-    const params = { Key: flowName };
+  app._flowExists = function(flowName, env = STG) {
+    const params = { Bucket: ENV_BUCKETS[env], Key: flowName };
 
     return this.state.s3
       .headObject(params)
@@ -71,7 +130,8 @@ const getFlowManagementHandlers = app => {
   app.deleteFlow = function() {
     const { s3, flowName } = this.state;
 
-    s3.deleteObject({ Key: flowName })
+    return s3
+      .deleteObject({ Key: flowName })
       .promise()
       .then(() => this.newFlow());
   }.bind(app);
@@ -101,7 +161,7 @@ const getFlowManagementHandlers = app => {
                 Key: flowName,
               })
               .promise()
-              .then(() => this.setFlow(newFlowName, jsonText))
+              .then(() => this._setFlow(newFlowName, jsonText))
           );
       }
     });
@@ -110,4 +170,4 @@ const getFlowManagementHandlers = app => {
   return app;
 };
 
-export default getFlowManagementHandlers;
+export { getFlowManagementHandlers, STG, PROD, ENVS };

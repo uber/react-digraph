@@ -84,7 +84,7 @@ const FilterItem = function({
             maxItems={20}
             minItems={0}
             ItemComponent={Item}
-            StagingComponent={StagingItemHOC({ display: 'flex' })}
+            StagingComponent={StagingItemHOC({ style: { display: 'flex' } })}
             value={value.value}
           />
         </label>

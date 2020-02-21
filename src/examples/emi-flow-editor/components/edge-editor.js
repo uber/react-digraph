@@ -13,13 +13,6 @@ import {
 } from './intent-filters';
 
 class EdgeEditor extends React.Component {
-  getFilterItems = filters =>
-    Object.keys(filters).map(key => ({
-      key: key.substr(0, key.lastIndexOf('_')),
-      op: key.substr(key.lastIndexOf('_') + 1),
-      value: filters[key],
-    }));
-
   getFilterFromItems = items => {
     const filters = {};
 
@@ -54,8 +47,9 @@ class EdgeEditor extends React.Component {
       onChangeConn,
       onMakeDefaultConn,
       getPrevIndexes,
-      getPrevContextVars,
+      getSelectedNodePrevContextVars,
       getIntents,
+      getFilterItems,
     } = edgeHandlers;
     const conn = children;
     const ai = edge.sourceNode.gnode.ai;
@@ -175,7 +169,7 @@ class EdgeEditor extends React.Component {
               minItems={0}
               ItemComponent={IntentFilterItemHOC(getIntents)}
               StagingComponent={StagingIntentFilterItemHOC(getIntents)}
-              value={this.getFilterItems(conn.nlp)}
+              value={getFilterItems(conn.nlp)}
             />
           </label>
         )}
@@ -190,7 +184,7 @@ class EdgeEditor extends React.Component {
             minItems={0}
             ItemComponent={FilterItemHOC(getPrevIndexes)}
             StagingComponent={StagingFilterItemHOC(getPrevIndexes)}
-            value={this.getFilterItems(conn.answers)}
+            value={getFilterItems(conn.answers)}
           />
         </label>
         <label className="inputList">
@@ -202,9 +196,11 @@ class EdgeEditor extends React.Component {
             }
             maxItems={20}
             minItems={0}
-            ItemComponent={FilterItemHOC(getPrevContextVars)}
-            StagingComponent={StagingFilterItemHOC(getPrevContextVars)}
-            value={this.getFilterItems(conn.context)}
+            ItemComponent={FilterItemHOC(getSelectedNodePrevContextVars)}
+            StagingComponent={StagingFilterItemHOC(
+              getSelectedNodePrevContextVars
+            )}
+            value={getFilterItems(conn.context)}
           />
         </label>
         <label className="inputList">

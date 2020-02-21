@@ -1,12 +1,18 @@
 const getQuestionHandlers = bwdlEditable => {
-  bwdlEditable.onChangeIndex = function(e) {
-    const newIndex = e.target.value;
-
+  bwdlEditable.onChangeIndex = function(newIndex) {
     const alreadyExists = this.state.nodes.find(
       node => node.gnode.question.index === newIndex
     );
 
-    if (alreadyExists || ['name', 'current', 'faqs'].includes(newIndex)) {
+    if (alreadyExists) {
+      this.alert.error(
+        `Cannot rename node: There's another node with '${newIndex}' index`
+      );
+
+      return;
+    } else if (['name', 'current', 'faqs'].includes(newIndex)) {
+      this.alert.error(`Cannot rename node: '${newIndex}' is a reserved name`);
+
       return;
     }
 
@@ -46,33 +52,51 @@ const getQuestionHandlers = bwdlEditable => {
     });
   }.bind(bwdlEditable);
 
+  bwdlEditable.changeQuestionProperty = function(property, newValue) {
+    this.changeSelectedQuestion(question => (question[property] = newValue));
+  }.bind(bwdlEditable);
+
   bwdlEditable.onChangeQuestion = function(property, newValue) {
-    if (property === 'isAudio' && !newValue) {
+    this.changeQuestionProperty(property, newValue);
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeTextArea = function(property, newValue) {
+    if (newValue.length > 2000) {
+      return;
+    }
+
+    this.changeQuestionProperty(property, newValue);
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeIsAudio = function(newValue) {
+    if (!newValue) {
       this.state.selected.gnode.question.audioErrorMessage = '';
-    } else if (property === 'exactMatch' && !newValue) {
+    }
+
+    this.changeQuestionProperty('isAudio', newValue);
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeExactMatch = function(newValue) {
+    if (!newValue) {
       this.state.selected.gnode.question.errorMessageNotMatch = '';
     }
 
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson[index].question[property] = newValue)
-    );
+    this.changeQuestionProperty('exactMatch', newValue);
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeQuickReplies = function(newValue) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].question.quickReplies = newValue;
+    this.changeSelectedQuestion(question => {
+      question.quickReplies = newValue;
 
       if (newValue.length == 0) {
-        newBwdlJson[index].question.exactMatch = false;
-        newBwdlJson[index].question.errorMessageNotMatch = '';
+        question.exactMatch = false;
+        question.errorMessageNotMatch = '';
       }
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeCards = function(newValue) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const question = newBwdlJson[index].question;
-
+    this.changeSelectedQuestion(question => {
       if (!question.cards) {
         question.cards = [{}];
       }

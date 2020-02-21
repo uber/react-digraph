@@ -283,3 +283,19 @@ label {
     }
   }
 }
+
+.shipConfirm {
+  display: block;
+  height: 400px;
+  overflow-y: scroll;
+  width: 900px;
+}
+
+.react-tooltip-lite {
+  background: lightslategray;
+  color: white;
+}
+
+.react-tooltip-lite-arrow {
+  border-color: lightslategray;
+}

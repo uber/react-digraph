@@ -21,6 +21,7 @@ import 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/json';
 import 'brace/theme/monokai';
+import { withAlert } from 'react-alert';
 import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
 import { type INode } from '../../components/node';
@@ -87,6 +88,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.state = this.getInitialState();
 
     this.sidebarRef = React.createRef();
+    this.alert = this.props.alert;
     setTimeout(() => (this.sidebarRef.current.style.width = '20vw'), 100);
   }
 
@@ -101,7 +103,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       bwdlText: jsonText,
       copiedNode: null,
       edges: transformed.edges,
-      layoutEngineType: 'VerticalTree',
+      layoutEngineType: 'None',
       nodes: transformed.nodes,
       selected: null,
       locked: true,
@@ -109,10 +111,21 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     };
   };
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.flowName !== this.props.flowName) {
+  componentDidUpdate(prevProps, prevState) {
+    const { flowName, flowVersionId, env } = this.props;
+
+    const flowFileChanged =
+      prevProps.flowName !== flowName ||
+      prevProps.flowVersionId !== flowVersionId ||
+      prevProps.env !== env;
+
+    if (flowFileChanged) {
       this.setState(this.getInitialState());
       setTimeout(() => this.GraphView.handleZoomToFit(), 100);
+    }
+
+    if (this.state.layoutEngineType !== prevState.layoutEngineType) {
+      this.updateAllNodesPosition();
     }
   }
 
@@ -123,7 +136,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       targetNode.first &&
       !this.getAncestorIndexes(sourceNode.title).includes(targetNode.title)
     ) {
-      // cannot link to first node, unless it's a loop.
+      this.alert.info(`Cannot link to first node, unless it's a loop.`);
+
       return;
     }
 
@@ -231,22 +245,59 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       }
     });
   };
+
+  updateNodePositionOnJson = (json, node) => {
+    const index = node.title;
+
+    json[index].x = node.x;
+    json[index].y = node.y;
+  };
+
   onUpdateNode = (node: INode) => {
-    return;
+    this.changeJson(json => this.updateNodePositionOnJson(json, node));
+  };
+
+  updateAllNodesPosition = () => {
+    this.changeJson(json =>
+      this.state.nodes.forEach(node =>
+        this.updateNodePositionOnJson(json, node)
+      )
+    );
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
+    const deleleIndex = selected.title;
+
     this.changeJson(json => {
       if (selected.first) {
         if (this.state.nodes.length > 1) {
-          // cannot delete first node without picking a new first one
+          this.alert.error(
+            `Cannot delete first node.
+            Please pick a different node to be the first one,
+            and then delete this node`
+          );
+
           return;
         }
 
         delete json['current'];
       }
 
-      delete json[selected.title];
+      const nodeNames = Object.keys(json);
+
+      nodeNames.forEach(name => {
+        const nodeJson = json[name];
+
+        if (!nodeJson || ['name', 'current', 'faqs'].includes(name)) {
+          return;
+        }
+
+        const q = nodeJson.question;
+
+        q.connections = q.connections.filter(c => c.goto !== deleleIndex);
+      });
+
+      delete json[deleleIndex];
     });
   };
 
@@ -298,7 +349,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   onRedo = () => this.state.editor.redo();
 
-  onCopySelected = () => {
+  onCopySelectedNode = () => {
     const { selected, bwdlJson } = this.state;
 
     if (!selected) {
@@ -306,17 +357,101 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
 
     const original = bwdlJson[selected.title];
-    const newItem = JSON.parse(JSON.stringify(original));
+    const copiedNode = JSON.parse(JSON.stringify(original));
 
     this.setState({
-      copiedNode: newItem,
+      copiedNode,
+      copiedEdge: null,
     });
   };
 
-  onPasteSelected = () => {
-    this.changeJson(json => {
-      json[`new-node${Date.now()}`] = this.state.copiedNode;
+  onCopySelectedEdge = () => {
+    const { selected } = this.state;
+
+    if (!selected) {
+      return;
+    }
+
+    const original = selected;
+    const copiedEdge = JSON.parse(JSON.stringify(original));
+
+    this.setState({
+      copiedEdge,
+      copiedNode: null,
     });
+  };
+
+  getFilterKeys = filters =>
+    Object.keys(filters).map(filter =>
+      filter.substr(0, filter.lastIndexOf('_'))
+    );
+
+  getPrevContextVars = index => {
+    const vars = new Set();
+
+    this.getAncestorIndexes(index, edge => {
+      edge.conns
+        .map(c => Object.keys(c.setContext))
+        .flat()
+        .forEach(vars.add, vars);
+    });
+
+    return Array.from(vars);
+  };
+
+  validateFilterKeys = (filterName, filters, validKeys) => {
+    let keys = filters.map(filters => this.getFilterKeys(filters)).flat();
+
+    keys = keys.filter(k => !validKeys.includes(k));
+
+    if (keys.length) {
+      throw new Error(`${filterName} filters contain invalid keys: ${keys}`);
+    }
+  };
+
+  validatePasteEdge = (question, copiedEdge) => {
+    this.validateFilterKeys(
+      'Answer',
+      copiedEdge.conns.map(conn => conn.answers).flat(),
+      this.getAncestorIndexes(question.index)
+    );
+    this.validateFilterKeys(
+      'Context',
+      copiedEdge.conns.map(conn => conn.context).flat(),
+      this.getPrevContextVars(question.index)
+    );
+  };
+
+  onPasteSelected = () => {
+    const { copiedNode, copiedEdge, selected } = this.state;
+
+    if (copiedNode) {
+      const index = copiedNode.question.index;
+
+      this.changeJson(json => (json[`${index}-${makeid(4)}`] = copiedNode));
+    } else if (copiedEdge && selected.source) {
+      const index = selected.source;
+
+      this.changeJson(json => {
+        const question = json[index].question;
+
+        this.validatePasteEdge(question, copiedEdge);
+
+        copiedEdge.conns.forEach(c => {
+          c.goto = selected.target;
+          c.isDefault = false;
+        });
+
+        copiedEdge.conns.forEach(c => {
+          c.goto = selected.target;
+          c.isDefault = false;
+        });
+
+        question.connections = question.connections
+          .filter(c => c.goto !== selected.target)
+          .concat(copiedEdge.conns);
+      });
+    }
   };
 
   updateSelected = newState => {
@@ -344,7 +479,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
-  updateState = (json, text, selected) => {
+  updatedState = (json, text, selected) => {
     const transformed = FlowV1Transformer.transform(json);
     const newState = {
       bwdlJson: json,
@@ -364,15 +499,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   updatedStateFromJson = (json, selected) =>
-    this.updateState(json, this.stringify(json), selected);
+    this.updatedState(json, this.stringify(json), selected);
 
   updatedStateFromText = (text, selected) => {
     try {
-      this.setState({ bwdlText: text });
-
-      return this.updateState(JSON.parse(text), text, selected);
+      return this.updatedState(JSON.parse(text), text, selected);
     } catch (e) {
-      return;
+      // on json parse error, still update the text, and only the text
+      this.setState({ bwdlText: text });
     }
   };
 
@@ -510,9 +644,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         ...prevState.bwdlJson,
       };
 
-      const selected = f(json, prevState);
+      try {
+        const selected = f(json, prevState);
 
-      return this.updatedStateFromJson(json, selected);
+        return this.updatedStateFromJson(json, selected);
+      } catch (e) {
+        this.alert.error(e.message);
+      }
     });
   };
 
@@ -520,6 +658,12 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const index = this.state.selected.gnode.question.index;
 
     this.changeJson(json => f(json, index));
+  };
+
+  changeSelectedQuestion = f => {
+    const index = this.state.selected.gnode.question.index;
+
+    this.changeJson(json => f(json[index].question));
   };
 
   getAncestorIndexes = (index, edgeCallback) => {
@@ -629,7 +773,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           onDeleteEdge={this.onDeleteEdge}
           onUndo={this.onUndo}
           onRedo={this.onRedo}
-          onCopySelected={this.onCopySelected}
+          onCopySelectedNode={this.onCopySelectedNode}
+          onCopySelectedEdge={this.onCopySelectedEdge}
           onPasteSelected={this.onPasteSelected}
           layoutEngineType={this.state.layoutEngineType}
         />
@@ -676,4 +821,4 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 }
 
-export default BwdlEditable;
+export default withAlert()(BwdlEditable);

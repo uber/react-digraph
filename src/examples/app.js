@@ -34,11 +34,12 @@ import GraphFast from './fast';
 
 import './app.scss';
 import { GoogleLogin } from 'react-google-login';
+
 import { connect, GOOGLE_CLIENT_ID } from './emi-flow-editor/cognito';
 
 // import S3Context from './emi-flow-editor/s3-context';
 import FlowManagement from './emi-flow-editor/components/flow-management';
-import getFlowManagementHandlers from './emi-flow-editor/handlers/flow-management-handlers';
+import { getFlowManagementHandlers } from './emi-flow-editor/handlers/flow-management-handlers';
 
 const ALERT_OPTIONS = {
   // you can also just use 'bottom center'
@@ -52,13 +53,24 @@ const ALERT_OPTIONS = {
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.flowManagementHandlers = getFlowManagementHandlers(this);
     this.state = {
       s3: null,
       initialJsonText: '{}',
       jsonText: '{}',
       flowName: null,
+      env: null,
+      flowVersionId: null,
     };
+    this.disableBackButton();
   }
+
+  disableBackButton = () => {
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', () =>
+      history.pushState(null, null, document.URL)
+    );
+  };
 
   onGoogleResponse = response => {
     connect(response).then(s3 => {
@@ -66,17 +78,35 @@ class App extends React.Component {
     });
   };
 
-  unsavedChanges = () => this.state.initialJsonText != this.state.jsonText;
+  setFlow = (flowName, jsonText, prodJsonText, env, flowVersionId) => {
+    // obscure magic that alternates between null and undefined for
+    // new flows, so the emifloweditor can detect that it changed.
+    flowName = flowName || (flowName === null ? undefined : null);
 
-  setFlow = (flowName, jsonText) =>
-    this.setState({ flowName, initialJsonText: jsonText, jsonText: jsonText });
+    this.setState({
+      flowName,
+      initialJsonText: jsonText,
+      jsonText,
+      prodJsonText,
+      env,
+      flowVersionId,
+    });
+  };
 
   handleJsonTextChange = jsonText => this.setState({ jsonText });
 
   handleFlowNameChange = flowName => this.setState({ flowName });
 
   render() {
-    const { initialJsonText, flowName, s3 } = this.state;
+    const {
+      initialJsonText,
+      flowName,
+      s3,
+      jsonText,
+      prodJsonText,
+      env,
+      flowVersionId,
+    } = this.state;
 
     return (
       <Router>
@@ -105,9 +135,12 @@ class App extends React.Component {
                 }}
                 s3Available={s3}
                 flowName={flowName}
-                flowManagementHandlers={getFlowManagementHandlers(this)}
-                unsavedChanges={this.unsavedChanges()}
+                flowManagementHandlers={this.flowManagementHandlers}
+                jsonText={jsonText}
+                prodJsonText={prodJsonText}
+                initialJsonText={initialJsonText}
                 onFlowNameChanged={this.handleFlowNameChange}
+                flowVersionId={flowVersionId}
               />
               {!s3 && (
                 <GoogleLogin
@@ -172,6 +205,8 @@ class App extends React.Component {
                   flowName={flowName}
                   initialJsonText={initialJsonText}
                   onJsonTextChange={this.handleJsonTextChange}
+                  env={env}
+                  flowVersionId={flowVersionId}
                 />
               )}
             />
