@@ -107,7 +107,7 @@ const empathyDefaults = {
     lang: 'ES',
     country: 'AR',
   },
-  numbers: {
+  number: {
     lang: 'ES',
     prediction_data: {
       intent_responses: {},
@@ -178,7 +178,7 @@ const intentsByQuestionStr = {
   ],
   last_name: ['success', 'dontHave'],
   nickname: ['success'],
-  numbers: ['success', 'skip'],
+  number: ['success', 'skip'],
   phone: ['success', 'dontHave'],
   prepa: [
     'prepa-trunca',
