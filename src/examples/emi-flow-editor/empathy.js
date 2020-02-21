@@ -2,14 +2,14 @@ import { getSimpleItem } from './components/common';
 
 const defaultQuestionStr = 'generic_yes_no_v2';
 const empathyDefaults = {
-  best_match_no_retry: {
+  best_match: {
     lang: 'ES',
     prediction_data: {
       min_similarity: 90,
       options: {}, // keys will be added for the answer options
     },
   },
-  best_match: {
+  best_match_no_retry: {
     lang: 'ES',
     prediction_data: {
       min_similarity: 90,
@@ -25,7 +25,24 @@ const empathyDefaults = {
       },
     },
   },
-  phone: {
+  dates: {
+    lang: 'ES',
+    country: 'AR',
+    prediction_data: {
+      intent_responses: {
+        skip: 'No responder',
+      },
+    },
+  },
+  datetime: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  duration: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  email: {
     lang: 'ES',
     country: 'AR',
     prediction_data: {
@@ -34,7 +51,7 @@ const empathyDefaults = {
       },
     },
   },
-  email: {
+  phone: {
     lang: 'ES',
     country: 'AR',
     prediction_data: {
@@ -52,6 +69,31 @@ const empathyDefaults = {
       },
     },
   },
+  generic_yes_no_v2: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        generic_yes_no_y: 'Si',
+        generic_yes_no_n: 'No',
+        generic_yes_no_maybe: 'No se',
+      },
+    },
+  },
+  geocoder: {
+    lang: 'ES',
+    country: 'AR',
+  },
+  interest_v2: {
+    lang: 'ES',
+    prediction_data: {
+      intent_responses: {
+        'interest-yes': 'Está OK',
+        'interest-no': 'No me interesa',
+        'interest-another-time': 'Otro día/fecha',
+        'interest-ask-address': 'Está OK',
+      },
+    },
+  },
   last_name: {
     lang: 'ES_MX',
     country: 'MX',
@@ -61,13 +103,15 @@ const empathyDefaults = {
       },
     },
   },
-  geocoder: {
+  nickname: {
     lang: 'ES',
     country: 'AR',
   },
-  dates: {
+  numbers: {
     lang: 'ES',
-    country: 'AR',
+    prediction_data: {
+      intent_responses: {},
+    },
   },
   prepa: {
     lang: 'ES',
@@ -97,36 +141,6 @@ const empathyDefaults = {
       },
     },
   },
-  nickname: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  duration: {
-    lang: 'ES',
-    country: 'AR',
-  },
-  generic_yes_no_v2: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        generic_yes_no_y: 'Si',
-        generic_yes_no_n: 'No',
-        generic_yes_no_maybe: 'No se',
-      },
-    },
-  },
-  welcome_idle: 'welcome_idle',
-  interest_v2: {
-    lang: 'ES',
-    prediction_data: {
-      intent_responses: {
-        'interest-yes': 'Está OK',
-        'interest-no': 'No me interesa',
-        'interest-another-time': 'Otro día/fecha',
-        'interest-ask-address': 'Está OK',
-      },
-    },
-  },
   schedule_v2: {
     lang: 'ES',
   },
@@ -141,15 +155,12 @@ const empathyDefaults = {
     lang: 'ES',
     country: 'AR',
   },
-  datetime: {
-    lang: 'ES',
-    country: 'AR',
-  },
+  welcome_idle: 'welcome_idle',
 };
 
 const intentsByQuestionStr = {
   birthdate: ['success', 'skip'],
-  dates: ['success'],
+  dates: ['success', 'skip'],
   duration: ['didNotWork', 'success'],
   email: ['success', 'dontHave'],
   first_name: ['success', 'dontHave'],
@@ -167,6 +178,7 @@ const intentsByQuestionStr = {
   ],
   last_name: ['success', 'dontHave'],
   nickname: ['success'],
+  numbers: ['success', 'skip'],
   phone: ['success', 'dontHave'],
   prepa: [
     'prepa-trunca',
