@@ -292,6 +292,8 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         q.connections = q.connections.filter(c => c.goto !== deleteIndex);
       });
       delete json[deleteIndex];
+
+      return null;
     });
   };
 
@@ -448,9 +450,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
-  updateSelected = newState => {
-    let selected = this.state.selected;
-
+  updateSelected = (newState, selected) => {
     if (selected) {
       if (selected.gnode) {
         selected = newState.nodes.find(
@@ -468,9 +468,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           );
         }
       }
-
-      newState.selected = selected;
     }
+
+    newState.selected = selected;
   };
 
   updatedState = (json, text, selected) => {
@@ -482,11 +482,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       nodes: transformed.nodes,
     };
 
-    if (selected !== undefined) {
-      newState.selected = selected;
-    }
-
-    this.updateSelected(newState);
+    this.updateSelected(newState, selected);
     this.props.onJsonTextChange(text);
 
     return newState;
@@ -508,8 +504,18 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
   };
 
+  changeText = text => {
+    this.setState(prevState => {
+      try {
+        return this.updatedStateFromText(text, prevState.selected);
+      } catch (e) {
+        this.alert.error(e.message);
+      }
+    });
+  };
+
   handleTextAreaChange = (value: string, event: any) => {
-    this.setState(this.updatedStateFromText(value));
+    this.changeText(value);
   };
 
   handleChangeLayoutEngineType = (event: any) => {
@@ -643,7 +649,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       };
 
       try {
-        const selected = f(json, prevState);
+        let selected = f(json, prevState);
+
+        if (selected === undefined) {
+          selected = prevState.selected;
+        }
 
         return this.updatedStateFromJson(json, selected);
       } catch (e) {
