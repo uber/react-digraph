@@ -25,6 +25,7 @@ class AnswerEditor extends React.Component {
     } = questionHandlers;
     const node = children;
     const question = node.gnode.question;
+    const quickReplies = question.quickReplies || [];
 
     return (
       <div id="answerEditor" className="someNodeEditor">
@@ -38,11 +39,11 @@ class AnswerEditor extends React.Component {
               minItems={0}
               ItemComponent={ItemHOC({ maxChars: MAX_CHARS })}
               StagingComponent={StagingItemHOC({ maxChars: MAX_CHARS })}
-              value={question.quickReplies}
+              value={quickReplies}
             />
           </label>
         )}
-        {question.quickReplies.length === 0 && (
+        {quickReplies.length === 0 && (
           <label className="inputList">
             Cards:
             <ReactListInput
@@ -61,7 +62,7 @@ class AnswerEditor extends React.Component {
             />
           </label>
         )}
-        {(question.quickReplies.length > 0 || question.cards) && (
+        {(quickReplies.length > 0 || question.cards) && (
           <label>
             Exact match:
             <input
