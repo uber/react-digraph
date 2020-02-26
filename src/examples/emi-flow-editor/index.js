@@ -267,7 +267,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
-    const deleleIndex = selected.title;
+    const deleteIndex = selected.title;
 
     this.changeJson(json => {
       if (selected.first) {
@@ -284,21 +284,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         delete json['current'];
       }
 
-      const nodeNames = Object.keys(json);
+      const nodeNames = this.getIncomingEdgeIndexes(deleteIndex);
 
       nodeNames.forEach(name => {
-        const nodeJson = json[name];
+        const q = json[name].question;
 
-        if (!nodeJson || ['name', 'current', 'faqs'].includes(name)) {
-          return;
-        }
-
-        const q = nodeJson.question;
-
-        q.connections = q.connections.filter(c => c.goto !== deleleIndex);
+        q.connections = q.connections.filter(c => c.goto !== deleteIndex);
       });
-
-      delete json[deleleIndex];
+      delete json[deleteIndex];
     });
   };
 
@@ -686,6 +679,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
 
     return Array.from(ancestorIndexes);
+  };
+
+  getIncomingEdgeIndexes = index => {
+    return this.state.edges.filter(e => e.target == index).map(e => e.source);
   };
 
   handleFaqClicked = () => {
