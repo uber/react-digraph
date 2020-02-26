@@ -500,7 +500,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       return this.updatedState(JSON.parse(text), text, selected);
     } catch (e) {
       // on json parse error, still update the text, and only the text
-      this.setState({ bwdlText: text });
+      if (e instanceof SyntaxError) {
+        return { bwdlText: text };
+      } else {
+        throw e;
+      }
     }
   };
 
