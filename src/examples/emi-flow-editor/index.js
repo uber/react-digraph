@@ -761,6 +761,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           nodes={nodes}
           edges={edges}
           selected={selected}
+          minZoom={0.05}
           nodeTypes={NodeTypes}
           nodeSubtypes={NodeSubtypes}
           edgeTypes={EdgeTypes}
