@@ -602,11 +602,11 @@ class FlowManagement extends React.Component {
                 <label style={{ display: 'flex', border: 'none' }}>
                   <LoadingWrapper
                     isLoading={s3Loading}
-                    width="200px"
+                    width="300px"
                     height="40px"
                   >
                     <Select
-                      className="selectContainer"
+                      className="selectLongContainer"
                       value=""
                       onChange={item => this.safeOpen(item.value)}
                       options={flows}

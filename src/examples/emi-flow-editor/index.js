@@ -126,6 +126,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     if (this.state.layoutEngineType !== prevState.layoutEngineType) {
       this.updateAllNodesPosition();
+      setTimeout(() => this.GraphView.handleZoomToFit(), 100);
     }
   }
 
