@@ -247,14 +247,49 @@ class FlowManagement extends React.Component {
       });
   };
 
-  restoreFlow = () =>
-    this.restoreEnabled() &&
-    this.safeExecute(
-      () => this._restoreFlow(),
-      true,
-      'Restore this past version of the flow?',
-      'The current flow version will be overrided'
-    );
+  restoreFlow = () => {
+    const { flowName, flowManagementHandlers } = this.props;
+    const { getFlow, getJsonText } = flowManagementHandlers;
+
+    if (!this.restoreEnabled()) {
+      return;
+    }
+
+    getFlow(STG, flowName)
+      .then(lastFlow => {
+        confirmAlert({
+          customUI: ({ onClose }) => (
+            <div
+              className="react-confirm-alert-body"
+              style={{ width: '1000px' }}
+            >
+              <h1>Restore this past version of the flow?</h1>
+              <p>The current flow version will be overriden</p>
+              <p>Review your changes first:</p>
+              <FlowDiff str1={lastFlow} str2={getJsonText()} />
+              <p>Are you sure?</p>
+              <div className="react-confirm-alert-button-group">
+                <button
+                  onClick={() => {
+                    this._restoreFlow();
+                    onClose();
+                  }}
+                >
+                  Yes, Restore it!
+                </button>
+                <button onClick={onClose}>No</button>
+              </div>
+            </div>
+          ),
+        });
+      })
+      .catch(err => {
+        this.setState({ restoring: false });
+        this.alert.error(
+          `Flow restore failed: ${JSON.stringify(err, null, 4)}`
+        );
+      });
+  };
 
   _saveFlow = () => {
     const { saveFlow } = this.props.flowManagementHandlers;
