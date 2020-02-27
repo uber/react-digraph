@@ -53,7 +53,9 @@ const getQuestionHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.changeQuestionProperty = function(property, newValue) {
-    this.changeSelectedQuestion(question => (question[property] = newValue));
+    this.changeSelectedQuestion(question => {
+      question[property] = newValue;
+    });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeQuestion = function(property, newValue) {

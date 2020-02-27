@@ -255,15 +255,17 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   onUpdateNode = (node: INode) => {
-    this.changeJson(json => this.updateNodePositionOnJson(json, node));
+    this.changeJson(json => {
+      this.updateNodePositionOnJson(json, node);
+    });
   };
 
   updateAllNodesPosition = () => {
-    this.changeJson(json =>
+    this.changeJson(json => {
       this.state.nodes.forEach(node =>
         this.updateNodePositionOnJson(json, node)
-      )
-    );
+      );
+    });
   };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
@@ -424,7 +426,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     if (copiedNode) {
       const index = copiedNode.question.index;
 
-      this.changeJson(json => (json[`${index}-${makeid(4)}`] = copiedNode));
+      this.changeJson(json => {
+        json[`${index}-${makeid(4)}`] = copiedNode;
+      });
     } else if (copiedEdge && selected.source) {
       const index = selected.source;
 
