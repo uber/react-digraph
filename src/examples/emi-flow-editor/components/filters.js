@@ -15,11 +15,25 @@ const filterOps = [
   'notcontains',
   'equals',
   'notequals',
+  'greaterthan',
+  'lessthan',
   'min',
   'max',
   'in',
   'notin',
 ];
+
+const deprecatedOps = ['min', 'max'];
+
+const filterOpsItems = filterOps.map(op => {
+  const item = getSimpleItem(op);
+
+  if (deprecatedOps.includes(op)) {
+    item.label += '(deprecated)';
+  }
+
+  return item;
+});
 
 const isArrayFilterOp = function(op) {
   return ['in', 'notin'].includes(op);
@@ -69,7 +83,7 @@ const FilterItem = function({
           theme={selectTheme}
           value={getSimpleItem(value.op)}
           onChange={item => changeFilterOp(item, value, onChange)}
-          options={filterOps.map(op => getSimpleItem(op))}
+          options={filterOpsItems}
           isSearchable={true}
         />
       </label>
@@ -164,7 +178,7 @@ const StagingFilterItem = function({
             value.op = item.value;
             onChange(value);
           }}
-          options={filterOps.map(op => getSimpleItem(op))}
+          options={filterOpsItems}
           isSearchable={true}
         />
       </label>
