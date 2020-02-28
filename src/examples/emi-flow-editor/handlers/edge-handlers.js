@@ -92,6 +92,20 @@ const getEdgeHandlers = bwdlEditable => {
         if (defaultConn) {
           defaultConn.isDefault = false;
         }
+
+        // clear conn conditions
+        Object.assign(conn, {
+          isString: '',
+          answers: {},
+          containsAny: [],
+          context: {},
+          greaterThan: '',
+          inArray: [],
+          isNotString: '',
+          lessThan: '',
+          notInArray: [],
+          nlp: {},
+        });
       }
 
       conn['isDefault'] = enabling;
