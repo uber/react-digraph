@@ -281,6 +281,23 @@ label {
       stroke-width: 10px;
     }
 
+    &#editFlowBtn {
+      &:hover {
+        stroke-width: 1px;
+      }
+
+      &.editMode {
+        background: darkgray;
+        border: solid 2px darkgray;
+        border-radius: 5px;
+        fill: chartreuse;
+
+        &:hover {
+          stroke: deepskyblue;
+        }
+      }
+    }
+
     &#saveFlowBtn {
       &:hover {
         stroke-width: 20px;
