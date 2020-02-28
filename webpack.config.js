@@ -124,6 +124,10 @@ module.exports = {
       {
         from: './examples/**/*.js',
         to: '[name].js'
+      },
+      {
+        from: './*.ico',
+        to: '[name].ico'
       }
     ])
   ],
