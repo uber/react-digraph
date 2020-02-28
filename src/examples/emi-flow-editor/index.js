@@ -420,14 +420,32 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     );
   };
 
-  onPasteSelected = () => {
+  getClonedIndex = (json, index) => {
+    for (let k = 0; k < 100; k++) {
+      const newIndex = `${index}-clone${k ? k : ''}`;
+
+      if (!json[newIndex]) {
+        return [k + 1, newIndex];
+      }
+    }
+
+    return [1, `${index}-${makeid(2)}`];
+  };
+
+  onPasteSelected = (x, y) => {
     const { copiedNode, copiedEdge, selected } = this.state;
 
     if (copiedNode) {
       const index = copiedNode.question.index;
 
       this.changeJson(json => {
-        json[`${index}-${makeid(4)}`] = copiedNode;
+        const [cloneNumber, newIndex] = this.getClonedIndex(json, index);
+        const clonedNode = JSON.parse(JSON.stringify(copiedNode));
+
+        clonedNode.question.index = newIndex;
+        clonedNode.x += cloneNumber * 100;
+        clonedNode.y += cloneNumber * 50;
+        json[newIndex] = clonedNode;
       });
     } else if (copiedEdge && selected.source) {
       const index = selected.source;

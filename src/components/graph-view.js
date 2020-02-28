@@ -579,11 +579,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         break;
       case 'v':
-        if (
-          (d.metaKey || d.ctrlKey) &&
-          (selectedNodeObj.node || selectedEdgeObj.edge) &&
-          onPasteSelected
-        ) {
+        if ((d.metaKey || d.ctrlKey) && onPasteSelected) {
           onPasteSelected();
         }
 
