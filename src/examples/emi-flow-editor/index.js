@@ -443,6 +443,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         const clonedNode = JSON.parse(JSON.stringify(copiedNode));
 
         clonedNode.question.index = newIndex;
+        clonedNode.question.connections = [];
         clonedNode.x += cloneNumber * 100;
         clonedNode.y += cloneNumber * 50;
         json[newIndex] = clonedNode;
