@@ -193,6 +193,30 @@ class FlowManagement extends React.Component {
       );
   };
 
+  confirmAndShip = (lastFlow, newFlow) =>
+    confirmAlert({
+      customUI: ({ onClose }) => (
+        <div className="react-confirm-alert-body" style={{ width: '1000px' }}>
+          <h1>Ship this flow to prod?</h1>
+          <p>If a flow with the same name exists, it will be overriden</p>
+          <p>Review your changes first:</p>
+          <FlowDiff str1={lastFlow} str2={newFlow} />
+          <p>Are you sure?</p>
+          <div className="react-confirm-alert-button-group">
+            <button
+              onClick={() => {
+                this._shipFlow();
+                onClose();
+              }}
+            >
+              Yes, Ship it!
+            </button>
+            <button onClick={onClose}>No</button>
+          </div>
+        </div>
+      ),
+    });
+
   safeShip = () => {
     const { flowName, flowManagementHandlers } = this.props;
     const { getJsonText, getFlow } = flowManagementHandlers;
@@ -202,35 +226,13 @@ class FlowManagement extends React.Component {
     }
 
     getFlow(PROD, flowName)
-      .then(lastFlow => {
-        confirmAlert({
-          customUI: ({ onClose }) => (
-            <div
-              className="react-confirm-alert-body"
-              style={{ width: '1000px' }}
-            >
-              <h1>Ship this flow to prod?</h1>
-              <p>If a flow with the same name exists, it will be overriden</p>
-              <p>Review your changes first:</p>
-              <FlowDiff str1={lastFlow} str2={getJsonText()} />
-              <p>Are you sure?</p>
-              <div className="react-confirm-alert-button-group">
-                <button
-                  onClick={() => {
-                    this._shipFlow();
-                    onClose();
-                  }}
-                >
-                  Yes, Ship it!
-                </button>
-                <button onClick={onClose}>No</button>
-              </div>
-            </div>
-          ),
-        });
-      })
+      .then(lastFlow => this.confirmAndShip(lastFlow, getJsonText()))
       .catch(err => {
-        this.alert.error(`Flow ship failed: ${JSON.stringify(err, null, 4)}`);
+        if (err.statusCode == 404) {
+          this.confirmAndShip('', getJsonText());
+        } else {
+          this.alert.error(`Flow ship failed: ${JSON.stringify(err, null, 4)}`);
+        }
       });
   };
 
