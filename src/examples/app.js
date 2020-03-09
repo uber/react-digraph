@@ -149,6 +149,7 @@ class App extends React.Component {
                   onSuccess={this.onGoogleResponse}
                   onFailure={this.onGoogleResponse}
                   cookiePolicy={'single_host_origin'}
+                  isSignedIn={true}
                 />
               )}
               <svg
