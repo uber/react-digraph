@@ -236,9 +236,31 @@ label {
 #faq {
   position: absolute;
   top: 5px;
-  right: 5px;
+  right: 55px;
   height: 5%;
   width: 10%;
+
+  &:hover {
+    stroke: aqua;
+    stroke-width: 10px;
+  }
+
+  &.selected {
+    stroke: none;
+    background: greenyellow;
+    border-radius: 10px;
+  }
+}
+
+#help {
+  position: absolute;
+  top: 7px;
+  right: 5px;
+  height: 4%;
+  width: 10%;
+  fill: dimgray;
+  stroke: white;
+  stroke-width: 10;
 
   &:hover {
     stroke: aqua;
@@ -320,4 +342,21 @@ label {
 
 .react-tooltip-lite-arrow {
   border-color: lightslategray;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+  font-size: x-small;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
 }
