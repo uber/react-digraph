@@ -747,40 +747,62 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         <h2>Leyend</h2>
         Not yet :(
         <h2>Useful tips</h2>
+        For non OSX systems, just use CTRL instead of CMD key.
         <table>
           <tbody>
-            <tr>
+            <tr className="header">
               <th>Feature</th>
               <th>Input</th>
+              <th>Comments</th>
             </tr>
             <tr>
               <td>Create node</td>
               <td>SHIFT + Left Click</td>
+              <td></td>
             </tr>
             <tr>
               <td>Create edge</td>
-              <td>
-                SHIFT + Left Click down over a node, then drag to other node
-              </td>
+              <td>SHIFT + drag left click from source to target node</td>
+              <td></td>
             </tr>
             <tr>
               <td>Select node or edge</td>
-              <td>Left Click over a nodeor edge</td>
+              <td>Left Click over a node or edge</td>
+              <td></td>
             </tr>
             <tr>
               <td>Copy node or edge</td>
-              <td>Select a node or edge, then Ctrl + C</td>
+              <td>CMD + C</td>
+              <td>Select a node or edge first</td>
             </tr>
             <tr>
               <td>Paste node</td>
-              <td>After copying a node, just Ctrl + V</td>
+              <td>CMD + V</td>
+              <td>Copy a node first</td>
             </tr>
             <tr>
               <td>Paste edge</td>
+              <td>CMD + V over an existing edge.</td>
               <td>
-                After copying an edge, just Ctrl + V over an existing edge. The
-                edge will be replaced. Works with edges with multiple
-                connections.
+                Copy an edge first, then paste over an existing edge that will
+                be replaced. Works with edges with multiple connections. Default
+                connections will not be default anymore.
+              </td>
+            </tr>
+            <tr>
+              <td>Undo last change</td>
+              <td>CMD + Z on the text editor or the graph editor.</td>
+              <td>
+                Please note that selection of edges are also actions within the
+                history.
+              </td>
+            </tr>
+            <tr>
+              <td>Redo last change</td>
+              <td>CMD + SHIFT + Z on the text editor or the graph editor.</td>
+              <td>
+                Please note that selection of edges are also actions within the
+                history.
               </td>
             </tr>
           </tbody>

@@ -345,6 +345,13 @@ label {
 }
 
 .alternate-rows-table-container {
+
+  .header {
+    td, th {
+      background: cornflowerblue;
+    }
+  }
+
   table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -352,13 +359,11 @@ label {
   }
 
   td, th {
-    border: 1px solid #dddddd;
+    color: white;
+    background: #2f3029;
+    border: 1px solid grey;
     text-align: left;
     padding: 8px;
     font-size: x-small;
   }
-
-  tr:nth-child(even) {
-    background-color: #dddddd;
-  } 
 }
