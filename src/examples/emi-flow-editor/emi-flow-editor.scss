@@ -344,19 +344,21 @@ label {
   border-color: lightslategray;
 }
 
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+.alternate-rows-table-container {
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-  font-size: x-small;
-}
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    font-size: x-small;
+  }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  } 
 }

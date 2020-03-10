@@ -739,7 +739,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   showHelpDialog = () => {
     const customUI = ({ onClose }) => (
-      <div className="react-confirm-alert-body" style={{ width: '1000px' }}>
+      <div
+        className="react-confirm-alert-body alternate-rows-table-container"
+        style={{ width: '1000px' }}
+      >
         <h1>Help</h1>
         <h2>Leyend</h2>
         Not yet :(
