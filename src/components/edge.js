@@ -682,6 +682,7 @@ class Edge extends React.Component<IEdgeProps> {
     const shape = group.firstChild;
 
     if (
+      !shape ||
       !shape.getAttribute ||
       !shape.getAttribute('class').includes('edgeTextBkg')
     ) {
@@ -741,8 +742,8 @@ class Edge extends React.Component<IEdgeProps> {
         ref={this.textGroupRef}
         transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
       >
-        {labels.length && (
-          <rect
+        {isSelected && labels.length && (
+          <use
             data-index={`${data.source}-${data.target}`}
             className={className}
             x={-width / 2}
@@ -750,6 +751,7 @@ class Edge extends React.Component<IEdgeProps> {
             width={width}
             height={height}
             rx="15"
+            xlinkHref="#choice"
             transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
           />
         )}
