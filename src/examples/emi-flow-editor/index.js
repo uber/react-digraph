@@ -24,6 +24,7 @@ import 'brace/theme/monokai';
 import { withAlert } from 'react-alert';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import { Helmet } from 'react-helmet';
 
 import { type IEdge } from '../../components/edge';
 import GraphView from '../../components/graph-view';
@@ -935,10 +936,15 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   }
 
   render() {
+    const { flowName } = this.props;
     const { faqSelected } = this.state;
 
     return (
       <div id="bwdl-editable-graph">
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>{flowName || 'unnamed'}</title>
+        </Helmet>
         {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
         <div id="rightBar">

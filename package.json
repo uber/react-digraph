@@ -45,6 +45,7 @@
     "react-confirm-alert": "^2.4.1",
     "react-diff-viewer": "^3.0.1",
     "react-google-login": "^5.1.0",
+    "react-helmet": "^5.2.1",
     "react-list-input": "^1.1.0",
     "react-select": "^3.0.8",
     "react-select-item": "^3.1.0",
