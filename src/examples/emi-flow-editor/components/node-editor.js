@@ -13,7 +13,7 @@ class NodeEditor extends React.Component {
     this.state = { newIndex: '' };
     const { onChangeIndex } = this.props.questionHandlers;
 
-    this.onChangeIndex = debounce(onChangeIndex, 200);
+    this.onChangeIndex = debounce(onChangeIndex, 250);
   }
 
   getIndex = props => {
