@@ -23,6 +23,8 @@ import { Intersection } from 'kld-intersections';
 import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
 
+const scaleRegex = /scale\(([[+-]?\d+(\.\d+)?).*?([[+-]?\d+(\.\d+)?).*\)/;
+
 export type IEdge = {
   source: string,
   target: string,
@@ -177,7 +179,7 @@ class Edge extends React.Component<IEdgeProps> {
     };
 
     // convert rectangle corners to polygon (list of points)
-    const poly = [
+    let poly = [
       rect.topLeft,
       new Point2D(rect.bottomRight.x, rect.topLeft.y),
       rect.bottomRight,
@@ -187,8 +189,18 @@ class Edge extends React.Component<IEdgeProps> {
     // find center point of rectangle
     const center = rect.topLeft.lerp(rect.bottomRight, 0.5);
 
-    // get the rotation
     const transform = defSvgRotatedRectElement.getAttribute('transform');
+
+    // get the scaling
+    const scaleMatch = scaleRegex.exec(transform);
+    const scaleX = parseFloat(scaleMatch[1]);
+    const scaleY = parseFloat(scaleMatch[3]);
+
+    const scaling = Matrix2D.nonUniformScalingAt(scaleX, scaleY, center);
+
+    poly = poly.map(p => p.transform(scaling));
+
+    // get the rotation
     let rotate = transform
       ? transform.replace(/(rotate.[0-9]*.)|[^]/g, '$1')
       : null;
@@ -203,14 +215,15 @@ class Edge extends React.Component<IEdgeProps> {
 
     // create matrix for rotating around center of rectangle
     const rotation = Matrix2D.rotationAt(angle, center);
+
     // create new rotated polygon
-    const rotatedPoly = poly.map(p => p.transform(rotation));
+    poly = poly.map(p => p.transform(rotation));
 
     // find intersections
     const pathIntersect = Intersection.intersectLinePolygon(
       line.params[0],
       line.params[1],
-      rotatedPoly
+      poly
     );
 
     if (pathIntersect.points.length > 0) {
