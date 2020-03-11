@@ -111,6 +111,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       selected: null,
       locked: true,
       faqSelected: false,
+      syncError: false,
     };
   };
 
@@ -506,6 +507,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       bwdlText: text,
       edges: transformed.edges,
       nodes: transformed.nodes,
+      syncError: false,
     };
 
     this.updateSelected(newState, selected);
@@ -523,7 +525,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     } catch (e) {
       // on json parse error, still update the text, and only the text
       if (e instanceof SyntaxError) {
-        return { bwdlText: text };
+        return { bwdlText: text, syncError: true };
       } else {
         throw e;
       }
@@ -817,13 +819,16 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   };
 
   renderTextEditor() {
+    const { locked, syncError, bwdlText } = this.state;
+
     return (
       <Sidebar
         direction="left"
         size={'100%'}
-        locked={this.state.locked}
+        locked={locked}
         onLockChanged={this.handleToggleLock}
         refx={this.sidebarRef}
+        syncError={syncError}
       >
         <div>
           <AceEditor
@@ -844,7 +849,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
               showLineNumbers: true,
               tabSize: 2,
             }}
-            value={this.state.bwdlText}
+            value={bwdlText}
             wrapEnabled={true}
           />
         </div>
