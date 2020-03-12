@@ -147,9 +147,9 @@ const getQuestionHandlers = bwdlEditable => {
       return;
     }
 
-    this.changeSelectedNode(
-      (newBwdlJson, index) => (newBwdlJson['current'] = index)
-    );
+    this.changeSelectedNode((newBwdlJson, index) => {
+      newBwdlJson['current'] = index;
+    });
   }.bind(bwdlEditable);
 
   return bwdlEditable;
