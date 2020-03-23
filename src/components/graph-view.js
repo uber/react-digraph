@@ -192,8 +192,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .zoom()
       .filter(this.zoomFilter)
       .scaleExtent([minZoom || 0, maxZoom || 0])
-      .on('start', this.handleZoomStart)
-      .on('zoom', this.handleZoom)
+      .on('start', () => this.handleZoomStart(d3.event))
+      .on('zoom', () => this.handleZoom(d3.event))
       .on('end', this.handleZoomEnd);
 
     d3.select(this.viewWrapper.current)
@@ -899,10 +899,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleZoomStart = () => {
+  handleZoomStart = (event: any) => {
     // Zoom start events also handle edge clicks. We need to determine if an edge
     // was clicked and deal with that scenario.
-    const sourceEvent = d3.event.sourceEvent;
+    const sourceEvent = event.sourceEvent;
 
     if (
       // graph can't be modified
@@ -977,9 +977,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   // View 'zoom' handler
-  handleZoom = () => {
+  handleZoom = (event: any) => {
     const { draggingEdge } = this.state;
-    const transform: IViewTransform = d3.event.transform;
+    const transform: IViewTransform = event.transform;
 
     if (!draggingEdge) {
       d3.select(this.view).attr('transform', transform);

@@ -1,7 +1,7 @@
 // @flow
 import * as React from "react";
 
-import { LayoutEngines } from "../../../src/utilities/layout-engine/layout-engine-config";
+import LayoutEngines from "../../../src/utilities/layout-engine/layout-engine-config";
 
 describe("LayoutEngineConfig", () => {
   let output = null;

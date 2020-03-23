@@ -18,6 +18,7 @@ describe('Node component', () => {
   let onNodeMove;
   let onNodeSelected;
   let onNodeUpdate;
+
   beforeEach(() => {
     nodeData = {
       uuid: '1',
@@ -45,21 +46,8 @@ describe('Node component', () => {
       getAttribute: jasmine.createSpy().and.returnValue(100),
       getBoundingClientRect: jasmine.createSpy().and.returnValue({
         width: 0,
-        height: 0
-      })
-    });
-
-    // this gets around d3 being readonly, we need to customize the event object
-    let globalEvent = {
-      sourceEvent: {}
-    };
-    Object.defineProperty(d3, 'event', {
-      get: () => {
-          return globalEvent;
-      },
-      set: (event) => {
-          globalEvent = event;
-      }
+        height: 0,
+      }),
     });
 
     output = shallow(
@@ -77,13 +65,15 @@ describe('Node component', () => {
         onNodeMove={onNodeMove}
         onNodeSelected={onNodeSelected}
         onNodeUpdate={onNodeUpdate}
-      />);
+      />
+    );
   });
 
   describe('render method', () => {
     it('renders', () => {
-      expect(output.props().className).toEqual('node emptyNode');
-      expect(output.props().transform).toEqual('translate(5, 10)');
+      const node = output.find('g').first();
+
+      expect(node.props().className).toEqual('node emptyNode');
 
       const nodeShape = output.find('.shape > use');
       expect(nodeShape.props()['data-index']).toEqual(0);
@@ -156,12 +146,20 @@ describe('Node component', () => {
       });
 
       const result = output.instance().renderShape();
-      expect(renderNode).toHaveBeenCalledWith(output.instance().nodeRef, nodeData, '1', false, false);
+      expect(renderNode).toHaveBeenCalledWith(
+        output.instance().nodeRef,
+        nodeData,
+        '1',
+        false,
+        false
+      );
       expect(result).toEqual('success');
     });
 
     it('returns a node shape without a subtype', () => {
-      const result: ShallowWrapper<any, any> = shallow(output.instance().renderShape());
+      const result: ShallowWrapper<any, any> = shallow(
+        output.instance().renderShape()
+      );
       expect(renderNode).not.toHaveBeenCalledWith();
       expect(result.props().className).toEqual('shape');
       expect(result.props().height).toEqual(100);
@@ -190,7 +188,9 @@ describe('Node component', () => {
         data: nodeData,
         nodeSubtypes
       });
-      const result: ShallowWrapper<any, any> = shallow(output.instance().renderShape());
+      const result: ShallowWrapper<any, any> = shallow(
+        output.instance().renderShape()
+      );
       const nodeSubtypeShape = result.find('.subtype-shape');
       expect(nodeSubtypeShape.length).toEqual(1);
       expect(nodeSubtypeShape.props()['data-index']).toEqual(0);
@@ -275,9 +275,6 @@ describe('Node component', () => {
 
   describe('handleMouseOver method', () => {
     it('calls the onNodeMouseEnter callback with the mouse down', () => {
-      // need to set d3.event.buttons even though we're not testing it due to the mock
-      // that we use above
-      d3.event.buttons = 1;
       // this test cares about the passed-in event
       const event = {
         buttons: 1
@@ -292,24 +289,11 @@ describe('Node component', () => {
 
     it('sets hovered to true when the mouse is not down', () => {
       const event = {
-        buttons: 0
+        buttons: 0,
       };
       output.setState({
-        hovered: false
+        hovered: false,
       });
-      output.instance().handleMouseOver(event);
-      expect(output.state().hovered).toEqual(true);
-      expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData, true);
-    });
-
-    it('sets hovered to true when the mouse is not down using d3 events', () => {
-      d3.event = {
-        buttons: 0
-      };
-      output.setState({
-        hovered: false
-      });
-      const event = null;
       output.instance().handleMouseOver(event);
       expect(output.state().hovered).toEqual(true);
       expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData, true);
@@ -317,44 +301,75 @@ describe('Node component', () => {
   });
 
   describe('handleDragEnd method', () => {
-    it('updates and selects the node using the callbacks', () => {
+    beforeEach(() => {
       output.instance().nodeRef = {
         current: {
-          parentElement: null
-        }
+          parentElement: null,
+        },
       };
-      // mock the event property
-      d3.event = {
-        sourceEvent: {
-          shiftKey: true
-        }
-      };
-      output.instance().handleDragEnd();
-      expect(onNodeUpdate).toHaveBeenCalledWith(
-        { x: 5, y: 10 },
-        "1",
-        true
-      );
-      expect(onNodeSelected).toHaveBeenCalledWith(nodeData, "1", true, { shiftKey: true });
     });
 
-    it('moves the element back to the original DOM position', () => {
-      const insertBefore = jasmine.createSpy();
-      output.instance().nodeRef.current = {
-        parentElement: 'blah'
-      };
-      output.instance().oldSibling = {
-        parentElement: {
-          insertBefore
-        }
+    it('updates and selects the node using the callbacks', () => {
+      output.instance().handleDragEnd({
+        shiftKey: true,
+      });
+      expect(onNodeUpdate).toHaveBeenCalledWith({ x: 5, y: 10 }, '1', true);
+    });
+
+    it('uses a layoutEngine to obtain a new position', () => {
+      const layoutEngine = {
+        getPositionForNode: jasmine.createSpy().and.callFake(newState => {
+          return {
+            x: 100,
+            y: 200,
+          };
+        }),
       };
 
-      output.instance().handleDragEnd();
-      expect(insertBefore).toHaveBeenCalledWith('blah', output.instance().oldSibling);
+      output.setProps({
+        layoutEngine,
+      });
+
+      const event = {
+        shiftKey: false,
+      };
+
+      output.instance().handleDragEnd(event);
+
+      expect(onNodeUpdate).toHaveBeenCalledWith({ x: 5, y: 10 }, '1', false);
+      expect(output.state('x')).toEqual(100);
+      expect(output.state('y')).toEqual(200);
     });
   });
 
   describe('handleDragStart method', () => {
+    let grandparent;
+    let parentElement;
+    beforeEach(() => {
+      grandparent = {
+        appendChild: jasmine.createSpy,
+      };
+      parentElement = {
+        nextSibling: 'blah',
+        parentElement: grandparent,
+      };
+      output.instance().nodeRef.current = {
+        parentElement,
+      };
+    });
+
+    it('moves the element in the DOM', () => {
+      output.instance().oldSibling = {};
+      output.instance().handleDragStart({
+        sourceEvent: {
+          shiftKey: true,
+        },
+      });
+      expect(grandparent).toEqual(grandparent);
+    });
+  });
+
+  describe('handleMouseMove method', () => {
     let grandparent;
     let parentElement;
     beforeEach(() => {
@@ -370,93 +385,34 @@ describe('Node component', () => {
       };
     });
 
-    it('assigns an oldSibling so that the element can be put back', () => {
-      output.instance().nodeRef.current = {
-        parentElement
-      };
-
-      output.instance().handleDragStart();
-
-      expect(output.instance().oldSibling).toEqual('blah');
-      expect(grandparent).toEqual(grandparent);
-    });
-
-    it('moves the element in the DOM', () => {
-      output.instance().oldSibling = {};
-      output.instance().handleDragStart();
-      expect(grandparent).toEqual(grandparent);
-    });
-  });
-
-  describe('handleMouseMove method', () => {
     it('calls the onNodeMove callback', () => {
-      output.instance().handleMouseMove();
+      output.instance().handleMouseMove({
+        buttons: 0,
+      });
       expect(onNodeMove).not.toHaveBeenCalled();
     });
 
     it('calls the onNodeMove callback with the shiftKey pressed', () => {
-      d3.event = {
-        sourceEvent: {
-          buttons: 1,
-          shiftKey: true
-        },
-        x: 20,
-        y: 50
+      const event = {
+        buttons: 1,
+        shiftKey: true,
       };
-      output.instance().handleMouseMove();
-      expect(onNodeMove).toHaveBeenCalledWith(
-        { x: 20, y: 50 },
-        "1",
-        true
-      );
+      const data = { x: 20, y: 50 };
+      output.instance().handleMouseMove(event, data);
+      expect(onNodeMove).toHaveBeenCalledWith({ x: 20, y: 50 }, '1', true);
     });
 
     it('calls the onNodeMove callback with the shiftKey not pressed', () => {
-      d3.event = {
-        sourceEvent: {
-          buttons: 1,
-          shiftKey: false
-        },
+      const event = {
+        buttons: 1,
+        shiftKey: false,
+      };
+      const data = {
         x: 20,
-        y: 50
+        y: 50,
       };
-      output.instance().handleMouseMove();
-      expect(onNodeMove).toHaveBeenCalledWith(
-        { x: 20, y: 50 },
-        "1",
-        false
-      );
-    });
-
-    it('uses a layoutEngine to obtain a new position', () => {
-      const layoutEngine = {
-        getPositionForNode: jasmine.createSpy().and.callFake((newState) => {
-          return {
-            x: 100,
-            y: 200
-          };
-        })
-      };
-
-      output.setProps({
-        layoutEngine
-      });
-
-      d3.event = {
-        sourceEvent: {
-          buttons: 1,
-          shiftKey: false
-        },
-        x: 20,
-        y: 50
-      };
-      output.instance().handleMouseMove();
-
-      expect(onNodeMove).toHaveBeenCalledWith(
-        { x: 100, y: 200 },
-        "1",
-        false
-      );
+      output.instance().handleMouseMove(event, data);
+      expect(onNodeMove).toHaveBeenCalledWith({ x: 20, y: 50 }, '1', false);
     });
   });
 });

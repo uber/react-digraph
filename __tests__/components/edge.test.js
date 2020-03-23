@@ -761,7 +761,7 @@ describe('Edge component', () => {
     });
 
     it('returns a default response when there is no matching target node', () => {
-      const trgNode = {};
+      const trgNode = null;
       const node = {
         querySelector: jest.fn().mockImplementation(() => {
           return trgNode;
@@ -795,8 +795,8 @@ describe('Edge component', () => {
         }),
       };
       const node = {
-        querySelector: jest.fn().mockImplementation(() => {
-          return trgNode;
+        querySelector: jest.fn().mockImplementation(selector => {
+          return selector === 'foreignObject' ? null : trgNode;
         }),
       };
 
@@ -831,8 +831,8 @@ describe('Edge component', () => {
         }),
       };
       const node = {
-        querySelector: jest.fn().mockImplementation(() => {
-          return trgNode;
+        querySelector: jest.fn().mockImplementation(selector => {
+          return selector === 'foreignObject' ? null : trgNode;
         }),
       };
 
