@@ -55,6 +55,7 @@ export type IGraphViewProps = {
   canDeleteEdge?: (selected: any) => boolean,
   canDeleteNode?: (selected: any) => boolean,
   onBackgroundClick?: (x: number, y: number, event: any) => void,
+  onContextMenu?: (x: number, y: number, event: any) => void,
   onCopySelected?: () => void,
   onCreateEdge: (sourceNode: INode, targetNode: INode) => void,
   onCreateNode: (x: number, y: number, event: any) => void,
