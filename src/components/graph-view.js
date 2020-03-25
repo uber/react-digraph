@@ -702,11 +702,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         const node = nodesToMove[i];
         const nodeMapNode = this.getNodeById(node[nodeKey]);
 
-        // move node before rendering edges
+        // update node's position attributes
         node.x += deltaX;
         node.y += deltaY;
 
+        // render edges separately from rendering nodes
         this.renderConnectedEdgesFromNode(nodeMapNode, true);
+
+        // when rendering nodes, don't re-render their edges
+        // re-rendering edges cause animation frames to be bunched / dropped
+        // when multiple nodes are moved
         this.asyncRenderNode(node, false);
       });
     } else if (
