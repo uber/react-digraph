@@ -692,7 +692,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       const deltaX = position.x - node.x;
       const deltaY = position.y - node.y;
 
-      const nodesToMove = selectedNodes.find(n => n[nodeKey] === node[nodeKey])
+      const isSelected = selectedNodes.find(n => n[nodeKey] === node[nodeKey]);
+
+      const nodesToMove = isSelected
         ? selectedNodes
         : selectedNodes.concat([node]);
 
@@ -700,12 +702,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         const node = nodesToMove[i];
         const nodeMapNode = this.getNodeById(node[nodeKey]);
 
-        // node moved
+        // move node before rendering edges
         node.x += deltaX;
         node.y += deltaY;
 
         this.renderConnectedEdgesFromNode(nodeMapNode, true);
-        this.asyncRenderNode(node);
+        this.asyncRenderNode(node, false);
       });
     } else if (
       (canCreateEdge && canCreateEdge(nodeId)) ||
@@ -1239,17 +1241,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   };
 
-  asyncRenderNode(node: INode) {
+  asyncRenderNode(node: INode, renderEdges: boolean = true) {
     const nodeKey = this.props.nodeKey;
     const timeoutId = `nodes-${node[nodeKey]}`;
 
     cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
     this.nodeTimeouts[timeoutId] = requestAnimationFrame(() => {
-      this.syncRenderNode(node);
+      this.syncRenderNode(node, renderEdges);
     });
   }
 
-  syncRenderNode(node: INode) {
+  syncRenderNode(node: INode, renderEdges: boolean = true) {
     const nodeKey = this.props.nodeKey;
     const id = `node-${node[nodeKey]}`;
     const element: any = this.getNodeComponent(id, node);
@@ -1257,7 +1259,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.renderNode(id, element);
 
-    if (nodesMapNode) {
+    if (renderEdges && nodesMapNode) {
       this.renderConnectedEdgesFromNode(nodesMapNode);
     }
   }
