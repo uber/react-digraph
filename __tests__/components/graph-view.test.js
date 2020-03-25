@@ -59,30 +59,6 @@ describe('GraphView component', () => {
       }),
     });
 
-    // this gets around d3 being readonly, we need to customize the event object
-    let globalEvent = {
-      sourceEvent: {},
-    };
-
-    Object.defineProperty(d3, 'event', {
-      get: () => {
-        return globalEvent;
-      },
-      set: event => {
-        globalEvent = event;
-      },
-    });
-    let globalMouse = {};
-
-    Object.defineProperty(d3, 'mouse', {
-      get: () => {
-        return globalMouse;
-      },
-      set: mouse => {
-        globalMouse = mouse;
-      },
-    });
-
     output = shallow(
       <GraphView
         nodes={nodes}
@@ -401,6 +377,11 @@ describe('GraphView component', () => {
   describe('isEdgeSelected method', () => {
     let edge;
 
+    const node = { id: 'a', source: 'a', target: 'b' };
+    const nodesProp = {
+      a: node,
+    };
+
     beforeEach(() => {
       edge = {
         source: 'a',
@@ -410,10 +391,12 @@ describe('GraphView component', () => {
     });
 
     it('returns true when the edge is selected', () => {
-      selected = edge;
+      selected = ['a'];
       output.setProps({
         edges,
         selected,
+        nodeKey,
+        nodes: nodesProp,
       });
 
       const result = instance.isEdgeSelected(edge);
@@ -422,13 +405,12 @@ describe('GraphView component', () => {
     });
 
     it('returns false when the edge is not selected', () => {
-      selected = {
-        source: 'b',
-        target: 'c',
-      };
+      selected = ['b'];
       output.setProps({
         edges,
         selected,
+        nodeKey,
+        nodesProp,
       });
 
       const result = instance.isEdgeSelected(edge);
@@ -560,7 +542,7 @@ describe('GraphView component', () => {
     it('returns a selected node', () => {
       output.setProps({
         nodes: [node],
-        selected: node,
+        selected: [node.id],
       });
       const result = instance.getNodeComponent('test', node, 0);
 
@@ -801,17 +783,20 @@ describe('GraphView component', () => {
   });
 
   describe('handleZoom method', () => {
+    let event;
     beforeEach(() => {
       spyOn(instance, 'dragEdge');
       spyOn(instance, 'renderGraphControls');
-      d3.event = {
+
+      event = {
         transform: 'test',
       };
+
       instance.view = document.createElement('g');
     });
 
     it('handles the zoom event when a node is not hovered nor an edge is being dragged', () => {
-      instance.handleZoom();
+      instance.handleZoom(event);
       expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
@@ -820,7 +805,9 @@ describe('GraphView component', () => {
       output.setState({
         viewTransform: 'test',
       });
-      instance.handleZoom();
+
+      instance.handleZoom(event);
+
       expect(instance.renderGraphControls).not.toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
@@ -829,7 +816,9 @@ describe('GraphView component', () => {
       output.setState({
         draggingEdge: true,
       });
-      instance.handleZoom();
+
+      instance.handleZoom(event);
+
       expect(instance.renderGraphControls).not.toHaveBeenCalled();
       expect(instance.dragEdge).toHaveBeenCalled();
     });
@@ -838,7 +827,9 @@ describe('GraphView component', () => {
       output.setState({
         hoveredNode: {},
       });
-      instance.handleZoom();
+
+      instance.handleZoom(event);
+
       expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
@@ -846,6 +837,7 @@ describe('GraphView component', () => {
 
   describe('dragEdge method', () => {
     let draggedEdge;
+    let mouse;
 
     beforeEach(() => {
       draggedEdge = {
@@ -853,10 +845,14 @@ describe('GraphView component', () => {
         target: 'b',
       };
       spyOn(instance, 'syncRenderEdge');
+      spyOn(instance, 'getMouseCoordinates').and.returnValue([5, 15]);
       instance.selectedView = d3.select(document.createElement('g'));
-      d3.mouse = jasmine.createSpy().and.returnValue([5, 15]);
+      mouse = jasmine.createSpy().and.returnValue([5, 15]);
       output.setProps({
-        nodes: [{ id: 'a', x: 5, y: 10 }, { id: 'b', x: 10, y: 20 }],
+        nodes: [
+          { id: 'a', x: 5, y: 10 },
+          { id: 'b', x: 10, y: 20 },
+        ],
       });
       output.setState({
         draggedEdge,
@@ -873,6 +869,7 @@ describe('GraphView component', () => {
 
     it('drags the edge', () => {
       instance.dragEdge();
+
       expect(instance.syncRenderEdge).toHaveBeenCalledWith({
         source: draggedEdge.source,
         targetPosition: { x: 5, y: 15 },
@@ -882,6 +879,7 @@ describe('GraphView component', () => {
 
   describe('handleZoomStart method', () => {
     let edge;
+    let event;
 
     beforeEach(() => {
       spyOn(instance, 'dragEdge');
@@ -891,7 +889,7 @@ describe('GraphView component', () => {
       output.setProps({
         edges: [edge],
       });
-      d3.event = {
+      event = {
         sourceEvent: {
           target: {
             classList: {
@@ -908,39 +906,41 @@ describe('GraphView component', () => {
       output.setProps({
         readOnly: true,
       });
-      instance.handleZoomStart();
+
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing when there is no sourceEvent', () => {
-      d3.event = {
+      event = {
         sourceEvent: null,
       };
-      instance.handleZoomStart();
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing when the sourceEvent is not an edge', () => {
-      d3.event.sourceEvent.target.classList.contains.and.returnValue(false);
-      instance.handleZoomStart();
+      event.sourceEvent.target.classList.contains.and.returnValue(false);
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it("does nothing if the arrow wasn't clicked", () => {
       instance.isArrowClicked.and.returnValue(false);
-      instance.handleZoomStart();
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing if there is no edge', () => {
-      d3.event.sourceEvent.target.id = 'fake';
-      instance.handleZoomStart();
+      event.sourceEvent.target.id = 'fake';
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('drags the edge', () => {
-      d3.event.sourceEvent.buttons = 2;
-      instance.handleZoomStart();
+      event.sourceEvent.buttons = 2;
+
+      instance.handleZoomStart(event);
       expect(output.state().draggedEdge).toEqual(edge);
       expect(instance.dragEdge).toHaveBeenCalled();
     });
