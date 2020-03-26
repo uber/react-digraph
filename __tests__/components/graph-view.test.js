@@ -553,21 +553,43 @@ describe('GraphView component', () => {
   });
 
   describe('renderView method', () => {
-    it('sets up the view and calls renderNodes asynchronously', () => {
-      jest.useFakeTimers();
-      jest.clearAllTimers();
-      spyOn(instance, 'renderNodes');
+    beforeEach(() => {
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        cb();
+      });
+      jest
+        .spyOn(instance, 'asyncRenderNode')
+        .mockImplementation((node, renderEdges, cb) => {
+          cb();
+        });
+    });
+
+    afterEach(() => {
+      window.requestAnimationFrame.mockRestore();
+      instance.asyncRenderNode.mockRestore();
+    });
+
+    it('sets up the view and calls renderNodes asynchronously', async () => {
+      jest.spyOn(instance, 'renderNodes');
       output.setState({
         viewTransform: 'test',
       });
       instance.selectedView = d3.select(document.createElement('g'));
+      instance.entities = document.createElement('g');
 
-      instance.renderView();
+      let done;
+      const promise = new Promise(resolve => (done = resolve));
 
-      jest.runAllTimers();
+      const beforeRender = jasmine.createSpy();
+      const afterRender = jasmine.createSpy().and.callFake(() => done());
 
-      expect(instance.renderNodes).toHaveBeenCalled();
+      instance.renderView({ beforeRender, afterRender });
+      await promise;
+
       expect(instance.selectedView.attr('transform')).toEqual('test');
+      expect(beforeRender).toHaveBeenCalled();
+      expect(instance.renderNodes).toHaveBeenCalled();
+      expect(afterRender).toHaveBeenCalled();
     });
   });
 

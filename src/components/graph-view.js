@@ -76,7 +76,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     readOnly: false,
     selected: [],
     showGraphControls: true,
-    zoomDelay: 1000,
+    initialZoomDur: 250,
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
@@ -139,8 +139,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   nodeTimeouts: any;
   edgeTimeouts: any;
-  renderNodesTimeout: any;
-  renderEdgesTimeout: any;
   zoom: any;
   viewWrapper: React.RefObject<HTMLDivElement>;
   graphSvg: React.RefObject<SVGElement>;
@@ -157,8 +155,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.wheelState = { zooming: false, requestId: null, deltaX: 0, deltaY: 0 };
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
-    this.renderNodesTimeout = null;
-    this.renderEdgesTimeout = null;
 
     this.viewWrapper = React.createRef();
     this.graphControls = React.createRef();
@@ -184,7 +180,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentDidMount() {
-    const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
+    const { initialBBox, minZoom, maxZoom } = this.props;
 
     // TODO: can we target the element rather than the document?
     document.addEventListener('keydown', this.handleWrapperKeydown);
@@ -215,21 +211,31 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.selectedView = d3.select(this.view);
 
     if (initialBBox) {
-      // If initialBBox is set, we don't compute the zoom and don't do any transition.
-      this.handleZoomToFitImpl(initialBBox, 0);
-      this.renderView();
+      this.renderView({
+        // If initialBBox is set, we zoom before render and don't do any transition.
+        beforeRender: () => this.handleZoomToFitImpl(initialBBox, 0),
+        afterRender: () => {},
+      });
 
       return;
     }
 
-    // On the initial load, the 'view' <g> doesn't exist until componentDidMount.
-    // Manually render the first view.
-    this.renderView();
-    setTimeout(() => {
-      if (this.viewWrapper.current != null) {
-        this.handleZoomToFit();
-      }
-    }, zoomDelay);
+    this.renderView({
+      // without initialBBox, we hide then render the entities
+      // then zoom after rendering. upon zoom completion, we show the entities in handleZoomEnd
+      beforeRender: () => {
+        if (this.entities) {
+          this.entities.style.visibility = 'hidden';
+        }
+      },
+      afterRender: () => {
+        requestAnimationFrame(() => {
+          if (this.viewWrapper.current != null) {
+            this.handleZoomToFit(true);
+          }
+        });
+      },
+    });
   }
 
   componentWillUnmount() {
@@ -1051,7 +1057,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { nodeKey } = this.props;
 
     // mark zooming indicators as complete
-    this.wheelState.zooming = false;
+    if (this.wheelState.zooming === true) {
+      this.wheelState.zooming = false;
+    }
+
+    // display hidden entity elements
+    if (this.entities && this.entities.style.visibility === 'hidden') {
+      this.entities.style.visibility = 'visible';
+    }
 
     if (!draggingEdge || !draggedEdge) {
       if (draggingEdge && !draggedEdge) {
@@ -1108,8 +1121,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  // Zooms to contents of this.refs.entities
-  handleZoomToFit = () => {
+  // Zooms to contents of this.entities
+  handleZoomToFit = (initialZoom: boolean = false) => {
     const entities = d3.select(this.entities).node();
 
     if (!entities) {
@@ -1122,7 +1135,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
+    this.handleZoomToFitImpl(
+      viewBBox,
+      initialZoom === true ? this.props.initialZoomDur : this.props.zoomDur
+    );
   };
 
   handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number = 0) => {
@@ -1225,13 +1241,34 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .call(this.zoom.transform, t);
   }
 
-  // Renders 'graph' into view element
-  renderView() {
+  renderView({ beforeRender, afterRender }) {
+    if (!this.entities || !this.selectedView) {
+      return;
+    }
+
+    beforeRender();
     // Update the view w/ new zoom/pan
     this.selectedView.attr('transform', this.state.viewTransform);
+    requestAnimationFrame(() => this.renderNodes(afterRender));
+  }
 
-    clearTimeout(this.renderNodesTimeout);
-    this.renderNodesTimeout = setTimeout(this.renderNodes);
+  // renders children
+  // renders components of graph view into entities
+  renderNodes(afterRender: () => void = () => {}) {
+    if (!this.entities) {
+      return;
+    }
+
+    Promise.all(
+      this.state.nodes.map((node, i) => {
+        let onNodeRendered;
+        const promise = new Promise(resolve => (onNodeRendered = resolve));
+
+        this.asyncRenderNode(node, true, onNodeRendered);
+
+        return promise;
+      })
+    ).then(() => afterRender());
   }
 
   getNodeComponent = (id: string, node: INode) => {
@@ -1276,23 +1313,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  renderNodes = () => {
-    if (!this.entities) {
-      return;
-    }
-
-    this.state.nodes.forEach((node, i) => {
-      this.asyncRenderNode(node);
-    });
-  };
-
-  asyncRenderNode(node: INode, renderEdges: boolean = true) {
+  asyncRenderNode(
+    node: INode,
+    renderEdges: boolean = true,
+    onRendered: () => void = () => {}
+  ) {
     const nodeKey = this.props.nodeKey;
     const timeoutId = `nodes-${node[nodeKey]}`;
 
     cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
     this.nodeTimeouts[timeoutId] = requestAnimationFrame(() => {
       this.syncRenderNode(node, renderEdges);
+      onRendered();
     });
   }
 
@@ -1355,14 +1387,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    // We have to use the 'custom' id when we're drawing a new node
-    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
-    const id = `edge-${idVar}`;
-    const containerId = `${id}-container`;
     const edgeContainer:
       | HTMLElement
       | Element
-      | null = this.entities.querySelector(`#${containerId}`);
+      | null = this.entities.querySelector(
+      `#edge-${edge.source}-${edge.target}-container`
+    );
 
     if (edgeContainer) {
       this.entities.appendChild(edgeContainer);
@@ -1374,13 +1404,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const nodeKey = this.props.nodeKey;
-    const id = `node-${node[nodeKey]}`;
-    const containerId = `${id}-container`;
     const nodeContainer:
       | HTMLElement
       | Element
-      | null = this.entities.querySelector(`#${containerId}`);
+      | null = this.entities.querySelector(
+      `#node-${node[this.props.nodeKey]}-container`
+    );
 
     if (nodeContainer) {
       this.entities.appendChild(nodeContainer);
