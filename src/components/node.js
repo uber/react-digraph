@@ -138,7 +138,13 @@ class Node extends React.Component<INodeProps, INodeState> {
   handleMouseMove = (e, data) => {
     const mouseButtonDown = e.buttons === 1;
     const shiftKey = e.shiftKey;
-    const { nodeSize, nodeKey, viewWrapperElem } = this.props;
+    const {
+      nodeSize,
+      nodeKey,
+      viewWrapperElem,
+      centerNodeOnMove,
+      onNodeMove,
+    } = this.props;
 
     if (!mouseButtonDown) {
       return;
@@ -150,14 +156,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       y: data.y,
     };
 
-    // Moves child to the end of the element stack to re-arrange the z-index
-    const container = this.nodeRef.current.parentElement;
-
-    if (container.parentElement.lastElementChild !== container) {
-      container.parentElement.appendChild(container);
-    }
-
-    if (!this.props.centerNodeOnMove) {
+    if (!centerNodeOnMove) {
       newState.pointerOffset = this.state.pointerOffset || {
         x: data.x - this.props.data.x,
         y: data.y - this.props.data.y,
@@ -187,7 +186,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     this.setState(newState);
     // Never use this.props.index because if the nodes array changes order
     // then this function could move the wrong node.
-    this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
+    onNodeMove(newState, this.props.data[nodeKey], shiftKey);
   };
 
   handleDragStart = e => {

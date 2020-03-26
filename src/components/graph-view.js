@@ -673,47 +673,59 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!GraphUtils.findParent(element, '.edge-container');
   }
 
-  handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { canCreateEdge, readOnly, nodeKey } = this.props;
+  positionNodes = (
+    newPosition: IPoint,
+    movedNode: INode,
+    nodeMoving: boolean
+  ) => {
+    const { nodeKey } = this.props;
     const { selectedNodes } = this.state;
-    const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
+    const deltaX = newPosition.x - movedNode.x;
+    const deltaY = newPosition.y - movedNode.y;
 
-    if (!nodeMapNode) {
-      return;
-    }
+    const isSelected = selectedNodes.find(
+      node => node[nodeKey] === movedNode[nodeKey]
+    );
 
-    const node = nodeMapNode.node;
+    const nodesToPosition = isSelected
+      ? selectedNodes
+      : selectedNodes.concat([movedNode]);
 
-    if (readOnly) {
-      return;
-    }
+    // update nodes' position attributes synchronously
+    nodesToPosition.forEach(node => {
+      node.x += deltaX;
+      node.y += deltaY;
+    });
 
-    if (!shiftKey && !this.state.draggingEdge) {
-      const deltaX = position.x - node.x;
-      const deltaY = position.y - node.y;
+    // asynchronously re-render nodes and edges
+    GraphUtils.yieldingLoop(nodesToPosition.length, 50, i => {
+      const node = nodesToPosition[i];
+      const nodeMapNode = this.getNodeById(node[nodeKey]);
 
-      const isSelected = selectedNodes.find(n => n[nodeKey] === node[nodeKey]);
-
-      const nodesToMove = isSelected
-        ? selectedNodes
-        : selectedNodes.concat([node]);
-
-      GraphUtils.yieldingLoop(nodesToMove.length, 50, i => {
-        const node = nodesToMove[i];
-        const nodeMapNode = this.getNodeById(node[nodeKey]);
-
-        // update node's position attributes
-        node.x += deltaX;
-        node.y += deltaY;
-
+      if (nodeMoving) {
         // render edges separately from rendering nodes
         this.renderConnectedEdgesFromNode(nodeMapNode, true);
+      }
 
-        // when rendering nodes, don't re-render their edges
-        // re-rendering edges cause animation frames to be bunched / dropped
-        // when multiple nodes are moved
-        this.asyncRenderNode(node, false);
-      });
+      // when rendering moving nodes, don't re-render their edges
+      // re-rendering edges cause animation frames to be bunched / dropped
+      // when multiple nodes are moved
+      this.asyncRenderNode(node, !nodeMoving);
+    });
+  };
+
+  handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
+    const { canCreateEdge, readOnly } = this.props;
+    const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
+
+    if (readOnly || !nodeMapNode) {
+      return;
+    }
+
+    const node: INode = nodeMapNode.node;
+
+    if (!shiftKey && !this.state.draggingEdge) {
+      this.positionNodes(position, node, true);
     } else if (
       (canCreateEdge && canCreateEdge(nodeId)) ||
       this.state.draggingEdge
@@ -766,7 +778,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
+  handleNodeUpdate = (position: IPoint, nodeId: string, shiftKey: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
@@ -778,11 +790,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (shiftKey) {
       this.createNewEdge();
     } else {
-      const nodeMap = this.getNodeById(nodeId);
+      const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
-      if (nodeMap) {
-        Object.assign(nodeMap.node, position);
-        onUpdateNode(nodeMap.node);
+      if (nodeMapNode) {
+        const node: INode = nodeMapNode.node;
+
+        this.positionNodes(position, node, false);
+        onUpdateNode(node);
       }
     }
 
@@ -850,6 +864,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.setState(newState);
 
     if (!creatingEdge) {
+      this.asyncElevateNodeAndEdges(node);
       this.props.onSelectNode(node, event);
     }
   };
@@ -1275,9 +1290,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     const containerId = `${id}-container`;
-    let nodeContainer: HTMLElement | Element | null = document.getElementById(
-      containerId
-    );
+    let nodeContainer:
+      | HTMLElement
+      | Element
+      | null = this.entities.querySelector(`#${containerId}`);
 
     if (!nodeContainer) {
       nodeContainer = document.createElementNS(
@@ -1293,6 +1309,57 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const anyElement: any = element;
 
     ReactDOM.render(anyElement, nodeContainer);
+  }
+
+  asyncElevateNodeAndEdges(node: INode) {
+    const asyncElevateNode = node =>
+      requestAnimationFrame(() => this.syncElevateNode(node));
+    const asyncElevateEdge = edge =>
+      requestAnimationFrame(() => this.syncElevateEdge(edge));
+
+    const nodeMapNode = this.getNodeById(node[this.props.nodeKey]);
+
+    asyncElevateNode(node);
+
+    nodeMapNode.incomingEdges.forEach(asyncElevateEdge);
+    nodeMapNode.outgoingEdges.forEach(asyncElevateEdge);
+  }
+
+  syncElevateEdge(edge: IEdge) {
+    if (!this.entities) {
+      return;
+    }
+
+    // We have to use the 'custom' id when we're drawing a new node
+    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
+    const id = `edge-${idVar}`;
+    const containerId = `${id}-container`;
+    const edgeContainer:
+      | HTMLElement
+      | Element
+      | null = this.entities.querySelector(`#${containerId}`);
+
+    if (edgeContainer) {
+      this.entities.appendChild(edgeContainer);
+    }
+  }
+
+  syncElevateNode(node: INode) {
+    if (!this.entities) {
+      return;
+    }
+
+    const nodeKey = this.props.nodeKey;
+    const id = `node-${node[nodeKey]}`;
+    const containerId = `${id}-container`;
+    const nodeContainer:
+      | HTMLElement
+      | Element
+      | null = this.entities.querySelector(`#${containerId}`);
+
+    if (nodeContainer) {
+      this.entities.appendChild(nodeContainer);
+    }
   }
 
   renderConnectedEdgesFromNode(
@@ -1344,28 +1411,29 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  renderEdge = (
-    id: string,
-    element: any,
-    edge: IEdge,
-    nodeMoving: boolean = false
-  ) => {
+  renderEdge = (element: any, edge: IEdge, nodeMoving: boolean = false) => {
     if (!this.entities) {
       return null;
     }
+
+    // We have to use the 'custom' id when we're drawing a new node
+    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
+    const id = `edge-${idVar}`;
 
     let containerId = `${id}-container`;
     const customContainerId = `${id}-custom-container`;
     const { draggedEdge } = this.state;
     const { afterRenderEdge } = this.props;
-    let edgeContainer = document.getElementById(containerId);
+    let edgeContainer = this.entities.querySelector(`#${containerId}`);
 
     if (nodeMoving && edgeContainer) {
       edgeContainer.style.display = 'none';
       containerId = `${id}-custom-container`;
-      edgeContainer = document.getElementById(containerId);
+      edgeContainer = this.entities.querySelector(`#${containerId}`);
     } else if (edgeContainer) {
-      const customContainer = document.getElementById(customContainerId);
+      const customContainer = this.entities.querySelector(
+        `#${customContainerId}`
+      );
 
       edgeContainer.style.display = '';
 
@@ -1420,12 +1488,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    // We have to use the 'custom' id when we're drawing a new node
-    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
-    const id = `edge-${idVar}`;
     const element = this.getEdgeComponent(edge);
 
-    this.renderEdge(id, element, edge, nodeMoving);
+    this.renderEdge(element, edge, nodeMoving);
   }
 
   renderEdges = () => {
