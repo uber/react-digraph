@@ -208,7 +208,6 @@ describe('GraphView component', () => {
 
       instance.syncRenderEdge(expectedEdge);
       expect(instance.renderEdge).toHaveBeenCalledWith(
-        'edge-a-b',
         'blah',
         expectedEdge,
         false
@@ -222,7 +221,6 @@ describe('GraphView component', () => {
 
       instance.syncRenderEdge(expectedEdge);
       expect(instance.renderEdge).toHaveBeenCalledWith(
-        'edge-custom',
         'blah',
         expectedEdge,
         false
@@ -261,6 +259,7 @@ describe('GraphView component', () => {
     beforeEach(() => {
       instance.entities = {
         appendChild: jasmine.createSpy(),
+        querySelector: () => null,
       };
       ReactDOM.render = jasmine.createSpy();
     });
@@ -272,7 +271,7 @@ describe('GraphView component', () => {
         target: 'b',
       };
 
-      instance.renderEdge('test', element, edge);
+      instance.renderEdge(element, edge);
 
       expect(instance.entities.appendChild).toHaveBeenCalled();
     });
@@ -282,13 +281,13 @@ describe('GraphView component', () => {
       const container = document.createElement('g');
 
       container.id = 'test-container';
-      spyOn(document, 'getElementById').and.returnValue(container);
+      spyOn(instance.entities, 'querySelector').and.returnValue(container);
       const edge = {
         source: 'a',
         target: 'b',
       };
 
-      instance.renderEdge('test', element, edge);
+      instance.renderEdge(element, edge);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
       expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
@@ -431,7 +430,7 @@ describe('GraphView component', () => {
       spyOn(instance, 'renderNode');
       spyOn(instance, 'renderConnectedEdgesFromNode');
 
-      instance.syncRenderNode(node, 0);
+      instance.syncRenderNode(node);
 
       expect(instance.renderNode).toHaveBeenCalledWith(
         'node-a',
@@ -461,7 +460,7 @@ describe('GraphView component', () => {
 
       expect(instance.nodeTimeouts['nodes-a']).toBeDefined();
       expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
-      expect(instance.syncRenderNode).toHaveBeenCalledWith(node);
+      expect(instance.syncRenderNode).toHaveBeenCalledWith(node, true);
     });
   });
 
@@ -498,6 +497,7 @@ describe('GraphView component', () => {
     beforeEach(() => {
       instance.entities = {
         appendChild: jasmine.createSpy(),
+        querySelector: () => null,
       };
       ReactDOM.render = jasmine.createSpy();
     });
@@ -515,7 +515,9 @@ describe('GraphView component', () => {
       const container = document.createElement('g');
 
       container.id = 'test-container';
-      spyOn(document, 'getElementById').and.returnValue(container);
+
+      spyOn(instance.entities, 'querySelector').and.returnValue(container);
+
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
