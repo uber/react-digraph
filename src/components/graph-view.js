@@ -149,14 +149,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   constructor(props: IGraphViewProps) {
     super(props);
 
-    this.panState = {
-      panning: false,
-      requestId: null,
-    };
+    this.panState = { panning: false, requestId: null };
+    this.wheelState = { zooming: false, requestId: null, deltaX: 0, deltaY: 0 };
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
     this.renderNodesTimeout = null;
     this.renderEdgesTimeout = null;
+
     this.viewWrapper = React.createRef();
     this.graphControls = React.createRef();
     this.graphSvg = React.createRef();
@@ -186,7 +185,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // TODO: can we target the element rather than the document?
     document.addEventListener('keydown', this.handleWrapperKeydown);
     document.addEventListener('click', this.handleDocumentClick);
-    document.addEventListener('mouseup', () => this.handlePanEnd());
+    document.addEventListener('mouseup', this.handlePanEnd);
+
+    if (this.viewWrapper.current) {
+      this.viewWrapper.current.addEventListener(
+        'wheel',
+        this.handlePanWheel,
+        { passive: false } // not passive -- need to preventDefault
+      );
+    }
 
     this.zoom = d3
       .zoom()
@@ -224,6 +231,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleWrapperKeydown);
     document.removeEventListener('click', this.handleDocumentClick);
+    document.removeEventListener('mouseup', this.handlePanEnd);
+
+    if (this.viewWrapper.current) {
+      this.viewWrapper.current.removeEventListener(
+        'wheel',
+        this.handlePanWheel
+      );
+    }
   }
 
   shouldComponentUpdate(
@@ -1029,8 +1044,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleZoomEnd = () => {
     const { draggingEdge, draggedEdge, edgeEndNode } = this.state;
-
     const { nodeKey } = this.props;
+
+    // mark zooming indicators as complete
+    this.wheelState.zooming = false;
 
     if (!draggingEdge || !draggedEdge) {
       if (draggingEdge && !draggedEdge) {
@@ -1191,6 +1208,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Programmatically resets zoom
   setZoom(k: number = 1, x: number = 0, y: number = 0, dur: number = 0) {
+    if (!this.viewWrapper.current) {
+      return;
+    }
+
     const t = d3.zoomIdentity.translate(x, y).scale(k);
 
     d3.select(this.viewWrapper.current)
@@ -1568,8 +1589,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
           />
           <g className="view" ref={el => (this.view = el)}>
             <Background
-              onMouseDown={event => this.handlePanStart(event)}
-              onMouseMove={event => this.handlePan(event)}
+              onMouseDown={this.handlePanStart}
+              onMouseMove={this.handlePanDrag}
               gridSize={gridSize}
               backgroundFillId={backgroundFillId}
               renderBackground={renderBackground}
@@ -1586,13 +1607,50 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   }
 
-  handlePanStart(event: any) {
+  handlePanWheel = (event: any) => {
+    // don't allow pan / wheel to affect document
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    event.preventDefault();
+
+    if (this.wheelState.requestId != null) {
+      cancelAnimationFrame(this.wheelState.requestId);
+    }
+
+    let requestId = null;
+
+    if (!this.wheelState.zooming) {
+      requestId = requestAnimationFrame(() => {
+        const { viewTransform } = this.state;
+        const offX = this.wheelState.deltaX + viewTransform.x;
+        const offY = this.wheelState.deltaY + viewTransform.y;
+
+        this.wheelState = {
+          zooming: true,
+          requestId: null,
+          deltaX: 0,
+          deltaY: 0,
+        };
+
+        this.setZoom(viewTransform.k || 1, offX, offY, 0);
+      });
+    }
+
+    this.wheelState = {
+      requestId,
+      zooming: this.wheelState.zooming,
+      deltaX: event.deltaX + this.wheelState.deltaX,
+      deltaY: event.deltaY + this.wheelState.deltaY,
+    };
+  };
+
+  handlePanStart = (event: any) => {
     const { clientX, clientY } = event;
 
     this.panState = { clientX, clientY, requestId: null, panning: true };
-  }
+  };
 
-  handlePan(event: any) {
+  handlePanDrag = (event: any) => {
     if (!this.panState.panning) {
       return;
     }
@@ -1601,13 +1659,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       cancelAnimationFrame(this.panState.requestId);
     }
 
-    const { viewTransform } = this.state;
-    const k = viewTransform.k || 1;
+    // grab clientX, clientY here since React recycles events
     const { clientX, clientY } = event;
 
     this.panState.requestId = requestAnimationFrame(() => {
-      const offX = clientX - this.panState.clientX + this.state.viewTransform.x;
-      const offY = clientY - this.panState.clientY + this.state.viewTransform.y;
+      const { viewTransform } = this.state;
+      const offX = clientX - this.panState.clientX + viewTransform.x;
+      const offY = clientY - this.panState.clientY + viewTransform.y;
 
       this.panState = {
         ...this.panState,
@@ -1616,13 +1674,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         requestId: null,
       };
 
-      this.setZoom(k, offX, offY, 0);
+      this.setZoom(viewTransform.k || 1, offX, offY, 0);
     });
-  }
+  };
 
-  handlePanEnd() {
-    this.panState.panning = false;
-  }
+  handlePanEnd = () => (this.panState.panning = false);
 
   /* Imperative API */
   panToEntity(entity: IEdge | INode, zoom: boolean) {
