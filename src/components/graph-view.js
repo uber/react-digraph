@@ -66,6 +66,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
     onNodeMove: () => true,
+    onPanDragStart: () => {},
+    onPanDragEnd: () => {},
     edgeArrowSize: 8,
     gridSpacing: 36,
     maxZoom: 1.5,
@@ -78,6 +80,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
+    panOnDrag: true,
+    panOnWheel: true,
   };
 
   static getDerivedStateFromProps(
@@ -1608,6 +1612,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handlePanWheel = (event: any) => {
+    if (!this.props.panOnWheel) {
+      return;
+    }
+
     // don't allow pan / wheel to affect document
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -1645,9 +1653,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handlePanStart = (event: any) => {
+    if (!this.props.panOnDrag) {
+      return;
+    }
+
     const { clientX, clientY } = event;
 
     this.panState = { clientX, clientY, requestId: null, panning: true };
+    this.props.onPanDragStart();
   };
 
   handlePanDrag = (event: any) => {
@@ -1678,7 +1691,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   };
 
-  handlePanEnd = () => (this.panState.panning = false);
+  handlePanEnd = () => {
+    if (this.panState.panning) {
+      this.panState.panning = false;
+      this.props.onPanDragEnd();
+    }
+  };
 
   /* Imperative API */
   panToEntity(entity: IEdge | INode, zoom: boolean) {
