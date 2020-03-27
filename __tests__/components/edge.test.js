@@ -17,6 +17,7 @@ describe('Edge component', () => {
 
   beforeEach(() => {
     data = {
+      className: 'extra-class',
       handleText: 'test',
       source: 'foo',
       target: 'bar',
@@ -63,7 +64,7 @@ describe('Edge component', () => {
         .find('g')
         .first();
 
-      expect(g.props().className).toEqual('edge');
+      expect(g.props().className).toEqual('edge extra-class');
 
       const path = output.find('path').first();
 
