@@ -30,6 +30,10 @@ button {
   display: flex;
 }
 
+.edge.missing {
+  stroke-dasharray: 2 4;
+}
+
 .total-nodes {
   margin-right: 10px;
 }
