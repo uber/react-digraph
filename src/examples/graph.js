@@ -59,6 +59,7 @@ const sample: IGraph = {
       type: SPECIAL_EDGE_TYPE,
     },
     {
+      className: 'missing',
       handleText: '5',
       handleTooltipText: 'This edge connects Node A and Node B',
       source: 'a1',

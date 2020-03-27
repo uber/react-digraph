@@ -27,6 +27,7 @@ export type IEdge = {
   source: string,
   target: string,
   type?: string,
+  className?: string,
   handleText?: string,
   handleTooltipText?: string,
   label_from?: string,
@@ -689,9 +690,11 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     const id = `${data.source || ''}_${data.target}`;
-    const className = GraphUtils.classNames('edge', {
-      selected: this.props.isSelected,
-    });
+    const className = GraphUtils.classNames(
+      'edge',
+      { selected: this.props.isSelected },
+      data.className || ''
+    );
     const edgeHandleTransformation = this.getEdgeHandleTransformation();
 
     return (
