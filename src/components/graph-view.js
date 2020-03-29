@@ -1276,6 +1276,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodeTypes,
       nodeSubtypes,
       nodeSize,
+      readOnly,
       renderNode,
       renderNodeText,
       nodeKey,
@@ -1306,6 +1307,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         viewWrapperElem={this.viewWrapper.current}
         centerNodeOnMove={this.props.centerNodeOnMove}
         maxTitleChars={maxTitleChars}
+        readOnly={readOnly}
         scale={
           this.state.viewTransform != null ? this.state.viewTransform.k : 1
         }
@@ -1371,15 +1373,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   asyncElevateNodeAndEdges(node: INode) {
     const asyncElevateNode = node =>
       requestAnimationFrame(() => this.syncElevateNode(node));
+
     const asyncElevateEdge = edge =>
       requestAnimationFrame(() => this.syncElevateEdge(edge));
 
-    const nodeMapNode = this.getNodeById(node[this.props.nodeKey]);
+    const { nodeKey, readOnly } = this.props;
+    const nodeMapNode = this.getNodeById(node[nodeKey]);
 
-    asyncElevateNode(node);
-
-    nodeMapNode.incomingEdges.forEach(asyncElevateEdge);
-    nodeMapNode.outgoingEdges.forEach(asyncElevateEdge);
+    if (!readOnly && node.readOnly !== true && nodeMapNode) {
+      asyncElevateNode(node);
+      nodeMapNode.incomingEdges.forEach(asyncElevateEdge);
+      nodeMapNode.outgoingEdges.forEach(asyncElevateEdge);
+    }
   }
 
   syncElevateEdge(edge: IEdge) {

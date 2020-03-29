@@ -112,7 +112,8 @@ const sample: IGraph = {
   nodes: [
     {
       id: 'start1',
-      title: 'Start (0)',
+      title: 'ReadOnly (0)',
+      readOnly: true,
       type: SPECIAL_TYPE,
     },
     {

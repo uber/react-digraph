@@ -35,6 +35,7 @@ export type INode = {
   y?: number | null,
   type?: string | null,
   subtype?: string | null,
+  readOnly?: boolean | null,
   [key: string]: any,
 };
 
@@ -59,6 +60,7 @@ type INodeProps = {
     hovered: boolean
   ) => any,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
+  readOnly?: boolean,
   isSelected: boolean,
   layoutEngine?: any,
   viewWrapperElem: HTMLDivElement,
@@ -80,6 +82,7 @@ type INodeState = {
 class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
     isSelected: false,
+    readOnly: false,
     nodeSize: 154,
     maxTitleChars: 12,
     scale: 1,
@@ -373,7 +376,33 @@ class Node extends React.Component<INodeProps, INodeState> {
       selected,
     });
 
-    return (
+    const readOnly = this.props.readOnly || data.readOnly === true;
+    const nodeAttributes = readOnly
+      ? {
+          onClick: this.handleDragStart,
+          transform: `translate(${x}, ${y})`,
+          style: { transform: `matrix(1, 0, 0, 1, ${x}, ${y})` },
+        }
+      : {};
+
+    const node = (
+      <g
+        className={className}
+        onMouseOver={this.handleMouseOver}
+        onMouseOut={this.handleMouseOut}
+        id={id}
+        ref={this.nodeRef}
+        opacity={opacity}
+        {...nodeAttributes}
+      >
+        {this.renderShape()}
+        {this.renderText()}
+      </g>
+    );
+
+    return readOnly ? (
+      node
+    ) : (
       <Draggable
         position={{ x, y }}
         onStart={this.handleDragStart}
@@ -381,17 +410,7 @@ class Node extends React.Component<INodeProps, INodeState> {
         onStop={this.handleDragEnd}
         scale={scale}
       >
-        <g
-          className={className}
-          onMouseOver={this.handleMouseOver}
-          onMouseOut={this.handleMouseOut}
-          id={id}
-          ref={this.nodeRef}
-          opacity={opacity}
-        >
-          {this.renderShape()}
-          {this.renderText()}
-        </g>
+        {node}
       </Draggable>
     );
   }
