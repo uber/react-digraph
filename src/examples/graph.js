@@ -302,12 +302,13 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   deleteStartNode = () => {
     const graph = this.state.graph;
 
-    graph.nodes.splice(0, 1);
     // using a new array like this creates a new memory reference
     // this will force a re-render
-    graph.nodes = [...this.state.graph.nodes];
     this.setState({
-      graph,
+      graph: {
+        ...graph,
+        nodes: graph.nodes.slice(1),
+      },
     });
   };
 

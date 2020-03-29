@@ -15,6 +15,7 @@
   limitations under the License.
 */
 
+import ReactDOM from 'react-dom';
 import { type IEdge } from '../components/edge';
 import { type INode } from '../components/node';
 import fastDeepEqual from 'fast-deep-equal';
@@ -94,10 +95,11 @@ class GraphUtils {
     }
   }
 
-  static removeElementFromDom(id: string) {
-    const container = document.getElementById(id);
+  static removeElementFromDom(element: any, id: string) {
+    const container = element.querySelector(`#${id}`);
 
     if (container && container.parentNode) {
+      ReactDOM.unmountComponentAtNode(container);
       container.parentNode.removeChild(container);
 
       return true;
