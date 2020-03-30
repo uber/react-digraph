@@ -406,10 +406,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
 
       // remove node
-      // The timeout avoids a race condition
-      setTimeout(() => {
-        GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
-      });
+      // The animation frame avoids a race condition
+      requestAnimationFrame(() =>
+        GraphUtils.removeElementFromDom(
+          this.entities,
+          `node-${nodeId}-container`
+        )
+      );
     }
   }
 
@@ -459,29 +462,26 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   removeOldEdges = (prevEdges: IEdge[], edgesMap: any) => {
-    // remove old edges
-    let edge = null;
-
     for (let i = 0; i < prevEdges.length; i++) {
-      edge = prevEdges[i];
+      const { source, target } = prevEdges[i];
 
       // Check for deletions
-      if (
-        !edge.source ||
-        !edge.target ||
-        !edgesMap[`${edge.source}_${edge.target}`]
-      ) {
+      if (!source || !target || !edgesMap[`${source}_${target}`]) {
         // remove edge
-        this.removeEdgeElement(edge.source, edge.target);
-        continue;
+        this.removeEdgeElement(source, target);
       }
     }
   };
 
   removeEdgeElement(source: string, target: string) {
-    const id = `${source}-${target}`;
+    const prefix = `edge-${source}-${target}`;
 
-    GraphUtils.removeElementFromDom(`edge-${id}-container`);
+    GraphUtils.removeElementFromDom(this.entities, `${prefix}-container`);
+    // remove custom containers (in case they linger)
+    GraphUtils.removeElementFromDom(
+      this.entities,
+      `${prefix}-custom-container`
+    );
   }
 
   canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
@@ -513,7 +513,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // remove from UI
     removedNodes.forEach(nodeId =>
-      GraphUtils.removeElementFromDom(`node-${nodeId}-container`)
+      GraphUtils.removeElementFromDom(this.entities, `node-${nodeId}-container`)
     );
 
     // inform consumer
@@ -527,17 +527,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     selectedEdges.forEach(selectedEdge => {
       if (selectedEdge.source && selectedEdge.target) {
         this.deleteEdgeBySourceTarget(selectedEdge.source, selectedEdge.target);
-      }
-
-      // remove from UI
-      if (selectedEdge.source && selectedEdge.target) {
-        // remove extra custom containers just in case.
-        GraphUtils.removeElementFromDom(
-          `edge-${selectedEdge.source}-${selectedEdge.target}-custom-container`
-        );
-        GraphUtils.removeElementFromDom(
-          `edge-${selectedEdge.source}-${selectedEdge.target}-container`
-        );
+        // remove from UI
+        this.removeEdgeElement(selectedEdge.source, selectedEdge.target);
       }
     });
 
@@ -771,7 +762,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    GraphUtils.removeElementFromDom('edge-custom-container');
+    GraphUtils.removeElementFromDom(this.entities, 'edge-custom-container');
 
     if (edgeEndNode) {
       const mapId1 = `${hoveredNodeData[nodeKey]}_${edgeEndNode[nodeKey]}`;
@@ -1083,7 +1074,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const draggedEdgeCopy = { ...this.state.draggedEdge };
 
     // remove custom edge
-    GraphUtils.removeElementFromDom('edge-custom-container');
+    GraphUtils.removeElementFromDom(this.entities, 'edge-custom-container');
     this.setState(
       {
         draggedEdge: null,
@@ -1490,15 +1481,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       containerId = `${id}-custom-container`;
       edgeContainer = this.entities.querySelector(`#${containerId}`);
     } else if (edgeContainer) {
-      const customContainer = this.entities.querySelector(
-        `#${customContainerId}`
-      );
-
       edgeContainer.style.display = '';
-
-      if (customContainer) {
-        customContainer.remove();
-      }
+      GraphUtils.removeElementFromDom(this.entities, customContainerId);
     }
 
     if (!edgeContainer && edge !== draggedEdge) {

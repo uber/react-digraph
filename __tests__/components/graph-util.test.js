@@ -1,7 +1,7 @@
 // @flow
 
+import ReactDOM from 'react-dom';
 import GraphUtils from '../../src/utilities/graph-util';
-import { Edge } from '../../src';
 
 describe('GraphUtils class', () => {
   describe('getNodesMap method', () => {
@@ -130,19 +130,24 @@ describe('GraphUtils class', () => {
           removeChild: jasmine.createSpy(),
         },
       };
+      const element = {
+        querySelector: () => fakeElement,
+      };
 
-      spyOn(document, 'getElementById').and.returnValue(fakeElement);
-      const result = GraphUtils.removeElementFromDom('fake');
+      spyOn(ReactDOM, 'unmountComponentAtNode').and.returnValue(true);
+
+      const result = GraphUtils.removeElementFromDom(element, 'fake');
 
       expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
         fakeElement
       );
+      expect(ReactDOM.unmountComponentAtNode).toHaveBeenCalledWith(fakeElement);
       expect(result).toEqual(true);
     });
 
     it("does nothing when it can't find the element", () => {
-      spyOn(document, 'getElementById').and.returnValue(undefined);
-      const result = GraphUtils.removeElementFromDom('fake');
+      const element = { querySelector: () => undefined };
+      const result = GraphUtils.removeElementFromDom(element, 'fake');
 
       expect(result).toEqual(false);
     });
