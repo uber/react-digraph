@@ -45,7 +45,7 @@ export default class FlowV1Transformer extends Transformer {
       const nodeToAdd: INode = {
         title: name,
         first: name === input.current,
-        type: 'Choice',
+        type: currentNode.Type,
         gnode: currentNode,
         x: currentNode.x || 0,
         y: currentNode.y || 0,

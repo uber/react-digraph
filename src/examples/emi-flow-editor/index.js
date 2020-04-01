@@ -747,7 +747,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         style={{ width: '1000px' }}
       >
         <h1>Help</h1>
-        <h2>Leyend</h2>
+        <h2>Legend</h2>
         Not yet :(
         <h2>Useful tips</h2>
         For non OSX systems, just use CTRL instead of CMD key.

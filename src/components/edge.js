@@ -438,7 +438,7 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     // const trgNode = nodeElem.querySelector(`use.node`);
-    const trgNode = nodeElem.querySelector(`rect`);
+    const trgNode = nodeElem.querySelector(`use`);
 
     // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
     if (!trgNode || (trgNode && !trgNode.getAttributeNS)) {

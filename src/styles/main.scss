@@ -38,9 +38,35 @@ $background-color: #f9f9f9;
     width: 100%;
   }
 
-  .node {
+  .Module {
     .shape {
-      > rect {
+      > use {
+        color: $primary-color;
+        fill: lightskyblue;
+        filter: url(#dropshadow);
+        stroke-width: 0.5px;
+        cursor: pointer;
+        user-select: none;
+
+        &.hovered {
+          stroke: $primary-color;
+        }
+        &.selected {
+          color: $light-color;
+          stroke: $primary-color;
+          stroke-width: 1px;
+          fill: $primary-color;
+        }
+        &.first {
+          stroke: fuchsia;
+        }
+      }
+    }
+  }
+
+  .Choice {
+    .shape {
+      > use {
         color: $primary-color;
         stroke: $dark-color;
         fill: $light-color;

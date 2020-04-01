@@ -27,6 +27,7 @@ export const NODE_KEY = 'title'; // Key used to identify nodes
 // so this has to be passed in if that behavior is desired.
 export const EMPTY_TYPE = 'empty'; // Empty node type
 export const CHOICE_TYPE = 'Choice';
+export const MODULE_TYPE = 'Module';
 export const TASK_TYPE = 'Task';
 export const PASS_TYPE = 'Pass';
 export const WAIT_TYPE = 'Wait';
@@ -35,12 +36,18 @@ export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
 
-export const nodeTypes = [CHOICE_TYPE];
+export const nodeTypes = [CHOICE_TYPE, MODULE_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
 const ChoiceShape = (
   <symbol viewBox="0 0 100 100" id="choice" width="100" height="100">
     <rect width="100" height="100" rx="20" />
+  </symbol>
+);
+
+const ModuleShape = (
+  <symbol viewBox="0 0 100 100" id="module" width="100" height="100">
+    <rect width="100" height="100" rx="40" />
   </symbol>
 );
 
@@ -89,8 +96,15 @@ export default {
   NodeTypes: {
     Choice: {
       shape: ChoiceShape,
+      scale: 1.0,
       shapeId: '#choice',
       typeText: 'Choice',
+    },
+    Module: {
+      shape: ModuleShape,
+      scale: 1.5,
+      shapeId: '#module',
+      typeText: 'Module',
     },
   },
 };
