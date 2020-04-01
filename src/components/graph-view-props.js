@@ -70,6 +70,7 @@ export type IGraphViewProps = {
   onUndo?: () => void,
   onUpdateNode: (node: INode) => void,
   panOnDrag?: boolean,
+  panOrDragWithCtrlMetaKey?: boolean,
   panOnWheel?: boolean,
   renderBackground?: (gridSize?: number) => any,
   renderDefs?: () => any,

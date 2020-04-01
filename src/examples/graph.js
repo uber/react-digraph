@@ -574,6 +574,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
           onUndo={this.onUndo}
           onCopySelected={this.onCopySelected}
           onPasteSelected={this.onPasteSelected}
+          panOrDragWithCtrlMetaKey={false}
           layoutEngine={this.state.layoutEngine}
         />
       </div>

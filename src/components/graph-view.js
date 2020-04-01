@@ -81,6 +81,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
     panOnDrag: true,
+    panOrDragWithCtrlMetaKey: true,
     panOnWheel: true,
   };
 
@@ -1338,6 +1339,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         key={id}
         id={id}
         data={node}
+        dragWithCtrlMetaKey={this.props.panOrDragWithCtrlMetaKey}
         nodeTypes={nodeTypes}
         nodeSize={nodeSize}
         nodeKey={nodeKey}
@@ -1731,7 +1733,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const { clientX, clientY } = event;
+    const { clientX, clientY, ctrlKey, metaKey } = event;
+
+    if (!this.props.panOrDragWithCtrlMetaKey && (ctrlKey || metaKey)) {
+      event.preventDefault(); // don't show native context menus
+
+      return;
+    }
 
     this.panState = { clientX, clientY, requestId: null, panning: true };
     this.props.onPanDragStart();
