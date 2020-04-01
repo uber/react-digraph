@@ -206,7 +206,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     d3.select(this.viewWrapper.current)
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
-      .on('click', this.handleSvgClicked); // handle element click in the element components
+      .on('click', this.handleSvgClicked) // handle element click in the element components
+      .on('contextmenu', this.handleSvgClicked);
 
     this.selectedView = d3.select(this.view);
 
@@ -640,7 +641,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleSvgClicked = (d: any, i: any) => {
-    const { onBackgroundClick, readOnly, onCreateNode } = this.props;
+    const {
+      onBackgroundClick,
+      onContextMenu,
+      readOnly,
+      onCreateNode,
+    } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
@@ -652,6 +658,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       const xycoords = d3.mouse(d3.event.target);
 
       onBackgroundClick(xycoords[0], xycoords[1], d3.event);
+    }
+
+    if (
+      !d3.event.shiftKey &&
+      d3.event.type === 'contextmenu' &&
+      onContextMenu
+    ) {
+      const xycoords = d3.mouse(d3.event.target);
+
+      onContextMenu(xycoords[0], xycoords[1], d3.event);
     }
 
     // de-select the current selection
@@ -1212,6 +1228,46 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     next.x += center.x - l.x + modX;
     next.y += center.y - l.y + modY;
+    this.setZoom(next.k, next.x, next.y, dur);
+
+    return true;
+  };
+
+  // Updates current viewTransform to the given zoom level and pans to clicked area
+  modifyDiscreteZoom = (
+    zoomLevel: number = 0,
+    x: number = 0,
+    y: number = 0,
+    dur: number = 0
+  ) => {
+    const { viewTransform } = this.state;
+    const extent = this.zoom.scaleExtent();
+
+    const parent = d3.select(this.viewWrapper.current).node();
+    const centerX = parent.clientWidth / 2;
+    const centerY = parent.clientHeight / 2;
+
+    const next = {
+      k: viewTransform.k,
+      x: viewTransform.x,
+      y: viewTransform.y,
+    };
+
+    if (zoomLevel < extent[0] || zoomLevel > extent[1]) {
+      return false;
+    }
+
+    next.k = zoomLevel;
+
+    const dx = x * zoomLevel;
+    const dy = y * zoomLevel;
+
+    const newX = dx + viewTransform.x;
+    const newY = dy + viewTransform.y;
+
+    next.x = centerX - newX + viewTransform.x;
+    next.y = centerY - newY + viewTransform.y;
+
     this.setZoom(next.k, next.x, next.y, dur);
 
     return true;
