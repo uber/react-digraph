@@ -246,8 +246,14 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
 
+    this.safeUnhover();
     onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
   };
+
+  safeUnhover = () =>
+    [0, 500, 1000, 1500].forEach(millis =>
+      setTimeout(() => this.setState({ hovered: false }), millis)
+    );
 
   handleMouseOver = (event: any) => {
     // Detect if mouse is already down and do nothing.
@@ -268,7 +274,6 @@ class Node extends React.Component<INodeProps, INodeState> {
     // Detect if mouse is already down and do nothing. Sometimes the system lags on
     // drag and we don't want the mouseOut to fire while the user is moving the
     // node around
-
     this.setState({ hovered: false });
     this.props.onNodeMouseLeave(event, this.props.data);
   };

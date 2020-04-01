@@ -38,27 +38,39 @@ $background-color: #f9f9f9;
     width: 100%;
   }
 
-  .Module {
+  .node {
     .shape {
       > use {
-        color: $primary-color;
-        fill: lightskyblue;
         filter: url(#dropshadow);
-        stroke-width: 0.5px;
+        stroke: none;
         cursor: pointer;
         user-select: none;
+        fill-opacity: 1;
+        stroke-opacity: 1;
 
         &.hovered {
           stroke: $primary-color;
+          fill-opacity: 0.2;
+          stroke-opacity: 0.5;
         }
         &.selected {
           color: $light-color;
           stroke: $primary-color;
-          stroke-width: 1px;
-          fill: $primary-color;
+          fill-opacity: 1;
+          stroke-opacity: 1;
         }
+      }
+    }
+  }
+
+  .Module {
+    .shape {
+      > use {
+        fill: lightskyblue;
+        stroke-width: 7px;
+
         &.first {
-          stroke: fuchsia;
+          fill: deepskyblue;
         }
       }
     }
@@ -67,25 +79,11 @@ $background-color: #f9f9f9;
   .Choice {
     .shape {
       > use {
-        color: $primary-color;
-        stroke: $dark-color;
-        fill: $light-color;
-        filter: url(#dropshadow);
-        stroke-width: 0.5px;
-        cursor: pointer;
-        user-select: none;
+        fill: pink;
+        stroke-width: 5px;
 
-        &.hovered {
-          stroke: $primary-color;
-        }
-        &.selected {
-          color: $light-color;
-          stroke: $primary-color;
-          stroke-width: 1px;
-          fill: $primary-color;
-        }
         &.first {
-          stroke: fuchsia;
+          fill: hotpink;
         }
       }
     }
