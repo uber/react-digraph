@@ -61,6 +61,7 @@ type INodeProps = {
   ) => any,
   renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
   readOnly?: boolean,
+  dragWithCtrlMetaKey?: boolean,
   isSelected: boolean,
   layoutEngine?: any,
   viewWrapperElem: HTMLDivElement,
@@ -83,6 +84,7 @@ class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
     isSelected: false,
     readOnly: false,
+    dragWithCtrlMetaKey: true,
     nodeSize: 154,
     maxTitleChars: 12,
     scale: 1,
@@ -150,7 +152,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     } = this.props;
 
     if (!mouseButtonDown) {
-      return;
+      return false;
     }
 
     // While the mouse is down, this function handles all mouse movement
@@ -194,18 +196,23 @@ class Node extends React.Component<INodeProps, INodeState> {
 
   handleDragStart = e => {
     if (!this.nodeRef.current) {
-      return;
+      return false;
     }
 
     const { drawingEdge } = this.state;
     const { data, onNodeSelected } = this.props;
 
     onNodeSelected(data, e.shiftKey || drawingEdge, e);
+
+    // if we don't want to drag with ctrl or meta, return false to exit drag
+    if (!this.props.dragWithCtrlMetaKey && (e.ctrlKey || e.metaKey)) {
+      return false;
+    }
   };
 
   handleDragEnd = e => {
     if (!this.nodeRef.current) {
-      return;
+      return false;
     }
 
     const { x, y, drawingEdge } = this.state;
