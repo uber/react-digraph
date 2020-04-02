@@ -34,7 +34,7 @@ import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engi
 import FlowV1Transformer from '../../utilities/transformers/flow-v1-transformer';
 import Sidebar from '../sidebar';
 import RightEditor from './components';
-import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
+import GraphConfig, { CHOICE_TYPE, MODULE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import GraphUtils from '../../utilities/graph-util';
 // import bwdlExample from './bwdl-example-data';
 import getEdgeHandlers from './handlers/edge-handlers';
@@ -220,12 +220,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     });
   };
 
-  onCreateNode = (x: number, y: number) => {
-    this.changeJson(json => {
-      const index = `node-${makeid(4)}`;
-
-      json[index] = {
-        // id: index,
+  getDefaultJson = (nodeType, index) => {
+    return {
+      [CHOICE_TYPE]: {
         Type: CHOICE_TYPE,
         question: {
           errorMessageNotMatch: '',
@@ -238,9 +235,26 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           audioErrorMessage: '',
           quickReplies: [],
         },
-        x,
-        y,
-      };
+      },
+      [MODULE_TYPE]: {
+        Type: MODULE_TYPE,
+        question: {
+          index: index,
+          connections: [],
+        },
+        modulePath: null,
+        output: {
+          slot_context_vars: [],
+        },
+      },
+    }[nodeType];
+  };
+
+  onCreateNode = (x: number, y: number) => {
+    this.changeJson(json => {
+      const index = `node-${makeid(4)}`;
+
+      json[index] = { ...this.getDefaultJson(CHOICE_TYPE, index), x, y };
 
       if (!('current' in json)) {
         json['current'] = index;

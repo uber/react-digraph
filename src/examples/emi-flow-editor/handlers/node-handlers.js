@@ -1,6 +1,14 @@
 import getQuestionHandlers from './question-handlers';
 
 const getNodeHandlers = bwdlEditable => {
+  bwdlEditable.onChangeNodeType = function(nodeType) {
+    this.changeSelectedNode((newBwdlJson, index) => {
+      const { x, y } = newBwdlJson[index];
+
+      newBwdlJson[index] = { ...this.getDefaultJson(nodeType, index), x, y };
+    });
+  }.bind(bwdlEditable);
+
   bwdlEditable.onChangeIndex = function(newIndex) {
     const alreadyExists = this.state.nodes.find(
       node => node.gnode.question.index === newIndex
@@ -44,7 +52,6 @@ const getNodeHandlers = bwdlEditable => {
 
         const q = currentNode.question;
 
-        // create edges
         q.connections.forEach(connection => {
           if (connection.goto === prevIndex) {
             connection.goto = newIndex;
@@ -81,6 +88,8 @@ const getNodeHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.questionHandlers = getQuestionHandlers(bwdlEditable);
+
+  bwdlEditable.moduleInputHandlers = {};
 
   return bwdlEditable;
 };

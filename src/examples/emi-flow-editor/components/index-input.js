@@ -5,9 +5,9 @@ class IndexInput extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { newIndex: '' };
-    const { onChangeIndex } = this.props;
+    const { onChangeIndex, children } = this.props;
 
+    this.state = { newIndex: children.index };
     this.onChangeIndex = debounce(onChangeIndex, 250);
   }
 
