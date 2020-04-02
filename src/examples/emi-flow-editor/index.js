@@ -33,14 +33,12 @@ import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engi
 
 import FlowV1Transformer from '../../utilities/transformers/flow-v1-transformer';
 import Sidebar from '../sidebar';
-import NodeEditor from './components';
+import RightEditor from './components';
 import GraphConfig, { CHOICE_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import GraphUtils from '../../utilities/graph-util';
 // import bwdlExample from './bwdl-example-data';
-import getServerHandlers from './handlers/server-handlers';
-import getAiHandlers from './handlers/ai-handlers';
 import getEdgeHandlers from './handlers/edge-handlers';
-import getQuestionHandlers from './handlers/question-handlers';
+import getNodeHandlers from './handlers/node-handlers';
 import getFaqHandlers from './handlers/faq-handlers';
 
 type IBwdlState = {
@@ -84,9 +82,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   constructor(props: any) {
     super(props);
 
-    this.questionHandlers = getQuestionHandlers(this);
-    this.aiHandlers = getAiHandlers(this);
-    this.serverHandlers = getServerHandlers(this);
+    this.nodeHandlers = getNodeHandlers(this);
     this.edgeHandlers = getEdgeHandlers(this);
     this.faqHandlers = getFaqHandlers(this);
     this.state = this.getInitialState();
@@ -948,16 +944,14 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
         {this.renderTextEditor()}
         <div className="graph-container">{this.renderGraph()}</div>
         <div id="rightBar">
-          <NodeEditor
-            questionHandlers={this.questionHandlers}
-            aiHandlers={this.aiHandlers}
-            serverHandlers={this.serverHandlers}
+          <RightEditor
+            nodeHandlers={this.nodeHandlers}
             edgeHandlers={this.edgeHandlers}
             faqHandlers={this.faqHandlers}
             faqMode={faqSelected}
           >
             {this.state.selected}
-          </NodeEditor>
+          </RightEditor>
         </div>
       </div>
     );
