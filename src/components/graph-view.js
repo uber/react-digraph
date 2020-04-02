@@ -68,6 +68,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     onNodeMove: () => true,
     onPanDragStart: () => {},
     onPanDragEnd: () => {},
+    onZoomEnd: () => {},
     edgeArrowSize: 8,
     gridSpacing: 36,
     maxZoom: 1.5,
@@ -1061,7 +1062,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleZoomEnd = () => {
     const { draggingEdge, draggedEdge, edgeEndNode } = this.state;
-    const { nodeKey } = this.props;
+    const { nodeKey, onZoomEnd } = this.props;
+
+    // call on zoom end in the next animation frame
+    requestAnimationFrame(() => onZoomEnd());
 
     // mark zooming indicators as complete
     if (this.wheelState.zooming === true) {

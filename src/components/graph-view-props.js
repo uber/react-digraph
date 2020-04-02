@@ -69,6 +69,7 @@ export type IGraphViewProps = {
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
   onUndo?: () => void,
   onUpdateNode: (node: INode) => void,
+  onZoomEnd?: () => void,
   panOnDrag?: boolean,
   panOnWheel?: boolean,
   renderBackground?: (gridSize?: number) => any,
