@@ -20,7 +20,7 @@ class MultiEdgeEditor extends React.Component {
     const conn = edge.conns[getSelectedConnIndex()];
 
     return (
-      <div id="multiEdgeEditor" className="someNodeEditor">
+      <div id="multiEdgeEditor" className="rightEditor">
         <h1>
           {edge.source} =&gt; {edge.target}
         </h1>

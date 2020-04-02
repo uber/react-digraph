@@ -1,3 +1,3 @@
-import NodeEditor from './node-editor';
+import RightEditor from './right-editor';
 
-export default NodeEditor;
+export default RightEditor;

@@ -56,7 +56,7 @@ class ServerEditor extends React.Component {
           onChange={e => onChangeServer(e.target.checked, parentProp)}
         />
         {server !== undefined && (
-          <div id="serverEditor" className="someNodeEditor">
+          <div id="serverEditor" className="rightEditor">
             <label>
               URL Type:
               <Select

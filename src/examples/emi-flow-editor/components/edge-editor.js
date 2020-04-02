@@ -57,7 +57,7 @@ class EdgeEditor extends React.Component {
       ai && ai.prediction_data && ai.prediction_data.intent_responses;
 
     return (
-      <div id="edgeEditor" className="someNodeEditor">
+      <div id="edgeEditor" className="rightEditor">
         <label>
           Default:
           {conn.isDefault && (
@@ -86,7 +86,7 @@ class EdgeEditor extends React.Component {
           )}
         </label>
         {!conn.isDefault && (
-          <div className="someNodeEditor">
+          <div className="rightEditor">
             <label className="inputList">
               containsAny:
               <ReactListInput

@@ -56,7 +56,7 @@
   height: 84vh;
 }
 
-#nodeEditor, #faqEditor {
+.rightEditor {
   color: white;
   display: flex;
   flex-direction: column;
@@ -74,11 +74,10 @@
     display: flex;
     flex-direction: column;
   }
-}
 
-.someNodeEditor {
   > label {
     flex: 1;
+    flex-grow: 0;
     display: flex;
 
     > input {

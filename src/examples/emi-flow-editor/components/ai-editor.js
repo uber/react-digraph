@@ -82,7 +82,7 @@ class AiEditor extends React.Component {
           onChange={e => onChangeAI(e.target.checked)}
         />
         {'ai' in node.gnode && (
-          <div id="aiEditor" className="someNodeEditor">
+          <div id="aiEditor" className="rightEditor">
             <label className={this.modelClasses(ai)}>
               AI-Model:
               <Select

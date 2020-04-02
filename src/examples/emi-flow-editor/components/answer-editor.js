@@ -10,25 +10,22 @@ const MAX_CHARS = 20;
 
 class AnswerEditor extends React.Component {
   render() {
-    const {
-      children,
-      questionHandlers,
-      aiHandlers,
-      serverHandlers,
-    } = this.props;
+    const { children, answerHandlers } = this.props;
     const {
       onChangeQuickReplies,
       onChangeCards,
       onChangeIsAudio,
       onChangeExactMatch,
       onChangeTextArea,
-    } = questionHandlers;
+      aiHandlers,
+      serverHandlers,
+    } = answerHandlers;
     const node = children;
     const question = node.gnode.question;
     const quickReplies = question.quickReplies || [];
 
     return (
-      <div id="answerEditor" className="someNodeEditor">
+      <div id="answerEditor" className="rightEditor">
         {!question.cards && (
           <label className="inputList">
             Quick replies:
