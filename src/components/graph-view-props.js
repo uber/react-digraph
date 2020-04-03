@@ -73,6 +73,7 @@ export type IGraphViewProps = {
   panOnDrag?: boolean,
   panOrDragWithCtrlMetaKey?: boolean,
   panOnWheel?: boolean,
+  disableGraphKeyHandlers?: boolean,
   renderBackground?: (gridSize?: number) => any,
   renderDefs?: () => any,
   renderNode?: (

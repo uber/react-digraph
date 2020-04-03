@@ -81,6 +81,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
+    disableGraphKeyHandlers: false,
     panOnDrag: true,
     panOrDragWithCtrlMetaKey: true,
     panOnWheel: true,
@@ -153,8 +154,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   constructor(props: IGraphViewProps) {
     super(props);
 
+    // these track pan, wheel
     this.panState = { panning: false, requestId: null };
     this.wheelState = { zooming: false, requestId: null, deltaX: 0, deltaY: 0 };
+    this.initialZoomInProgress = true;
+
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
 
@@ -184,8 +188,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   componentDidMount() {
     const { initialBBox, minZoom, maxZoom } = this.props;
 
-    // TODO: can we target the element rather than the document?
-    document.addEventListener('keydown', this.handleWrapperKeydown);
+    if (!this.props.disableGraphKeyHandlers) {
+      document.addEventListener('keydown', this.handleWrapperKeydown);
+    }
+
     document.addEventListener('click', this.handleDocumentClick);
     document.addEventListener('mouseup', this.handlePanEnd);
 
@@ -219,30 +225,31 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         beforeRender: () => this.handleZoomToFitImpl(initialBBox, 0),
         afterRender: () => {},
       });
-
-      return;
-    }
-
-    this.renderView({
-      // without initialBBox, we hide then render the entities
-      // then zoom after rendering. upon zoom completion, we show the entities in handleZoomEnd
-      beforeRender: () => {
-        if (this.entities) {
-          this.entities.style.visibility = 'hidden';
-        }
-      },
-      afterRender: () => {
-        requestAnimationFrame(() => {
-          if (this.viewWrapper.current != null) {
-            this.handleZoomToFit(true);
+    } else {
+      this.renderView({
+        // without initialBBox, we hide then render the entities
+        // then zoom after rendering. upon zoom completion, we show the entities in handleZoomEnd
+        beforeRender: () => {
+          if (this.entities) {
+            this.entities.style.visibility = 'hidden';
           }
-        });
-      },
-    });
+        },
+        afterRender: () => {
+          requestAnimationFrame(() => {
+            if (this.viewWrapper.current != null) {
+              this.handleZoomToFit(true);
+            }
+          });
+        },
+      });
+    }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleWrapperKeydown);
+    if (!this.props.disableGraphKeyHandlers) {
+      document.removeEventListener('keydown', this.handleWrapperKeydown);
+    }
+
     document.removeEventListener('click', this.handleDocumentClick);
     document.removeEventListener('mouseup', this.handlePanEnd);
 
@@ -515,8 +522,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
 
     // remove from UI
-    removedNodes.forEach(nodeId =>
-      GraphUtils.removeElementFromDom(this.entities, `node-${nodeId}-container`)
+    removedNodes.forEach(node =>
+      GraphUtils.removeElementFromDom(
+        this.entities,
+        `node-${node[nodeKey]}-container`
+      )
     );
 
     // inform consumer
@@ -644,32 +654,29 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleSvgClicked = (d: any, i: any) => {
     const {
-      onBackgroundClick,
-      onContextMenu,
       readOnly,
       onCreateNode,
+      onBackgroundClick,
+      onContextMenu,
     } = this.props;
 
-    if (this.isPartOfEdge(d3.event.target)) {
-      this.handleEdgeSelected(d3.event);
+    const event = d3.event;
+    const target = event.target;
+
+    if (this.isPartOfEdge(target)) {
+      this.handleEdgeSelected(event);
 
       return; // If any part of the edge is clicked, return
     }
 
-    if (!d3.event.shiftKey && onBackgroundClick) {
-      const xycoords = d3.mouse(d3.event.target);
+    const [x, y] = d3.mouse(target);
 
-      onBackgroundClick(xycoords[0], xycoords[1], d3.event);
-    }
-
-    if (
-      !d3.event.shiftKey &&
-      d3.event.type === 'contextmenu' &&
-      onContextMenu
-    ) {
-      const xycoords = d3.mouse(d3.event.target);
-
-      onContextMenu(xycoords[0], xycoords[1], d3.event);
+    if (target.classList.contains('background')) {
+      if (onContextMenu && event.type === 'contextmenu') {
+        onContextMenu(x, y, event);
+      } else if (onBackgroundClick) {
+        onBackgroundClick(x, y, event);
+      }
     }
 
     // de-select the current selection
@@ -678,10 +685,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       svgClicked: true,
     });
 
-    if (!readOnly && d3.event.shiftKey) {
-      const xycoords = d3.mouse(d3.event.target);
-
-      onCreateNode(xycoords[0], xycoords[1], d3.event);
+    if (!readOnly && event.shiftKey) {
+      onCreateNode(x, y, event);
     }
   };
 
@@ -1073,9 +1078,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.wheelState.zooming = false;
     }
 
-    // display hidden entity elements
-    if (this.entities && this.entities.style.visibility === 'hidden') {
-      this.entities.style.visibility = 'visible';
+    if (this.initialZoomInProgress) {
+      this.initialZoomInProgress = false;
+
+      // display hidden entity elements
+      if (this.entities && this.entities.style.visibility === 'hidden') {
+        this.entities.style.visibility = 'visible';
+      }
     }
 
     if (!draggingEdge || !draggedEdge) {
@@ -1470,6 +1479,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
 
     if (nodeContainer) {
+      // we need to re-trigger the 'click', since we've disconnected mouseup from
+      // mousedown via re-appending (see node handleDragStart, handleDragEnd)
+      node.forceDragClick = true;
       this.entities.appendChild(nodeContainer);
     }
   }
@@ -1679,7 +1691,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
               backgroundFillId={backgroundFillId}
               renderBackground={renderBackground}
             />
-
             <g className="entities" ref={el => (this.entities = el)} />
           </g>
         </svg>
@@ -1692,7 +1703,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handlePanWheel = (event: any) => {
-    if (!this.props.panOnWheel) {
+    if (!this.props.panOnWheel || this.initialZoomInProgress) {
       return;
     }
 
@@ -1733,15 +1744,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handlePanStart = (event: any) => {
-    if (!this.props.panOnDrag) {
+    if (!this.props.panOnDrag || this.initialZoomInProgress) {
       return;
     }
 
-    const { clientX, clientY, ctrlKey, metaKey } = event;
+    const { clientX, clientY, ctrlKey, metaKey, button } = event;
 
-    if (!this.props.panOrDragWithCtrlMetaKey && (ctrlKey || metaKey)) {
-      event.preventDefault(); // don't show native context menus
-
+    if (
+      (!this.props.panOrDragWithCtrlMetaKey && (ctrlKey || metaKey)) ||
+      button !== 0
+    ) {
       return;
     }
 
