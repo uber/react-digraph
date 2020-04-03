@@ -81,7 +81,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
-    customKeyEvents: true,
+    disableGraphKeyHandlers: false,
     panOnDrag: true,
     panOrDragWithCtrlMetaKey: true,
     panOnWheel: true,
@@ -188,7 +188,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   componentDidMount() {
     const { initialBBox, minZoom, maxZoom } = this.props;
 
-    if (this.props.customKeyEvents) {
+    if (!this.props.disableGraphKeyHandlers) {
       document.addEventListener('keydown', this.handleWrapperKeydown);
     }
 
@@ -246,7 +246,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentWillUnmount() {
-    if (this.props.customKeyEvents) {
+    if (!this.props.disableGraphKeyHandlers) {
       document.removeEventListener('keydown', this.handleWrapperKeydown);
     }
 
@@ -522,8 +522,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
 
     // remove from UI
-    removedNodes.forEach(nodeId =>
-      GraphUtils.removeElementFromDom(this.entities, `node-${nodeId}-container`)
+    removedNodes.forEach(node =>
+      GraphUtils.removeElementFromDom(
+        this.entities,
+        `node-${node[nodeKey]}-container`
+      )
     );
 
     // inform consumer
