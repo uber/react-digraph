@@ -1476,6 +1476,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
 
     if (nodeContainer) {
+      // we need to re-trigger the 'click', since we've disconnected mouseup from
+      // mousedown via re-appending (see node handleDragStart, handleDragEnd)
+      node.forceDragClick = true;
       this.entities.appendChild(nodeContainer);
     }
   }

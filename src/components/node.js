@@ -36,6 +36,7 @@ export type INode = {
   type?: string | null,
   subtype?: string | null,
   readOnly?: boolean | null,
+  forceDragClick?: boolean | null,
   [key: string]: any,
 };
 
@@ -202,6 +203,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const { drawingEdge } = this.state;
     const { data, onNodeSelected } = this.props;
 
+    data.forceDragClick = false;
     onNodeSelected(data, e.shiftKey || drawingEdge, e);
 
     // if we don't want to drag with ctrl or meta, return false to exit drag
@@ -229,14 +231,16 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     onNodeUpdate({ x, y }, data[nodeKey], shiftKey || drawingEdge);
 
-    // we need to re-trigger the 'click', since we've disconnected mouseup from
-    // mousedown in handleDragStart()
-    const target = e.target;
-    const options = Object.assign(e);
+    if (data.forceDragClick) {
+      // we need to re-trigger the 'click', since we've disconnected mouseup from
+      // mousedown via dragging (see graph-view asyncElevateNodeAndEdges)
+      const target = e.target;
+      const options = Object.assign(e);
 
-    window.requestAnimationFrame(() => {
-      target.dispatchEvent(new MouseEvent('click', options));
-    });
+      window.requestAnimationFrame(() => {
+        target.dispatchEvent(new MouseEvent('click', options));
+      });
+    }
   };
 
   handleMouseOver = (event: any) => {
