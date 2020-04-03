@@ -1,24 +1,20 @@
 import * as React from 'react';
-import Select from 'react-select';
 
-import { langItems } from '../empathy.js';
-import { selectTheme, getSimpleItem } from './common';
+import ModuleImportComponent from './module-import-component';
 
 class ModuleImportEditor extends React.Component {
   render() {
+    const { moduleInputHandlers, children } = this.props;
+    const { getModules } = moduleInputHandlers;
+    const node = children;
+    const { modulePath } = node.gnode;
+
     return (
       <div id="moduleImportEditor" className="rightEditor">
-        <label>
-          Module:
-          <Select
-            className="selectContainer"
-            theme={selectTheme}
-            value={getSimpleItem(null)}
-            onChange={() => null}
-            options={langItems}
-            isSearchable={true}
-          />
-        </label>
+        <ModuleImportComponent
+          modulePath={modulePath}
+          getModules={getModules}
+        />
       </div>
     );
   }

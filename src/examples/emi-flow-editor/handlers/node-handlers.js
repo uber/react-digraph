@@ -1,4 +1,5 @@
 import getQuestionHandlers from './question-handlers';
+import { getModuleImportHandlers } from './module-import-handlers';
 
 const getNodeHandlers = bwdlEditable => {
   bwdlEditable.onChangeNodeType = function(nodeType) {
@@ -88,8 +89,7 @@ const getNodeHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.questionHandlers = getQuestionHandlers(bwdlEditable);
-
-  bwdlEditable.moduleInputHandlers = {};
+  bwdlEditable.moduleInputHandlers = getModuleImportHandlers(bwdlEditable);
 
   return bwdlEditable;
 };

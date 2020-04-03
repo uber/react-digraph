@@ -208,6 +208,7 @@ class App extends React.Component {
                   onJsonTextChange={this.handleJsonTextChange}
                   env={env}
                   flowVersionId={flowVersionId}
+                  s3={s3}
                 />
               )}
             />
