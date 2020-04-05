@@ -140,6 +140,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return nextState;
   }
 
+  onNodeRenderCallbacks: any;
   nodeTimeouts: any;
   edgeTimeouts: any;
   zoom: any;
@@ -157,8 +158,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     // these track pan, wheel
     this.panState = { panning: false, requestId: null };
     this.wheelState = { zooming: false, requestId: null, deltaX: 0, deltaY: 0 };
-    this.initialZoomInProgress = true;
 
+    this.onNodeRenderCallbacks = {};
     this.nodeTimeouts = {};
     this.edgeTimeouts = {};
 
@@ -1078,13 +1079,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.wheelState.zooming = false;
     }
 
-    if (this.initialZoomInProgress) {
-      this.initialZoomInProgress = false;
-
-      // display hidden entity elements
-      if (this.entities && this.entities.style.visibility === 'hidden') {
-        this.entities.style.visibility = 'visible';
-      }
+    // display hidden entity elements
+    if (this.entities && this.entities.style.visibility === 'hidden') {
+      this.entities.style.visibility = 'visible';
     }
 
     if (!draggingEdge || !draggedEdge) {
@@ -1308,8 +1305,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     beforeRender();
-    // Update the view w/ new zoom/pan
-    this.selectedView.attr('transform', this.state.viewTransform);
+
+    if (this.state.viewTransform) {
+      // Update the view w/ new zoom/pan
+      this.selectedView.attr('transform', this.state.viewTransform);
+    }
+
     requestAnimationFrame(() => this.renderNodes(afterRender));
   }
 
@@ -1321,14 +1322,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     Promise.all(
-      this.state.nodes.map((node, i) => {
-        let onNodeRendered;
-        const promise = new Promise(resolve => (onNodeRendered = resolve));
-
-        this.asyncRenderNode(node, true, onNodeRendered);
-
-        return promise;
-      })
+      this.state.nodes.map(
+        node =>
+          new Promise(resolve => {
+            this.onNodeRenderCallbacks[
+              this.asyncRenderNode(node, true)
+            ] = resolve;
+          })
+      )
     ).then(() => afterRender());
   }
 
@@ -1377,19 +1378,21 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  asyncRenderNode(
-    node: INode,
-    renderEdges: boolean = true,
-    onRendered: () => void = () => {}
-  ) {
+  asyncRenderNode(node: INode, renderEdges: boolean = true) {
     const nodeKey = this.props.nodeKey;
-    const timeoutId = `nodes-${node[nodeKey]}`;
+    const nodeRenderId = `nodes-${node[nodeKey]}`;
 
-    cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
-    this.nodeTimeouts[timeoutId] = requestAnimationFrame(() => {
+    cancelAnimationFrame(this.nodeTimeouts[nodeRenderId]);
+    this.nodeTimeouts[nodeRenderId] = requestAnimationFrame(() => {
       this.syncRenderNode(node, renderEdges);
-      onRendered();
+
+      if (this.onNodeRenderCallbacks[nodeRenderId]) {
+        this.onNodeRenderCallbacks[nodeRenderId]();
+        delete this.onNodeRenderCallbacks[nodeRenderId];
+      }
     });
+
+    return nodeRenderId;
   }
 
   syncRenderNode(node: INode, renderEdges: boolean = true) {
@@ -1703,7 +1706,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handlePanWheel = (event: any) => {
-    if (!this.props.panOnWheel || this.initialZoomInProgress) {
+    if (!this.props.panOnWheel) {
       return;
     }
 
@@ -1720,9 +1723,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     if (!this.wheelState.zooming) {
       requestId = requestAnimationFrame(() => {
-        const { viewTransform } = this.state;
-        const offX = this.wheelState.deltaX + viewTransform.x;
-        const offY = this.wheelState.deltaY + viewTransform.y;
+        const { viewTransform = {} } = this.state;
+
+        const offX = this.wheelState.deltaX + (viewTransform.x || 0);
+        const offY = this.wheelState.deltaY + (viewTransform.y || 0);
 
         this.wheelState = {
           zooming: true,
@@ -1774,9 +1778,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { clientX, clientY } = event;
 
     this.panState.requestId = requestAnimationFrame(() => {
-      const { viewTransform } = this.state;
-      const offX = clientX - this.panState.clientX + viewTransform.x;
-      const offY = clientY - this.panState.clientY + viewTransform.y;
+      const { viewTransform = {} } = this.state;
+      const offX = clientX - this.panState.clientX + (viewTransform.x || 0);
+      const offY = clientY - this.panState.clientY + (viewTransform.y || 0);
 
       this.panState = {
         ...this.panState,
