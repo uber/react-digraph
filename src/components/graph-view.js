@@ -1748,7 +1748,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handlePanStart = (event: any) => {
-    if (!this.props.panOnDrag || this.initialZoomInProgress) {
+    if (!this.props.panOnDrag) {
       return;
     }
 
