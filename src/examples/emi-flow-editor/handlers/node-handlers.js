@@ -3,19 +3,53 @@ import { getModuleImportHandlers } from './module-import-handlers';
 
 const getNodeHandlers = bwdlEditable => {
   bwdlEditable.onChangeNodeType = function(nodeType) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      const { x, y } = newBwdlJson[index];
+    this.changeSelectedNode((node, index, newJson) => {
+      const { x, y } = node;
 
-      newBwdlJson[index] = { ...this.getDefaultJson(nodeType, index), x, y };
+      newJson[index] = { ...this.getDefaultJson(nodeType, index), x, y };
+    });
+  }.bind(bwdlEditable);
+
+  bwdlEditable.indexAlreadyExists = function(index) {
+    return this.state.nodes.find(node => node.gnode.question.index === index);
+  }.bind(bwdlEditable);
+
+  bwdlEditable._changeJsonIndex = function(json, prevState, newIndex) {
+    const selected = { ...prevState.selected };
+    const prevIndex = selected.gnode.question.index;
+    const nodeJson = json[prevIndex];
+
+    delete json[prevIndex];
+
+    nodeJson.question.index = newIndex;
+
+    json[newIndex] = nodeJson;
+
+    if (json.current === prevIndex) {
+      json.current = newIndex;
+    }
+
+    const nodeNames = Object.keys(json);
+
+    nodeNames.forEach(name => {
+      const currentNode = json[name];
+
+      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+        return;
+      }
+
+      const q = currentNode.question;
+
+      q.connections.forEach(connection => {
+        if (connection.goto === prevIndex) {
+          connection.goto = newIndex;
+        }
+      });
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeIndex = function(newIndex) {
-    const alreadyExists = this.state.nodes.find(
-      node => node.gnode.question.index === newIndex
-    );
-
-    if (alreadyExists) {
+    if (this.indexAlreadyExists(newIndex)) {
       this.alert.error(
         `Cannot rename node: There's another node with '${newIndex}' index`
       );
@@ -27,39 +61,9 @@ const getNodeHandlers = bwdlEditable => {
       return;
     }
 
-    this.changeJson((json, prevState) => {
-      const selected = { ...prevState.selected };
-      const prevIndex = selected.gnode.question.index;
-      const nodeJson = json[prevIndex];
-
-      delete json[prevIndex];
-
-      nodeJson.question.index = newIndex;
-
-      json[newIndex] = nodeJson;
-
-      if (json.current === prevIndex) {
-        json.current = newIndex;
-      }
-
-      const nodeNames = Object.keys(json);
-
-      nodeNames.forEach(name => {
-        const currentNode = json[name];
-
-        if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
-          return;
-        }
-
-        const q = currentNode.question;
-
-        q.connections.forEach(connection => {
-          if (connection.goto === prevIndex) {
-            connection.goto = newIndex;
-          }
-        });
-      });
-    });
+    this.changeJson((json, prevState) =>
+      this._changeJsonIndex(json, prevState, newIndex)
+    );
   }.bind(bwdlEditable);
 
   bwdlEditable.onMakeFirst = function() {

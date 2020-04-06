@@ -242,10 +242,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           index: index,
           connections: [],
         },
-        modulePath: null,
-        output: {
-          slot_context_vars: [],
-        },
+        importPath: null,
+        slots: [],
+        slotContextVars: [],
       },
     }[nodeType];
   };
@@ -435,16 +434,20 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     );
   };
 
-  getClonedIndex = (json, index) => {
+  getAvailableIndex = (json, index, prefix) => {
     for (let k = 0; k < 100; k++) {
-      const newIndex = `${index}-clone${k ? k : ''}`;
+      const newIndex = `${index}${k > 0 ? prefix || '' : ''}${k ? k : ''}`;
 
       if (!json[newIndex]) {
-        return [k + 1, newIndex];
+        return { count: k + 1, newIndex: newIndex };
       }
     }
 
-    return [1, `${index}-${makeid(2)}`];
+    return { count: 1, newIndex: `${index}-${makeid(2)}` };
+  };
+
+  getClonedIndex = (json, index) => {
+    return this.getAvailableIndex(json, index, '-clone');
   };
 
   onPasteSelected = (x, y) => {
@@ -454,13 +457,13 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       const index = copiedNode.question.index;
 
       this.changeJson(json => {
-        const [cloneNumber, newIndex] = this.getClonedIndex(json, index);
+        const { count, newIndex } = this.getClonedIndex(json, index);
         const clonedNode = JSON.parse(JSON.stringify(copiedNode));
 
         clonedNode.question.index = newIndex;
         clonedNode.question.connections = [];
-        clonedNode.x += cloneNumber * 100;
-        clonedNode.y += cloneNumber * 50;
+        clonedNode.x += count * 100;
+        clonedNode.y += count * 50;
         json[newIndex] = clonedNode;
       });
     } else if (copiedEdge && selected.source) {
@@ -704,7 +707,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
   changeSelectedNode = f => {
     const index = this.state.selected.gnode.question.index;
 
-    this.changeJson(json => f(json, index));
+    this.changeJson(json => f(json[index], index, json));
   };
 
   changeSelectedQuestion = f => {

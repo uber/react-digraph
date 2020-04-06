@@ -36,11 +36,13 @@ import './app.scss';
 import { GoogleLogin } from 'react-google-login';
 
 import { connect, GOOGLE_CLIENT_ID } from './emi-flow-editor/cognito';
+import s3Mock from './emi-flow-editor/cognito-localmock';
 
 // import S3Context from './emi-flow-editor/s3-context';
 import FlowManagement from './emi-flow-editor/components/flow-management';
 import { getFlowManagementHandlers } from './emi-flow-editor/handlers/flow-management-handlers';
 
+const OFFLINE = false;
 const ALERT_OPTIONS = {
   // you can also just use 'bottom center'
   position: positions.MIDDLE,
@@ -55,7 +57,7 @@ class App extends React.Component {
     super(props);
     this.flowManagementHandlers = getFlowManagementHandlers(this);
     this.state = {
-      s3: null,
+      s3: OFFLINE ? s3Mock : null,
       initialJsonText: '{}',
       jsonText: '{}',
       flowName: null,
@@ -73,9 +75,11 @@ class App extends React.Component {
   };
 
   onGoogleResponse = response => {
-    connect(response).then(s3 => {
-      this.setState({ s3 });
-    });
+    if (!OFFLINE) {
+      connect(response).then(s3 => {
+        this.setState({ s3 });
+      });
+    }
   };
 
   setFlow = (flowName, jsonText, prodJsonText, env, flowVersionId) => {

@@ -18,36 +18,36 @@ const getAiHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeAI = function(aiEnabled) {
-    this.changeSelectedNode((newBwdlJson, index) => {
+    this.changeSelectedNode(node => {
       if (aiEnabled) {
-        this.setAiDefaults(newBwdlJson[index], defaultQuestionStr);
+        this.setAiDefaults(node, defaultQuestionStr);
       } else {
-        delete newBwdlJson[index].ai;
+        delete node.ai;
       }
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeAiQuestionStr = function(item) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      this.setAiDefaults(newBwdlJson[index], item.value);
+    this.changeSelectedNode(node => {
+      this.setAiDefaults(node, item.value);
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangePredictionDataOptions = function(key, newValue) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].ai.prediction_data.options[key] = newValue;
+    this.changeSelectedNode(node => {
+      node.ai.prediction_data.options[key] = newValue;
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeLang = function(item) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].ai.lang = item.value;
+    this.changeSelectedNode(node => {
+      node.ai.lang = item.value;
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeCountry = function(item) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].ai.country = item.value;
+    this.changeSelectedNode(node => {
+      node.ai.country = item.value;
     });
   }.bind(bwdlEditable);
 
@@ -56,14 +56,14 @@ const getAiHandlers = bwdlEditable => {
       return;
     }
 
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].ai.prediction_data.min_similarity = newValue;
+    this.changeSelectedNode(node => {
+      node.ai.prediction_data.min_similarity = newValue;
     });
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeIntentResponses = function(newValue) {
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson[index].ai.prediction_data.intent_responses = newValue;
+    this.changeSelectedNode(node => {
+      node.ai.prediction_data.intent_responses = newValue;
     });
   }.bind(bwdlEditable);
 

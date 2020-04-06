@@ -463,13 +463,21 @@ const JSON1 = {
 
 const s3Mock = {
   listObjects: (params, f) =>
-    f('', {
-      Contents: [
-        { Key: 'flow1.json' },
-        { Key: 'flow2.py.json' },
-        { Key: 'flow3.py' },
-      ],
-    }),
+    params.Prefix
+      ? f('', {
+          Contents: [
+            { Key: 'module-test-xyz_v1.json' },
+            { Key: 'module-test-xyz_v2.json' },
+            { Key: 'module-test-b_v1.json' },
+          ],
+        })
+      : f('', {
+          Contents: [
+            { Key: 'flow1.json' },
+            { Key: 'flow2.py.json' },
+            { Key: 'flow3.py' },
+          ],
+        }),
   listObjectVersions: () => ({
     promise: () =>
       new Promise(resolve =>

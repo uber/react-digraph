@@ -23,6 +23,8 @@ const getItem = function(value, label) {
   return { value: value, label: label };
 };
 
+const getErrorMessage = err => err.message || `${JSON.stringify(err, null, 4)}`;
+
 const formatDate = d =>
   d.getUTCFullYear() +
   '/' +
@@ -262,6 +264,7 @@ export {
   selectTheme,
   getSimpleItem,
   getItem,
+  getErrorMessage,
   formatDate,
   Input,
   Item,

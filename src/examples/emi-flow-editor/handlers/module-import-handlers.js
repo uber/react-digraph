@@ -8,7 +8,9 @@ const ENV_BUCKETS = {
   [PROD]: PROD_BUCKET,
 };
 
-const moduleRegex = /(.*)_v(\d+)\.flib$/;
+const moduleRegex = /libs\/modules\/test\/(.*)_v(\d+)\.json$/;
+const slotsRegex = /"slot_name": "(.*)",/g;
+const slotContextVarsRegex = /"setContext": {[^}]*?"(slot_.*?)"[^}]*?}/g;
 
 const getModuleImportHandlers = bwdlEditable => {
   bwdlEditable.getModules = function() {
@@ -26,18 +28,82 @@ const getModuleImportHandlers = bwdlEditable => {
             } else {
               const modulesDict = {};
 
-              data.Contents.filter(m => m.Key.endsWith('.flib')).forEach(m => {
-                const [, name, version, ..._] = moduleRegex.exec(m.Key); // eslint-disable-line no-unused-vars
+              data.Contents.filter(m => m.Key.endsWith('.json')).forEach(m => {
+                const { name, version } = this.parseImportPath(m.Key);
 
-                modulesDict.get(name, {})[version] = { name, version, m };
+                if (!modulesDict.name) {
+                  modulesDict[name] = {};
+                }
+
+                modulesDict[name][version] = { path: m.Key, name, version };
               });
 
               resolve(modulesDict);
             }
-          }
+          }.bind(bwdlEditable)
         );
       }.bind(bwdlEditable)
     );
+  }.bind(bwdlEditable);
+
+  bwdlEditable.getModule = function(importPath, VersionId) {
+    return this.props.s3
+      .getObject({ Bucket: ENV_BUCKETS[STG], Key: importPath, VersionId })
+      .promise()
+      .then(data => data.Body.toString());
+  }.bind(bwdlEditable);
+
+  bwdlEditable.parseImportPath = function(importPath) {
+    if (importPath) {
+      const [, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
+
+      return { name, version };
+    } else {
+      return { name: null, version: null };
+    }
+  }.bind(bwdlEditable);
+
+  // bwdlEditable.onChangeModuleIndex = function(newIndex) {
+
+  // }.bind(bwdlEditable);
+
+  bwdlEditable._changeModuleIndex = function(json, prevState, newIndex) {
+    this._changeJsonIndex(json, prevState, newIndex);
+  }.bind(bwdlEditable);
+
+  bwdlEditable.getModuleDef = function(modulesDict, name, version) {
+    version = version || Object.keys(modulesDict[name]).slice(-1);
+
+    return modulesDict[name][version];
+  }.bind(bwdlEditable);
+
+  bwdlEditable.importModule = function(module) {
+    return this.getModule(module.path).then(contents => {
+      const slots = [
+        ...new Set(Array.from(contents.matchAll(slotsRegex)).map(m => m[1])),
+      ];
+      const slotContextVars = [
+        ...new Set(
+          Array.from(contents.matchAll(slotContextVarsRegex)).map(m => m[1])
+        ),
+      ];
+
+      this.changeJson(
+        function(json, prevState) {
+          const { newIndex } = this.getAvailableIndex(json, module.name, '-');
+
+          this._changeModuleIndex(json, prevState, newIndex);
+          json[newIndex] = {
+            ...json[newIndex],
+            slots,
+            slotContextVars,
+            importPath: module.path,
+          };
+        }.bind(bwdlEditable)
+      );
+
+      return { ...module, slots, slotContextVars };
+    });
   }.bind(bwdlEditable);
 
   return bwdlEditable;
