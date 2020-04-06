@@ -408,22 +408,27 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       // remove all outgoing edges
       prevNodeMapNode.outgoingEdges.forEach(edge => {
-        this.removeEdgeElement(edge.source, edge.target);
+        this.removeEdgeElement(edge);
       });
 
       // remove all incoming edges
       prevNodeMapNode.incomingEdges.forEach(edge => {
-        this.removeEdgeElement(edge.source, edge.target);
+        this.removeEdgeElement(edge);
       });
 
       // remove node
       // The animation frame avoids a race condition
-      requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const nodeRenderId = this.nodeRenderId(prevNode);
+
+        // cancel anyone attempting to render this node
+        cancelAnimationFrame(this.nodeTimeouts[nodeRenderId]);
+
         GraphUtils.removeElementFromDom(
           this.entities,
           `node-${nodeId}-container`
-        )
-      );
+        );
+      });
     }
   }
 
@@ -474,18 +479,25 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   removeOldEdges = (prevEdges: IEdge[], edgesMap: any) => {
     for (let i = 0; i < prevEdges.length; i++) {
-      const { source, target } = prevEdges[i];
+      const prevEdge = prevEdges[i];
+      const { source, target } = prevEdge;
 
       // Check for deletions
       if (!source || !target || !edgesMap[`${source}_${target}`]) {
         // remove edge
-        this.removeEdgeElement(source, target);
+        this.removeEdgeElement(prevEdge);
       }
     }
   };
 
-  removeEdgeElement(source: string, target: string) {
+  removeEdgeElement(edge: IEdge) {
+    const { source, target } = edge;
+
+    const edgeRenderId = this.edgeRenderId(edge);
     const prefix = `edge-${source}-${target}`;
+
+    // cancel anyone attempting to render this edge
+    cancelAnimationFrame(this.edgeTimeouts[edgeRenderId]);
 
     GraphUtils.removeElementFromDom(this.entities, `${prefix}-container`);
     // remove custom containers (in case they linger)
@@ -542,7 +554,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       if (selectedEdge.source && selectedEdge.target) {
         this.deleteEdgeBySourceTarget(selectedEdge.source, selectedEdge.target);
         // remove from UI
-        this.removeEdgeElement(selectedEdge.source, selectedEdge.target);
+        this.removeEdgeElement(selectedEdge);
       }
     });
 
@@ -993,7 +1005,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return false;
     }
 
-    this.removeEdgeElement(edge.source, edge.target);
+    this.removeEdgeElement(edge);
     this.setState({ draggingEdge: true, draggedEdge: edge });
     this.dragEdge(edge);
   };
@@ -1314,8 +1326,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     requestAnimationFrame(() => this.renderNodes(afterRender));
   }
 
-  // renders children
-  // renders components of graph view into entities
   renderNodes(afterRender: () => void = () => {}) {
     if (!this.entities) {
       return;
@@ -1325,9 +1335,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.state.nodes.map(
         node =>
           new Promise(resolve => {
-            this.onNodeRenderCallbacks[
-              this.asyncRenderNode(node, true)
-            ] = resolve;
+            const nodeRenderId = this.nodeRenderId(node);
+
+            this.onNodeRenderCallbacks[nodeRenderId] = resolve;
+            this.asyncRenderNode(node, true);
           })
       )
     ).then(() => afterRender());
@@ -1378,9 +1389,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  asyncRenderNode(node: INode, renderEdges: boolean = true) {
+  nodeRenderId = (node: INode) => {
     const nodeKey = this.props.nodeKey;
-    const nodeRenderId = `nodes-${node[nodeKey]}`;
+
+    return `nodes-${node[nodeKey]}`;
+  };
+
+  asyncRenderNode = (node: INode, renderEdges: boolean = true) => {
+    const nodeRenderId = this.nodeRenderId(node);
 
     cancelAnimationFrame(this.nodeTimeouts[nodeRenderId]);
     this.nodeTimeouts[nodeRenderId] = requestAnimationFrame(() => {
@@ -1391,9 +1407,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         delete this.onNodeRenderCallbacks[nodeRenderId];
       }
     });
-
-    return nodeRenderId;
-  }
+  };
 
   syncRenderNode(node: INode, renderEdges: boolean = true) {
     const nodeKey = this.props.nodeKey;
@@ -1590,15 +1604,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
+  edgeRenderId = (edge: IEdge) => `edges-${edge.source}-${edge.target}`;
+
   asyncRenderEdge = (edge: IEdge, nodeMoving: boolean = false) => {
     if (!edge.source || !edge.target) {
       return;
     }
 
-    const timeoutId = `edges-${edge.source}-${edge.target}`;
+    const edgeRenderId = this.edgeRenderId(edge);
 
-    cancelAnimationFrame(this.edgeTimeouts[timeoutId]);
-    this.edgeTimeouts[timeoutId] = requestAnimationFrame(() => {
+    cancelAnimationFrame(this.edgeTimeouts[edgeRenderId]);
+    this.edgeTimeouts[edgeRenderId] = requestAnimationFrame(() => {
       this.syncRenderEdge(edge, nodeMoving);
     });
   };
