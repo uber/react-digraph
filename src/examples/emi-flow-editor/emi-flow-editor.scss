@@ -63,29 +63,28 @@
   overflow: scroll;
   height: 89vh;
 
-  > h1 {
+  h1 {
     flex: 1;
     flex-grow: 0;
   }
 
-  > form {
+  form {
     flex: 1;
     flex-grow: 0;
     display: flex;
     flex-direction: column;
   }
 
-  > label {
-    flex: 1;
+  label {
     flex-grow: 0;
     display: flex;
 
-    > input {
+    input {
       flex: 1;
       margin-left: 5px; 
     }
 
-    > textarea {
+    textarea {
       flex: 1;
       margin-left: 5px; 
     }

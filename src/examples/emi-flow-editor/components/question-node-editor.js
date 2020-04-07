@@ -17,7 +17,7 @@ class QuestionNodeEditor extends React.Component {
     const question = node.gnode.question;
 
     return (
-      <div id="nodeEditor" className="rightEditor">
+      <div id="questionNodeEditor" className="rightEditor">
         <IndexInput onChangeIndex={onChangeIndex}>{question.index}</IndexInput>
         <label>
           Text:

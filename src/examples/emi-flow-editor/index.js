@@ -243,6 +243,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
           connections: [],
         },
         importPath: null,
+        prefix: '',
         slots: [],
         slotContextVars: [],
       },

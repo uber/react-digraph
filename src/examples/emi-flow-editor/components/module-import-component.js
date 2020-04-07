@@ -2,8 +2,6 @@ import * as React from 'react';
 import Select from 'react-select';
 import { withAlert } from 'react-alert';
 
-import IndexInput from './index-input';
-
 import {
   selectTheme,
   getSimpleItem,
@@ -71,19 +69,12 @@ class ModuleImportComponent extends React.Component {
 
   render() {
     const { s3Loading, moduleItems, showModuleSelect } = this.state;
-    const {
-      parseImportPath,
-      importPath,
-      slots,
-      slotContextVars,
-      onChangeIndex,
-      index,
-    } = this.props;
+    const { parseImportPath, importPath } = this.props;
 
     const { name, version } = parseImportPath(importPath);
 
     return (
-      <div id="moduleImportEditor" className="rightEditor">
+      <div id="moduleImportComponent">
         <label>
           <h2>Module: {name && !showModuleSelect ? name : ''}</h2>
           <input
@@ -112,27 +103,6 @@ class ModuleImportComponent extends React.Component {
         <label>
           <h3>Version: {version ? version : ''}</h3>
         </label>
-        <IndexInput onChangeIndex={onChangeIndex}>{index}</IndexInput>
-        {slots && (
-          <label>
-            Slots:
-            <ul>
-              {slots.forEach(s => (
-                <li>{s}</li>
-              ))}
-            </ul>
-          </label>
-        )}
-        {slotContextVars && (
-          <label>
-            Slot Context Vars:
-            <ul>
-              {slotContextVars.map(s => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          </label>
-        )}
       </div>
     );
   }

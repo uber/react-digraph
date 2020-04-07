@@ -63,10 +63,6 @@ const getModuleNodeHandlers = bwdlEditable => {
     }
   }.bind(bwdlEditable);
 
-  // bwdlEditable.onChangeModuleIndex = function(newIndex) {
-
-  // }.bind(bwdlEditable);
-
   bwdlEditable._changeModuleIndex = function(json, prevState, newIndex) {
     this._changeJsonIndex(json, prevState, newIndex);
   }.bind(bwdlEditable);
@@ -101,6 +97,42 @@ const getModuleNodeHandlers = bwdlEditable => {
           };
         }.bind(bwdlEditable)
       );
+    });
+  }.bind(bwdlEditable);
+
+  bwdlEditable.onChangeModulePrefix = function(newPrefix) {
+    this.changeSelectedNode((node, index, newJson) => {
+      const nodeNames = Object.keys(newJson);
+
+      nodeNames.forEach(name => {
+        const aNode = newJson[name];
+
+        if (!aNode || ['name', 'current', 'faqs'].includes(name)) {
+          return;
+        }
+
+        const q = aNode.question;
+
+        q.connections.forEach(
+          function(connection) {
+            this.getFilterItems(connection.context)
+              .filter(({ key, op, value }) =>
+                node.slotContextVars.includes(key)
+              )
+              .forEach(({ key, op, value }) => {
+                delete connection[`${key}_${op}`];
+                const newKey = `${newPrefix}${key.substr(node.prefix.length)}`;
+
+                connection[`${newKey}_${op}`] = value;
+              });
+          }.bind(bwdlEditable)
+        );
+
+        node.slotContextVars = node.slotContextVars.map(
+          s => `${newPrefix}${s.substr(node.prefix.length)}`
+        );
+        node.prefix = newPrefix;
+      });
     });
   }.bind(bwdlEditable);
 
