@@ -12,7 +12,7 @@ const moduleRegex = /libs\/modules\/test\/(.*)_v(\d+)\.json$/;
 const slotsRegex = /"slot_name": "(.*)",/g;
 const slotContextVarsRegex = /"setContext": {[^}]*?"(slot_.*?)"[^}]*?}/g;
 
-const getModuleImportHandlers = bwdlEditable => {
+const getModuleNodeHandlers = bwdlEditable => {
   bwdlEditable.getModules = function() {
     return new Promise(
       function(resolve, reject) {
@@ -101,12 +101,10 @@ const getModuleImportHandlers = bwdlEditable => {
           };
         }.bind(bwdlEditable)
       );
-
-      return { ...module, slots, slotContextVars };
     });
   }.bind(bwdlEditable);
 
   return bwdlEditable;
 };
 
-export { getModuleImportHandlers, STG, PROD, ENVS };
+export { getModuleNodeHandlers, STG, PROD, ENVS };

@@ -3,9 +3,8 @@ import Select from 'react-select';
 
 import { CHOICE_TYPE, MODULE_TYPE } from '../bwdl-config';
 import { selectTheme, getItem } from './common';
-import QuestionEditor from './question-editor';
-import IndexInput from './index-input';
-import ModuleImportEditor from './module-import-editor';
+import QuestionNodeEditor from './question-node-editor';
+import ModuleNodeEditor from './module-node-editor';
 
 const nodeTypes = {
   [CHOICE_TYPE]: 'Question',
@@ -20,9 +19,8 @@ class NodeEditor extends React.Component {
   render() {
     const { children, nodeHandlers } = this.props;
     const {
-      questionHandlers,
-      moduleInputHandlers,
-      onChangeIndex,
+      questionNodeHandlers,
+      moduleNodeHandlers,
       onMakeFirst,
       onChangeNodeType,
     } = nodeHandlers;
@@ -58,15 +56,14 @@ class NodeEditor extends React.Component {
               />
             </label>
           )}
-          <IndexInput onChangeIndex={onChangeIndex}>{question}</IndexInput>
           {type === MODULE_TYPE ? (
-            <ModuleImportEditor moduleInputHandlers={moduleInputHandlers}>
+            <ModuleNodeEditor moduleNodeHandlers={moduleNodeHandlers}>
               {node}
-            </ModuleImportEditor>
+            </ModuleNodeEditor>
           ) : (
-            <QuestionEditor questionHandlers={questionHandlers}>
+            <QuestionNodeEditor questionNodeHandlers={questionNodeHandlers}>
               {node}
-            </QuestionEditor>
+            </QuestionNodeEditor>
           )}
         </form>
       </div>

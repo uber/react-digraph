@@ -2,20 +2,23 @@ import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import AnswerEditor from './answer-editor';
+import IndexInput from './index-input';
 
-class QuestionEditor extends React.Component {
+class QuestionNodeEditor extends React.Component {
   render() {
-    const { children, questionHandlers } = this.props;
+    const { children, questionNodeHandlers } = this.props;
     const {
       onChangeImmediateNext,
+      onChangeIndex,
       onChangeTextArea,
       answerHandlers,
-    } = questionHandlers;
+    } = questionNodeHandlers;
     const node = children;
     const question = node.gnode.question;
 
     return (
       <div id="nodeEditor" className="rightEditor">
+        <IndexInput onChangeIndex={onChangeIndex}>{question.index}</IndexInput>
         <label>
           Text:
           <TextareaAutosize
@@ -42,4 +45,4 @@ class QuestionEditor extends React.Component {
   }
 }
 
-export default QuestionEditor;
+export default QuestionNodeEditor;

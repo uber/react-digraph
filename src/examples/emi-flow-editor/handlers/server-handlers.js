@@ -13,7 +13,7 @@ const getServerHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.changeServer = function(parentProp, f) {
-    this.changeSelectedNode((newBwdlJson, index) => {
+    this.changeSelectedNode((node, index, newBwdlJson) => {
       const serverParent = this.getServerParent(parentProp);
 
       f(newBwdlJson, index, serverParent);

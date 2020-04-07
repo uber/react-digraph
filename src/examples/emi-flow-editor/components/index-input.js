@@ -7,19 +7,13 @@ class IndexInput extends React.Component {
 
     const { onChangeIndex, children } = this.props;
 
-    this.state = { newIndex: children.index };
+    this.state = { newIndex: children };
     this.onChangeIndex = debounce(onChangeIndex, 250);
   }
 
-  getIndex = props => {
-    const { children } = props;
-
-    return children.index;
-  };
-
   componentDidUpdate(prevProps) {
-    const index = this.getIndex(this.props);
-    const prevIndex = this.getIndex(prevProps);
+    const index = this.props.children;
+    const prevIndex = prevProps.children;
 
     if (index && index !== prevIndex) {
       this.setState({ newIndex: index });
@@ -37,8 +31,6 @@ class IndexInput extends React.Component {
     const { children } = this.props;
     const { newIndex } = this.state;
 
-    const question = children;
-
     return (
       <label>
         Index:
@@ -47,7 +39,7 @@ class IndexInput extends React.Component {
           name="index"
           value={newIndex}
           onChange={e => this.onChangeNewIndex(e.target.value)}
-          onBlur={() => this.rollbackNewIndex(question.index)}
+          onBlur={() => this.rollbackNewIndex(children)}
         />
       </label>
     );

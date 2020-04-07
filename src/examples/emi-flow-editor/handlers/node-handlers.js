@@ -1,5 +1,5 @@
-import getQuestionHandlers from './question-handlers';
-import { getModuleImportHandlers } from './module-import-handlers';
+import getQuestionNodeHandlers from './question-node-handlers';
+import { getModuleNodeHandlers } from './module-node-handlers';
 
 const getNodeHandlers = bwdlEditable => {
   bwdlEditable.onChangeNodeType = function(nodeType) {
@@ -50,15 +50,22 @@ const getNodeHandlers = bwdlEditable => {
 
   bwdlEditable.onChangeIndex = function(newIndex) {
     if (this.indexAlreadyExists(newIndex)) {
-      this.alert.error(
+      this.indexRenameAlert = this.alert.error(
         `Cannot rename node: There's another node with '${newIndex}' index`
       );
 
       return;
     } else if (['name', 'current', 'faqs'].includes(newIndex)) {
-      this.alert.error(`Cannot rename node: '${newIndex}' is a reserved name`);
+      this.indexRenameAlert = this.alert.error(
+        `Cannot rename node: '${newIndex}' is a reserved name`
+      );
 
       return;
+    }
+
+    if (this.indexRenameAlert) {
+      this.alert.remove(this.indexRenameAlert);
+      this.indexRenameAlert = null;
     }
 
     this.changeJson((json, prevState) =>
@@ -72,28 +79,30 @@ const getNodeHandlers = bwdlEditable => {
     // make sure that selected node is a root node
     const nodeNames = Object.keys(this.state.bwdlJson);
     const firstable = nodeNames.every(name => {
-      const currentNode = this.state.bwdlJson[name];
+      const node = this.state.bwdlJson[name];
 
-      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+      if (!node || ['name', 'current', 'faqs'].includes(name)) {
         return true;
       }
 
-      const q = currentNode.question;
+      const q = node.question;
 
       return q.connections.every(connection => connection.goto !== index);
     });
 
     if (!firstable) {
+      this.alert.error('Cannot make first. There are incoming edges.');
+
       return;
     }
 
-    this.changeSelectedNode((newBwdlJson, index) => {
-      newBwdlJson['current'] = index;
+    this.changeJson(json => {
+      json['current'] = index;
     });
   }.bind(bwdlEditable);
 
-  bwdlEditable.questionHandlers = getQuestionHandlers(bwdlEditable);
-  bwdlEditable.moduleInputHandlers = getModuleImportHandlers(bwdlEditable);
+  bwdlEditable.questionNodeHandlers = getQuestionNodeHandlers(bwdlEditable);
+  bwdlEditable.moduleNodeHandlers = getModuleNodeHandlers(bwdlEditable);
 
   return bwdlEditable;
 };

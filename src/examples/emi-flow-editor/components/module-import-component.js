@@ -2,6 +2,8 @@ import * as React from 'react';
 import Select from 'react-select';
 import { withAlert } from 'react-alert';
 
+import IndexInput from './index-input';
+
 import {
   selectTheme,
   getSimpleItem,
@@ -20,18 +22,6 @@ class ModuleImportComponent extends React.Component {
       modulesDict: {},
       showModuleSelect: false,
     };
-  }
-
-  componentDidUpdate(prevProps) {
-    const { importPath, parseImportPath } = this.props;
-
-    if (prevProps.importPath != importPath) {
-      const { name, version } = parseImportPath(importPath);
-
-      if (importPath) {
-        this._reloadModules().then(() => this._importModule(name, version));
-      }
-    }
   }
 
   _reloadModules = () => {
@@ -81,7 +71,14 @@ class ModuleImportComponent extends React.Component {
 
   render() {
     const { s3Loading, moduleItems, showModuleSelect } = this.state;
-    const { parseImportPath, importPath, slots, slotContextVars } = this.props;
+    const {
+      parseImportPath,
+      importPath,
+      slots,
+      slotContextVars,
+      onChangeIndex,
+      index,
+    } = this.props;
 
     const { name, version } = parseImportPath(importPath);
 
@@ -115,6 +112,7 @@ class ModuleImportComponent extends React.Component {
         <label>
           <h3>Version: {version ? version : ''}</h3>
         </label>
+        <IndexInput onChangeIndex={onChangeIndex}>{index}</IndexInput>
         {slots && (
           <label>
             Slots:

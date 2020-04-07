@@ -2,21 +2,23 @@ import * as React from 'react';
 
 import ModuleImportComponent from './module-import-component';
 
-class ModuleImportEditor extends React.Component {
+class ModuleNodeEditor extends React.Component {
   render() {
-    const { moduleInputHandlers, children } = this.props;
+    const { moduleNodeHandlers, children } = this.props;
     const {
       getModules,
       parseImportPath,
       importModule,
       getModuleDef,
-    } = moduleInputHandlers;
+      onChangeIndex,
+    } = moduleNodeHandlers;
     const node = children;
-    const { importPath, slots, slotContextVars } = node.gnode;
+    const { question, importPath, slots, slotContextVars } = node.gnode;
 
     return (
       <div id="moduleImportEditor" className="rightEditor">
         <ModuleImportComponent
+          index={question.index}
           importPath={importPath}
           slots={slots}
           slotContextVars={slotContextVars}
@@ -24,10 +26,11 @@ class ModuleImportEditor extends React.Component {
           parseImportPath={parseImportPath}
           getModuleDef={getModuleDef}
           importModule={importModule}
+          onChangeIndex={onChangeIndex}
         />
       </div>
     );
   }
 }
 
-export default ModuleImportEditor;
+export default ModuleNodeEditor;

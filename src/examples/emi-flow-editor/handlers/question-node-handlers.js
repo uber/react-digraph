@@ -1,6 +1,6 @@
 import getAnswerHandlers from './answer-handlers';
 
-const getQuestionHandlers = bwdlEditable => {
+const getQuestionNodeHandlers = bwdlEditable => {
   bwdlEditable.changeQuestionProperty = function(property, newValue) {
     this.changeSelectedQuestion(question => {
       question[property] = newValue;
@@ -37,4 +37,4 @@ const getQuestionHandlers = bwdlEditable => {
   return bwdlEditable;
 };
 
-export default getQuestionHandlers;
+export default getQuestionNodeHandlers;

@@ -439,7 +439,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       const newIndex = `${index}${k > 0 ? prefix || '' : ''}${k ? k : ''}`;
 
       if (!json[newIndex]) {
-        return { count: k + 1, newIndex: newIndex };
+        return { count: k, newIndex: newIndex };
       }
     }
 
