@@ -685,7 +685,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     this.setState({ editor: editor });
   };
 
-  changeJson = f => {
+  changeJson = (f, callback) => {
     this.setState(prevState => {
       const json = {
         ...prevState.bwdlJson,
@@ -702,7 +702,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       } catch (e) {
         this.alert.error(e.message);
       }
-    });
+    }, callback);
   };
 
   changeSelectedNode = f => {

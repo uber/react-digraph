@@ -11,6 +11,7 @@ const ENV_BUCKETS = {
 const moduleRegex = /libs\/modules\/test\/(.*)_v(\d+)\.json$/;
 const slotsRegex = /"slot_name": "(.*)",/g;
 const slotContextVarsRegex = /"setContext": {[^}]*?"(slot_.*?)"[^}]*?}/g;
+const slotContextVarsPrefix = 'slot_';
 
 const getModuleNodeHandlers = bwdlEditable => {
   bwdlEditable.getModules = function() {
@@ -103,6 +104,13 @@ const getModuleNodeHandlers = bwdlEditable => {
   bwdlEditable.onChangeModulePrefix = function(newPrefix) {
     this.changeSelectedNode((node, index, newJson) => {
       const nodeNames = Object.keys(newJson);
+      const updatedEdges = new Set();
+      const oldSlotPrefix = node.prefix ? `${node.prefix}-` : node.prefix;
+      const newSlotPrefix = newPrefix ? `${newPrefix}-` : newPrefix;
+      const updatePrefix = slotContextVar =>
+        `${slotContextVarsPrefix}${newSlotPrefix}${slotContextVar.substr(
+          slotContextVarsPrefix.length + oldSlotPrefix.length
+        )}`;
 
       nodeNames.forEach(name => {
         const aNode = newJson[name];
@@ -115,24 +123,31 @@ const getModuleNodeHandlers = bwdlEditable => {
 
         q.connections.forEach(
           function(connection) {
-            this.getFilterItems(connection.context)
-              .filter(({ key, op, value }) =>
-                node.slotContextVars.includes(key)
+            const { context } = connection;
+
+            this.getFilterItems(context)
+              .filter(
+                ({ key, op, value }) =>
+                  node.slotContextVars.includes(key) &&
+                  key.startsWith(slotContextVarsPrefix)
               )
               .forEach(({ key, op, value }) => {
-                delete connection[`${key}_${op}`];
-                const newKey = `${newPrefix}${key.substr(node.prefix.length)}`;
+                delete context[`${key}_${op}`];
+                context[`${updatePrefix(key)}_${op}`] = value;
 
-                connection[`${newKey}_${op}`] = value;
+                updatedEdges.add(
+                  this.state.edges.find(
+                    e => e.target === connection.goto && e.source === name
+                  )
+                );
               });
           }.bind(bwdlEditable)
         );
-
-        node.slotContextVars = node.slotContextVars.map(
-          s => `${newPrefix}${s.substr(node.prefix.length)}`
-        );
-        node.prefix = newPrefix;
       });
+      updatedEdges.forEach(e => this.GraphView.asyncRenderEdge(e));
+
+      node.slotContextVars = node.slotContextVars.map(s => updatePrefix(s));
+      node.prefix = newPrefix;
     });
   }.bind(bwdlEditable);
 
