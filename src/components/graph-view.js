@@ -1256,46 +1256,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return true;
   };
 
-  // Updates current viewTransform to the given zoom level and pans to clicked area
-  modifyDiscreteZoom = (
-    zoomLevel: number = 0,
-    x: number = 0,
-    y: number = 0,
-    dur: number = 0
-  ) => {
-    const { viewTransform } = this.state;
-    const extent = this.zoom.scaleExtent();
-
-    const parent = d3.select(this.viewWrapper.current).node();
-    const centerX = parent.clientWidth / 2;
-    const centerY = parent.clientHeight / 2;
-
-    const next = {
-      k: viewTransform.k,
-      x: viewTransform.x,
-      y: viewTransform.y,
-    };
-
-    if (zoomLevel < extent[0] || zoomLevel > extent[1]) {
-      return false;
-    }
-
-    next.k = zoomLevel;
-
-    const dx = x * zoomLevel;
-    const dy = y * zoomLevel;
-
-    const newX = dx + viewTransform.x;
-    const newY = dy + viewTransform.y;
-
-    next.x = centerX - newX + viewTransform.x;
-    next.y = centerY - newY + viewTransform.y;
-
-    this.setZoom(next.k, next.x, next.y, dur);
-
-    return true;
-  };
-
   // Programmatically resets zoom
   setZoom(k: number = 1, x: number = 0, y: number = 0, dur: number = 0) {
     if (!this.viewWrapper.current) {
@@ -1309,6 +1269,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .transition()
       .duration(dur)
       .call(this.zoom.transform, t);
+  }
+
+  setDiscreteZoom(k: number = 1, dur: number = 0, point: array) {
+    if (!this.viewWrapper.current) {
+      return;
+    }
+
+    d3.select(this.viewWrapper.current)
+      .select('svg')
+      .transition()
+      .duration(dur)
+      .call(this.zoom.scaleTo, k, point);
   }
 
   renderView({ beforeRender, afterRender }) {
