@@ -645,43 +645,6 @@ describe('GraphView component', () => {
     });
   });
 
-  describe('modifyDiscreteZoom', () => {
-    beforeEach(() => {
-      spyOn(instance, 'setZoom');
-      instance.viewWrapper = {
-        current: document.createElement('div'),
-      };
-
-      instance.setState({
-        viewTransform: {
-          k: 0.4,
-          x: 50,
-          y: 50,
-        },
-      });
-    });
-
-    it('modifies the zoom', () => {
-      instance.modifyDiscreteZoom(0.2, 5, 10, 100);
-      expect(instance.setZoom).toHaveBeenCalledWith(
-        0.2,
-        -1, 
-        -2,
-        100
-      );
-    });
-
-    it('does nothing when targetZoom is too small', () => {
-      instance.modifyDiscreteZoom(-100, 5, 10, 100);
-      expect(instance.setZoom).not.toHaveBeenCalled();
-    });
-
-    it('does nothing when targetZoom is too large', () => {
-      instance.modifyZoom(100, 5, 10, 100);
-      expect(instance.setZoom).not.toHaveBeenCalled();
-    });
-  });
-
   describe('handleZoomToFit method', () => {
     beforeEach(() => {
       spyOn(instance, 'setZoom');
