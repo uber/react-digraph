@@ -7,7 +7,13 @@ import debounce from 'debounce';
 import Tooltip from 'react-tooltip-lite';
 
 import GraphUtils from '../../../utilities/graph-util';
-import { getSimpleItem, formatDate, LoadingWrapper, Input } from './common';
+import {
+  getErrorMessage,
+  getSimpleItem,
+  formatDate,
+  LoadingWrapper,
+  Input,
+} from './common';
 import { STG, PROD, ENVS } from '../handlers/flow-management-handlers';
 import FlowDiff from './flow-diff';
 
@@ -98,7 +104,7 @@ class FlowManagement extends React.Component {
       )
       .catch(err => {
         this.setState({ opening: false });
-        this.alert.error(`Couldn't open flow: ${JSON.stringify(err, null, 4)}`);
+        this.alert.error(`Couldn't open flow: ${getErrorMessage(err)}`);
         throw err;
       });
   };
@@ -150,9 +156,7 @@ class FlowManagement extends React.Component {
             })
           )
           .catch(err =>
-            this.alert.error(
-              `Flow deletion failed: ${JSON.stringify(err, null, 4)}`
-            )
+            this.alert.error(`Flow deletion failed: ${getErrorMessage(err)}`)
           ),
       true,
       'Delete the flow?',
@@ -176,9 +180,7 @@ class FlowManagement extends React.Component {
           })
         )
         .catch(err =>
-          this.alert.error(
-            `Flow cloning failed: ${JSON.stringify(err, null, 4)}`
-          )
+          this.alert.error(`Flow cloning failed: ${getErrorMessage(err)}`)
         );
     }, this.unsavedChanges());
   };
@@ -194,9 +196,7 @@ class FlowManagement extends React.Component {
       })
       .catch(err => {
         this.setState({ shipping: false });
-        this.alert.error(
-          `Flow shipping failed: ${JSON.stringify(err, null, 4)}`
-        );
+        this.alert.error(`Flow shipping failed: ${getErrorMessage(err)}`);
       });
   };
 
@@ -238,7 +238,7 @@ class FlowManagement extends React.Component {
         if (err.statusCode == 404) {
           this.confirmAndShip('', getJsonText());
         } else {
-          this.alert.error(`Flow ship failed: ${JSON.stringify(err, null, 4)}`);
+          this.alert.error(`Flow ship failed: ${getErrorMessage(err)}`);
         }
       });
   };
@@ -252,9 +252,7 @@ class FlowManagement extends React.Component {
       .then(() => this.setState({ restoring: false, s3stored: true }))
       .catch(err => {
         this.setState({ restoring: false });
-        this.alert.error(
-          `Flow restore failed: ${JSON.stringify(err, null, 4)}`
-        );
+        this.alert.error(`Flow restore failed: ${getErrorMessage(err)}`);
       });
   };
 
@@ -296,9 +294,7 @@ class FlowManagement extends React.Component {
       })
       .catch(err => {
         this.setState({ restoring: false });
-        this.alert.error(
-          `Flow restore failed: ${JSON.stringify(err, null, 4)}`
-        );
+        this.alert.error(`Flow restore failed: ${getErrorMessage(err)}`);
       });
   };
 
@@ -315,7 +311,7 @@ class FlowManagement extends React.Component {
       .then(() => this.setState({ saving: false, s3stored: true }))
       .catch(err => {
         this.setState({ saving: false });
-        this.alert.error(`Flow save failed: ${JSON.stringify(err, null, 4)}`);
+        this.alert.error(`Flow save failed: ${getErrorMessage(err)}`);
       });
   };
 
@@ -358,9 +354,7 @@ class FlowManagement extends React.Component {
           s3Loading: false,
           flows: [],
         });
-        this.alert.error(
-          `Couldn't retrieve flows: ${JSON.stringify(err, null, 4)}`
-        );
+        this.alert.error(`Couldn't retrieve flows: ${getErrorMessage(err)}`);
       });
   };
 
@@ -400,9 +394,7 @@ class FlowManagement extends React.Component {
     this.props.flowManagementHandlers
       .renameFlow(flowName)
       .catch(err =>
-        this.alert.error(
-          `Flow renaming failed: ${JSON.stringify(err, null, 4)}`
-        )
+        this.alert.error(`Flow renaming failed: ${getErrorMessage(err)}`)
       )
       .then(this.setState({ s3stored: true }));
 
@@ -559,9 +551,7 @@ class FlowManagement extends React.Component {
           s3Loading: false,
           versions: [],
         });
-        this.alert.error(
-          `Couldn't retrieve flows: ${JSON.stringify(err, null, 4)}`
-        );
+        this.alert.error(`Couldn't retrieve flows: ${getErrorMessage(err)}`);
       });
   };
 

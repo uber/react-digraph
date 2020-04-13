@@ -1,4 +1,5 @@
 import { STG_BUCKET, PROD_BUCKET } from '../cognito';
+import { getErrorMessage } from '../components/common';
 
 const STG = 'staging';
 const PROD = 'production';
@@ -55,13 +56,19 @@ const getModuleNodeHandlers = bwdlEditable => {
   }.bind(bwdlEditable);
 
   bwdlEditable.parseImportPath = function(importPath) {
-    if (importPath) {
-      const [, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
+    try {
+      if (importPath) {
+        const [, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
 
-      return { name, version };
-    } else {
-      return { name: null, version: null };
+        return { name, version };
+      }
+    } catch (err) {
+      this.alert.error(
+        `Can't parse module path '${importPath}': ${getErrorMessage(err)}`
+      );
     }
+
+    return { name: null, version: null };
   }.bind(bwdlEditable);
 
   bwdlEditable._changeModuleIndex = function(json, prevState, newIndex) {
