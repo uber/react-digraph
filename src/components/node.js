@@ -236,9 +236,10 @@ class Node extends React.Component<INodeProps, INodeState> {
       // mousedown via dragging (see graph-view asyncElevateNodeAndEdges)
       const target = e.target;
       const options = Object.assign(e);
+      const eventType = e.detail >= 2 ? 'dblclick' : 'click';
 
       window.requestAnimationFrame(() => {
-        target.dispatchEvent(new MouseEvent('click', options));
+        target.dispatchEvent(new MouseEvent(eventType, options));
       });
     }
   };
