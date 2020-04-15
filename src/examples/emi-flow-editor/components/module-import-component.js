@@ -18,7 +18,9 @@ class ModuleImportComponent extends React.Component {
 
     this.alert = this.props.alert;
     this.state = {
-      s3Loading: false,
+      folderItems: [],
+      loadingFolders: false,
+      loadingModuleList: false,
       moduleItems: [],
       modulesDict: {},
       showModuleSelect: false,
@@ -48,9 +50,9 @@ class ModuleImportComponent extends React.Component {
   }
 
   _setLatestVersionIntoState = () => {
-    const { name, getLatestVersionModuleDef } = this.props;
+    const { folder, name, getLatestVersionModuleDef } = this.props;
 
-    return getLatestVersionModuleDef(name)
+    return getLatestVersionModuleDef(folder, name)
       .then(latestVersionModuleDef => this.setState({ latestVersionModuleDef }))
       .catch(err =>
         this.alert.error(
@@ -59,23 +61,47 @@ class ModuleImportComponent extends React.Component {
       );
   };
 
-  _reloadModules = () => {
+  _reloadFolders = () => {
     this.setState({
-      s3Loading: true,
+      loadingFolders: true,
     });
 
     return this.props
-      .getModuleDefs()
-      .then(modules => {
+      .getModuleFolders()
+      .then(folders => {
         this.setState({
-          modulesDict: modules,
-          moduleItems: Object.keys(modules).map(m => getSimpleItem(m)),
-          s3Loading: false,
+          folderItems: folders.map(m => getSimpleItem(m)),
+          loadingFolders: false,
         });
       })
       .catch(err => {
         this.setState({
-          s3Loading: false,
+          loadingFolders: false,
+          folderItems: [],
+        });
+        this.alert.error(
+          `Couldn't retrieve module folders: ${getErrorMessage(err)}`
+        );
+      });
+  };
+
+  _reloadModules = folder => {
+    this.setState({
+      loadingModuleList: true,
+    });
+
+    return this.props
+      .getModuleDefs(folder)
+      .then(modules => {
+        this.setState({
+          modulesDict: modules,
+          moduleItems: Object.keys(modules).map(m => getSimpleItem(m)),
+          loadingModuleList: false,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          loadingModuleList: false,
           modules: [],
         });
         this.alert.error(`Couldn't retrieve modules: ${getErrorMessage(err)}`);
@@ -101,11 +127,16 @@ class ModuleImportComponent extends React.Component {
     });
   };
 
+  _selectFolder = folder => {
+    this._reloadModules(folder);
+    this.setState({ newFolder: folder });
+  };
+
   onShowModuleSelectClick = () => {
     this.setState(prevState => ({
       showModuleSelect: !prevState.showModuleSelect,
     }));
-    this._reloadModules();
+    this._reloadFolders();
   };
 
   updateToLatestVersion = () => {
@@ -149,12 +180,15 @@ class ModuleImportComponent extends React.Component {
 
   render() {
     const {
+      folderItems,
       latestVersionModuleDef,
       moduleItems,
-      s3Loading,
+      newFolder,
+      loadingFolders,
+      loadingModuleList,
       showModuleSelect,
     } = this.state;
-    const { name, version } = this.props;
+    const { folder, name, version } = this.props;
     const { version: latestVersion } = latestVersionModuleDef || {};
 
     return (
@@ -169,20 +203,47 @@ class ModuleImportComponent extends React.Component {
             }`}
             onClick={this.onShowModuleSelectClick}
           />
-          {showModuleSelect && (
-            <label style={{ display: 'flex', border: 'none' }}>
-              <LoadingWrapper isLoading={s3Loading} width="300px" height="40px">
-                <Select
-                  className="selectLongContainer"
-                  theme={selectTheme}
-                  value=""
-                  onChange={item => this._importSelectedModule(item.value)}
-                  options={moduleItems}
-                  isSearchable={true}
-                />
-              </LoadingWrapper>
-            </label>
-          )}
+          <div>
+            {showModuleSelect && (
+              <label style={{ display: 'flex', border: 'none' }}>
+                <LoadingWrapper
+                  isLoading={loadingFolders}
+                  width="100px"
+                  height="40px"
+                >
+                  <Select
+                    className="selectShortContainer"
+                    theme={selectTheme}
+                    value={getSimpleItem(newFolder || '')}
+                    onChange={item => this._selectFolder(item.value)}
+                    options={folderItems}
+                    isSearchable={true}
+                  />
+                </LoadingWrapper>
+              </label>
+            )}
+            {showModuleSelect && newFolder && (
+              <label style={{ display: 'flex', border: 'none' }}>
+                <LoadingWrapper
+                  isLoading={loadingModuleList}
+                  width="300px"
+                  height="40px"
+                >
+                  <Select
+                    className="selectLongContainer"
+                    theme={selectTheme}
+                    value=""
+                    onChange={item => this._importSelectedModule(item.value)}
+                    options={moduleItems}
+                    isSearchable={true}
+                  />
+                </LoadingWrapper>
+              </label>
+            )}
+          </div>
+        </label>
+        <label>
+          <h3>Folder: {folder ? folder : ''}</h3>
         </label>
         <label>
           <h3>Version: {version ? version : ''}</h3>

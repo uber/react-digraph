@@ -9,49 +9,60 @@ const ENV_BUCKETS = {
   [PROD]: PROD_BUCKET,
 };
 
-const moduleRegex = /libs\/modules\/test\/(.*)_v(\d+)\.json$/;
+const moduleRegex = /libs\/modules\/(.*)\/(.*)_v(\d+)\.json$/;
 const slotContextVarsPrefix = 'slot_';
 
 const getModuleNodeHandlers = bwdlEditable => {
-  bwdlEditable.getLatestVersionModuleDef = function(name) {
-    return this.getModuleDefs(name).then(modulesDict =>
+  bwdlEditable.getLatestVersionModuleDef = function(folder, name) {
+    return this.getModuleDefs(folder, name).then(modulesDict =>
       this.getModuleDef(modulesDict, name)
     );
   }.bind(bwdlEditable);
 
-  bwdlEditable.getModuleDefs = function(name) {
-    return new Promise(
-      function(resolve, reject) {
-        const prefix = name ? `${name}_v` : '';
+  bwdlEditable.getModuleFolders = function() {
+    const Prefix = `libs/modules/`;
 
-        this.props.s3.listObjects(
-          {
-            Bucket: ENV_BUCKETS[STG],
-            Delimiter: '/',
-            Prefix: `libs/modules/test/${prefix}`,
-          },
-          function(err, data) {
-            if (err) {
-              reject(err);
-            } else {
-              const modulesDict = {};
+    return this.props.s3
+      .listObjectsV2({
+        Bucket: ENV_BUCKETS[STG],
+        Delimiter: '/',
+        Prefix,
+      })
+      .promise()
+      .then(data =>
+        data.CommonPrefixes.map(cp => cp.Prefix).map(p =>
+          p.slice(Prefix.length, -1)
+        )
+      );
+  }.bind(bwdlEditable);
 
-              data.Contents.filter(m => m.Key.endsWith('.json')).forEach(m => {
-                const { name, version } = this.parseImportPath(m.Key);
+  bwdlEditable.getModuleDefs = function(folder, name) {
+    const prefix = name ? `${name}_v` : '';
 
-                if (!modulesDict.name) {
-                  modulesDict[name] = {};
-                }
+    return this.props.s3
+      .listObjectsV2({
+        Bucket: ENV_BUCKETS[STG],
+        Delimiter: '/',
+        Prefix: `libs/modules/${folder}/${prefix}`,
+      })
+      .promise()
+      .then(
+        function(data) {
+          const modulesDict = {};
 
-                modulesDict[name][version] = { path: m.Key, name, version };
-              });
+          data.Contents.filter(m => m.Key.endsWith('.json')).forEach(m => {
+            const { name, version } = this.parseImportPath(m.Key);
 
-              resolve(modulesDict);
+            if (!modulesDict.name) {
+              modulesDict[name] = {};
             }
-          }.bind(bwdlEditable)
-        );
-      }.bind(bwdlEditable)
-    );
+
+            modulesDict[name][version] = { path: m.Key, name, version };
+          });
+
+          return modulesDict;
+        }.bind(bwdlEditable)
+      );
   }.bind(bwdlEditable);
 
   bwdlEditable._getModule = function(importPath, VersionId) {
@@ -64,11 +75,11 @@ const getModuleNodeHandlers = bwdlEditable => {
   bwdlEditable.parseImportPath = function(importPath) {
     try {
       if (importPath) {
-        const [, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
+        const [, folder, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
 
-        return { name, version };
+        return { folder, name, version };
       } else {
-        return { name: null, version: null };
+        return { folder: null, name: null, version: null };
       }
     } catch (err) {
       throw Error(`Can't parse module path '${importPath}'`, err);

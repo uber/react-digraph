@@ -10,29 +10,17 @@ const ENV_BUCKETS = {
 
 const getFlowManagementHandlers = app => {
   app.getFlows = function(env, includeLegacy = true) {
-    return new Promise(
-      function(resolve, reject) {
-        this.state.s3.listObjects(
-          {
-            Bucket: ENV_BUCKETS[env],
-            Delimiter: '/',
-          },
-          function(err, data) {
-            if (err) {
-              reject(err);
-            } else {
-              let flows = data.Contents.filter(f => f.Key.endsWith('.json'));
-
-              if (!includeLegacy) {
-                flows = flows.filter(f => !f.Key.endsWith('.py.json'));
-              }
-
-              resolve(flows);
-            }
-          }
-        );
-      }.bind(app)
-    );
+    return this.state.s3
+      .listObjects({
+        Bucket: ENV_BUCKETS[env],
+        Delimiter: '/',
+      })
+      .promise()
+      .then(data =>
+        data.Contents.filter(f => f.Key.endsWith('.json')).filter(
+          f => includeLegacy || !f.Key.endsWith('.py.json')
+        )
+      );
   }.bind(app);
 
   app.newFlow = function() {

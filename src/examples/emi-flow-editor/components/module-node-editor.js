@@ -27,17 +27,23 @@ class ModuleNodeEditor extends React.Component {
       const { importPathError } = state;
 
       try {
-        const { name, version } = parseImportPath(importPath);
+        const { folder, name, version } = parseImportPath(importPath);
 
         alert.remove(importPathError);
 
-        return { importPath, name, version };
+        return { importPath, folder, name, version };
       } catch (err) {
         const importPathError = alert.error(
           `Couldn't parse module import path: ${getErrorMessage(err)}`
         );
 
-        return { importPathError, importPath, name: null, version: null };
+        return {
+          importPathError,
+          importPath,
+          folder: null,
+          name: null,
+          version: null,
+        };
       }
     }
 
@@ -50,12 +56,13 @@ class ModuleNodeEditor extends React.Component {
   };
 
   render() {
-    const { newPrefix, name, version } = this.state;
+    const { newPrefix, folder, name, version } = this.state;
     const { moduleNodeHandlers, children } = this.props;
     const {
       getModuleDefs,
       importModule,
       getModuleDef,
+      getModuleFolders,
       getModuleOutput,
       onChangeIndex,
       getLatestVersionModuleDef,
@@ -68,9 +75,11 @@ class ModuleNodeEditor extends React.Component {
         <ModuleImportComponent
           importPath={importPath}
           getModuleDefs={getModuleDefs}
+          folder={folder}
           name={name}
           version={version}
           getModuleDef={getModuleDef}
+          getModuleFolders={getModuleFolders}
           importModule={importModule}
           getLatestVersionModuleDef={getLatestVersionModuleDef}
           getModuleOutput={getModuleOutput}
