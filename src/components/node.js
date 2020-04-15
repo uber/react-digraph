@@ -298,12 +298,15 @@ class Node extends React.Component<INodeProps, INodeState> {
     return null;
   }
 
-  static getNodeTypeScale(data: INode, nodeTypes: any) {
-    if (data.type && nodeTypes[data.type]) {
-      return nodeTypes[data.type].scale;
-    }
+  static getBaseLog(x, y) {
+    return Math.log(y) / Math.log(x);
+  }
 
-    return 1;
+  static getScale(data: INode, nodeTypes: any) {
+    const size = data.size || 1;
+    const scale = Node.getBaseLog(4, size + 3);
+
+    return scale;
   }
 
   adjustNodeShape = () => {
@@ -316,7 +319,7 @@ class Node extends React.Component<INodeProps, INodeState> {
 
     shape.setAttribute('transform', `scale(0, 0)`);
     const SVGRect = node.getBBox();
-    const scale = Node.getNodeTypeScale(data, nodeTypes);
+    const scale = Node.getScale(data, nodeTypes);
     const xScale = ((SVGRect.width + X_MARGIN * 2) * scale) / 100.0;
     const yScale = ((SVGRect.height + Y_MARGIN * 2) * scale) / 100.0;
 

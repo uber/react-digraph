@@ -1,5 +1,5 @@
 import { STG_BUCKET, PROD_BUCKET } from '../cognito';
-import { getErrorMessage } from '../components/common';
+import { NON_NODE_KEYS } from '../../../utilities/transformers/flow-v1-transformer';
 
 const STG = 'staging';
 const PROD = 'production';
@@ -10,19 +10,25 @@ const ENV_BUCKETS = {
 };
 
 const moduleRegex = /libs\/modules\/test\/(.*)_v(\d+)\.json$/;
-const slotsRegex = /"slot_name": "(.*)",/g;
-const slotContextVarsRegex = /"setContext": {[^}]*?"(slot_.*?)"[^}]*?}/g;
 const slotContextVarsPrefix = 'slot_';
 
 const getModuleNodeHandlers = bwdlEditable => {
-  bwdlEditable.getModules = function() {
+  bwdlEditable.getLatestVersionModuleDef = function(name) {
+    return this.getModuleDefs(name).then(modulesDict =>
+      this.getModuleDef(modulesDict, name)
+    );
+  }.bind(bwdlEditable);
+
+  bwdlEditable.getModuleDefs = function(name) {
     return new Promise(
       function(resolve, reject) {
+        const prefix = name ? `${name}_v` : '';
+
         this.props.s3.listObjects(
           {
             Bucket: ENV_BUCKETS[STG],
             Delimiter: '/',
-            Prefix: 'libs/modules/test/',
+            Prefix: `libs/modules/test/${prefix}`,
           },
           function(err, data) {
             if (err) {
@@ -48,7 +54,7 @@ const getModuleNodeHandlers = bwdlEditable => {
     );
   }.bind(bwdlEditable);
 
-  bwdlEditable.getModule = function(importPath, VersionId) {
+  bwdlEditable._getModule = function(importPath, VersionId) {
     return this.props.s3
       .getObject({ Bucket: ENV_BUCKETS[STG], Key: importPath, VersionId })
       .promise()
@@ -61,14 +67,12 @@ const getModuleNodeHandlers = bwdlEditable => {
         const [, name, version, ..._] = moduleRegex.exec(importPath); // eslint-disable-line no-unused-vars
 
         return { name, version };
+      } else {
+        return { name: null, version: null };
       }
     } catch (err) {
-      this.alert.error(
-        `Can't parse module path '${importPath}': ${getErrorMessage(err)}`
-      );
+      throw Error(`Can't parse module path '${importPath}'`, err);
     }
-
-    return { name: null, version: null };
   }.bind(bwdlEditable);
 
   bwdlEditable._changeModuleIndex = function(json, prevState, newIndex) {
@@ -81,31 +85,54 @@ const getModuleNodeHandlers = bwdlEditable => {
     return modulesDict[name][version];
   }.bind(bwdlEditable);
 
-  bwdlEditable.importModule = function(module) {
-    return this.getModule(module.path).then(contents => {
-      const slots = [
-        ...new Set(Array.from(contents.matchAll(slotsRegex)).map(m => m[1])),
-      ];
+  bwdlEditable.getModuleOutput = function(moduleDef) {
+    return this._getModule(moduleDef.path).then(contents => {
+      const moduleJson = JSON.parse(contents || '{}');
+
+      const nodeKeys = Object.keys(moduleJson).filter(
+        k => !NON_NODE_KEYS.includes(k)
+      );
       const slotContextVars = [
         ...new Set(
-          Array.from(contents.matchAll(slotContextVarsRegex)).map(m => m[1])
+          nodeKeys
+            .map(k => moduleJson[k])
+            .map(n => n.question.connections)
+            .flat(1)
+            .map(conn => conn.setContext)
+            .map(c => Object.keys(c))
+            .flat(1)
+            .filter(cvar => cvar.startsWith(slotContextVarsPrefix))
         ),
       ];
 
-      this.changeJson(
-        function(json, prevState) {
-          const { newIndex } = this.getAvailableIndex(json, module.name, '-');
+      const size = nodeKeys.length;
 
-          this._changeModuleIndex(json, prevState, newIndex);
-          json[newIndex] = {
-            ...json[newIndex],
-            slots,
-            slotContextVars,
-            importPath: module.path,
-          };
-        }.bind(bwdlEditable)
-      );
+      return { slotContextVars, size };
     });
+  }.bind(bwdlEditable);
+
+  bwdlEditable.importModule = function(moduleDef) {
+    return this.getModuleOutput(moduleDef).then(
+      function({ slotContextVars, size }) {
+        this.changeJson(
+          function(json, prevState) {
+            const { newIndex } = this.getAvailableIndex(
+              json,
+              moduleDef.name,
+              '-'
+            );
+
+            this._changeModuleIndex(json, prevState, newIndex);
+            json[newIndex] = {
+              ...json[newIndex],
+              slotContextVars,
+              size,
+              importPath: moduleDef.path,
+            };
+          }.bind(bwdlEditable)
+        );
+      }.bind(bwdlEditable)
+    );
   }.bind(bwdlEditable);
 
   bwdlEditable.onChangeModulePrefix = function(newPrefix) {
@@ -122,7 +149,7 @@ const getModuleNodeHandlers = bwdlEditable => {
       nodeNames.forEach(name => {
         const aNode = newJson[name];
 
-        if (!aNode || ['name', 'current', 'faqs'].includes(name)) {
+        if (!aNode || NON_NODE_KEYS.includes(name)) {
           return;
         }
 

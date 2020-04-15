@@ -1,6 +1,9 @@
 import * as React from 'react';
 import Select from 'react-select';
 import { withAlert } from 'react-alert';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import FlowDiff from './flow-diff';
 
 import {
   selectTheme,
@@ -22,13 +25,47 @@ class ModuleImportComponent extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const { name } = this.props;
+
+    if (name) {
+      this._setLatestVersionIntoState();
+    }
+
+    this.setState({ name });
+  }
+
+  componentDidUpdate() {
+    const { name } = this.props;
+
+    if (name != this.state.name) {
+      if (name) {
+        this._setLatestVersionIntoState();
+      }
+
+      this.setState({ name });
+    }
+  }
+
+  _setLatestVersionIntoState = () => {
+    const { name, getLatestVersionModuleDef } = this.props;
+
+    return getLatestVersionModuleDef(name)
+      .then(latestVersionModuleDef => this.setState({ latestVersionModuleDef }))
+      .catch(err =>
+        this.alert.error(
+          `Couldn't fetch module versions: ${getErrorMessage(err)}`
+        )
+      );
+  };
+
   _reloadModules = () => {
     this.setState({
       s3Loading: true,
     });
 
     return this.props
-      .getModules()
+      .getModuleDefs()
       .then(modules => {
         this.setState({
           modulesDict: modules,
@@ -45,19 +82,23 @@ class ModuleImportComponent extends React.Component {
       });
   };
 
-  _importModule = (name, version) => {
-    const { modulesDict } = this.state;
-    const { importModule, getModuleDef } = this.props;
+  _importModule = moduleDef => {
+    const { importModule } = this.props;
 
-    importModule(getModuleDef(modulesDict, name, version))
-      .catch(err => {
-        this.alert.error(`Couldn't import module: ${getErrorMessage(err)}`);
-      })
-      .finally(() => {
-        this.setState({
-          showModuleSelect: false,
-        });
+    return importModule(moduleDef).catch(err => {
+      this.alert.error(`Couldn't import module: ${getErrorMessage(err)}`);
+    });
+  };
+
+  _importSelectedModule = name => {
+    const { modulesDict } = this.state;
+    const { getModuleDef } = this.props;
+
+    this._importModule(getModuleDef(modulesDict, name)).finally(() => {
+      this.setState({
+        showModuleSelect: false,
       });
+    });
   };
 
   onShowModuleSelectClick = () => {
@@ -67,11 +108,54 @@ class ModuleImportComponent extends React.Component {
     this._reloadModules();
   };
 
-  render() {
-    const { s3Loading, moduleItems, showModuleSelect } = this.state;
-    const { parseImportPath, importPath } = this.props;
+  updateToLatestVersion = () => {
+    const { getModuleOutput, slotContextVars } = this.props;
+    const { latestVersionModuleDef } = this.state;
+    const { version: latestVersion } = latestVersionModuleDef;
 
-    const { name, version } = parseImportPath(importPath);
+    getModuleOutput(latestVersionModuleDef).then(
+      ({ slotContextVars: latestSlotContextVars }) => {
+        confirmAlert({
+          customUI: ({ onClose }) => (
+            <div
+              className="react-confirm-alert-body"
+              style={{ width: '1000px' }}
+            >
+              <h1>Update module to version {latestVersion}?</h1>
+              <p>Observe the changes in module output between versions</p>
+              <p>You might need to take action to adapt your flow to them:</p>
+              <FlowDiff
+                str1={slotContextVars.join('\n')}
+                str2={latestSlotContextVars.join('\n')}
+              />
+              <p>Are you sure?</p>
+              <div className="react-confirm-alert-button-group">
+                <button
+                  onClick={() => {
+                    this._importModule(latestVersionModuleDef);
+                    onClose();
+                  }}
+                >
+                  Yes, Update!
+                </button>
+                <button onClick={onClose}>No</button>
+              </div>
+            </div>
+          ),
+        });
+      }
+    );
+  };
+
+  render() {
+    const {
+      latestVersionModuleDef,
+      moduleItems,
+      s3Loading,
+      showModuleSelect,
+    } = this.state;
+    const { name, version } = this.props;
+    const { version: latestVersion } = latestVersionModuleDef || {};
 
     return (
       <div id="moduleImportComponent">
@@ -92,7 +176,7 @@ class ModuleImportComponent extends React.Component {
                   className="selectLongContainer"
                   theme={selectTheme}
                   value=""
-                  onChange={item => this._importModule(item.value)}
+                  onChange={item => this._importSelectedModule(item.value)}
                   options={moduleItems}
                   isSearchable={true}
                 />
@@ -102,6 +186,14 @@ class ModuleImportComponent extends React.Component {
         </label>
         <label>
           <h3>Version: {version ? version : ''}</h3>
+          {version < latestVersion && (
+            <input
+              name="updateModuleVersion"
+              type="button"
+              value={`Update to ${latestVersion}`}
+              onClick={this.updateToLatestVersion}
+            />
+          )}
         </label>
       </div>
     );

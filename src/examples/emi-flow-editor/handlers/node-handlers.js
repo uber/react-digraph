@@ -1,3 +1,4 @@
+import { NON_NODE_KEYS } from '../../../utilities/transformers/flow-v1-transformer';
 import getQuestionNodeHandlers from './question-node-handlers';
 import { getModuleNodeHandlers } from './module-node-handlers';
 
@@ -34,7 +35,7 @@ const getNodeHandlers = bwdlEditable => {
     nodeNames.forEach(name => {
       const currentNode = json[name];
 
-      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+      if (!currentNode || NON_NODE_KEYS.includes(name)) {
         return;
       }
 
@@ -55,7 +56,7 @@ const getNodeHandlers = bwdlEditable => {
       );
 
       return;
-    } else if (['name', 'current', 'faqs'].includes(newIndex)) {
+    } else if (NON_NODE_KEYS.includes(newIndex)) {
       this.indexRenameAlert = this.alert.error(
         `Cannot rename node: '${newIndex}' is a reserved name`
       );
@@ -81,7 +82,7 @@ const getNodeHandlers = bwdlEditable => {
     const firstable = nodeNames.every(name => {
       const node = this.state.bwdlJson[name];
 
-      if (!node || ['name', 'current', 'faqs'].includes(name)) {
+      if (!node || NON_NODE_KEYS.includes(name)) {
         return true;
       }
 

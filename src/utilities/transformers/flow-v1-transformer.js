@@ -19,6 +19,14 @@ import { type IEdge } from '../../components/edge';
 import { type INode } from '../../components/node';
 import Transformer, { type IGraphInput } from './transformer';
 
+export const NON_NODE_KEYS = [
+  'name',
+  'current',
+  'faqs',
+  'last_node',
+  'module_config',
+];
+
 export default class FlowV1Transformer extends Transformer {
   static transform(input: any) {
     if (!input) {
@@ -36,7 +44,7 @@ export default class FlowV1Transformer extends Transformer {
     nodeNames.forEach(name => {
       const currentNode = input[name];
 
-      if (!currentNode || ['name', 'current', 'faqs'].includes(name)) {
+      if (!currentNode || NON_NODE_KEYS.includes(name)) {
         return;
       }
 
@@ -49,6 +57,7 @@ export default class FlowV1Transformer extends Transformer {
         gnode: currentNode,
         x: currentNode.x || 0,
         y: currentNode.y || 0,
+        size: currentNode.size,
         // id: currentNode.id,
       };
 

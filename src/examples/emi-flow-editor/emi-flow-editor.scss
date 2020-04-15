@@ -328,7 +328,7 @@ label {
 
 .shipConfirm {
   display: block;
-  height: 400px;
+  max-height: 400px;
   overflow-y: scroll;
   width: 900px;
 }

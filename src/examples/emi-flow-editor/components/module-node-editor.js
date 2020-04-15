@@ -1,9 +1,10 @@
 import * as React from 'react';
 import debounce from 'debounce';
+import { withAlert } from 'react-alert';
 
 import ModuleImportComponent from './module-import-component';
 import IndexInput from './index-input';
-import { Input } from './common';
+import { Input, getErrorMessage } from './common';
 
 class ModuleNodeEditor extends React.Component {
   constructor(props) {
@@ -17,48 +18,69 @@ class ModuleNodeEditor extends React.Component {
     this.onChangeModulePrefix = debounce(onChangeModulePrefix, 250);
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const { children, moduleNodeHandlers, alert } = props;
+    const { importPath } = children.gnode;
+
+    if (state.importPath != importPath) {
+      const { parseImportPath } = moduleNodeHandlers;
+      const { importPathError } = state;
+
+      try {
+        const { name, version } = parseImportPath(importPath);
+
+        alert.remove(importPathError);
+
+        return { importPath, name, version };
+      } catch (err) {
+        const importPathError = alert.error(
+          `Couldn't parse module import path: ${getErrorMessage(err)}`
+        );
+
+        return { importPathError, importPath, name: null, version: null };
+      }
+    }
+
+    return null;
+  }
+
   onChangeNewPrefix = newPrefix => {
     this.setState({ newPrefix });
     this.onChangeModulePrefix(newPrefix);
   };
 
   render() {
-    const { newPrefix } = this.state;
+    const { newPrefix, name, version } = this.state;
     const { moduleNodeHandlers, children } = this.props;
     const {
-      getModules,
-      parseImportPath,
+      getModuleDefs,
       importModule,
       getModuleDef,
+      getModuleOutput,
       onChangeIndex,
+      getLatestVersionModuleDef,
     } = moduleNodeHandlers;
     const node = children;
-    const { question, importPath, slots, slotContextVars } = node.gnode;
+    const { question, importPath, slotContextVars } = node.gnode;
 
     return (
       <div id="moduleNodeEditor" className="rightEditor">
         <ModuleImportComponent
           importPath={importPath}
-          getModules={getModules}
-          parseImportPath={parseImportPath}
+          getModuleDefs={getModuleDefs}
+          name={name}
+          version={version}
           getModuleDef={getModuleDef}
           importModule={importModule}
+          getLatestVersionModuleDef={getLatestVersionModuleDef}
+          getModuleOutput={getModuleOutput}
+          slotContextVars={slotContextVars}
         />
         <IndexInput onChangeIndex={onChangeIndex}>{question.index}</IndexInput>
         <label>
           Prefix:
           <Input value={newPrefix} onChange={this.onChangeNewPrefix} />
         </label>
-        {slots && (
-          <label>
-            Slots:
-            <ul>
-              {slots.forEach(s => (
-                <li>{s}</li>
-              ))}
-            </ul>
-          </label>
-        )}
         {slotContextVars && (
           <label>
             Slot Context Vars:
@@ -74,4 +96,4 @@ class ModuleNodeEditor extends React.Component {
   }
 }
 
-export default ModuleNodeEditor;
+export default withAlert()(ModuleNodeEditor);
