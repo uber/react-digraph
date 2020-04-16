@@ -186,7 +186,7 @@ declare module 'react-digraph' {
     static revert(graphInput: IGraphInput): any;
   }
 
-  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree';
+  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree' | 'HorizontalTree';
 
   export const GraphView: React.ComponentClass<IGraphViewProps>;
   export type INodeMapNode = {
