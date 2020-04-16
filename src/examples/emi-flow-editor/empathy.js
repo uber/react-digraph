@@ -129,6 +129,8 @@ const empathyDefaults = {
     country: 'AR',
     prediction_data: {
       intent_responses: {},
+      min_value: null,
+      max_value: null,
     },
   },
   secondary_v2: {
