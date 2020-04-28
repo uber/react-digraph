@@ -54,7 +54,7 @@ const sample: IGraph = {
     {
       handleText: '5',
       handleTooltipText: '5',
-      source: 'start1',
+      source: 0,
       target: 'a1',
       type: SPECIAL_EDGE_TYPE,
     },
@@ -110,7 +110,7 @@ const sample: IGraph = {
   ],
   nodes: [
     {
-      id: 'start1',
+      id: 0,
       title: 'Start (0)',
       type: SPECIAL_TYPE,
     },

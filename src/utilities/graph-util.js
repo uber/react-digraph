@@ -56,11 +56,11 @@ class GraphUtils {
     for (let i = 0; i < arr.length; i++) {
       item = arr[i];
 
-      if (!item.target) {
+      if (item.target == null) {
         continue;
       }
 
-      map[`${item.source || ''}_${item.target}`] = {
+      map[`${item.source != null ? item.source : ''}_${item.target}`] = {
         edge: item,
         originalArrIndex: i,
       };
@@ -77,11 +77,12 @@ class GraphUtils {
     for (let i = 0; i < edges.length; i++) {
       edge = edges[i];
 
-      if (!edge.target) {
+      if (edge.target == null) {
         continue;
       }
 
-      nodeMapSourceNode = nodesMap[`key-${edge.source || ''}`];
+      nodeMapSourceNode =
+        nodesMap[`key-${edge.source != null ? edge.source : ''}`];
       nodeMapTargetNode = nodesMap[`key-${edge.target}`];
 
       // avoid an orphaned edge

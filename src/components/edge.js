@@ -409,7 +409,7 @@ class Edge extends React.Component<IEdgeProps> {
   ) {
     let response = Edge.getDefaultIntersectResponse();
 
-    if (!trg[nodeKey]) {
+    if (trg[nodeKey] == null) {
       return response;
     }
 
@@ -660,7 +660,7 @@ class Edge extends React.Component<IEdgeProps> {
       return null;
     }
 
-    const id = `${data.source || ''}_${data.target}`;
+    const id = `${data.source != null ? data.source : ''}_${data.target}`;
     const className = GraphUtils.classNames('edge', {
       selected: this.props.isSelected,
     });
