@@ -231,6 +231,36 @@ describe('GraphView component', () => {
         false
       );
     });
+
+    it('sets up a renderEdge call synchronously when source key = 0', () => {
+      const expectedEdge = {
+        source: 0,
+        target: 'b',
+      };
+
+      instance.syncRenderEdge(expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-0-b',
+        'blah',
+        expectedEdge,
+        false
+      );
+    });
+
+    it('sets up a renderEdge call synchronously when target key = 0', () => {
+      const expectedEdge = {
+        source: 'a',
+        target: 0,
+      };
+
+      instance.syncRenderEdge(expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-a-0',
+        'blah',
+        expectedEdge,
+        false
+      );
+    });
   });
 
   describe('asyncRenderEdge method', () => {
@@ -255,6 +285,34 @@ describe('GraphView component', () => {
       instance.asyncRenderEdge(edge);
 
       expect(instance.edgeTimeouts['edges-a-b']).toBeDefined();
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
+    });
+
+    it('renders asynchronously when source key = 0', () => {
+      jest.spyOn(instance, 'syncRenderEdge');
+      const edge = {
+        source: 0,
+        target: 'b',
+      };
+
+      instance.asyncRenderEdge(edge);
+
+      expect(instance.edgeTimeouts['edges-0-b']).toBeDefined();
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
+    });
+
+    it('renders asynchronously when target key = 0', () => {
+      jest.spyOn(instance, 'syncRenderEdge');
+      const edge = {
+        source: 'a',
+        target: 0,
+      };
+
+      instance.asyncRenderEdge(edge);
+
+      expect(instance.edgeTimeouts['edges-a-0']).toBeDefined();
       expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
       expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
     });
