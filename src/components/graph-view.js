@@ -306,7 +306,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   getNodeById(id: string | null, nodesMap: any | null): INodeMapNode | null {
     const nodesMapVar = nodesMap || this.state.nodesMap;
 
-    return nodesMapVar ? nodesMapVar[`key-${id || ''}`] : null;
+    return nodesMapVar ? nodesMapVar[`key-${id != null ? id : ''}`] : null;
   }
 
   getEdgeBySourceTarget(source: string, target: string): IEdge | null {
@@ -405,7 +405,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       GraphUtils.yieldingLoop(edges.length, 50, i => {
         edge = edges[i];
 
-        if (!edge.source || !edge.target) {
+        if (edge.source == null || !edge.target == null) {
           return;
         }
 
@@ -434,8 +434,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       // Check for deletions
       if (
-        !edge.source ||
-        !edge.target ||
+        edge.source == null ||
+        edge.target == null ||
         !edgesMap[`${edge.source}_${edge.target}`]
       ) {
         // remove edge
@@ -484,7 +484,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   deleteEdge(selectedEdge: IEdge) {
     const { edges } = this.state;
 
-    if (!selectedEdge.source || !selectedEdge.target) {
+    if (selectedEdge.source == null || selectedEdge.target == null) {
       return;
     }
 
@@ -495,7 +495,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       );
     });
 
-    if (selectedEdge.source && selectedEdge.target) {
+    if (selectedEdge.source != null && selectedEdge.target != null) {
       this.deleteEdgeBySourceTarget(selectedEdge.source, selectedEdge.target);
     }
 
@@ -505,7 +505,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
 
     // remove from UI
-    if (selectedEdge.source && selectedEdge.target) {
+    if (selectedEdge.source != null && selectedEdge.target != null) {
       // remove extra custom containers just in case.
       GraphUtils.removeElementFromDom(
         `edge-${selectedEdge.source}-${selectedEdge.target}-custom-container`
@@ -526,10 +526,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    if (!selected.source && canDeleteNode && canDeleteNode(selected)) {
+    if (selected.source == null && canDeleteNode && canDeleteNode(selected)) {
       // node
       this.deleteNode(selected);
-    } else if (selected.source && canDeleteEdge && canDeleteEdge(selected)) {
+    } else if (
+      selected.source != null &&
+      canDeleteEdge &&
+      canDeleteEdge(selected)
+    ) {
       // edge
       this.deleteEdge(selected);
     }
@@ -590,10 +594,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       focused: true,
     };
 
-    if (source && target) {
+    if (source != null && target != null) {
       const edge: IEdge | null = this.getEdgeBySourceTarget(source, target);
 
-      if (!edge) {
+      if (edge == null) {
         return;
       }
 
@@ -871,7 +875,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const xycoords = d3.mouse(eventTarget);
 
-    if (!edge.target) {
+    if (edge.target == null) {
       return false;
     }
 
@@ -1401,7 +1405,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   asyncRenderEdge = (edge: IEdge, nodeMoving: boolean = false) => {
-    if (!edge.source || !edge.target) {
+    if (edge.source == null || edge.target == null) {
       return;
     }
 
@@ -1414,12 +1418,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   syncRenderEdge(edge: IEdge | any, nodeMoving: boolean = false) {
-    if (!edge.source) {
+    if (edge.source == null) {
       return;
     }
 
     // We have to use the 'custom' id when we're drawing a new node
-    const idVar = edge.target ? `${edge.source}-${edge.target}` : 'custom';
+    const idVar =
+      edge.target != null ? `${edge.source}-${edge.target}` : 'custom';
     const id = `edge-${idVar}`;
     const element = this.getEdgeComponent(edge);
 
