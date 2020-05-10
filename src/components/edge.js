@@ -22,6 +22,8 @@ import { Point2D, Matrix2D } from 'kld-affine';
 import { Intersection } from 'kld-intersections';
 import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
+import { EdgeHandleText } from './edge-handle-text';
+import { EdgeLabelText } from './edge-label-text';
 
 export type IEdge = {
   source: string,
@@ -87,7 +89,21 @@ class Edge extends React.Component<IEdgeProps> {
       `defs>marker>.arrow`
     );
 
-    return defEndArrowElement.getBoundingClientRect();
+    const arrowRect = defEndArrowElement.getBoundingClientRect();
+    const size = {
+      bottom: arrowRect.bottom,
+      top: arrowRect.top,
+      // Firefox doesn't calculate width and height, so we need to pull
+      // from the attributes.
+      height: arrowRect.height || defEndArrowElement.getAttribute('height'),
+      width: arrowRect.width || defEndArrowElement.getAttribute('width'),
+      left: arrowRect.left,
+      right: arrowRect.right,
+      y: arrowRect.y,
+      x: arrowRect.x,
+    };
+
+    return size;
   }
 
   static getEdgePathElement(
@@ -252,9 +268,14 @@ class Edge extends React.Component<IEdgeProps> {
     const arrowSize = Edge.getArrowSize(viewWrapperElem);
     // get the rectangular area around path
     const clientRect = defSvgPathElement.getBoundingClientRect();
-
-    const w = clientRect.width;
-    const h = clientRect.height;
+    // getBoundingClientRect doesn't work on Firefox.
+    // We do have the width and height on the parent <symbol> element for the node,
+    // so we'll use that.
+    const w =
+      clientRect.width || defSvgPathElement.parentElement.getAttribute('width');
+    const h =
+      clientRect.height ||
+      defSvgPathElement.parentElement.getAttribute('height');
     const trgX = trg.x || 0;
     const trgY = trg.y || 0;
     const srcX = src.x || 0;
@@ -544,7 +565,7 @@ class Edge extends React.Component<IEdgeProps> {
     return `translate(${offset}, ${offset})`;
   };
 
-  getEdgeHandleRotation = (negate: any = false) => {
+  getEdgeHandleRotation = (negate: any = false): [string, boolean] => {
     let rotated = false;
     const src = this.props.sourceNode;
     const trg = this.props.targetNode;
@@ -582,8 +603,8 @@ class Edge extends React.Component<IEdgeProps> {
     } = this.props;
     const trgX = targetNode && targetNode.x ? targetNode.x : 0;
     const trgY = targetNode && targetNode.y ? targetNode.y : 0;
-    const srcX = targetNode && sourceNode.x ? sourceNode.x : 0;
-    const srcY = targetNode && sourceNode.y ? sourceNode.y : 0;
+    const srcX = sourceNode && sourceNode.x ? sourceNode.x : 0;
+    const srcY = sourceNode && sourceNode.y ? sourceNode.y : 0;
 
     // To calculate the offset for a specific node we use that node as the third parameter
     // and the accompanying node as the second parameter, representing where the line
@@ -621,38 +642,6 @@ class Edge extends React.Component<IEdgeProps> {
     return Edge.lineFunction(linePoints);
   }
 
-  renderHandleText(data: any) {
-    return (
-      <text
-        className="edge-text"
-        textAnchor="middle"
-        alignmentBaseline="central"
-        transform={`${this.getEdgeHandleTranslation()}`}
-      >
-        {data.handleText}
-      </text>
-    );
-  }
-
-  renderLabelText(data: any) {
-    const [rotation, isRotated] = this.getEdgeHandleRotation();
-    const title = isRotated
-      ? `${data.label_to} ↔ ${data.label_from}`
-      : `${data.label_from} ↔ ${data.label_to}`;
-
-    return (
-      <text
-        className="edge-text"
-        textAnchor="middle"
-        alignmentBaseline="central"
-        style={{ fontSize: '11px', stroke: 'none', fill: 'black' }}
-        transform={`${this.getEdgeHandleTranslation()} ${rotation} translate(0,-5)`}
-      >
-        {title}
-      </text>
-    );
-  }
-
   render() {
     const { data, edgeTypes, edgeHandleSize, viewWrapperElem } = this.props;
 
@@ -684,8 +673,19 @@ class Edge extends React.Component<IEdgeProps> {
             transform={edgeHandleTransformation}
             style={{ transform: edgeHandleTransformation }}
           />
-          {data.handleText && this.renderHandleText(data)}
-          {data.label_from && data.label_to && this.renderLabelText(data)}
+          {data.handleText && (
+            <EdgeHandleText
+              handleText={data.handleText}
+              edgeHandleTranslation={this.getEdgeHandleTranslation()}
+            />
+          )}
+          {data.label_from && data.label_to && (
+            <EdgeLabelText
+              data={data}
+              edgeHandleRotation={this.getEdgeHandleRotation()}
+              edgeHandleTranslation={this.getEdgeHandleTranslation()}
+            />
+          )}
         </g>
         <g className="edge-mouse-handler">
           <title>{data.handleTooltipText}</title>

@@ -47,6 +47,8 @@ class ArrowheadMarker extends React.Component<IArrowheadMarkerProps> {
           className="arrow"
           d={`M0,-${edgeArrowSize / 2}L${edgeArrowSize},0L0,${edgeArrowSize /
             2}`}
+          width={`${edgeArrowSize}`}
+          height={`${edgeArrowSize}`}
         />
       </marker>
     );
