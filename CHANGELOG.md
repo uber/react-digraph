@@ -1,3 +1,13 @@
+**v6.7.0** - May 12, 2020
+- PR #218 - Fixed edge rendering for Firefox and cleaned up code (@ajbogh) - https://github.com/uber/react-digraph/pull/218
+- PR #214 - resolve #212 (@maekawataiki) - https://github.com/uber/react-digraph/pull/214
+- PR #206 - add HorizontalTree to LayoutEngineType (@kazchimo) - https://github.com/uber/react-digraph/pull/206
+- PR #202 - chore: update docs (@timhwang21) - https://github.com/uber/react-digraph/pull/202
+- PR #198 - typings: initialBBox set to optional to match docs (@Vampiro) - https://github.com/uber/react-digraph/pull/198
+- PR #187 - Fix tests (@ajbogh) - https://github.com/uber/react-digraph/pull/187
+- PR #185 - new props README for HorizontalTree (@chiayenhung) - https://github.com/uber/react-digraph/pull/185
+
+
 **v6.6.0** - January 8, 2020
 - PR #184 - Horizontal tree (@chiayenhung) - https://github.com/uber/react-digraph/pull/184
 - PR #185 - new props README for HorizontalTree (@chiayenhung) - https://github.com/uber/react-digraph/pull/185
