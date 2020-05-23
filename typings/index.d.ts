@@ -133,7 +133,7 @@ declare module 'react-digraph' {
     onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
     onPasteSelected?: () => void;
     onSelectEdge: (selectedEdge: IEdge) => void;
-    onSelectNode: (node: INode | null) => void;
+    onSelectNode: (node: INode | null, event: any) => void;
     onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
     onUpdateNode: (node: INode) => void;
