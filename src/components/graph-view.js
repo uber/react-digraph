@@ -1080,11 +1080,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleZoomEnd = () => {
-    const { draggingEdge, draggedEdge, edgeEndNode } = this.state;
+    const {
+      draggingEdge,
+      draggedEdge,
+      edgeEndNode,
+      viewTransform,
+    } = this.state;
     const { nodeKey, onZoomEnd } = this.props;
 
     // call on zoom end in the next animation frame
-    requestAnimationFrame(() => onZoomEnd());
+    requestAnimationFrame(() => onZoomEnd(viewTransform));
 
     // mark zooming indicators as complete
     if (this.wheelState.zooming === true) {
