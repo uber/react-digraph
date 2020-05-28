@@ -27,18 +27,12 @@ import Edge, { type IEdge } from './edge';
 import GraphControls from './graph-controls';
 import GraphUtils, { type INodeMapNode } from '../utilities/graph-util';
 import Node, { type INode, type IPoint } from './node';
+import type { IInitialPosition, IBBox } from './graph-view-props';
 
 type IViewTransform = {
   k: number,
   x: number,
   y: number,
-};
-
-type IBBox = {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
 };
 
 type IGraphViewState = {
@@ -187,7 +181,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentDidMount() {
-    const { initialBBox, minZoom, maxZoom } = this.props;
+    const { initialBBox, initialPosition, minZoom, maxZoom } = this.props;
 
     if (!this.props.disableGraphKeyHandlers) {
       document.addEventListener('keydown', this.handleWrapperKeydown);
@@ -238,7 +232,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         afterRender: () => {
           requestAnimationFrame(() => {
             if (this.viewWrapper.current != null) {
-              this.handleZoomToFit(true);
+              if (initialPosition) {
+                this.handleInitialZoom(initialPosition);
+              } else {
+                this.handleZoomToFit(true);
+              }
             }
           });
         },
@@ -1176,7 +1174,30 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
-  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number = 0) => {
+  handleInitialZoom = (initialPosition: IInitialPosition) => {
+    const entities = d3.select(this.entities).node();
+
+    if (!entities) {
+      return;
+    }
+
+    const viewBBox = entities.getBBox ? entities.getBBox() : null;
+
+    if (!viewBBox) {
+      return;
+    }
+
+    const next = this.computeZoom(viewBBox);
+
+    this.setZoom(
+      next.k,
+      initialPosition.x ? initialPosition.x : next.x,
+      initialPosition.y ? initialPosition.y : initialPosition.y,
+      0
+    );
+  };
+
+  computeZoom(viewBBox) {
     if (!this.viewWrapper.current) {
       return;
     }
@@ -1211,6 +1232,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       next.x = width / 2 - next.k * x;
       next.y = height / 2 - next.k * y;
     }
+
+    return next;
+  }
+
+  handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number = 0) => {
+    const next = this.computeZoom(viewBBox);
 
     this.setZoom(next.k, next.x, next.y, zoomDur);
   };

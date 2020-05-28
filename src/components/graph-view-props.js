@@ -25,6 +25,11 @@ export type IBBox = {
   height: number,
 };
 
+export type IInitialPosition = {
+  x?: number,
+  y?: number,
+};
+
 export type IGraphViewProps = {
   backgroundFillId?: string,
   edges: any[],
@@ -94,4 +99,5 @@ export type IGraphViewProps = {
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
   initialBBox: IBBox,
+  initialPosition: IInitialPosition,
 };
