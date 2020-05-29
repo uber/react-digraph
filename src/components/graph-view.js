@@ -1190,7 +1190,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const next = this.computeZoom(viewBBox);
 
-    this.setZoom(
+    this.zoomAndTranslate(
       next.k,
       initialPosition.x ? initialPosition.x : next.x,
       initialPosition.y ? initialPosition.y : initialPosition.y,
