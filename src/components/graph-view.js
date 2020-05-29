@@ -1764,8 +1764,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         const { viewTransform = {} } = this.state;
 
         // note that on MacOS, the scroll direction will automatically be adjusted depending on the user settings
-        const offX = -this.wheelState.deltaX + (viewTransform.x || 0);
-        const offY = -this.wheelState.deltaY + (viewTransform.y || 0);
+        const offX = this.wheelState.deltaX + (viewTransform.x || 0);
+        const offY = this.wheelState.deltaY + (viewTransform.y || 0);
 
         this.wheelState = {
           zooming: true,
