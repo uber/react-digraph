@@ -99,5 +99,6 @@ export type IGraphViewProps = {
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
   initialBBox: IBBox,
+  zoomOnWheel?: boolean,
   initialPosition: IInitialPosition,
 };

@@ -594,9 +594,9 @@ describe('GraphView component', () => {
   });
 
   // TODO: figure out how to mock d3 for this test
-  // describe('setZoom method', () => {
+  // describe('zoomAndTranslate method', () => {
   //   it('zooms to a specified value', () => {
-  //     instance.setZoom(0.5, 5, 10, 100);
+  //     instance.zoomAndTranslate(0.5, 5, 10, 100);
 
   //     // expect(d3.zoomIdentity.translate.scale).toHaveBeenCalledWith(0.5);
   //   });
@@ -604,7 +604,7 @@ describe('GraphView component', () => {
 
   describe('modifyZoom', () => {
     beforeEach(() => {
-      spyOn(instance, 'setZoom');
+      spyOn(instance, 'zoomAndTranslate');
       instance.viewWrapper = {
         current: document.createElement('div'),
       };
@@ -621,7 +621,7 @@ describe('GraphView component', () => {
 
     it('modifies the zoom', () => {
       instance.modifyZoom(0.1, 5, 10, 100);
-      expect(instance.setZoom).toHaveBeenCalledWith(
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(
         0.44000000000000006,
         55,
         60,
@@ -631,23 +631,23 @@ describe('GraphView component', () => {
 
     it('does nothing when targetZoom is too small', () => {
       instance.modifyZoom(-100, 5, 10, 100);
-      expect(instance.setZoom).not.toHaveBeenCalled();
+      expect(instance.zoomAndTranslate).not.toHaveBeenCalled();
     });
 
     it('does nothing when targetZoom is too large', () => {
       instance.modifyZoom(100, 5, 10, 100);
-      expect(instance.setZoom).not.toHaveBeenCalled();
+      expect(instance.zoomAndTranslate).not.toHaveBeenCalled();
     });
 
     it('uses defaults', () => {
       instance.modifyZoom();
-      expect(instance.setZoom).toHaveBeenCalledWith(0.4, 50, 50, 0);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(0.4, 50, 50, 0);
     });
   });
 
   describe('handleZoomToFit method', () => {
     beforeEach(() => {
-      spyOn(instance, 'setZoom');
+      spyOn(instance, 'zoomAndTranslate');
       instance.viewWrapper = {
         current: document.createElement('div'),
       };
@@ -690,7 +690,7 @@ describe('GraphView component', () => {
     it('modifies the zoom to fit the elements', () => {
       instance.handleZoomToFit();
       expect(instance.entities.getBBox).toHaveBeenCalled();
-      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
     });
 
     it('uses defaults for minZoom and maxZoom', () => {
@@ -700,7 +700,7 @@ describe('GraphView component', () => {
         zoomDur: 100,
       });
       instance.handleZoomToFit();
-      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 100);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(1.125, 19.375, 70, 100);
     });
 
     it('does not modify the zoom', () => {
@@ -711,7 +711,7 @@ describe('GraphView component', () => {
         y: 5,
       });
       instance.handleZoomToFit();
-      expect(instance.setZoom).toHaveBeenCalledWith(0.825, 0, 0, 750);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(0.825, 0, 0, 750);
     });
 
     it('uses the maxZoom when k is greater than max', () => {
@@ -722,7 +722,7 @@ describe('GraphView component', () => {
         y: 5,
       });
       instance.handleZoomToFit();
-      expect(instance.setZoom).toHaveBeenCalledWith(1.5, 238.75, 238.75, 750);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(1.5, 238.75, 238.75, 750);
     });
 
     it('uses the minZoom when k is less than min', () => {
@@ -733,7 +733,7 @@ describe('GraphView component', () => {
         y: 5,
       });
       instance.handleZoomToFit();
-      expect(instance.setZoom).toHaveBeenCalledWith(
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(
         0.15,
         -500.75,
         -500.75,
@@ -977,7 +977,7 @@ describe('GraphView component', () => {
       .createSpy()
       .and.returnValue({ width: 400, height: 300, x: 5, y: 10 });
     beforeEach(() => {
-      spyOn(instance, 'setZoom');
+      spyOn(instance, 'zoomAndTranslate');
       instance.viewWrapper = {
         current: document.createElement('div'),
       };
@@ -1018,13 +1018,13 @@ describe('GraphView component', () => {
     it('modifies the zoom to pan to the element', () => {
       instance.panToEntity(entity, false);
       expect(entity.getBBox).toHaveBeenCalled();
-      expect(instance.setZoom).toHaveBeenCalledWith(0.4, 168, 186, 750);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(0.4, 168, 186, 750);
     });
 
     it('modifies the zoom to pan and zoom to the element', () => {
       instance.panToEntity(entity, true);
       expect(entity.getBBox).toHaveBeenCalled();
-      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
+      expect(instance.zoomAndTranslate).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
     });
   });
 
