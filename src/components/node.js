@@ -43,6 +43,7 @@ export type INode = {
 type INodeProps = {
   data: INode,
   id: string,
+  createNodesAndEdgesOnShift?: boolean,
   nodeTypes: any, // TODO: make a nodeTypes interface
   nodeSubtypes: any, // TODO: make a nodeSubtypes interface
   opacity?: number,
@@ -83,6 +84,7 @@ type INodeState = {
 
 class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
+    createNodesAndEdgesOnShift: false,
     isSelected: false,
     readOnly: false,
     dragWithCtrlMetaKey: true,
@@ -145,6 +147,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const mouseButtonDown = e.buttons === 1;
     const shiftKey = e.shiftKey;
     const {
+      createNodesAndEdgesOnShift,
       nodeSize,
       nodeKey,
       viewWrapperElem,
@@ -171,7 +174,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.y -= newState.pointerOffset.y;
     }
 
-    if (shiftKey) {
+    if (shiftKey && createNodesAndEdgesOnShift) {
       this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
@@ -201,13 +204,22 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { drawingEdge } = this.state;
-    const { data, onNodeSelected } = this.props;
+    const {
+      data,
+      createNodesAndEdgesOnShift,
+      dragWithCtrlMetaKey,
+      onNodeSelected,
+    } = this.props;
 
     data.forceDragClick = false;
-    onNodeSelected(data, e.shiftKey || drawingEdge, e);
+    onNodeSelected(
+      data,
+      (e.shiftKey && createNodesAndEdgesOnShift) || drawingEdge,
+      e
+    );
 
     // if we don't want to drag with ctrl or meta, return false to exit drag
-    if (!this.props.dragWithCtrlMetaKey && (e.ctrlKey || e.metaKey)) {
+    if (!dragWithCtrlMetaKey && (e.ctrlKey || e.metaKey)) {
       return false;
     }
   };

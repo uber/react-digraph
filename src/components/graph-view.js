@@ -56,6 +56,7 @@ type IGraphViewState = {
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static defaultProps = {
+    createNodesAndEdgesOnShift: false,
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
@@ -667,6 +668,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleSvgClicked = (d: any, i: any) => {
     const {
+      createNodesAndEdgesOnShift,
       readOnly,
       onCreateNode,
       onBackgroundClick,
@@ -698,7 +700,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       svgClicked: true,
     });
 
-    if (!readOnly && event.shiftKey) {
+    if (!readOnly && createNodesAndEdgesOnShift && event.shiftKey) {
       onCreateNode(x, y, event);
     }
   };
@@ -767,7 +769,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { canCreateEdge, readOnly } = this.props;
+    const { createNodesAndEdgesOnShift, canCreateEdge, readOnly } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
     if (readOnly || !nodeMapNode) {
@@ -776,7 +778,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const node: INode = nodeMapNode.node;
 
-    if (!shiftKey && !this.state.draggingEdge) {
+    if (
+      (!shiftKey && !this.state.draggingEdge) ||
+      !createNodesAndEdgesOnShift
+    ) {
       this.positionNodes(position, node, true);
     } else if (
       (canCreateEdge && canCreateEdge(nodeId)) ||
@@ -831,7 +836,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeUpdate = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { onUpdateNode, readOnly } = this.props;
+    const { createNodesAndEdgesOnShift, onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
       return;
@@ -839,7 +844,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey) {
+    if (shiftKey && createNodesAndEdgesOnShift) {
       this.createNewEdge();
     } else {
       const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
@@ -1317,7 +1322,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    this.props.onZoomStart({ k, x: this.state.x, y: this.state.y });
+    this.props.onZoomStart({
+      k,
+      x: this.state.viewTransform.x,
+      y: this.state.viewTransform.y,
+    });
 
     d3.select(this.viewWrapper.current)
       .select('svg')
@@ -1378,6 +1387,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       <Node
         key={id}
         id={id}
+        createNodesAndEdgesOnShift={this.props.createNodesAndEdgesOnShift}
         data={node}
         dragWithCtrlMetaKey={this.props.panOrDragWithCtrlMetaKey}
         nodeTypes={nodeTypes}

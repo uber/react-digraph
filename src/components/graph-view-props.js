@@ -32,6 +32,7 @@ export type IInitialPosition = {
 
 export type IGraphViewProps = {
   backgroundFillId?: string,
+  createNodesAndEdgesOnShift?: boolean,
   edges: any[],
   edgeArrowSize?: number,
   edgeHandleSize?: number,
