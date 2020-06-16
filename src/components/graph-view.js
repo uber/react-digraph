@@ -1305,8 +1305,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.props.onZoomStart({ k, x, y });
 
-    this.props.onZoomCall({ k, x, y });
-
     d3.select(this.viewWrapper.current)
       .select('svg')
       .transition()
