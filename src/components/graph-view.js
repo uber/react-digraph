@@ -62,6 +62,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     onNodeMove: () => true,
     onPanDragStart: () => {},
     onPanDragEnd: () => {},
+    onZoomCall: () => {},
     onZoomEnd: () => {},
     edgeArrowSize: 8,
     gridSpacing: 36,
@@ -1302,6 +1303,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const t = d3.zoomIdentity.translate(x, y).scale(k);
 
+    this.props.onZoomCall({ k, x, y });
+
     d3.select(this.viewWrapper.current)
       .select('svg')
       .transition()
@@ -1313,6 +1316,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (!this.viewWrapper.current) {
       return;
     }
+
+    this.props.onZoomCall({ k, x: this.state.x, y: this.state.y });
 
     d3.select(this.viewWrapper.current)
       .select('svg')
@@ -1489,7 +1494,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
 
     if (edgeContainer) {
-      this.entities.appendChild(edgeContainer);
+      this.entities.prepend(edgeContainer);
     }
   }
 
@@ -1593,7 +1598,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       );
 
       newSvgEdgeContainer.id = containerId;
-      this.entities.appendChild(newSvgEdgeContainer);
+      this.entities.prepend(newSvgEdgeContainer);
       edgeContainer = newSvgEdgeContainer;
     }
 
