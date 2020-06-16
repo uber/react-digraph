@@ -74,7 +74,7 @@ export type IGraphViewProps = {
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
   onUndo?: () => void,
   onUpdateNode: (node: INode) => void,
-  onZoomCall: (viewTransform: object) => void,
+  onZoomStart: (viewTransform: object) => void,
   onZoomEnd?: (viewTransform: object) => void,
   panOnDrag?: boolean,
   panOrDragWithCtrlMetaKey?: boolean,
