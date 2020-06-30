@@ -769,7 +769,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { createNodesAndEdgesOnShift, canCreateEdge, readOnly } = this.props;
+    const { canCreateEdge, readOnly } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
     if (readOnly || !nodeMapNode) {
@@ -778,10 +778,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const node: INode = nodeMapNode.node;
 
-    if (
-      (!shiftKey && !this.state.draggingEdge) ||
-      !createNodesAndEdgesOnShift
-    ) {
+    if (!shiftKey && !this.state.draggingEdge) {
       this.positionNodes(position, node, true);
     } else if (
       (canCreateEdge && canCreateEdge(nodeId)) ||

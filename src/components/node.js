@@ -211,15 +211,21 @@ class Node extends React.Component<INodeProps, INodeState> {
       onNodeSelected,
     } = this.props;
 
+    const { ctrlKey, metaKey, shiftKey } = e;
+
     data.forceDragClick = false;
     onNodeSelected(
       data,
-      (e.shiftKey && createNodesAndEdgesOnShift) || drawingEdge,
+      (shiftKey && createNodesAndEdgesOnShift) || drawingEdge,
       e
     );
 
     // if we don't want to drag with ctrl or meta, return false to exit drag
-    if (!dragWithCtrlMetaKey && (e.ctrlKey || e.metaKey)) {
+    // don't allow drag on shift when selecting node
+    if (
+      (!dragWithCtrlMetaKey && (ctrlKey || metaKey)) ||
+      (!createNodesAndEdgesOnShift && shiftKey)
+    ) {
       return false;
     }
   };
