@@ -43,7 +43,7 @@ export type INode = {
 type INodeProps = {
   data: INode,
   id: string,
-  createNodesAndEdgesOnShift?: boolean,
+  disableGraphKeyHandlers?: boolean,
   nodeTypes: any, // TODO: make a nodeTypes interface
   nodeSubtypes: any, // TODO: make a nodeSubtypes interface
   opacity?: number,
@@ -84,7 +84,7 @@ type INodeState = {
 
 class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
-    createNodesAndEdgesOnShift: false,
+    disableGraphKeyHandlers: false,
     isSelected: false,
     readOnly: false,
     dragWithCtrlMetaKey: true,
@@ -147,7 +147,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const mouseButtonDown = e.buttons === 1;
     const shiftKey = e.shiftKey;
     const {
-      createNodesAndEdgesOnShift,
+      disableGraphKeyHandlers,
       nodeSize,
       nodeKey,
       viewWrapperElem,
@@ -174,7 +174,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.y -= newState.pointerOffset.y;
     }
 
-    if (shiftKey && createNodesAndEdgesOnShift) {
+    if (shiftKey && !disableGraphKeyHandlers) {
       this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
@@ -206,7 +206,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const { drawingEdge } = this.state;
     const {
       data,
-      createNodesAndEdgesOnShift,
+      disableGraphKeyHandlers,
       dragWithCtrlMetaKey,
       onNodeSelected,
     } = this.props;
@@ -216,7 +216,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     data.forceDragClick = false;
     onNodeSelected(
       data,
-      (shiftKey && createNodesAndEdgesOnShift) || drawingEdge,
+      (shiftKey && !disableGraphKeyHandlers) || drawingEdge,
       e
     );
 
@@ -224,7 +224,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     // don't allow drag on shift when selecting node
     if (
       (!dragWithCtrlMetaKey && (ctrlKey || metaKey)) ||
-      (!createNodesAndEdgesOnShift && shiftKey)
+      (disableGraphKeyHandlers && shiftKey)
     ) {
       return false;
     }

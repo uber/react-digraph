@@ -56,7 +56,6 @@ type IGraphViewState = {
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static defaultProps = {
-    createNodesAndEdgesOnShift: false,
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
@@ -668,7 +667,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleSvgClicked = (d: any, i: any) => {
     const {
-      createNodesAndEdgesOnShift,
+      disableGraphKeyHandlers,
       readOnly,
       onCreateNode,
       onBackgroundClick,
@@ -700,7 +699,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       svgClicked: true,
     });
 
-    if (!readOnly && createNodesAndEdgesOnShift && event.shiftKey) {
+    if (!readOnly && !disableGraphKeyHandlers && event.shiftKey) {
       onCreateNode(x, y, event);
     }
   };
@@ -833,7 +832,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeUpdate = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { createNodesAndEdgesOnShift, onUpdateNode, readOnly } = this.props;
+    const { disableGraphKeyHandlers, onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
       return;
@@ -841,7 +840,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey && createNodesAndEdgesOnShift) {
+    if (shiftKey && !disableGraphKeyHandlers) {
       this.createNewEdge();
     } else {
       const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
@@ -1384,7 +1383,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       <Node
         key={id}
         id={id}
-        createNodesAndEdgesOnShift={this.props.createNodesAndEdgesOnShift}
+        disableGraphKeyHandlers={this.props.disableGraphKeyHandlers}
         data={node}
         dragWithCtrlMetaKey={this.props.panOrDragWithCtrlMetaKey}
         nodeTypes={nodeTypes}
