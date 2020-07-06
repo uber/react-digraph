@@ -43,6 +43,7 @@ export type INode = {
 type INodeProps = {
   data: INode,
   id: string,
+  disableGraphKeyHandlers?: boolean,
   nodeTypes: any, // TODO: make a nodeTypes interface
   nodeSubtypes: any, // TODO: make a nodeSubtypes interface
   opacity?: number,
@@ -83,6 +84,7 @@ type INodeState = {
 
 class Node extends React.Component<INodeProps, INodeState> {
   static defaultProps = {
+    disableGraphKeyHandlers: false,
     isSelected: false,
     readOnly: false,
     dragWithCtrlMetaKey: true,
@@ -145,6 +147,7 @@ class Node extends React.Component<INodeProps, INodeState> {
     const mouseButtonDown = e.buttons === 1;
     const shiftKey = e.shiftKey;
     const {
+      disableGraphKeyHandlers,
       nodeSize,
       nodeKey,
       viewWrapperElem,
@@ -171,7 +174,7 @@ class Node extends React.Component<INodeProps, INodeState> {
       newState.y -= newState.pointerOffset.y;
     }
 
-    if (shiftKey) {
+    if (shiftKey && !disableGraphKeyHandlers) {
       this.setState({ drawingEdge: true });
       // draw edge
       // undo the target offset subtraction done by Edge
@@ -201,13 +204,28 @@ class Node extends React.Component<INodeProps, INodeState> {
     }
 
     const { drawingEdge } = this.state;
-    const { data, onNodeSelected } = this.props;
+    const {
+      data,
+      disableGraphKeyHandlers,
+      dragWithCtrlMetaKey,
+      onNodeSelected,
+    } = this.props;
+
+    const { ctrlKey, metaKey, shiftKey } = e;
 
     data.forceDragClick = false;
-    onNodeSelected(data, e.shiftKey || drawingEdge, e);
+    onNodeSelected(
+      data,
+      (shiftKey && !disableGraphKeyHandlers) || drawingEdge,
+      e
+    );
 
     // if we don't want to drag with ctrl or meta, return false to exit drag
-    if (!this.props.dragWithCtrlMetaKey && (e.ctrlKey || e.metaKey)) {
+    // don't allow drag on shift when selecting node
+    if (
+      (!dragWithCtrlMetaKey && (ctrlKey || metaKey)) ||
+      (disableGraphKeyHandlers && shiftKey)
+    ) {
       return false;
     }
   };

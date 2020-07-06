@@ -258,7 +258,7 @@ describe('GraphView component', () => {
   describe('renderEdge method', () => {
     beforeEach(() => {
       instance.entities = {
-        appendChild: jasmine.createSpy(),
+        prepend: jasmine.createSpy(),
         querySelector: () => null,
       };
       ReactDOM.render = jasmine.createSpy();
@@ -273,7 +273,7 @@ describe('GraphView component', () => {
 
       instance.renderEdge(element, edge);
 
-      expect(instance.entities.appendChild).toHaveBeenCalled();
+      expect(instance.entities.prepend).toHaveBeenCalled();
     });
 
     it('replaces an edge in an existing container', () => {
@@ -289,7 +289,7 @@ describe('GraphView component', () => {
 
       instance.renderEdge(element, edge);
 
-      expect(instance.entities.appendChild).not.toHaveBeenCalled();
+      expect(instance.entities.prepend).not.toHaveBeenCalled();
       expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
     });
   });
@@ -1041,7 +1041,7 @@ describe('GraphView component', () => {
     });
 
     it('calls panToEntity on the appropriate node', () => {
-      instance.panToNode('a1');
+      instance.panToNode('a1', false);
       expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
     });
   });
@@ -1055,11 +1055,11 @@ describe('GraphView component', () => {
       instance.panToEntity = jest.fn();
 
       instance.entities = document.createElement('g');
-      instance.entities.appendChild(entity);
+      instance.entities.prepend(entity);
     });
 
     it('calls panToEntity on the appropriate edge', () => {
-      instance.panToEdge('a1', 'a2');
+      instance.panToEdge('a1', 'a2', false);
       expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
     });
   });

@@ -667,6 +667,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleSvgClicked = (d: any, i: any) => {
     const {
+      disableGraphKeyHandlers,
       readOnly,
       onCreateNode,
       onBackgroundClick,
@@ -698,7 +699,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       svgClicked: true,
     });
 
-    if (!readOnly && event.shiftKey) {
+    if (!readOnly && !disableGraphKeyHandlers && event.shiftKey) {
       onCreateNode(x, y, event);
     }
   };
@@ -831,7 +832,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeUpdate = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { onUpdateNode, readOnly } = this.props;
+    const { disableGraphKeyHandlers, onUpdateNode, readOnly } = this.props;
 
     if (readOnly) {
       return;
@@ -839,7 +840,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey) {
+    if (shiftKey && !disableGraphKeyHandlers) {
       this.createNewEdge();
     } else {
       const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
@@ -1317,7 +1318,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    this.props.onZoomStart({ k, x: this.state.x, y: this.state.y });
+    this.props.onZoomStart({
+      k,
+      x: this.state.viewTransform.x,
+      y: this.state.viewTransform.y,
+    });
 
     d3.select(this.viewWrapper.current)
       .select('svg')
@@ -1378,6 +1383,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       <Node
         key={id}
         id={id}
+        disableGraphKeyHandlers={this.props.disableGraphKeyHandlers}
         data={node}
         dragWithCtrlMetaKey={this.props.panOrDragWithCtrlMetaKey}
         nodeTypes={nodeTypes}
