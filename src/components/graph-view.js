@@ -624,6 +624,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       onSelectNode,
       readOnly,
       onCreateNode,
+      onPasteSelected,
     } = this.props;
 
     if (this.isPartOfEdge(d3.event.target)) {
@@ -651,6 +652,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       const previousSelection =
         (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
+
+      // Clicking with ctrl will paste
+      if (
+        onPasteSelected &&
+        !readOnly &&
+        d3.event.ctrlKey &&
+        previousSelection
+      ) {
+        const xycoords = d3.mouse(d3.event.target);
+
+        onPasteSelected(xycoords[0], xycoords[1], previousSelection);
+
+        return;
+      }
 
       // de-select the current selection
       this.setState({
