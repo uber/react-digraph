@@ -456,23 +456,15 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       return;
     }
 
-    const x = this.state.selected.x + 10;
-    const y = this.state.selected.y + 10;
-
     this.setState({
-      copiedNode: { ...this.state.selected, x, y },
+      copiedNode: { ...this.state.selected },
     });
   };
 
-  onPasteSelected = () => {
-    if (!this.state.copiedNode) {
-      console.warn(
-        'No node is currently in the copy queue. Try selecting a node and copying it with Ctrl/Command-C'
-      );
-    }
-
+  // Pastes the copied node to mouse position
+  onPasteSelected = (x: Number, y: Number, node: INode) => {
     const graph = this.state.graph;
-    const newNode = { ...this.state.copiedNode, id: Date.now() };
+    const newNode = { ...node, x, y, id: Date.now() };
 
     graph.nodes = [...graph.nodes, newNode];
     this.forceUpdate();
