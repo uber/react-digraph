@@ -456,8 +456,11 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       return;
     }
 
+    const x = this.state.selected.x + 10;
+    const y = this.state.selected.y + 10;
+
     this.setState({
-      copiedNode: { ...this.state.selected },
+      copiedNode: { ...this.state.selected, x, y },
     });
   };
 
