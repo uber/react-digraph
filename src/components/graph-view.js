@@ -1291,6 +1291,31 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return true;
   };
 
+  shouldGraphZoom = () => {
+    const svgNode = d3
+      .select(this.viewWrapper.current)
+      .select('svg')
+      .node();
+
+    try {
+      const doesHeightValueExist =
+        svgNode.height &&
+        svgNode.height.baseVal &&
+        svgNode.height.baseVal.value;
+      const doesWidthValueExist =
+        svgNode.width && svgNode.width.baseVal && svgNode.width.baseVal.value;
+
+      return (doesHeightValueExist && doesWidthValueExist) || true;
+    } catch (err) {
+      // fail gracefully and still display hidden entity elements even though the first zoom hasn't happened
+      if (this.entities && this.entities.style.visibility === 'hidden') {
+        this.entities.style.visibility = 'visible';
+      }
+
+      return false;
+    }
+  };
+
   // Programmatically resets zoom
   zoomAndTranslate(
     k: number = 1,
@@ -1298,7 +1323,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     y: number = 0,
     dur: number = 0
   ) {
-    if (!this.viewWrapper.current) {
+    if (!this.viewWrapper.current || !this.shouldGraphZoom()) {
       return;
     }
 
@@ -1314,15 +1339,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   zoomToPoint(k: number = 1, dur: number = 0, point: array) {
-    if (!this.viewWrapper.current) {
+    if (!this.viewWrapper.current || !this.shouldGraphZoom()) {
       return;
     }
 
-    this.props.onZoomStart({
-      k,
-      x: this.state.viewTransform.x,
-      y: this.state.viewTransform.y,
-    });
+    if (this.state.viewTransform) {
+      this.props.onZoomStart({
+        k,
+        x: this.state.viewTransform.x,
+        y: this.state.viewTransform.y,
+      });
+    }
 
     d3.select(this.viewWrapper.current)
       .select('svg')
