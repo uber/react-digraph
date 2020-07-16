@@ -662,7 +662,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       ) {
         const xycoords = d3.mouse(d3.event.target);
 
-        onPasteSelected(xycoords[0], xycoords[1], previousSelection);
+        onPasteSelected(previousSelection, xycoords);
 
         return;
       }
