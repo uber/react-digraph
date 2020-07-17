@@ -464,15 +464,16 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     });
   };
 
-  onPasteSelected = () => {
-    if (!this.state.copiedNode) {
-      console.warn(
-        'No node is currently in the copy queue. Try selecting a node and copying it with Ctrl/Command-C'
-      );
-    }
-
+  // Pastes the selected node to mouse position
+  onPasteSelected = (node: INode, mousePosition: [number, number]) => {
     const graph = this.state.graph;
-    const newNode = { ...this.state.copiedNode, id: Date.now() };
+
+    const newNode = {
+      ...node,
+      id: Date.now(),
+      x: mousePosition[0],
+      y: mousePosition[1],
+    };
 
     graph.nodes = [...graph.nodes, newNode];
     this.forceUpdate();
