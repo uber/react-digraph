@@ -1297,23 +1297,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .select('svg')
       .node();
 
-    try {
-      const doesHeightValueExist =
-        svgNode.height &&
-        svgNode.height.baseVal &&
-        svgNode.height.baseVal.value;
-      const doesWidthValueExist =
-        svgNode.width && svgNode.width.baseVal && svgNode.width.baseVal.value;
+    if (svgNode != null) {
+      const bbox = svgNode.getBBox ? svgNode.getBBox() : null;
 
-      return (doesHeightValueExist && doesWidthValueExist) || true;
-    } catch (err) {
-      // fail gracefully and still display hidden entity elements even though the first zoom hasn't happened
-      if (this.entities && this.entities.style.visibility === 'hidden') {
-        this.entities.style.visibility = 'visible';
-      }
-
-      return false;
+      return bbox && bbox.width && bbox.height;
     }
+
+    return false;
   };
 
   // Programmatically resets zoom
@@ -1323,7 +1313,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     y: number = 0,
     dur: number = 0
   ) {
-    if (!this.viewWrapper.current || !this.shouldGraphZoom()) {
+    if (!this.viewWrapper.current) {
+      return;
+    } else if (!this.shouldGraphZoom()) {
+      // fail gracefully and still display hidden entity elements even though the first zoom hasn't happened
+      if (this.entities && this.entities.style.visibility === 'hidden') {
+        this.entities.style.visibility = 'visible';
+      }
+
       return;
     }
 
@@ -1339,7 +1336,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   zoomToPoint(k: number = 1, dur: number = 0, point: array) {
-    if (!this.viewWrapper.current || !this.shouldGraphZoom()) {
+    if (!this.viewWrapper.current) {
+      return;
+    } else if (!this.shouldGraphZoom()) {
+      // fail gracefully and still display hidden entity elements even though the first zoom hasn't happened
+      if (this.entities && this.entities.style.visibility === 'hidden') {
+        this.entities.style.visibility = 'visible';
+      }
+
       return;
     }
 
