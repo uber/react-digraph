@@ -336,6 +336,16 @@ describe('GraphView component', () => {
         target: 'b',
       };
 
+      const querySelectorResponse = undefined;
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return querySelectorResponse;
+          }),
+        },
+      };
+
       // using Date.getTime to make this a unique edge
       instance.renderEdge(`test-${new Date().getTime()}`, element, edge);
 
@@ -347,17 +357,23 @@ describe('GraphView component', () => {
       const container = document.createElement('g');
 
       container.id = 'test-container';
-      jest.spyOn(document, 'getElementById').mockReturnValue(container);
       const edge = {
         source: 'a',
         target: 'b',
+      };
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return container;
+          }),
+        },
       };
 
       instance.renderEdge('test', element, edge);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
       expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
-      document.getElementById.mockRestore();
     });
   });
 
@@ -565,6 +581,16 @@ describe('GraphView component', () => {
     it('appends a node element into the entities element', () => {
       const element = document.createElement('g');
 
+      const querySelectorResponse = undefined;
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return querySelectorResponse;
+          }),
+        },
+      };
+
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).toHaveBeenCalled();
@@ -575,12 +601,19 @@ describe('GraphView component', () => {
       const container = document.createElement('g');
 
       container.id = 'test-container';
-      jest.spyOn(document, 'getElementById').mockReturnValue(container);
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return container;
+          }),
+        },
+      };
+
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
       expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
-      document.getElementById.mockRestore();
     });
   });
 
@@ -861,6 +894,14 @@ describe('GraphView component', () => {
     });
 
     it('handles the zoom event when a node is not hovered nor an edge is being dragged', () => {
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
+
       instance.handleZoom(event);
       expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
@@ -885,6 +926,14 @@ describe('GraphView component', () => {
     });
 
     it('zooms when a node is hovered', () => {
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
+
       output.setState({
         hoveredNode: {},
       });
@@ -907,10 +956,7 @@ describe('GraphView component', () => {
       instance.selectedView = d3.select(document.createElement('g'));
       mouse = jest.fn().mockReturnValue([5, 15]);
       output.setProps({
-        nodes: [
-          { id: 'a', x: 5, y: 10 },
-          { id: 'b', x: 10, y: 20 },
-        ],
+        nodes: [{ id: 'a', x: 5, y: 10 }, { id: 'b', x: 10, y: 20 }],
       });
       output.setState({
         draggedEdge,

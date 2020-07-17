@@ -82,9 +82,7 @@ class Edge extends React.Component<IEdgeProps> {
       })(srcTrgDataArray);
   }
 
-  static getArrowSize(
-    viewWrapperElem: HTMLDivElement | HTMLDocument = document
-  ) {
+  static getArrowSize(viewWrapperElem: HTMLDivElement) {
     const defEndArrowElement: any = viewWrapperElem.querySelector(
       `defs>marker>.arrow`
     );
@@ -106,12 +104,9 @@ class Edge extends React.Component<IEdgeProps> {
     return size;
   }
 
-  static getEdgePathElement(
-    edge: IEdge,
-    viewWrapperElem: HTMLDivElement | HTMLDocument = document
-  ) {
+  static getEdgePathElement(edge: IEdge, viewWrapperElem: HTMLDivElement) {
     return viewWrapperElem.querySelector(
-      `#edge-${edge.source}-${edge.target}-container>.edge-container>.edge>.edge-path`
+      `[id='edge-${edge.source}-${edge.target}-container']>.edge-container>.edge>.edge-path`
     );
   }
 
@@ -162,7 +157,7 @@ class Edge extends React.Component<IEdgeProps> {
     src: any,
     trg: any,
     includesArrow: boolean,
-    viewWrapperElem: HTMLDivElement | HTMLDocument = document
+    viewWrapperElem: HTMLDivElement
   ) {
     const response = Edge.getDefaultIntersectResponse();
     const arrowSize = Edge.getArrowSize(viewWrapperElem);
@@ -262,7 +257,7 @@ class Edge extends React.Component<IEdgeProps> {
     src: any,
     trg: any,
     includesArrow?: boolean = true,
-    viewWrapperElem: HTMLDivElement | HTMLDocument = document
+    viewWrapperElem: HTMLDivElement
   ) {
     const response = Edge.getDefaultIntersectResponse();
     const arrowSize = Edge.getArrowSize(viewWrapperElem);
@@ -366,7 +361,7 @@ class Edge extends React.Component<IEdgeProps> {
     src: any,
     trg: any,
     includesArrow?: boolean = true,
-    viewWrapperElem: HTMLDivElement | HTMLDocument = document
+    viewWrapperElem: HTMLDivElement
   ) {
     const response = Edge.getDefaultIntersectResponse();
     const arrowSize = Edge.getArrowSize(viewWrapperElem);
@@ -426,7 +421,7 @@ class Edge extends React.Component<IEdgeProps> {
     trg: any,
     nodeKey: string,
     includesArrow?: boolean = true,
-    viewWrapperElem?: HTMLDivElement = document
+    viewWrapperElem: React.RefObject<HTMLDivElement>
   ) {
     let response = Edge.getDefaultIntersectResponse();
 
@@ -437,7 +432,11 @@ class Edge extends React.Component<IEdgeProps> {
     // Note: document.getElementById is by far the fastest way to get a node.
     // compare 2.82ms for querySelector('#node-a2 use.node') vs
     // 0.31ms and 99us for document.getElementById()
-    const nodeElem = document.getElementById(`node-${trg[nodeKey]}`);
+    // Although it doesn't allow multiple graphs.
+    // We can use viewWrapperElem to scope the querySelector to a smaller set of elements to improve the speed
+    const nodeElem = viewWrapperElem.querySelector(
+      `[id='node-${trg[nodeKey]}']`
+    );
 
     if (!nodeElem) {
       return response;

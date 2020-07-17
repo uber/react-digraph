@@ -16,20 +16,18 @@
 */
 
 export default {
-  ExampleSource:
-    'https://code.uberinternal.com/file/data/aioyv5yrrs3dadbmxlap/PHID-FILE-v36jeiyn4y3gphtdwjsm/1.json',
+  ExampleSource: 'https://fake.com/1.json',
   Name: 'Colombo_Intercity_Driver_dispatch',
-  Comment:
-    'Send SMS message to drivers accept dispatch for Colombo intercity trip',
+  Comment: 'Send SMS message to accept trip',
   Version: 1,
-  Domain: '//Autobots',
-  Id: '//Autobots/ColomboIntercityDriverDispatch',
+  Domain: '//Domain',
+  Id: '//Domain/Dispatch',
   StartAt: 'Init',
   AllowReentry: true,
   States: {
     Init: {
       Type: 'Terminator',
-      Resource: 'kafka://hp_demand_job-assigned',
+      Resource: 'k://demand_job-assigned',
       ResultPath: '$.event',
       Next: 'Check City and Vehicle View',
     },
@@ -45,7 +43,7 @@ export default {
             },
             {
               Variable: '$.vehicleViewId',
-              NumberEquals: 20006733,
+              NumberEquals: 99999999,
             },
           ],
           Next: 'SMS for Dispatch accepted',
@@ -90,11 +88,11 @@ export default {
       InputPath: '$.event',
       Result: {
         expirationMinutes: 60,
-        fromUserUUID: '71af5aea-9eaa-45a1-9825-2c124030b063',
+        fromUserUUID: '55555555-4444-3333-2222-111111111111',
         toUserUUID: 'Eval($.supplyUUID)',
         getSMSReply: false,
         message:
-          'Hithawath Partner, Oba labegena athi mema trip eka UberGALLE trip ekaki, Karunakara rider wa amatha drop location eka confirm karaganna. Sthuthi',
+          'Partner, Oba labegena athi mema trip eka Blah trip ekaki, rider wa amatha drop location eka confirm.',
         messageType: 'SEND_SMS',
         priority: 1,
         actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6',
@@ -107,11 +105,11 @@ export default {
       InputPath: '$.event',
       Result: {
         expirationMinutes: 60,
-        fromUserUUID: '71af5aea-9eaa-45a1-9825-2c124030b063',
+        fromUserUUID: '55555555-4444-3333-2222-111111111111',
         toUserUUID: 'Eval($.supplyUUID)',
         getSMSReply: false,
         message:
-          'Hithawath Partner, Oba labegena athi mema trip eka UberGALLE trip ekaki, Karunakara rider wa amatha drop location eka confirm karaganna. Sthuthi',
+          'Partner, Oba labegena athi mema trip eka Blah trip ekaki, rider wa amatha drop location eka confirm.',
         messageType: 'SEND_SMS',
         priority: 1,
         actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6',
@@ -122,7 +120,7 @@ export default {
     'Send SMS': {
       Type: 'Task',
       InputPath: '$.actionParam',
-      Resource: 'uns://sjc1/sjc1-prod01/us1/cleopatra/Cleopatra::sendSMS',
+      Resource: 'uns://dc/server/Thing::sendSMS',
       InputSchema: {
         '$.expirationMinutes': 'int',
         '$.toUserUUID': 'string',

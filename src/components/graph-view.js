@@ -186,9 +186,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   componentDidMount() {
     const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
 
-    // TODO: can we target the element rather than the document?
-    document.addEventListener('keydown', this.handleWrapperKeydown);
-    document.addEventListener('click', this.handleDocumentClick);
+    if (this.viewWrapper.current) {
+      this.viewWrapper.current.addEventListener(
+        'keydown',
+        this.handleWrapperKeydown
+      );
+      this.viewWrapper.current.addEventListener(
+        'click',
+        this.handleDocumentClick
+      );
+    }
 
     this.zoom = d3
       .zoom()
@@ -230,8 +237,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleWrapperKeydown);
-    document.removeEventListener('click', this.handleDocumentClick);
+    this.viewWrapper.current.removeEventListener(
+      'keydown',
+      this.handleWrapperKeydown
+    );
+    this.viewWrapper.current.removeEventListener(
+      'click',
+      this.handleDocumentClick
+    );
   }
 
   shouldComponentUpdate(
@@ -1277,9 +1290,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     const containerId = `${id}-container`;
-    let nodeContainer: HTMLElement | Element | null = document.getElementById(
-      containerId
-    );
+    let nodeContainer:
+      | HTMLElement
+      | Element
+      | null = this.viewWrapper.current.querySelector(`[id='${containerId}']`);
 
     if (!nodeContainer) {
       nodeContainer = document.createElementNS(
@@ -1360,14 +1374,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const customContainerId = `${id}-custom-container`;
     const { draggedEdge } = this.state;
     const { afterRenderEdge } = this.props;
-    let edgeContainer = document.getElementById(containerId);
+    let edgeContainer = this.viewWrapper.current.querySelector(
+      `[id='${containerId}']`
+    );
 
     if (nodeMoving && edgeContainer) {
       edgeContainer.style.display = 'none';
       containerId = `${id}-custom-container`;
-      edgeContainer = document.getElementById(containerId);
+      edgeContainer = this.viewWrapper.current.querySelector(
+        `[id='${containerId}']`
+      );
     } else if (edgeContainer) {
-      const customContainer = document.getElementById(customContainerId);
+      const customContainer = this.viewWrapper.current.querySelector(
+        `[id='${customContainerId}']`
+      );
 
       edgeContainer.style.display = '';
 
@@ -1457,8 +1477,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const graphControlsWrapper = this.viewWrapper.current.ownerDocument.getElementById(
-      'react-digraph-graph-controls-wrapper'
+    const graphControlsWrapper = this.viewWrapper.current.querySelector(
+      '#react-digraph-graph-controls-wrapper'
     );
 
     if (!graphControlsWrapper) {
@@ -1565,7 +1585,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const node = this.entities.querySelector(`#node-${id}-container`);
+    const node = this.entities.querySelector(`[id='node-${id}-container']`);
 
     this.panToEntity(node, zoom);
   }
@@ -1576,7 +1596,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     const edge = this.entities.querySelector(
-      `#edge-${source}-${target}-container`
+      `[id='edge-${source}-${target}-container']`
     );
 
     this.panToEntity(edge, zoom);
