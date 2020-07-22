@@ -206,6 +206,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       .on('touchstart', this.containZoom)
       .on('touchmove', this.containZoom)
       .on('click', this.handleSvgClicked) // handle element click in the element components
+      .on('contextmenu', this.handleContextmenu)
       .select('svg')
       .call(this.zoom);
 
@@ -684,6 +685,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         onCreateNode(xycoords[0], xycoords[1], d3.event);
       }
+    }
+  };
+
+  handleContextmenu = () => {
+    const { onContextMenu } = this.props;
+
+    if (typeof onContextMenu === 'function') {
+      const xycoords = d3.mouse(d3.event.target);
+
+      onContextMenu(xycoords[0], xycoords[1], d3.event);
     }
   };
 
