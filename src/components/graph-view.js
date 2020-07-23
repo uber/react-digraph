@@ -64,6 +64,7 @@ type IGraphViewState = {
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   static defaultProps = {
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
+    canSwapEdge: () => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
     edgeArrowSize: 8,
@@ -457,7 +458,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       hoveredNode &&
       sourceNode !== hoveredNode &&
       (swapEdge.source !== sourceNode[this.props.nodeKey] ||
-        swapEdge.target !== hoveredNode[this.props.nodeKey])
+        swapEdge.target !== hoveredNode[this.props.nodeKey]) &&
+      canSwapEdge(sourceNode, hoveredNode, swapEdge)
     );
   }
 
