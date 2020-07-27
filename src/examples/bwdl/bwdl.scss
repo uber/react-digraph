@@ -15,9 +15,17 @@
 */
 
 #bwdl-graph {
-  height: 100%;
+  height: calc(100% - 26px);
   width: 100%;
   display: flex;
+
+  .sidebar.left {
+    > .sidebar-main-container {
+      > div {
+        height: 100%;
+      }
+    }
+  }  
 }
 
 .selected-node-container {

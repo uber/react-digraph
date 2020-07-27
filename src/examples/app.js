@@ -27,7 +27,7 @@ import {
 import Bwdl from './bwdl';
 import BwdlEditable from './bwdl-editable';
 import Graph from './graph';
-import GraphFast from './fast';
+import MultipleGraphs from './multiple-graphs';
 
 import './app.scss';
 
@@ -35,15 +35,26 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        <div>
+        <div style={{ height: '100%' }}>
           <header className="app-header">
             <nav>
-              <NavLink to="/" exact={true} activeClassName="active">
-                Home
-              </NavLink>
-              <NavLink to="/bwdl" activeClassName="active">
-                BWDL
-              </NavLink>
+              <ul>
+                <li>
+                  <NavLink to="/" exact={true} activeClassName="active">
+                    Home
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/bwdl" activeClassName="active">
+                    Transformer Example
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/multiple" activeClassName="active">
+                    Multiple Graphs
+                  </NavLink>
+                </li>
+              </ul>
             </nav>
           </header>
 
@@ -53,7 +64,7 @@ class App extends React.Component {
             {/* The following is for typos */}
             <Redirect from="/bwld" to="/bwdl" />
             <Route path="/bwdl-editable" component={BwdlEditable} />
-            <Route path="/fast" component={GraphFast} />
+            <Route path="/multiple" component={MultipleGraphs} />
           </Switch>
         </div>
       </Router>
