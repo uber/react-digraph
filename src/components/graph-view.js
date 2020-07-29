@@ -467,6 +467,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
+    const { canSwapEdge } = this.props;
+
     return (
       hoveredNode &&
       sourceNode !== hoveredNode &&
