@@ -1192,10 +1192,28 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const next = this.computeZoom(viewBBox);
 
+    /* 
+    If the initial position should be aligned with the entities rather than the graph, need to account for where the entities are positioned
+    Subtract the bounding box coordinates and adjust for the scale of the graph
+    */
+    if (initialPosition.x) {
+      next.x =
+        initialPosition.alignWith === 'entities'
+          ? (initialPosition.x - viewBBox.x) * next.k
+          : initialPosition.x;
+    }
+
+    if (initialPosition.y) {
+      next.y =
+        initialPosition.alignWith === 'entities'
+          ? (initialPosition.y - viewBBox.y) * next.k
+          : initialPosition.y;
+    }
+
     this.zoomAndTranslate(
-      next.k,
-      initialPosition.x ? initialPosition.x : next.x,
-      initialPosition.y ? initialPosition.y : initialPosition.y,
+      initialPosition.k ? initialPosition.k : next.k,
+      next.x,
+      next.y,
       0
     );
   };
