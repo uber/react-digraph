@@ -130,7 +130,7 @@ describe('GraphUtils class', () => {
         },
       };
 
-      jest.spyOn(document, 'getElementById').mockReturnValue(fakeElement);
+      jest.spyOn(document, 'querySelector').mockReturnValue(fakeElement);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
@@ -140,7 +140,7 @@ describe('GraphUtils class', () => {
     });
 
     it("does nothing when it can't find the element", () => {
-      jest.spyOn(document, 'getElementById').mockReturnValue(undefined);
+      jest.spyOn(document, 'querySelector').mockReturnValue(undefined);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(result).toEqual(false);

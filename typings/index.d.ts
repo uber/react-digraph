@@ -118,25 +118,33 @@ declare module 'react-digraph' {
     nodeSubtypes: any;
     nodeTypes: any;
     readOnly?: boolean;
-    selected: any;
+    selected?: null | any;
     showGraphControls?: boolean;
     zoomDelay?: number;
     zoomDur?: number;
     canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
     canDeleteEdge?: (selected: any) => boolean;
     canDeleteNode?: (selected: any) => boolean;
+    canSwapEdge?: (
+      sourceNode: INode,
+      hoveredNode: INode | null,
+      swapEdge: IEdge
+    ) => boolean,
     onBackgroundClick?: (x: number, y: number, event: any) => void,
     onCopySelected?: () => void;
-    onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
-    onCreateNode: (x: number, y: number, event: any) => void;
-    onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
-    onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
-    onPasteSelected?: () => void;
-    onSelectEdge: (selectedEdge: IEdge) => void;
-    onSelectNode: (node: INode | null, event: any) => void;
-    onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
+    onCreateEdge?: (sourceNode: INode, targetNode: INode) => void;
+    onCreateNode?: (x: number, y: number, event: any) => void;
+    onDeleteEdge?: (selectedEdge: IEdge, edges: IEdge[]) => void;
+    onDeleteNode?: (selected: any, nodeId: string, nodes: any[]) => void;
+    onPasteSelected?: (
+      selectedNode: INode,
+      xyCoords?: { x: number, y: number }
+    ) => void,
+    onSelectEdge?: (selectedEdge: IEdge) => void;
+    onSelectNode?: (node: INode | null, event: any) => void;
+    onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
-    onUpdateNode: (node: INode) => void;
+    onUpdateNode?: (node: INode) => void;
     renderBackground?: (gridSize?: number) => any;
     renderDefs?: () => any;
     renderNode?: (

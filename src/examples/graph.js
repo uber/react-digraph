@@ -465,14 +465,14 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   // Pastes the selected node to mouse position
-  onPasteSelected = (node: INode, mousePosition: [number, number]) => {
+  onPasteSelected = (node: INode, mousePosition?: [number, number]) => {
     const graph = this.state.graph;
 
     const newNode = {
       ...node,
       id: Date.now(),
-      x: mousePosition[0],
-      y: mousePosition[1],
+      x: mousePosition ? mousePosition[0] : node.x,
+      y: mousePosition ? mousePosition[1] : node.y,
     };
 
     graph.nodes = [...graph.nodes, newNode];

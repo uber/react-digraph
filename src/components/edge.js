@@ -28,7 +28,7 @@ import { EdgeLabelText } from './edge-label-text';
 export type IEdge = {
   source: string,
   target: string,
-  type?: string,
+  type?: null | string,
   handleText?: string,
   handleTooltipText?: string,
   label_from?: string,

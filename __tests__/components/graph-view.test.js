@@ -838,6 +838,13 @@ describe('GraphView component', () => {
 
     it('drags an edge', () => {
       instance.canSwap.mockReturnValue(true);
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
       const draggedEdge = {
         source: 'a',
         target: 'b',
@@ -858,6 +865,13 @@ describe('GraphView component', () => {
 
     it('handles swapping the edge to a different node', () => {
       instance.canSwap.mockReturnValue(true);
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
       const draggedEdge = {
         source: 'a',
         target: 'b',
@@ -1040,6 +1054,13 @@ describe('GraphView component', () => {
     });
 
     it('drags the edge', () => {
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
       event.sourceEvent.buttons = 2;
       instance.handleZoomStart(event);
       expect(output.state().draggedEdge).toEqual(edge);
