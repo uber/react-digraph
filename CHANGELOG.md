@@ -1,3 +1,14 @@
+**7.0.0** - August 5, 2020
+- PR #247 - Updated types, function definitions, and optional properties. (@ajbogh) - https://github.com/uber/react-digraph/pull/247
+- PR #246 - Fix #240 - cannot delete nodes with multiple graphs. (@ajbogh) - https://github.com/uber/react-digraph/pull/246
+- PR #239 - Fix eslint src. (@Djazouli) - https://github.com/uber/react-digraph/pull/239
+- PR #236 - on contextmenu event and create handle (@chiayenhung) - https://github.com/uber/react-digraph/pull/236
+- PR #234 - Fixed #219. Can now render multiple graphs at the same time. (@ajbogh) - https://github.com/uber/react-digraph/pull/234
+- PR #233 - Paste selected node at current mouse position. (@thinkty) - https://github.com/uber/react-digraph/pull/233
+- PR #221 - Add "canSwapEdge" (@AxessLab) - https://github.com/uber/react-digraph/pull/221
+- PR #220 - typings: add arg "event" to onSelectNode (@Rui1009) - https://github.com/uber/react-digraph/pull/220
+
+
 **v6.7.0** - May 12, 2020
 - PR #218 - Fixed edge rendering for Firefox and cleaned up code (@ajbogh) - https://github.com/uber/react-digraph/pull/218
 - PR #214 - resolve #212 (@maekawataiki) - https://github.com/uber/react-digraph/pull/214
