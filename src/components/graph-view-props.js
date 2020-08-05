@@ -28,6 +28,8 @@ export type IBBox = {
 export type IInitialPosition = {
   x?: number,
   y?: number,
+  k?: number,
+  alignWith?: string,
 };
 
 export type IGraphViewProps = {
