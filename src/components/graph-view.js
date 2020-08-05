@@ -188,10 +188,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
 
     if (this.viewWrapper.current) {
-      this.viewWrapper.current.addEventListener(
-        'keydown',
-        this.handleWrapperKeydown
-      );
+      document.addEventListener('keydown', this.handleWrapperKeydown);
       this.viewWrapper.current.addEventListener(
         'click',
         this.handleDocumentClick
@@ -239,10 +236,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentWillUnmount() {
-    this.viewWrapper.current.removeEventListener(
-      'keydown',
-      this.handleWrapperKeydown
-    );
+    document.removeEventListener('keydown', this.handleWrapperKeydown);
     this.viewWrapper.current.removeEventListener(
       'click',
       this.handleDocumentClick
@@ -400,10 +394,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
 
       // remove node
-      // The timeout avoids a race condition
-      setTimeout(() => {
-        GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
-      });
+      const timeoutId = `nodes-${nodeId}`;
+
+      // cancel an asyncRenderNode animation
+      cancelAnimationFrame(this.nodeTimeouts[timeoutId]);
+
+      GraphUtils.removeElementFromDom(
+        `node-${nodeId}-container`,
+        this.viewWrapper.current
+      );
     }
   }
 
@@ -463,7 +462,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   removeEdgeElement(source: string, target: string) {
     const id = `${source}-${target}`;
 
-    GraphUtils.removeElementFromDom(`edge-${id}-container`);
+    GraphUtils.removeElementFromDom(
+      `edge-${id}-container`,
+      this.viewWrapper.current
+    );
   }
 
   canSwap(sourceNode: INode, hoveredNode: INode | null, swapEdge: any) {
@@ -492,7 +494,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
 
     // remove from UI
-    GraphUtils.removeElementFromDom(`node-${nodeId}-container`);
+    GraphUtils.removeElementFromDom(
+      `node-${nodeId}-container`,
+      this.viewWrapper.current
+    );
 
     // inform consumer
     this.props.onSelectNode(null);
@@ -526,10 +531,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (selectedEdge.source != null && selectedEdge.target != null) {
       // remove extra custom containers just in case.
       GraphUtils.removeElementFromDom(
-        `edge-${selectedEdge.source}-${selectedEdge.target}-custom-container`
+        `edge-${selectedEdge.source}-${selectedEdge.target}-custom-container`,
+        this.viewWrapper.current
       );
       GraphUtils.removeElementFromDom(
-        `edge-${selectedEdge.source}-${selectedEdge.target}-container`
+        `edge-${selectedEdge.source}-${selectedEdge.target}-container`,
+        this.viewWrapper.current
       );
     }
 
@@ -605,7 +612,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  handleEdgeSelected = e => {
+  handleEdgeSelected = (e: any) => {
     const { source, target } = e.target.dataset;
     let newState = {
       svgClicked: true,
@@ -777,7 +784,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    GraphUtils.removeElementFromDom('edge-custom-container');
+    GraphUtils.removeElementFromDom(
+      'edge-custom-container',
+      this.viewWrapper.current
+    );
 
     if (edgeEndNode) {
       const mapId1 = `${hoveredNodeData[nodeKey]}_${edgeEndNode[nodeKey]}`;
@@ -1085,7 +1095,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const draggedEdgeCopy = { ...this.state.draggedEdge };
 
     // remove custom edge
-    GraphUtils.removeElementFromDom('edge-custom-container');
+    GraphUtils.removeElementFromDom(
+      'edge-custom-container',
+      this.viewWrapper.current
+    );
     this.setState(
       {
         draggedEdge: null,
@@ -1320,6 +1333,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     const containerId = `${id}-container`;
+
     let nodeContainer:
       | HTMLElement
       | Element

@@ -26,7 +26,12 @@ import sample1 from './graph1-sample';
 import sample2 from './graph2-sample';
 
 type IGraphProps = {};
-type IGraphState = {};
+type IGraphState = {
+  selectedNode: any,
+  selectedNode2: any,
+  sample1: any,
+  sample2: any,
+};
 
 class Graph extends React.Component<IGraphProps, IGraphState> {
   GraphViewRef;
@@ -34,13 +39,41 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   constructor(props: IGraphProps) {
     super(props);
     this.GraphViewRef = React.createRef();
+    this.state = {
+      selectedNode: null,
+      selectedNode2: null,
+      sample1: sample1,
+      sample2: sample2,
+    };
   }
+
+  onDeleteNode = (
+    viewNode: INode,
+    nodeId: string,
+    nodeArr: INode[],
+    configVar: any,
+    stateKey: string
+  ) => {
+    // Delete any connected edges
+    const newEdges = configVar.edges.filter((edge, i) => {
+      return (
+        edge.source !== viewNode[NODE_KEY] && edge.target !== viewNode[NODE_KEY]
+      );
+    });
+
+    configVar.nodes = nodeArr;
+    configVar.edges = newEdges;
+    this.setState({
+      [stateKey]: configVar,
+    });
+  };
 
   /*
    * Render
    */
 
   render() {
+    const { sample1, sample2 } = this.state;
     const { nodes: graph1Nodes, edges: graph1Edges } = sample1;
     const { nodes: graph2Nodes, edges: graph2Edges } = sample2;
     const { NodeTypes, NodeSubtypes, EdgeTypes } = GraphConfig;
@@ -61,15 +94,19 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             nodeKey={NODE_KEY}
             nodes={graph1Nodes}
             edges={graph1Edges}
-            selected={null}
+            selected={this.state.selectedNode}
             nodeTypes={NodeTypes}
             nodeSubtypes={NodeSubtypes}
             edgeTypes={EdgeTypes}
             readOnly={false}
-            onSelectNode={() => {}}
+            onSelectNode={node => {
+              this.setState({ selectedNode: node });
+            }}
             onCreateNode={() => {}}
             onUpdateNode={() => {}}
-            onDeleteNode={() => {}}
+            onDeleteNode={(selected, nodeId, nodeArr) => {
+              this.onDeleteNode(selected, nodeId, nodeArr, sample1, 'sample1');
+            }}
             onSelectEdge={() => {}}
             onCreateEdge={() => {}}
             onSwapEdge={() => {}}
@@ -82,15 +119,19 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             nodeKey={NODE_KEY}
             nodes={graph2Nodes}
             edges={graph2Edges}
-            selected={null}
+            selected={this.state.selectedNode2}
             nodeTypes={NodeTypes}
             nodeSubtypes={NodeSubtypes}
             edgeTypes={EdgeTypes}
             readOnly={false}
-            onSelectNode={() => {}}
+            onSelectNode={node => {
+              this.setState({ selectedNode2: node });
+            }}
             onCreateNode={() => {}}
             onUpdateNode={() => {}}
-            onDeleteNode={() => {}}
+            onDeleteNode={(selected, nodeId, nodeArr) => {
+              this.onDeleteNode(selected, nodeId, nodeArr, sample2, 'sample2');
+            }}
             onSelectEdge={() => {}}
             onCreateEdge={() => {}}
             onSwapEdge={() => {}}

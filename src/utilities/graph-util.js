@@ -95,8 +95,8 @@ class GraphUtils {
     }
   }
 
-  static removeElementFromDom(id: string) {
-    const container = document.getElementById(id);
+  static removeElementFromDom(id: string, searchElement?: any = document) {
+    const container = searchElement.querySelector(`#${id}`);
 
     if (container && container.parentNode) {
       container.parentNode.removeChild(container);
