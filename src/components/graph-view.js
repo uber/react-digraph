@@ -576,7 +576,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleWrapperKeydown: KeyboardEventListener = d => {
-    const { selected, onUndo, onCopySelected, onPasteSelected } = this.props;
+    const {
+      selected,
+      disableBackspace,
+      onUndo,
+      onCopySelected,
+      onPasteSelected,
+    } = this.props;
     const { focused, selectedNodeObj } = this.state;
 
     // Conditionally ignore keypress events on the window
@@ -586,8 +592,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     switch (d.key) {
       case 'Delete':
-      case 'Backspace':
         if (selectedNodeObj) {
+          this.handleDelete(selectedNodeObj.node || selected);
+        }
+
+        break;
+      case 'Backspace':
+        if (selectedNodeObj && !disableBackspace) {
           this.handleDelete(selectedNodeObj.node || selected);
         }
 
