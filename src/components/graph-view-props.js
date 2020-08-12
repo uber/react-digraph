@@ -28,6 +28,7 @@ export type IBBox = {
 
 export type IGraphViewProps = {
   backgroundFillId?: string,
+  disableBackspace?: boolean,
   edges: any[],
   edgeArrowSize?: number,
   edgeHandleSize?: number,
