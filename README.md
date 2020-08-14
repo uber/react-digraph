@@ -321,8 +321,9 @@ You can call these methods on the GraphView class using a ref.
 | ------------------|:---------------------------------------------------------:|  :-------------------------------------------------------------------------:|
 | panToNode         | (id: string, zoom?: boolean) => void                      | Center the node given by `id` within the viewport, optionally zoom in to fit it. |
 | panToEdge         | (source: string, target: string, zoom?: boolean) => void  | Center the edge between `source` and `target` node IDs within the viewport, optionally zoom in to fit it.  |
-| zoomAndTranslate         | (k: number, x: number, y: number, dur?: number) => void  | Zoom the graph based off the identity transform and translate it to the given x, y coords  |
 | zoomToPoint         | (k: number, dur?: number, point: array) => void  | Zoom the graph to the given `k` scale, optionally centered around the given point or the center of the screen  |
+| handleZoomWithPosition         | (position: IInitialPosition) => void  | Position the graph at the given `x` and `y` values adjusting for scale. Optionally align the graph with the entities or change the scale/zoom duration  |
+| handleZoomToFit         | (initialZoom: boolean) => void  | Zoom the graph to be centered and fit all the entities on screen.  |
 
 ## Connecting locally with Trifacta repo
 Steps to locally test `react-digraph` changes in the Trifacta repo.
