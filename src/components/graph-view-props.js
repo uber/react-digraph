@@ -30,6 +30,7 @@ export type IInitialPosition = {
   y?: number,
   k?: number,
   alignWith?: string,
+  dur?: number,
 };
 
 export type IGraphViewProps = {
