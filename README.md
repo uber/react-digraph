@@ -212,10 +212,15 @@ All props are detailed below.
 | onSwapEdge          | func                    | true      | Called when an edge 'target' is swapped.                  |
 | onDeleteEdge        | func                    | true      | Called when an edge is deleted.                           |
 | onBackgroundClick   | func                    | false     | Called when the background is clicked.                    |
+| onContextMenu       | func                    |  false    | Called when the background is right clicked.              |
+| onPanDragStart      | func                    | false     | Called when graph starts panning.                         |
+| onPanDragEnd        | func                    | false     | Called after graph ends panning.                          |
+| onZoomStart         | func                    | false     | Called when a zoom starts.                                |
+| onZoomEnd           | func                    | false     | Called after a zoom ends.                                 |
 | canDeleteNode       | func                    | false     | Called before a node is deleted.                          |
 | canCreateEdge       | func                    | false     | Called before an edge is created.                         |
 | canDeleteEdge       | func                    | false     | Called before an edge is deleted.                         |
-| afterRenderEdge      | func                    | false     | Called after an edge is rendered.                         |
+| afterRenderEdge     | func                    | false     | Called after an edge is rendered.                         |
 | renderNode          | func                    | false     | Called to render node geometry.                           |
 | renderNodeText      | func                    | false     | Called to render the node text                            |
 | renderDefs          | func                    | false     | Called to render svg definitions.                         |
@@ -231,8 +236,13 @@ All props are detailed below.
 | edgeHandleSize      | number                  | false     | Edge handle size.                                         |
 | edgeArrowSize       | number                  | false     | Edge arrow size.                                          |
 | zoomDelay           | number                  | false     | Delay before zoom occurs.                                 |
+| initialZoomDur      | number                  | false     | Delay before initial zoom occurs.                         |
 | zoomDur             | number                  | false     | Duration of zoom transition.                              |
+| panOnDrag           | boolean                 | false     | Whether the graph should pan when dragged.                                 |
+| panOrDragWithCtrlMetaKey           | boolean                  | false     | Whether the graph should pan when dragged and control/meta key is pressed.                                 |
+| panOnWheel          | boolean                 | false     | Whether the wheel should move the graph.                                 |
 | showGraphControls   | boolean                 | false     | Whether to show zoom controls.                            |
+| disableGraphKeyHandlers      | boolean                  | false     | Whether react-digraph's key handlers should be respected.                         |
 | layoutEngineType    | typeof LayoutEngineType | false     | Uses a pre-programmed layout engine, such as 'SnapToGrid' |
 | rotateEdgeHandle    | boolean                 | false     | Whether to rotate edge handle with edge when a node is moved |
 | centerNodeOnMove    | boolean                 | false     | Weather the node should be centered on cursor when moving a node    |
@@ -311,6 +321,42 @@ You can call these methods on the GraphView class using a ref.
 | ------------------|:---------------------------------------------------------:|  :-------------------------------------------------------------------------:|
 | panToNode         | (id: string, zoom?: boolean) => void                      | Center the node given by `id` within the viewport, optionally zoom in to fit it. |
 | panToEdge         | (source: string, target: string, zoom?: boolean) => void  | Center the edge between `source` and `target` node IDs within the viewport, optionally zoom in to fit it.  |
+| zoomAndTranslate         | (k: number, x: number, y: number, dur?: number) => void  | Zoom the graph based off the identity transform and translate it to the given x, y coords  |
+| zoomToPoint         | (k: number, dur?: number, point: array) => void  | Zoom the graph to the given `k` scale, optionally centered around the given point or the center of the screen  |
+
+## Connecting locally with Trifacta repo
+Steps to locally test `react-digraph` changes in the Trifacta repo.
+
+#### Trifacta repo
+In the Trifacta repo, navigate to `webpack.common` and paste the following near the top (such as below `JAVASCRIPT_BUILD_TOOLS_DIR`)
+
+Make sure to adjust your path to point to your local `react-digraph` folder!
+```
+const REACT_DIGRAPH_DIR = path.normalize(
+  path.join(REPO_ROOT, 'path', 'to', 'your', 'react-digraph-folder')
+);
+```
+
+Search for `amplitude$` and paste the following below it.
+```
+'react-digraph':path.join(REACT_DIGRAPH_DIR, '/dist/main.js'),
+```
+
+Rerun `make-build-client` 
+
+#### react-digraph repo
+Run `npm run watch`
+
+If it doesn't seem to be connecting, in `webpack.config.js` try changing `libraryTarget` to `commonjs2`.
+If that doesn't work, try removing the `dist` folder completely and re-running `npm run watch`
+
+## Adding a react-digraph sourcemap
+1. Open devtools
+2. Navigate to _filesystem_ -> _add folder to workspace_
+3. Check that your `react-digraph/dist` folder has a source map file (`main.min.js.map`)
+4. Add your local `react-digraph` folder
+5. Open the `main.min.js.map` file in devtools -> _right click_ -> _copy link_
+6. Open `main.min.js` and click _add source map_ -> _paste link_
 
 ## Deprecation Notes
 
