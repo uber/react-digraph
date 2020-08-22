@@ -283,6 +283,7 @@ Prop Types:
   onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
   onSelectNode: (node: INode | null) => void;
   onCreateNode: (x: number, y: number, event: object) => void;
+  onContextMenu: (x: number, y: number, event: object) => void;
   onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
   onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
   onUpdateNode: (node: INode) => void;

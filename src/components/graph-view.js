@@ -734,7 +734,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { onContextMenu } = this.props;
 
     if (typeof onContextMenu === 'function') {
-      const xycoords = d3.mouse(d3.event.target);
+      const xycoords = d3.mouse(this.view);
 
       onContextMenu(xycoords[0], xycoords[1], d3.event);
     }
