@@ -15,51 +15,65 @@
   limitations under the License.
 */
 
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
+import {
+  DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
+  DEFAULT_NODE_TEXT_LINE_OFFSET,
+} from '../constants';
 
 type INodeTextProps = {
   data: INode,
   nodeTypes: any, // TODO: create a nodeTypes interface
   isSelected: boolean,
-  maxTitleChars: number,
+  maxTitleChars?: number,
+  lineOffset?: number,
 };
 
-class NodeText extends React.Component<INodeTextProps> {
-  getTypeText(data: INode, nodeTypes: any) {
-    if (data.type && nodeTypes[data.type]) {
-      return nodeTypes[data.type].typeText;
-    } else if (nodeTypes.emptyNode) {
-      return nodeTypes.emptyNode.typeText;
-    } else {
-      return null;
-    }
+function getTypeText(data: INode, nodeTypes: any) {
+  if (data.type && nodeTypes[data.type]) {
+    return nodeTypes[data.type].typeText;
+  } else if (nodeTypes.emptyNode) {
+    return nodeTypes.emptyNode.typeText;
+  } else {
+    return null;
   }
+}
 
-  render() {
-    const { data, nodeTypes, isSelected, maxTitleChars } = this.props;
-    const lineOffset = 18;
-    const title = data.title;
-    const className = GraphUtils.classNames('node-text', {
-      selected: isSelected,
-    });
-    const typeText = this.getTypeText(data, nodeTypes);
+function NodeText({
+  data,
+  nodeTypes,
+  isSelected,
+  maxTitleChars = DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
+  lineOffset = DEFAULT_NODE_TEXT_LINE_OFFSET,
+}: INodeTextProps) {
+  const title = data.title;
+  const className = useMemo(
+    () =>
+      GraphUtils.classNames('node-text', {
+        selected: isSelected,
+      }),
+    [isSelected]
+  );
+  const typeText = useMemo(() => getTypeText(data, nodeTypes), [
+    data,
+    nodeTypes,
+  ]);
 
-    return (
-      <text className={className} textAnchor="middle">
-        {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
-        {title && (
-          <tspan x={0} dy={lineOffset} fontSize="10px">
-            {title.length > maxTitleChars
-              ? title.substr(0, maxTitleChars)
-              : title}
-          </tspan>
-        )}
-        {title && <title>{title}</title>}
-      </text>
-    );
-  }
+  return (
+    <text className={className} textAnchor="middle">
+      {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
+      {title && (
+        <tspan x={0} dy={lineOffset} fontSize="10px">
+          {title.length > maxTitleChars
+            ? title.substr(0, maxTitleChars)
+            : title}
+        </tspan>
+      )}
+      {title && <title>{title}</title>}
+    </text>
+  );
 }
 
 export default NodeText;

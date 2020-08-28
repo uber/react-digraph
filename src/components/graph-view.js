@@ -27,6 +27,11 @@ import Edge, { type IEdge } from './edge';
 import GraphControls from './graph-controls';
 import GraphUtils, { type INodeMapNode } from '../utilities/graph-util';
 import Node, { type INode, type IPoint } from './node';
+import {
+  parsePathToXY,
+  getEdgePathElement,
+  calculateOffset,
+} from '../helpers/edge-helpers';
 
 type IViewTransform = {
   k: number,
@@ -73,6 +78,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     maxZoom: 1.5,
     minZoom: 0.15,
     nodeSize: 154,
+    nodeWidth: 154,
+    nodeHeight: 154,
     readOnly: false,
     showGraphControls: true,
     zoomDelay: 1000,
@@ -144,9 +151,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   viewWrapper: React.RefObject<HTMLDivElement>;
   graphSvg: React.RefObject<SVGElement>;
   entities: any;
+  graphControlsWrapper: React.RefObject<HTMLDivElement>;
   selectedView: any;
   view: any;
-  graphControls: any;
   layoutEngine: any;
 
   constructor(props: IGraphViewProps) {
@@ -157,7 +164,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.renderNodesTimeout = null;
     this.renderEdgesTimeout = null;
     this.viewWrapper = React.createRef();
-    this.graphControls = React.createRef();
     this.graphSvg = React.createRef();
 
     if (props.layoutEngineType) {
@@ -866,6 +872,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       if (nodeMap) {
         Object.assign(nodeMap.node, position);
+        this.renderConnectedEdgesFromNode(nodeMap, true);
 
         if (onUpdateNode) {
           onUpdateNode(nodeMap.node);
@@ -971,8 +978,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       x: xycoords[0],
       y: xycoords[1],
     };
-    const edgeCoords = Edge.parsePathToXY(
-      Edge.getEdgePathElement(edge, this.viewWrapper.current)
+    const edgeCoords = parsePathToXY(
+      getEdgePathElement(edge, this.viewWrapper.current)
     );
 
     // the arrow is clicked if the xycoords are within edgeArrowSize of edgeCoords.target[x,y]
@@ -1075,7 +1082,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       y: mouseCoordinates[1],
     };
 
-    const off = Edge.calculateOffset(
+    const off = calculateOffset(
       nodeSize,
       (this.getNodeById(draggedEdge.source): any).node,
       targetPosition,
@@ -1313,6 +1320,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       nodeTypes,
       nodeSubtypes,
       nodeSize,
+      nodeHeight,
+      nodeWidth,
       renderNode,
       renderNodeText,
       nodeKey,
@@ -1326,6 +1335,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         data={node}
         nodeTypes={nodeTypes}
         nodeSize={nodeSize}
+        nodeWidth={nodeWidth}
+        nodeHeight={nodeHeight}
         nodeKey={nodeKey}
         nodeSubtypes={nodeSubtypes}
         onNodeMouseEnter={this.handleNodeMouseEnter}
@@ -1567,28 +1578,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { showGraphControls, minZoom, maxZoom } = this.props;
     const { viewTransform } = this.state;
 
-    if (!showGraphControls || !this.viewWrapper) {
-      return;
-    }
-
-    const graphControlsWrapper = this.viewWrapper.current.querySelector(
-      '#react-digraph-graph-controls-wrapper'
-    );
-
-    if (!graphControlsWrapper) {
+    if (!showGraphControls || !this.graphControlsWrapper) {
       return;
     }
 
     ReactDOM.render(
       <GraphControls
-        ref={this.graphControls}
         minZoom={minZoom}
         maxZoom={maxZoom}
         zoomLevel={viewTransform ? viewTransform.k : 1}
         zoomToFit={this.handleZoomToFit}
         modifyZoom={this.modifyZoom}
       />,
-      graphControlsWrapper
+      this.graphControlsWrapper
     );
   }
 
@@ -1630,6 +1632,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         </svg>
         <div
           id="react-digraph-graph-controls-wrapper"
+          ref={el => (this.graphControlsWrapper = el)}
           className="graph-controls-wrapper"
         />
       </div>

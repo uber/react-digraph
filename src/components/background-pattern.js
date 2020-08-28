@@ -17,28 +17,28 @@
 
 import * as React from 'react';
 import Circle from './circle';
+import { DEFAULT_GRID_DOT_SIZE, DEFAULT_GRID_SPACING } from '../constants';
 
 type IBackgroundPatternProps = {
   gridSpacing?: number,
   gridDotSize?: number,
 };
 
-class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
-  render() {
-    const { gridSpacing, gridDotSize } = this.props;
-
-    return (
-      <pattern
-        id="grid"
-        key="grid"
-        width={gridSpacing}
-        height={gridSpacing}
-        patternUnits="userSpaceOnUse"
-      >
-        <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
-      </pattern>
-    );
-  }
+function BackgroundPattern({
+  gridSpacing = DEFAULT_GRID_SPACING,
+  gridDotSize = DEFAULT_GRID_DOT_SIZE,
+}: IBackgroundPatternProps) {
+  return (
+    <pattern
+      id="grid"
+      key="grid"
+      width={gridSpacing}
+      height={gridSpacing}
+      patternUnits="userSpaceOnUse"
+    >
+      <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
+    </pattern>
+  );
 }
 
 export default BackgroundPattern;
