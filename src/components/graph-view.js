@@ -417,20 +417,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
 
       // remove node
-      let removeNodeTimeout = null;
-      const nodeIdToRemove = `node-${nodeId}-container`;
-      const removeNode = () => {
-        clearTimeout(removeNodeTimeout);
-        GraphUtils.removeElementFromDom(this.entities, nodeIdToRemove);
-      };
-
-      removeNodeTimeout = setTimeout(removeNode, 100);
       // The animation frame avoids a race condition
       requestAnimationFrame(() => {
         const nodeRenderId = this.nodeRenderId(prevNode);
 
         // cancel anyone attempting to render this node
         cancelAnimationFrame(this.nodeTimeouts[nodeRenderId]);
+
+        GraphUtils.removeElementFromDom(
+          this.entities,
+          `node-${nodeId}-container`
+        );
       });
     }
   }
