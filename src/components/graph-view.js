@@ -416,18 +416,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         this.removeEdgeElement(edge);
       });
 
-      // remove node
+      // remove node - timeout helps for removing async rendered nodes
+      const nodeIdToRemove = `node-${nodeId}-container`;
+
+      setTimeout(
+        () => GraphUtils.removeElementFromDom(this.entities, nodeIdToRemove),
+        200
+      );
       // The animation frame avoids a race condition
       requestAnimationFrame(() => {
         const nodeRenderId = this.nodeRenderId(prevNode);
 
         // cancel anyone attempting to render this node
         cancelAnimationFrame(this.nodeTimeouts[nodeRenderId]);
-
-        GraphUtils.removeElementFromDom(
-          this.entities,
-          `node-${nodeId}-container`
-        );
       });
     }
   }
