@@ -953,7 +953,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   // If the click occurs within a certain radius of edge target, assume the click
   // occurred on the arrow
   isArrowClicked(edge: IEdge | null) {
-    const { edgeArrowSize } = this.props;
+    const { edgeArrowSize, onArrowClicked } = this.props;
     const eventTarget = d3.event.sourceEvent.target;
     const arrowSize = edgeArrowSize || 0;
 
@@ -976,6 +976,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
 
     // the arrow is clicked if the xycoords are within edgeArrowSize of edgeCoords.target[x,y]
+
+    if (onArrowClicked) {
+      if (
+        source.x < edgeCoords.target.x + arrowSize &&
+        source.x > edgeCoords.target.x - arrowSize &&
+        source.y < edgeCoords.target.y + arrowSize &&
+        source.y > edgeCoords.target.y - arrowSize
+      ) {
+        onArrowClicked(edge);
+      }
+    }
+
     return (
       source.x < edgeCoords.target.x + arrowSize &&
       source.x > edgeCoords.target.x - arrowSize &&
