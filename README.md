@@ -214,10 +214,8 @@ All props are detailed below.
 | `onCreateEdge`             | `func`                     | `true`       | Called when an edge is created.                                                                                                                                                             |
 | `onSwapEdge`               | `func`                     | `true`       | Called when an edge `'target'` is swapped.                                                                                                                                                  |
 | `onDeleteEdge`             | `func`                     | `true`       | Called when an edge is deleted.                                                                                                                                                             |
-| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.                                                                                                                           
-
-| `onArrowClicked`        | `func`                     | `false`      | Called when the arrow head is clicked.                                                                                                                           
-                           |
+| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.  |                                                                                                                         
+| `onArrowClicked`        | `func`                     | `false`      | Called when the arrow head is clicked. |
 | `canDeleteNode`            | `func`                     | `false`      | Called before a node is deleted.                                                                                                                                                            |
 | `canCreateEdge`            | `func`                     | `false`      | Called before an edge is created.                                                                                                                                                           |
 | `canDeleteEdge`            | `func`                     | `false`      | Called before an edge is deleted.                                                                                                                                                           |
