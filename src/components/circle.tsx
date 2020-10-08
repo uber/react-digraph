@@ -16,29 +16,30 @@
 */
 
 import * as React from 'react';
-import Circle from './circle';
 
-type IBackgroundPatternProps = {
-  gridSpacing?: number,
-  gridDotSize?: number,
+type ICircleProps = {
+  gridSpacing?: number;
+  gridDotSize?: number;
 };
 
-class BackgroundPattern extends React.Component<IBackgroundPatternProps> {
+class Circle extends React.Component<ICircleProps> {
+  static defaultProps = {
+    gridDotSize: 2,
+    gridSpacing: 36,
+  };
+
   render() {
     const { gridSpacing, gridDotSize } = this.props;
 
     return (
-      <pattern
-        id="grid"
-        key="grid"
-        width={gridSpacing}
-        height={gridSpacing}
-        patternUnits="userSpaceOnUse"
-      >
-        <Circle gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
-      </pattern>
+      <circle
+        className="circle"
+        cx={(gridSpacing || 0) / 2}
+        cy={(gridSpacing || 0) / 2}
+        r={gridDotSize}
+      />
     );
   }
 }
 
-export default BackgroundPattern;
+export default Circle;

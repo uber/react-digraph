@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -17,13 +16,13 @@
 
 import * as React from 'react';
 import GraphUtils from '../utilities/graph-util';
-import { type INode } from './node';
+import type { INode } from './node';
 
 type INodeTextProps = {
-  data: INode,
-  nodeTypes: any, // TODO: create a nodeTypes interface
-  isSelected: boolean,
-  maxTitleChars: number,
+  data: INode;
+  nodeTypes: any; // TODO: create a nodeTypes interface
+  isSelected: boolean;
+  maxTitleChars: number;
 };
 
 class NodeText extends React.Component<INodeTextProps> {

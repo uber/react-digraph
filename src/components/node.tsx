@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -24,60 +23,60 @@ import GraphUtils from '../utilities/graph-util';
 import NodeText from './node-text';
 
 export type IPoint = {
-  x: number,
-  y: number,
+  x: number;
+  y: number;
 };
 
 export type INode = {
-  title: string,
-  x?: number | null,
-  y?: number | null,
-  type?: string | null,
-  subtype?: string | null,
-  [key: string]: any,
+  title: string;
+  x?: number | null;
+  y?: number | null;
+  type?: string | null;
+  subtype?: string | null;
+  [key: string]: any;
 };
 
 type INodeProps = {
-  data: INode,
-  id: string,
-  nodeTypes: any, // TODO: make a nodeTypes interface
-  nodeSubtypes: any, // TODO: make a nodeSubtypes interface
-  opacity?: number,
-  nodeKey: string,
-  nodeSize?: number,
-  onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void,
-  onNodeMouseLeave: (event: any, data: any) => void,
-  onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
+  data: INode;
+  id: string;
+  nodeTypes: any; // TODO: make a nodeTypes interface
+  nodeSubtypes: any; // TODO: make a nodeSubtypes interface
+  opacity?: number;
+  nodeKey: string;
+  nodeSize?: number;
+  onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
+  onNodeMouseLeave: (event: any, data: any) => void;
+  onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
   onNodeSelected: (
     data: any,
     id: string,
     shiftKey: boolean,
     event?: any
-  ) => void,
-  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void,
+  ) => void;
+  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
   renderNode?: (
     nodeRef: any,
     data: any,
     id: string,
     selected: boolean,
     hovered: boolean
-  ) => any,
-  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
-  isSelected: boolean,
-  layoutEngine?: any,
-  viewWrapperElem: HTMLDivElement,
-  centerNodeOnMove: boolean,
-  maxTitleChars: number,
+  ) => any;
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
+  isSelected: boolean;
+  layoutEngine?: any;
+  viewWrapperElem: HTMLDivElement;
+  centerNodeOnMove: boolean;
+  maxTitleChars: number;
 };
 
 type INodeState = {
-  hovered: boolean,
-  x: number,
-  y: number,
-  selected: boolean,
-  mouseDown: boolean,
-  drawingEdge: boolean,
-  pointerOffset: ?{ x: number, y: number },
+  hovered: boolean;
+  x: number;
+  y: number;
+  selected: boolean;
+  mouseDown: boolean;
+  drawingEdge: boolean;
+  pointerOffset: { x: number; y: number } | null;
 };
 
 class Node extends React.Component<INodeProps, INodeState> {

@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -21,18 +20,18 @@
 
 import React from 'react';
 import Parse from 'html-react-parser';
-import faExpand from '@fortawesome/fontawesome-free/svgs/solid/expand.svg';
+import faExpand from '@fortawesome/fontawesome-free/svgs/solid';
 
 const steps = 100; // Slider steps
 const parsedIcon = Parse(faExpand); //  parse SVG once
 const ExpandIcon = () => parsedIcon; // convert SVG to react component
 
 type IGraphControlProps = {
-  maxZoom?: number,
-  minZoom?: number,
-  zoomLevel: number,
-  zoomToFit: (event: SyntheticMouseEvent<HTMLButtonElement>) => void,
-  modifyZoom: (delta: number) => boolean,
+  maxZoom?: number;
+  minZoom?: number;
+  zoomLevel: number;
+  zoomToFit: (event: SyntheticMouseEvent<HTMLButtonElement>) => void;
+  modifyZoom: (delta: number) => boolean;
 };
 
 class GraphControls extends React.Component<IGraphControlProps> {

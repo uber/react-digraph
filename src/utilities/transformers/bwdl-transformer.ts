@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,9 +14,9 @@
   limitations under the License.
 */
 
-import { type IEdge } from '../../components/edge';
-import { type INode } from '../../components/node';
-import Transformer, { type IGraphInput } from './transformer';
+import type { IEdge } from '../../components/edge';
+import type { INode } from '../../components/node';
+import Transformer, { IGraphInput } from './transformer';
 
 export default class BwdlTransformer extends Transformer {
   static transform(input: any) {
@@ -33,7 +32,7 @@ export default class BwdlTransformer extends Transformer {
     const nodes: INode[] = [];
     const edges: IEdge[] = [];
 
-    nodeNames.forEach(name => {
+    nodeNames.forEach((name) => {
       const currentNode = input.States[name];
 
       if (!currentNode) {
@@ -56,7 +55,7 @@ export default class BwdlTransformer extends Transformer {
       // create edges
       if (currentNode.Type === 'Choice') {
         // multiple edges
-        currentNode.Choices.forEach(choice => {
+        currentNode.Choices.forEach((choice: any) => {
           if (input.States[choice.Next]) {
             edges.push({
               source: name,

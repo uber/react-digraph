@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,7 +14,7 @@
   limitations under the License.
 */
 
-import LayoutEngine, { type IPosition } from './layout-engine';
+import LayoutEngine, { IPosition } from './layout-engine';
 
 class SnapToGrid extends LayoutEngine {
   calculatePosition(node: IPosition) {

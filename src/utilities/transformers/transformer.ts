@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,12 +14,12 @@
   limitations under the License.
 */
 
-import { type IEdge } from '../../components/edge';
-import { type INode } from '../../components/node';
+import type { IEdge } from '../../components/edge';
+import type { INode } from '../../components/node';
 
 export type IGraphInput = {
-  nodes: INode[],
-  edges: IEdge[],
+  nodes: INode[];
+  edges: IEdge[];
 };
 
 export default class Transformer {
@@ -41,7 +40,7 @@ export default class Transformer {
    * @param graphInput
    * @returns any
    */
-  static revert(graphInput: IGraphInput): any {
+  static revert(graphInput: IGraphInput) {
     return graphInput;
   }
 }

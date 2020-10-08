@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -19,39 +18,40 @@ import * as d3 from 'd3';
 import * as React from 'react';
 import { intersect, shape } from 'svg-intersections';
 import { Point2D, Matrix2D } from 'kld-affine';
+// @ts-ignore
 import { Intersection } from 'kld-intersections';
 import GraphUtils from '../utilities/graph-util';
-import { type INode } from './node';
+import type { INode } from './node';
 import { EdgeHandleText } from './edge-handle-text';
 import { EdgeLabelText } from './edge-label-text';
 
 export type IEdge = {
-  source: string,
-  target: string,
-  type?: null | string,
-  handleText?: string,
-  handleTooltipText?: string,
-  label_from?: string,
-  label_to?: string,
-  [key: string]: any,
+  source: string;
+  target: string;
+  type?: null | string;
+  handleText?: string;
+  handleTooltipText?: string;
+  label_from?: string;
+  label_to?: string;
+  [key: string]: any;
 };
 
 export type ITargetPosition = {
-  x: number,
-  y: number,
+  x: number;
+  y: number;
 };
 
 type IEdgeProps = {
-  data: IEdge,
-  edgeTypes: any, // TODO: create an edgeTypes interface
-  edgeHandleSize?: number,
-  nodeSize?: number,
-  sourceNode: INode | null,
-  targetNode: INode | ITargetPosition,
-  isSelected: boolean,
-  nodeKey: string,
-  viewWrapperElem: HTMLDivElement,
-  rotateEdgeHandle: true,
+  data: IEdge;
+  edgeTypes: any; // TODO: create an edgeTypes interface
+  edgeHandleSize?: number;
+  nodeSize?: number;
+  sourceNode: INode | null;
+  targetNode: INode | ITargetPosition;
+  isSelected: boolean;
+  nodeKey: string;
+  viewWrapperElem: HTMLDivElement;
+  rotateEdgeHandle: true;
 };
 
 class Edge extends React.Component<IEdgeProps> {
@@ -83,22 +83,22 @@ class Edge extends React.Component<IEdgeProps> {
   }
 
   static getArrowSize(viewWrapperElem: HTMLDivElement) {
-    const defEndArrowElement: any = viewWrapperElem.querySelector(
+    const defEndArrowElement = viewWrapperElem.querySelector(
       `defs>marker>.arrow`
     );
 
-    const arrowRect = defEndArrowElement.getBoundingClientRect();
+    const arrowRect = defEndArrowElement?.getBoundingClientRect();
     const size = {
-      bottom: arrowRect.bottom,
-      top: arrowRect.top,
+      bottom: arrowRect?.bottom,
+      top: arrowRect?.top,
       // Firefox doesn't calculate width and height, so we need to pull
       // from the attributes.
-      height: arrowRect.height || defEndArrowElement.getAttribute('height'),
-      width: arrowRect.width || defEndArrowElement.getAttribute('width'),
-      left: arrowRect.left,
-      right: arrowRect.right,
-      y: arrowRect.y,
-      x: arrowRect.x,
+      height: arrowRect?.height || defEndArrowElement?.getAttribute('height'),
+      width: arrowRect?.width || defEndArrowElement?.getAttribute('width'),
+      left: arrowRect?.left,
+      right: arrowRect?.right,
+      y: arrowRect?.y,
+      x: arrowRect?.x,
     };
 
     return size;
@@ -121,9 +121,8 @@ class Edge extends React.Component<IEdgeProps> {
 
       d = d && d.replace(/^M/, '');
       d = d && d.replace(/L/, ',');
-      let dArr = (d && d.split(',')) || [];
 
-      dArr = dArr.map(dimension => {
+      const dArr = ((d && d.split(',')) || []).map((dimension) => {
         return parseFloat(dimension);
       });
 
@@ -213,12 +212,12 @@ class Edge extends React.Component<IEdgeProps> {
     // create matrix for rotating around center of rectangle
     const rotation = Matrix2D.rotationAt(angle, center);
     // create new rotated polygon
-    const rotatedPoly = poly.map(p => p.transform(rotation));
+    const rotatedPoly = poly.map((p) => p.transform(rotation));
 
     // find intersections
     const pathIntersect = Intersection.intersectLinePolygon(
-      line.params[0],
-      line.params[1],
+      (line.params as any)[0],
+      (line.params as any)[1],
       rotatedPoly
     );
 
@@ -292,9 +291,8 @@ class Edge extends React.Component<IEdgeProps> {
     }
 
     d = d.replace(/^M /, '');
-    let dArr = d.split(/[ ,]+/);
 
-    dArr = dArr.map((val, index) => {
+    const dArr = d.split(/[ ,]+/).map((val: string, index: number) => {
       let isEnd = false;
 
       if (/Z$/.test(val)) {
@@ -421,7 +419,7 @@ class Edge extends React.Component<IEdgeProps> {
     trg: any,
     nodeKey: string,
     includesArrow?: boolean = true,
-    viewWrapperElem: React.RefObject<HTMLDivElement>
+    viewWrapperElem: HTMLDivElement
   ) {
     let response = Edge.getDefaultIntersectResponse();
 

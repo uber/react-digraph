@@ -3,8 +3,8 @@
 import React from 'react';
 
 type EdgeHandleTextProps = {
-  handleText: string,
-  edgeHandleTranslation: string,
+  handleText: string;
+  edgeHandleTranslation: string;
 };
 
 export function EdgeHandleText({

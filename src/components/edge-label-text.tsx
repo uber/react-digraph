@@ -1,11 +1,10 @@
-// @flow
 import React from 'react';
-import { type IEdge } from './edge';
+import type { IEdge } from './edge';
 
 type EdgeLabelTextProps = {
-  data: IEdge,
-  edgeHandleRotation: [string, boolean],
-  edgeHandleTranslation: string,
+  data: IEdge;
+  edgeHandleRotation: [string, boolean];
+  edgeHandleTranslation: string;
 };
 
 export function EdgeLabelText({

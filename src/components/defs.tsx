@@ -21,17 +21,17 @@ import BackgroundPattern from './background-pattern';
 import DropshadowFilter from './dropshadow-filter';
 
 type IDefsProps = {
-  gridSpacing?: number,
-  gridDotSize?: number,
-  edgeArrowSize?: number,
-  nodeTypes: any, // TODO: define nodeTypes, nodeSubtypes, and edgeTypes. Must have shape and shapeId!
-  nodeSubtypes: any,
-  edgeTypes: any,
-  renderDefs?: () => any | null,
+  gridSpacing?: number;
+  gridDotSize?: number;
+  edgeArrowSize?: number;
+  nodeTypes: any; // TODO: define nodeTypes, nodeSubtypes, and edgeTypes. Must have shape and shapeId!
+  nodeSubtypes: any;
+  edgeTypes: any;
+  renderDefs?: () => any | null;
 };
 
 type IDefsState = {
-  graphConfigDefs: any,
+  graphConfigDefs: unknown[];
 };
 
 class Defs extends React.Component<IDefsProps, IDefsState> {
@@ -41,11 +41,11 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
   };
 
   static getDerivedStateFromProps(nextProps: any, prevState: any) {
-    const graphConfigDefs = [];
+    const graphConfigDefs: unknown = [];
 
-    Defs.processGraphConfigDefs(nextProps.nodeTypes, graphConfigDefs);
-    Defs.processGraphConfigDefs(nextProps.nodeSubtypes, graphConfigDefs);
-    Defs.processGraphConfigDefs(nextProps.edgeTypes, graphConfigDefs);
+    this.processGraphConfigDefs(nextProps.nodeTypes, graphConfigDefs);
+    this.processGraphConfigDefs(nextProps.nodeSubtypes, graphConfigDefs);
+    this.processGraphConfigDefs(nextProps.edgeTypes, graphConfigDefs);
 
     return {
       graphConfigDefs,
@@ -53,7 +53,7 @@ class Defs extends React.Component<IDefsProps, IDefsState> {
   }
 
   static processGraphConfigDefs(typesObj: any, graphConfigDefs: any) {
-    Object.keys(typesObj).forEach(type => {
+    Object.keys(typesObj).forEach((type) => {
       const safeId = typesObj[type].shapeId
         ? typesObj[type].shapeId.replace('#', '')
         : 'graphdef';

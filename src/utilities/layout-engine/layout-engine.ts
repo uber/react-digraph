@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -16,13 +15,13 @@
 */
 
 // import { type IGraphViewProps } from '../../components/graph-view';
-import { type IGraphViewProps } from '../../components/graph-view-props';
-import { type INode } from '../../components/node';
+import type { IGraphViewProps } from '../../components/graph-view-props';
+import type { INode } from '../../components/node';
 
 export type IPosition = {
-  x: number,
-  y: number,
-  [key: string]: any,
+  x: number;
+  y: number;
+  [key: string]: any;
 };
 
 export default class LayoutEngine {

@@ -18,7 +18,7 @@
 import * as React from 'react';
 
 type IArrowheadMarkerProps = {
-  edgeArrowSize?: number,
+  edgeArrowSize?: number;
 };
 
 class ArrowheadMarker extends React.Component<IArrowheadMarkerProps> {
@@ -45,8 +45,9 @@ class ArrowheadMarker extends React.Component<IArrowheadMarkerProps> {
       >
         <path
           className="arrow"
-          d={`M0,-${edgeArrowSize / 2}L${edgeArrowSize},0L0,${edgeArrowSize /
-            2}`}
+          d={`M0,-${edgeArrowSize / 2}L${edgeArrowSize},0L0,${
+            edgeArrowSize / 2
+          }`}
           width={`${edgeArrowSize}`}
           height={`${edgeArrowSize}`}
         />

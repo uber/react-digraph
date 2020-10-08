@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,31 +14,16 @@
   limitations under the License.
 */
 
-import * as React from 'react';
+import None from './none';
+import SnapToGrid from './snap-to-grid';
+import VerticalTree from './vertical-tree';
+import HorizontalTree from './horizontal-tree';
 
-type ICircleProps = {
-  gridSpacing?: number,
-  gridDotSize?: number,
+export type LayoutEngine = None | SnapToGrid | VerticalTree | HorizontalTree;
+
+export const LayoutEngines = {
+  None,
+  SnapToGrid,
+  VerticalTree,
+  HorizontalTree,
 };
-
-class Circle extends React.Component<ICircleProps> {
-  static defaultProps = {
-    gridDotSize: 2,
-    gridSpacing: 36,
-  };
-
-  render() {
-    const { gridSpacing, gridDotSize } = this.props;
-
-    return (
-      <circle
-        className="circle"
-        cx={(gridSpacing || 0) / 2}
-        cy={(gridSpacing || 0) / 2}
-        r={gridDotSize}
-      />
-    );
-  }
-}
-
-export default Circle;

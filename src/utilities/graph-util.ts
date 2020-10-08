@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -15,24 +14,34 @@
   limitations under the License.
 */
 
-import { type IEdge } from '../components/edge';
-import { type INode } from '../components/node';
+import type { IEdge } from '../components/edge';
+import type { INode } from '../components/node';
 import fastDeepEqual from 'fast-deep-equal';
 
 export type INodeMapNode = {
-  node: INode,
-  originalArrIndex: number,
-  incomingEdges: IEdge[],
-  outgoingEdges: IEdge[],
-  parents: INode[],
-  children: INode[],
+  node: INode;
+  originalArrIndex: number;
+  incomingEdges: IEdge[];
+  outgoingEdges: IEdge[];
+  parents: INode[];
+  children: INode[];
 };
 
 class GraphUtils {
   static getNodesMap(nodes: any, key: string) {
-    const map = {};
-    const arr = Object.keys(nodes).map(key => nodes[key]);
-    let item = null;
+    const map: {
+      [key: string]: {
+        children: any[];
+        incomingEdges: any[];
+        node: typeof nodes[0];
+        originalArrIndex: number;
+        outgoingEdges: any[];
+        parents: any[];
+      };
+    } = {};
+
+    const arr = Object.keys(nodes).map((key) => nodes[key]);
+    let item: any;
 
     for (let i = 0; i < arr.length; i++) {
       item = arr[i];
@@ -50,8 +59,13 @@ class GraphUtils {
   }
 
   static getEdgesMap(arr: IEdge[]) {
-    const map = {};
-    let item = null;
+    const map: {
+      [key: string]: {
+        edge: IEdge;
+        originalArrIndex: number;
+      };
+    } = {};
+    let item: IEdge;
 
     for (let i = 0; i < arr.length; i++) {
       item = arr[i];
@@ -95,7 +109,7 @@ class GraphUtils {
     }
   }
 
-  static removeElementFromDom(id: string, searchElement?: any = document) {
+  static removeElementFromDom(id: string, searchElement: any = document) {
     const container = searchElement.querySelector(`#${id}`);
 
     if (container && container.parentNode) {
@@ -107,11 +121,11 @@ class GraphUtils {
     return false;
   }
 
-  static findParent(element: any, selector: string) {
+  static findParent(element: any, selector: string): any {
     if (element && element.matches && element.matches(selector)) {
       return element;
     } else if (element && element.parentNode) {
-      return GraphUtils.findParent(element.parentNode, selector);
+      return this.findParent(element.parentNode, selector);
     }
 
     return null;
@@ -128,7 +142,7 @@ class GraphUtils {
         !Array.isArray(arg) &&
         arg !== null
       ) {
-        Object.keys(arg).forEach(key => {
+        Object.keys(arg).forEach((key) => {
           if (arg[key]) {
             className += ` ${key}`;
           }
@@ -141,7 +155,12 @@ class GraphUtils {
     return className.trim();
   }
 
-  static yieldingLoop(count, chunksize, callback, finished) {
+  static yieldingLoop(
+    count: number,
+    chunksize: number,
+    callback: Function,
+    finished?: Function
+  ) {
     let i = 0;
 
     (function chunk() {

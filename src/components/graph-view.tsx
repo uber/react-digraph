@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -20,45 +19,45 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/main.scss';
 import { LayoutEngines } from '../utilities/layout-engine/layout-engine-config';
-import { type IGraphViewProps } from './graph-view-props';
+import type { IGraphViewProps } from './graph-view-props';
 import Background from './background';
 import Defs from './defs';
-import Edge, { type IEdge } from './edge';
+import Edge, { IEdge } from './edge';
 import GraphControls from './graph-controls';
-import GraphUtils, { type INodeMapNode } from '../utilities/graph-util';
-import Node, { type INode, type IPoint } from './node';
+import GraphUtils, { INodeMapNode } from '../utilities/graph-util';
+import Node, { INode, IPoint } from './node';
 
 type IViewTransform = {
-  k: number,
-  x: number,
-  y: number,
+  k: number;
+  x: number;
+  y: number;
 };
 
 type IBBox = {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 type IGraphViewState = {
-  viewTransform?: IViewTransform,
-  hoveredNode: boolean,
-  nodesMap: any,
-  edgesMap: any,
-  nodes: any[],
-  edges: any[],
-  selectingNode: boolean,
-  hoveredNodeData: INode | null,
-  edgeEndNode: INode | null,
-  draggingEdge: boolean,
-  draggedEdge: any,
-  componentUpToDate: boolean,
-  selectedEdgeObj: any,
-  selectedNodeObj: any,
-  documentClicked: boolean,
-  svgClicked: boolean,
-  focused: boolean,
+  viewTransform?: IViewTransform;
+  hoveredNode: boolean;
+  nodesMap: any;
+  edgesMap: any;
+  nodes: any[];
+  edges: any[];
+  selectingNode: boolean;
+  hoveredNodeData: INode | null;
+  edgeEndNode: INode | null;
+  draggingEdge: boolean;
+  draggedEdge: any;
+  componentUpToDate: boolean;
+  selectedEdgeObj: any;
+  selectedNodeObj: any;
+  documentClicked: boolean;
+  svgClicked: boolean;
+  focused: boolean;
 };
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
@@ -142,7 +141,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   renderEdgesTimeout: any;
   zoom: any;
   viewWrapper: React.RefObject<HTMLDivElement>;
-  graphSvg: React.RefObject<SVGElement>;
+  graphSvg: React.RefObject<SVGSVGElement>;
   entities: any;
   selectedView: any;
   view: any;
@@ -345,7 +344,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     let node = null;
     let prevNode = null;
 
-    GraphUtils.yieldingLoop(nodes.length, 50, i => {
+    GraphUtils.yieldingLoop(nodes.length, 50, (i) => {
       node = nodes[i];
       prevNode = this.getNodeById(node[nodeKey], oldNodesMap);
 
@@ -385,12 +384,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       if (prevNodeMapNode) {
         // remove all outgoing edges
-        prevNodeMapNode.outgoingEdges.forEach(edge => {
+        prevNodeMapNode.outgoingEdges.forEach((edge) => {
           this.removeEdgeElement(edge.source, edge.target);
         });
 
         // remove all incoming edges
-        prevNodeMapNode.incomingEdges.forEach(edge => {
+        prevNodeMapNode.incomingEdges.forEach((edge) => {
           this.removeEdgeElement(edge.source, edge.target);
         });
       }
@@ -418,7 +417,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (!this.state.draggingEdge) {
       let edge = null;
 
-      GraphUtils.yieldingLoop(edges.length, 50, i => {
+      GraphUtils.yieldingLoop(edges.length, 50, (i) => {
         edge = edges[i];
 
         if (edge.source == null || !edge.target == null) {
@@ -489,7 +488,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const nodeId = selectedNode[nodeKey];
 
     // delete from local state
-    const newNodesArr = nodes.filter(node => node[nodeKey] !== nodeId);
+    const newNodesArr = nodes.filter((node) => node[nodeKey] !== nodeId);
 
     this.setState({
       componentUpToDate: false,
@@ -520,7 +519,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const newEdgesArr = edges.filter(edge => {
+    const newEdgesArr = edges.filter((edge) => {
       return !(
         edge.source === selectedEdge.source &&
         edge.target === selectedEdge.target
@@ -575,7 +574,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  handleWrapperKeydown: KeyboardEventListener = d => {
+  handleWrapperKeydown: KeyboardEventListener = (d) => {
     const {
       selected,
       disableBackspace,
@@ -649,8 +648,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         return;
       }
 
-      const originalArrIndex = (this.getEdgeBySourceTarget(source, target): any)
-        .originalArrIndex;
+      const originalArrIndex = (this.getEdgeBySourceTarget(
+        source,
+        target
+      ) as any).originalArrIndex;
 
       newState = {
         ...newState,
@@ -775,7 +776,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
     const { canCreateEdge, readOnly } = this.props;
-    const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
+    const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId, null);
 
     if (!nodeMapNode) {
       return;
@@ -862,7 +863,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (shiftKey) {
       this.createNewEdge();
     } else {
-      const nodeMap = this.getNodeById(nodeId);
+      const nodeMap = this.getNodeById(nodeId, null);
 
       if (nodeMap) {
         Object.assign(nodeMap.node, position);
@@ -1077,7 +1078,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const off = Edge.calculateOffset(
       nodeSize,
-      (this.getNodeById(draggedEdge.source): any).node,
+      this.getNodeById(draggedEdge.source, null)?.node,
       targetPosition,
       nodeKey
     );
@@ -1154,8 +1155,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       },
       () => {
         // handle creating or swapping edges
-        const sourceNodeById = this.getNodeById(draggedEdge.source);
-        const targetNodeById = this.getNodeById(draggedEdge.target);
+        const sourceNodeById = this.getNodeById(draggedEdge.source, null);
+        const targetNodeById = this.getNodeById(draggedEdge.target, null);
 
         if (!sourceNodeById || !targetNodeById) {
           return;
@@ -1368,7 +1369,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const nodeKey = this.props.nodeKey;
     const id = `node-${node[nodeKey]}`;
     const element: any = this.getNodeComponent(id, node);
-    const nodesMapNode = this.getNodeById(node[nodeKey]);
+    const nodesMapNode = this.getNodeById(node[nodeKey], null);
 
     this.renderNode(id, element);
 
@@ -1413,10 +1414,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    node.incomingEdges.forEach(edge => {
+    node.incomingEdges.forEach((edge) => {
       this.asyncRenderEdge(edge, nodeMoving);
     });
-    node.outgoingEdges.forEach(edge => {
+    node.outgoingEdges.forEach((edge) => {
       this.asyncRenderEdge(edge, nodeMoving);
     });
   }
@@ -1431,9 +1432,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   getEdgeComponent = (edge: IEdge | any) => {
-    const sourceNodeMapNode = this.getNodeById(edge.source);
+    const sourceNodeMapNode = this.getNodeById(edge.source, null);
     const sourceNode = sourceNodeMapNode ? sourceNodeMapNode.node : null;
-    const targetNodeMapNode = this.getNodeById(edge.target);
+    const targetNodeMapNode = this.getNodeById(edge.target, null);
     const targetNode = targetNodeMapNode ? targetNodeMapNode.node : null;
     const targetPosition = edge.targetPosition;
     const { edgeTypes, edgeHandleSize, nodeSize, nodeKey } = this.props;
@@ -1618,14 +1619,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
             edgeTypes={edgeTypes}
             renderDefs={renderDefs}
           />
-          <g className="view" ref={el => (this.view = el)}>
+          <g className="view" ref={(el) => (this.view = el)}>
             <Background
               gridSize={gridSize}
               backgroundFillId={backgroundFillId}
               renderBackground={renderBackground}
             />
 
-            <g className="entities" ref={el => (this.entities = el)} />
+            <g className="entities" ref={(el) => (this.entities = el)} />
           </g>
         </svg>
         <div
@@ -1674,7 +1675,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.setZoom(next.k, next.x, next.y, this.props.zoomDur);
   }
 
-  panToNode(id: string, zoom?: boolean = false) {
+  panToNode(id: string, zoom = false) {
     if (!this.entities) {
       return;
     }
@@ -1684,7 +1685,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.panToEntity(node, zoom);
   }
 
-  panToEdge(source: string, target: string, zoom?: boolean = false) {
+  panToEdge(source: string, target: string, zoom = false) {
     if (!this.entities) {
       return;
     }

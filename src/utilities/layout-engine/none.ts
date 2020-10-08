@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -14,17 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+import LayoutEngine, { IPosition } from './layout-engine';
 
-import None from './none';
-import SnapToGrid from './snap-to-grid';
-import VerticalTree from './vertical-tree';
-import HorizontalTree from './horizontal-tree';
+class None extends LayoutEngine {
+  calculatePosition(node: IPosition) {
+    return node;
+  }
+}
 
-export type LayoutEngine = None | SnapToGrid | VerticalTree | HorizontalTree;
-
-export const LayoutEngines = {
-  None,
-  SnapToGrid,
-  VerticalTree,
-  HorizontalTree,
-};
+export default None;

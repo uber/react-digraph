@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -16,7 +15,7 @@
 */
 
 import * as dagre from 'dagre';
-import { type INode } from '../../components/node';
+import type { INode } from '../../components/node';
 import SnapToGrid from './snap-to-grid';
 
 class VerticalTree extends SnapToGrid {
@@ -35,8 +34,8 @@ class VerticalTree extends SnapToGrid {
 
     const spacing = nodeSpacingMultiplier || 1.5;
     const size = (nodeSize || 1) * spacing;
-    let height;
-    let width;
+    let height: number;
+    let width: number;
 
     if (nodeHeight) {
       height = nodeHeight * spacing;
@@ -46,7 +45,7 @@ class VerticalTree extends SnapToGrid {
       width = nodeWidth * spacing;
     }
 
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (!nodesMap) {
         return;
       }
@@ -64,14 +63,14 @@ class VerticalTree extends SnapToGrid {
       }
 
       g.setNode(nodeKeyId, { width: width || size, height: height || size });
-      nodesMapNode.outgoingEdges.forEach(edge => {
+      nodesMapNode.outgoingEdges.forEach((edge: any) => {
         g.setEdge(nodeKeyId, `key-${edge.target}`);
       });
     });
 
     dagre.layout(g);
 
-    g.nodes().forEach(gNodeId => {
+    g.nodes().forEach((gNodeId) => {
       const nodesMapNode = nodesMap[gNodeId];
 
       // gNode is the dagre representation

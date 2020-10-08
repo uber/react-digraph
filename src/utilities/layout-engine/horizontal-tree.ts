@@ -1,4 +1,3 @@
-// @flow
 /*
   Copyright(c) 2018 Uber Technologies, Inc.
 
@@ -16,7 +15,7 @@
 */
 
 import * as dagre from 'dagre';
-import { type INode } from '../../components/node';
+import type { INode } from '../../components/node';
 import SnapToGrid from './snap-to-grid';
 
 class HorizontalTree extends SnapToGrid {
@@ -26,7 +25,6 @@ class HorizontalTree extends SnapToGrid {
       nodeSize,
       nodeHeight,
       nodeWidth,
-      nodeSizeOverridesAllowed,
       nodeSpacingMultiplier,
       nodeLocationOverrides,
       graphConfig,
@@ -47,14 +45,12 @@ class HorizontalTree extends SnapToGrid {
     );
     g.setDefaultEdgeLabel(() => ({}));
 
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (!nodesMap) {
         return;
       }
 
-      const {
-        sizeOverrides: { width: widthOverride, height: heightOverride } = {},
-      } = node;
+      const { sizeOverrides = {} } = node;
 
       const nodeId = node[nodeKey];
       const nodeKeyId = `key-${nodeId}`;
@@ -69,12 +65,10 @@ class HorizontalTree extends SnapToGrid {
       }
 
       g.setNode(nodeKeyId, {
-        width:
-          nodeSizeOverridesAllowed && widthOverride ? widthOverride : width,
-        height:
-          nodeSizeOverridesAllowed && heightOverride ? heightOverride : height,
+        width,
+        height,
       });
-      nodesMapNode.outgoingEdges.forEach(edge => {
+      nodesMapNode.outgoingEdges.forEach((edge: any) => {
         g.setEdge(nodeKeyId, `key-${edge.target}`);
       });
     });
@@ -96,7 +90,7 @@ class HorizontalTree extends SnapToGrid {
       }
     }
 
-    g.nodes().forEach(gNodeId => {
+    g.nodes().forEach((gNodeId) => {
       const nodesMapNode = nodesMap[gNodeId];
 
       // gNode is the dagre representation
