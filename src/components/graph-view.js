@@ -67,6 +67,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canSwapEdge: () => true,
     canDeleteEdge: () => true,
     canDeleteNode: () => true,
+    canDragNode: () => true,
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
@@ -774,7 +775,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
-    const { canCreateEdge, readOnly } = this.props;
+    const { canCreateEdge, readOnly, onMoveNode, canDragNode } = this.props;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
     if (!nodeMapNode) {
@@ -783,8 +784,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     const node = nodeMapNode.node;
 
-    if (readOnly) {
+    if (readOnly || !canDragNode(nodeId)) {
       return;
+    }
+
+    if (onMoveNode) {
+      onMoveNode(node);
     }
 
     if (!shiftKey && !this.state.draggingEdge) {
