@@ -129,7 +129,8 @@ declare module 'react-digraph' {
       sourceNode: INode,
       hoveredNode: INode | null,
       swapEdge: IEdge
-    ) => boolean,
+    ) => boolean;
+    canDragNode?: (nodeId: string) => boolean;
     onBackgroundClick?: (x: number, y: number, event: any) => void,
     onCopySelected?: () => void;
     onCreateEdge?: (sourceNode: INode, targetNode: INode) => void;
@@ -139,10 +140,11 @@ declare module 'react-digraph' {
     onPasteSelected?: (
       selectedNode: INode,
       xyCoords?: { x: number, y: number }
-    ) => void,
+    ) => void;
     onSelectEdge?: (selectedEdge: IEdge) => void;
     onSelectNode?: (node: INode | null, event: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
+    onMoveNode?: (node: INode) => void;
     onUndo?: () => void;
     onUpdateNode?: (node: INode) => void;
     renderBackground?: (gridSize?: number) => any;
