@@ -41,12 +41,13 @@ describe('NodeShape component', () => {
   it('renders', () => {
     const g = output.find('g');
     const use = g.find('use');
+    const nodeSubtypeShape = g.find('.subtype-shape');
 
     expect(g.props().width).toEqual(100);
     expect(g.props().height).toEqual(100);
     expect(use.length).toEqual(1);
     expect(use.props()).toEqual({
-      className: 'node',
+      class: 'node',
       height: 100,
       href: '#test',
       is: 'use',
@@ -54,69 +55,35 @@ describe('NodeShape component', () => {
       x: -50,
       y: -50,
     });
+    expect(nodeSubtypeShape.length).toEqual(0);
   });
 
-  // it('calls the renderNode callback', () => {
-  //   output.setProps({
-  //     renderNode,
-  //   });
+  it('returns a node shape with a subtype', () => {
+    nodeData.subtype = 'fake';
+    nodeSubtypes.fake = {
+      shapeId: '#blah',
+    };
+    output = shallow(
+      <NodeShape
+        data={nodeData}
+        nodeTypes={nodeTypes}
+        nodeSubtypes={nodeSubtypes}
+        nodeKey="uuid"
+        nodeSize={100}
+      />
+    );
+    // using "is" attributes makes classname selectors break, we have to use an attribute selector instead
+    const nodeSubtypeShape = output.find('[class="subtype-shape"]');
 
-  //   const result = output.instance().renderShape();
-
-  //   expect(renderNode).toHaveBeenCalledWith(
-  //     output.instance().nodeRef,
-  //     nodeData,
-  //     '1',
-  //     false,
-  //     false
-  //   );
-  //   expect(result).toEqual('success');
-  // });
-
-  // it('returns a node shape without a subtype', () => {
-  //   const result: ShallowWrapper<any, any> = shallow(
-  //     output.instance().renderShape()
-  //   );
-
-  //   expect(renderNode).not.toHaveBeenCalledWith();
-  //   expect(result.props().className).toEqual('shape');
-  //   expect(result.props().height).toEqual(100);
-  //   expect(result.props().width).toEqual(100);
-
-  //   const nodeShape = result.find('.node');
-  //   const nodeSubtypeShape = result.find('.subtype-shape');
-
-  //   expect(nodeShape.length).toEqual(1);
-  //   expect(nodeSubtypeShape.length).toEqual(0);
-
-  //   expect(nodeShape.props().className).toEqual('node');
-  //   expect(nodeShape.props().x).toEqual(-50);
-  //   expect(nodeShape.props().y).toEqual(-50);
-  //   expect(nodeShape.props().width).toEqual(100);
-  //   expect(nodeShape.props().height).toEqual(100);
-  //   expect(nodeShape.props().href).toEqual('#test');
-  // });
-
-  // it('returns a node shape with a subtype', () => {
-  //   nodeData.subtype = 'fake';
-  //   nodeSubtypes.fake = {
-  //     shapeId: '#blah',
-  //   };
-  //   output.setProps({
-  //     data: nodeData,
-  //     nodeSubtypes,
-  //   });
-  //   const result: ShallowWrapper<any, any> = shallow(
-  //     output.instance().renderShape()
-  //   );
-  //   const nodeSubtypeShape = result.find('.subtype-shape');
-
-  //   expect(nodeSubtypeShape.length).toEqual(1);
-  //   expect(nodeSubtypeShape.props().className).toEqual('subtype-shape');
-  //   expect(nodeSubtypeShape.props().x).toEqual(-50);
-  //   expect(nodeSubtypeShape.props().y).toEqual(-50);
-  //   expect(nodeSubtypeShape.props().width).toEqual(100);
-  //   expect(nodeSubtypeShape.props().height).toEqual(100);
-  //   expect(nodeSubtypeShape.props().href).toEqual('#blah');
-  // });
+    expect(nodeSubtypeShape.length).toEqual(1);
+    expect(nodeSubtypeShape.props()).toEqual({
+      class: 'subtype-shape',
+      height: 100,
+      href: '#blah',
+      is: 'use',
+      width: 100,
+      x: -50,
+      y: -50,
+    });
+  });
 });
