@@ -111,7 +111,7 @@ export function calculateOffset(
   const trgNode = nodeElem.querySelector(`use.node`);
 
   // the test for trgNode.getAttributeNS makes sure we really have a node and not some other type of object
-  if (!trgNode || (trgNode && !trgNode.getAttributeNS)) {
+  if (!trgNode || (trgNode && !trgNode.getAttribute)) {
     return response;
   }
 

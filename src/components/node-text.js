@@ -15,7 +15,8 @@
   limitations under the License.
 */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef, useCallback } from 'react';
+import * as d3 from 'd3';
 import GraphUtils from '../utilities/graph-util';
 import { type INode } from './node';
 import {
@@ -48,6 +49,8 @@ function NodeText({
   maxTitleChars = DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
   lineOffset = DEFAULT_NODE_TEXT_LINE_OFFSET,
 }: INodeTextProps) {
+  const nodeTextRef = useRef();
+
   const title = data.title;
   const className = useMemo(
     () =>
@@ -56,16 +59,31 @@ function NodeText({
       }),
     [isSelected]
   );
+
+  // prevents the SVG click event from firing when the node text is selected
+  const handleTextClick = useCallback((event: any) => {
+    event.stopPropagation();
+  }, []);
+
   const typeText = useMemo(() => getTypeText(data, nodeTypes), [
     data,
     nodeTypes,
   ]);
 
+  useEffect(() => {
+    d3.select(nodeTextRef.current).on('click', () => handleTextClick(d3.event));
+  }, [handleTextClick]);
+
   return (
-    <text className={className} textAnchor="middle">
-      {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
+    // Note: when "is" is used, we must use real HTML attributes, like text-anchor, not React-based attributes
+    <text ref={nodeTextRef} class={className} text-anchor="middle" is="text">
+      {!!typeText && (
+        <tspan opacity="0.5" is="tspan">
+          {typeText}
+        </tspan>
+      )}
       {title && (
-        <tspan x={0} dy={lineOffset} fontSize="10px">
+        <tspan x={0} dy={lineOffset} fontSize="10px" is="tspan">
           {title.length > maxTitleChars
             ? title.substr(0, maxTitleChars)
             : title}

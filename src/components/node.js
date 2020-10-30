@@ -176,7 +176,6 @@ function Node({
       const shiftKey = sourceEvent.shiftKey;
 
       onNodeUpdate(position.current, data[nodeKey], shiftKey || drawingEdge);
-
       onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
     },
     [onNodeUpdate, data, nodeKey, drawingEdge, onNodeSelected]
@@ -267,7 +266,7 @@ function Node({
 
   return (
     <g
-      className={className}
+      class={className} // must use class instead of className when "is" is used
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       id={id}
@@ -275,6 +274,7 @@ function Node({
       opacity={opacity}
       transform={`translate(${x}, ${y})`}
       style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
+      is="g"
     >
       {renderNode ? (
         renderNode(nodeRef, data, data[nodeKey], isSelected, hovered)

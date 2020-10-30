@@ -1,9 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { mount, shallow, ShallowWrapper } from 'enzyme';
 import Node from '../../src/components/node';
 import NodeText from '../../src/components/node-text';
+import NodeShape from '../../src/components/node-shape';
+import { act } from 'react-dom/test-utils';
 
 // jest.mock('d3');
 
@@ -54,7 +56,7 @@ describe('Node component', () => {
     //   sourceEvent: {},
     // };
 
-    output = shallow(
+    output = mount(
       <Node
         data={nodeData}
         index={0}
@@ -84,17 +86,24 @@ describe('Node component', () => {
 
   describe('render method', () => {
     it('renders', () => {
-      expect(output.props().className).toEqual('node emptyNode');
-      expect(output.props().transform).toEqual('translate(5, 10)');
+      const gElement = output.children().at(0);
 
-      const nodeShape = output.find('.shape > use');
+      expect(gElement.props().className).toEqual('node emptyNode');
+      expect(gElement.props().transform).toEqual('translate(5, 10)');
+      const nodeShape = output.find(NodeShape);
 
-      expect(nodeShape.props().className).toEqual('node');
-      expect(nodeShape.props().x).toEqual(-50);
-      expect(nodeShape.props().y).toEqual(-50);
-      expect(nodeShape.props().width).toEqual(100);
-      expect(nodeShape.props().height).toEqual(100);
-      expect(nodeShape.props().href).toEqual('#test');
+      expect(nodeShape.props().data).toEqual({
+        title: 'Test',
+        type: 'emptyNode',
+        uuid: '1',
+        x: 5,
+        y: 10,
+      });
+      expect(nodeShape.props().nodeSize).toEqual(100);
+      expect(nodeShape.props().nodeHeight).not.toBeDefined();
+      expect(nodeShape.props().nodeWidth).not.toBeDefined();
+      expect(nodeShape.props().selected).toEqual(false);
+      expect(nodeShape.props().hovered).toEqual(false);
 
       const nodeText = output.find(NodeText);
 
@@ -106,10 +115,13 @@ describe('Node component', () => {
         test: true,
       };
 
-      output
-        .find('g.node')
-        .props()
-        .onMouseOver(event);
+      act(() => {
+        output
+          .find('g.node')
+          .props()
+          .onMouseOver(event);
+      });
+
       expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData, true);
     });
 
@@ -118,15 +130,19 @@ describe('Node component', () => {
         test: true,
       };
 
-      output.setState({
-        hovered: true,
+      act(() => {
+        output
+          .find('g.node')
+          .props()
+          .onMouseOver(event);
+
+        output
+          .find('g.node')
+          .props()
+          .onMouseOut(event);
       });
-      output
-        .find('g.node')
-        .props()
-        .onMouseOut(event);
+
       expect(onNodeMouseLeave).toHaveBeenCalledWith(event, nodeData);
-      expect(output.state().hovered).toEqual(false);
     });
   });
 
@@ -138,93 +154,20 @@ describe('Node component', () => {
     });
 
     it('calls the renderNodeText callback', () => {
-      output.setProps({
-        renderNodeText,
+      act(() => {
+        output.setProps({
+          renderNodeText,
+        });
+
+        output.update();
       });
 
-      const result = output.instance().renderText();
-
       expect(renderNodeText).toHaveBeenCalledWith(nodeData, 'test-node', false);
-      expect(result).toEqual('success');
+      expect(output.text()).toEqual('success');
     });
 
     it('creates its own NodeText element', () => {
-      const result = output.instance().renderText();
-
-      expect(renderNodeText).not.toHaveBeenCalled();
-      expect(result.type.prototype.constructor.name).toEqual('NodeText');
-    });
-  });
-
-  describe('renderShape method', () => {
-    let renderNode;
-
-    beforeEach(() => {
-      renderNode = jest.fn().mockReturnValue('success');
-    });
-
-    it('calls the renderNode callback', () => {
-      output.setProps({
-        renderNode,
-      });
-
-      const result = output.instance().renderShape();
-
-      expect(renderNode).toHaveBeenCalledWith(
-        output.instance().nodeRef,
-        nodeData,
-        '1',
-        false,
-        false
-      );
-      expect(result).toEqual('success');
-    });
-
-    it('returns a node shape without a subtype', () => {
-      const result: ShallowWrapper<any, any> = shallow(
-        output.instance().renderShape()
-      );
-
-      expect(renderNode).not.toHaveBeenCalledWith();
-      expect(result.props().className).toEqual('shape');
-      expect(result.props().height).toEqual(100);
-      expect(result.props().width).toEqual(100);
-
-      const nodeShape = result.find('.node');
-      const nodeSubtypeShape = result.find('.subtype-shape');
-
-      expect(nodeShape.length).toEqual(1);
-      expect(nodeSubtypeShape.length).toEqual(0);
-
-      expect(nodeShape.props().className).toEqual('node');
-      expect(nodeShape.props().x).toEqual(-50);
-      expect(nodeShape.props().y).toEqual(-50);
-      expect(nodeShape.props().width).toEqual(100);
-      expect(nodeShape.props().height).toEqual(100);
-      expect(nodeShape.props().href).toEqual('#test');
-    });
-
-    it('returns a node shape with a subtype', () => {
-      nodeData.subtype = 'fake';
-      nodeSubtypes.fake = {
-        shapeId: '#blah',
-      };
-      output.setProps({
-        data: nodeData,
-        nodeSubtypes,
-      });
-      const result: ShallowWrapper<any, any> = shallow(
-        output.instance().renderShape()
-      );
-      const nodeSubtypeShape = result.find('.subtype-shape');
-
-      expect(nodeSubtypeShape.length).toEqual(1);
-      expect(nodeSubtypeShape.props().className).toEqual('subtype-shape');
-      expect(nodeSubtypeShape.props().x).toEqual(-50);
-      expect(nodeSubtypeShape.props().y).toEqual(-50);
-      expect(nodeSubtypeShape.props().width).toEqual(100);
-      expect(nodeSubtypeShape.props().height).toEqual(100);
-      expect(nodeSubtypeShape.props().href).toEqual('#blah');
+      expect(output.find(NodeText)).toHaveLength(1);
     });
   });
 

@@ -684,13 +684,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       onPasteSelected,
     } = this.props;
 
+    const { selectingNode, selectedNodeObj } = this.state;
+
     if (this.isPartOfEdge(d3.event.target)) {
       this.handleEdgeSelected(d3.event);
 
       return; // If any part of the edge is clicked, return
     }
 
-    if (this.state.selectingNode) {
+    if (selectingNode) {
       this.setState({
         focused: true,
         selectingNode: false,
@@ -707,8 +709,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         onBackgroundClick(xycoords[0], xycoords[1], d3.event);
       }
 
-      const previousSelection =
-        (this.state.selectedNodeObj && this.state.selectedNodeObj.node) || null;
+      const previousSelection = selectedNodeObj?.node || null;
 
       // Clicking with ctrl will paste
       if (

@@ -88,6 +88,12 @@ $background-color: #f9f9f9;
 
       cursor: pointer;
       user-select: none;
+
+      &.edge-label-text {
+        font-size: 11px; 
+        stroke: none;
+        fill: black;
+      }
     }
 
     &.selected {

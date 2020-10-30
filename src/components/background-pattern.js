@@ -17,7 +17,6 @@
 
 import * as React from 'react';
 import Circle from './circle';
-import { DEFAULT_GRID_DOT_SIZE, DEFAULT_GRID_SPACING } from '../constants';
 
 type IBackgroundPatternProps = {
   gridSpacing?: number,
@@ -25,8 +24,8 @@ type IBackgroundPatternProps = {
 };
 
 function BackgroundPattern({
-  gridSpacing = DEFAULT_GRID_SPACING,
-  gridDotSize = DEFAULT_GRID_DOT_SIZE,
+  gridSpacing,
+  gridDotSize,
 }: IBackgroundPatternProps) {
   return (
     <pattern
