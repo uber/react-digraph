@@ -79,7 +79,7 @@ describe('Node component', () => {
     it('renders', () => {
       const gElement = output.children().at(0);
 
-      expect(gElement.props().class).toEqual('node emptyNode');
+      expect(gElement.props().className).toEqual('node emptyNode');
       expect(gElement.props().transform).toEqual('translate(5, 10)');
       const nodeShape = output.find(NodeShape);
 

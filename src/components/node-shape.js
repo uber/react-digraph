@@ -71,26 +71,24 @@ export default function NodeShape({
   height = nodeHeightAttr ? parseInt(nodeHeightAttr, 10) : height;
 
   return (
-    <g class={nodeShapeContainerClassName} width={width} height={height} is="g">
+    <g className={nodeShapeContainerClassName} width={width} height={height}>
       {!!data.subtype && (
         <use
-          class={nodeSubtypeClassName}
+          className={nodeSubtypeClassName}
           x={-width / 2}
           y={-height / 2}
           width={width}
           height={height}
           href={nodeSubtypeHref}
-          is="use"
         />
       )}
       <use
-        class={nodeClassName}
+        className={nodeClassName}
         x={-width / 2}
         y={-height / 2}
         width={width}
         height={height}
         href={nodeTypeHref}
-        is="use"
       />
     </g>
   );
