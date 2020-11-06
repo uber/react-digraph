@@ -1016,9 +1016,7 @@ describe('GraphView component', () => {
       event = {
         sourceEvent: {
           target: {
-            classList: {
-              contains: jest.fn().mockReturnValue(true),
-            },
+            matches: jest.fn().mockReturnValue(true),
             id: 'a_b',
           },
           buttons: 0,
@@ -1043,7 +1041,7 @@ describe('GraphView component', () => {
     });
 
     it('does nothing when the sourceEvent is not an edge', () => {
-      event.sourceEvent.target.classList.contains.mockReturnValue(false);
+      event.sourceEvent.target.matches = jest.fn().mockReturnValue(false);
       instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
@@ -1069,6 +1067,7 @@ describe('GraphView component', () => {
         },
       };
       event.sourceEvent.buttons = 2;
+      instance.isArrowClicked = jest.fn().mockReturnValue(true);
       instance.handleZoomStart(event);
       expect(output.state().draggedEdge).toEqual(edge);
       expect(instance.dragEdge).toHaveBeenCalled();

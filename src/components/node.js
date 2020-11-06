@@ -106,7 +106,6 @@ function Node({
   onNodeSelected = () => {},
   onNodeUpdate = () => {},
 }: INodeProps) {
-  const [drawingEdge, setDrawingEdge] = useState(false);
   const [hovered, setHovered] = useState(false);
   const nodeRef = useRef();
   const oldSibling = useRef();
@@ -120,22 +119,26 @@ function Node({
   const handleMouseOver = useCallback(
     (event: any) => {
       // Detect if mouse is already down and do nothing.
-      let isHovered = false;
+      const isHovered = true;
 
-      if (event && event.buttons !== 1) {
-        isHovered = true;
-        setHovered(isHovered);
-      }
-
+      setHovered(isHovered);
       onNodeMouseEnter(event, data, isHovered);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onNodeMouseEnter, data]
   );
 
   const handleMouseOut = useCallback(
     (event: any) => {
-      setHovered(false);
-      onNodeMouseLeave(event, data);
+      if (
+        (event && !event.relatedTarget) ||
+        (event &&
+          !event.relatedTarget?.matches('.edge-overlay-path') &&
+          !GraphUtils.findParent(event.relatedTarget, 'g.node', 'svg.graph'))
+      ) {
+        setHovered(false);
+        onNodeMouseLeave(event, data);
+      }
     },
     [onNodeMouseLeave, data]
   );
@@ -163,7 +166,6 @@ function Node({
 
       const { sourceEvent } = event;
 
-      setDrawingEdge(false);
       position.current.pointerOffset = null;
 
       if (oldSibling.current?.parentElement) {
@@ -175,10 +177,10 @@ function Node({
 
       const shiftKey = sourceEvent.shiftKey;
 
-      onNodeUpdate(position.current, data[nodeKey], shiftKey || drawingEdge);
-      onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge, sourceEvent);
+      onNodeUpdate(position.current, data[nodeKey], shiftKey);
+      onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
     },
-    [onNodeUpdate, data, nodeKey, drawingEdge, onNodeSelected]
+    [onNodeUpdate, data, nodeKey, onNodeSelected]
   );
 
   const handleMouseMove = useCallback(
@@ -201,7 +203,6 @@ function Node({
       }
 
       if (shiftKey) {
-        setDrawingEdge(true);
         // draw edge
         // undo the target offset subtraction done by Edge
         const off = calculateOffset(
@@ -216,7 +217,7 @@ function Node({
         newState.x += off.xOff;
         newState.y += off.yOff;
         // now tell the graph that we're actually drawing an edge
-      } else if (!drawingEdge && layoutEngine) {
+      } else if (layoutEngine) {
         // move node using the layout engine
         Object.assign(newState, layoutEngine.getPositionForNode(newState));
       }
@@ -232,7 +233,6 @@ function Node({
     [
       centerNodeOnMove,
       data,
-      drawingEdge,
       layoutEngine,
       nodeKey,
       nodeSize,
@@ -248,10 +248,8 @@ function Node({
       .on('start', handleDragStart)
       .on('end', () => handleDragEnd(d3.event));
 
-    d3.select(nodeRef.current)
-      .on('mouseout', handleMouseOut)
-      .call(dragFunction);
-  }, [handleDragEnd, handleDragStart, handleMouseMove, handleMouseOut]);
+    d3.select(nodeRef.current).call(dragFunction);
+  }, [handleDragEnd, handleDragStart, handleMouseMove, handleMouseOver]);
 
   const className = useMemo(
     () =>

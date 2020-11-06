@@ -37,6 +37,7 @@ export type IEdge = {
   handleTooltipText?: string,
   label_from?: string,
   label_to?: string,
+  isUsingTargetPosition?: Boolean,
   [key: string]: any,
 };
 
@@ -56,7 +57,8 @@ type IEdgeProps = {
   isSelected: boolean,
   nodeKey: string,
   viewWrapperElem: HTMLDivElement,
-  rotateEdgeHandle: true,
+  rotateEdgeHandle?: boolean,
+  isBeingDragged: boolean,
 };
 
 function Edge({
@@ -70,6 +72,7 @@ function Edge({
   sourceNode,
   targetNode,
   nodeKey,
+  isBeingDragged = false,
 }: IEdgeProps) {
   const edgePathRef = useRef();
   const edgeOverlayRef = useRef();
@@ -110,6 +113,9 @@ function Edge({
   const className = GraphUtils.classNames('edge', {
     selected: isSelected,
   });
+  const isBeingDraggedStyle = {
+    pointerEvents: isBeingDragged ? 'none' : 'auto',
+  };
 
   return (
     <g
@@ -122,13 +128,19 @@ function Edge({
           ref={edgePathRef}
           className="edge-path"
           d={pathDescription || undefined}
+          style={{
+            ...isBeingDraggedStyle,
+          }}
         />
         <use
           href={getShapeId(edgeTypes, data)}
           width={edgeHandleSize}
           height={edgeHandleSize}
           transform={edgeHandleTransformation}
-          style={{ transform: edgeHandleTransformation }}
+          style={{
+            transform: edgeHandleTransformation,
+            ...isBeingDraggedStyle,
+          }}
         />
         {data.handleText && (
           <EdgeHandleText
@@ -153,6 +165,9 @@ function Edge({
           data-source={data.source}
           data-target={data.target}
           d={pathDescription || undefined}
+          style={{
+            ...isBeingDraggedStyle,
+          }}
         />
       </g>
     </g>

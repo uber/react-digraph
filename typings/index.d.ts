@@ -228,7 +228,7 @@ declare module 'react-digraph' {
 
     static removeElementFromDom(id: string): boolean;
 
-    static findParent(element: Element, selector: string): Element | null;
+    static findParent(element: Element, selector: string, stopAtSelector?: string): Element | null;
 
     static classNames(...args: any[]): string;
 

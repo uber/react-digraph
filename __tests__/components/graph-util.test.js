@@ -148,9 +148,17 @@ describe('GraphUtils class', () => {
   });
 
   describe('findParent method', () => {
+    const isNotSVGGraphSelector = selector => {
+      if (selector === 'svg.graph') {
+        return false;
+      }
+
+      return true;
+    };
+
     it('returns the element if an element matches a selector', () => {
       const element = {
-        matches: jest.fn().mockReturnValue(true),
+        matches: isNotSVGGraphSelector,
       };
       const parent = GraphUtils.findParent(element, 'fake');
 
@@ -159,8 +167,9 @@ describe('GraphUtils class', () => {
 
     it('returns the parent if an element contains a parentNode property', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jest.fn().mockReturnValue(true),
+          matches: isNotSVGGraphSelector,
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');
@@ -170,8 +179,9 @@ describe('GraphUtils class', () => {
 
     it('returns null when there is no match', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jest.fn().mockReturnValue(false),
+          matches: selector => !isNotSVGGraphSelector(selector),
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');

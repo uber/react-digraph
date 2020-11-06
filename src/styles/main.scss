@@ -74,6 +74,10 @@ $background-color: #f9f9f9;
     }
   }
 
+  // .edge-overlay-path, .edge-path {
+  //   pointer-events: none;
+  // }
+
   .edge {
     color: $light-color;
     stroke: $primary-color;
@@ -105,8 +109,6 @@ $background-color: #f9f9f9;
         stroke: $light-color;
       }
     }
-
-
   }
 
   .edge-mouse-handler {
