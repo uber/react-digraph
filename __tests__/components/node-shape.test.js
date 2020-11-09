@@ -72,6 +72,7 @@ describe('NodeShape component', () => {
         nodeSize={100}
       />
     );
+
     const nodeSubtypeShape = output.find('.subtype-shape');
 
     expect(nodeSubtypeShape.length).toEqual(1);
