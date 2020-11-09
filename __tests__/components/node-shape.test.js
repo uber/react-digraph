@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import NodeShape from '../../src/components/node-shape';
 
 describe('NodeShape component', () => {
@@ -47,13 +47,13 @@ describe('NodeShape component', () => {
     expect(g.props().height).toEqual(100);
     expect(use.length).toEqual(1);
     expect(use.props()).toEqual({
-      class: 'node',
+      className: 'node',
       height: 100,
       href: '#test',
-      is: 'use',
       width: 100,
       x: -50,
       y: -50,
+      xmlns: 'http://www.w3.org/2000/svg',
     });
     expect(nodeSubtypeShape.length).toEqual(0);
   });
@@ -72,18 +72,17 @@ describe('NodeShape component', () => {
         nodeSize={100}
       />
     );
-    // using "is" attributes makes classname selectors break, we have to use an attribute selector instead
-    const nodeSubtypeShape = output.find('[class="subtype-shape"]');
+    const nodeSubtypeShape = output.find('.subtype-shape');
 
     expect(nodeSubtypeShape.length).toEqual(1);
     expect(nodeSubtypeShape.props()).toEqual({
-      class: 'subtype-shape',
+      className: 'subtype-shape',
       height: 100,
       href: '#blah',
-      is: 'use',
       width: 100,
       x: -50,
       y: -50,
+      xmlns: 'http://www.w3.org/2000/svg',
     });
   });
 });
