@@ -75,15 +75,10 @@ function NodeText({
   }, [handleTextClick]);
 
   return (
-    // Note: when "is" is used, we must use real HTML attributes, like text-anchor, not React-based attributes
-    <text ref={nodeTextRef} class={className} text-anchor="middle" is="text">
-      {!!typeText && (
-        <tspan opacity="0.5" is="tspan">
-          {typeText}
-        </tspan>
-      )}
+    <text ref={nodeTextRef} className={className} textAnchor="middle">
+      {!!typeText && <tspan opacity="0.5">{typeText}</tspan>}
       {title && (
-        <tspan x={0} dy={lineOffset} fontSize="10px" is="tspan">
+        <tspan x={0} dy={lineOffset} fontSize="10px">
           {title.length > maxTitleChars
             ? title.substr(0, maxTitleChars)
             : title}

@@ -264,7 +264,7 @@ function Node({
 
   return (
     <g
-      class={className} // must use class instead of className when "is" is used
+      className={className}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       id={id}
@@ -272,7 +272,6 @@ function Node({
       opacity={opacity}
       transform={`translate(${x}, ${y})`}
       style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
-      is="g"
     >
       {renderNode ? (
         renderNode(nodeRef, data, data[nodeKey], isSelected, hovered)

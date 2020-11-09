@@ -47,10 +47,9 @@ describe('NodeShape component', () => {
     expect(g.props().height).toEqual(100);
     expect(use.length).toEqual(1);
     expect(use.props()).toEqual({
-      class: 'node',
+      className: 'node',
       height: 100,
       href: '#test',
-      is: 'use',
       width: 100,
       x: -50,
       y: -50,
@@ -72,15 +71,14 @@ describe('NodeShape component', () => {
         nodeSize={100}
       />
     );
-    // using "is" attributes makes classname selectors break, we have to use an attribute selector instead
-    const nodeSubtypeShape = output.find('[class="subtype-shape"]');
+
+    const nodeSubtypeShape = output.find('.subtype-shape');
 
     expect(nodeSubtypeShape.length).toEqual(1);
     expect(nodeSubtypeShape.props()).toEqual({
-      class: 'subtype-shape',
+      className: 'subtype-shape',
       height: 100,
       href: '#blah',
-      is: 'use',
       width: 100,
       x: -50,
       y: -50,
