@@ -24,12 +24,16 @@ describe('BackgroundPattern component', () => {
     it('renders with props', () => {
       output.setProps({
         gridDotSize: 3,
-        gridSpacing: 10
+        gridSpacing: 10,
       });
       expect(output.props().width).toEqual(10);
       expect(output.props().height).toEqual(10);
       expect(output.children().length).toEqual(1);
-      const circleProps = output.children().first().props();
+      const circleProps = output
+        .children()
+        .first()
+        .props();
+
       expect(circleProps.gridSpacing).toEqual(10);
       expect(circleProps.gridDotSize).toEqual(3);
     });

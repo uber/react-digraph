@@ -22,27 +22,35 @@ describe('ArrowheadMarker component', () => {
       expect(output.props().markerHeight).toEqual('8');
 
       expect(output.children().length).toEqual(1);
-      const arrowPathProps = output.children().first().props();
+      const arrowPathProps = output
+        .children()
+        .first()
+        .props();
+
       expect(arrowPathProps.className).toEqual('arrow');
       expect(arrowPathProps.d).toEqual('M0,-4L8,0L0,4');
     });
 
     it('renders with props', () => {
       output.setProps({
-        edgeArrowSize: 3
+        edgeArrowSize: 3,
       });
       expect(output.props().viewBox).toEqual('0 -1.5 3 3');
       expect(output.props().refX).toEqual('1.5');
       expect(output.props().markerWidth).toEqual('3');
       expect(output.props().markerHeight).toEqual('3');
 
-      const arrowPathProps = output.children().first().props();
+      const arrowPathProps = output
+        .children()
+        .first()
+        .props();
+
       expect(arrowPathProps.d).toEqual('M0,-1.5L3,0L0,1.5');
     });
 
-    it('renders without an edgeArrowSize', () => {
+    it('renders without an edge arrow', () => {
       output.setProps({
-        edgeArrowSize: null
+        edgeArrowSize: 0,
       });
 
       expect(output.getElement()).toBeNull();

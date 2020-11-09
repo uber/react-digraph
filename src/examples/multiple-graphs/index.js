@@ -83,7 +83,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
         style={{
           display: 'grid',
           gridTemplateColumns: 'auto auto',
-          height: 'calc(100% - 25px)',
+          height: 'calc(100% - 36px)',
           gridColumnGap: '2px',
           backgroundColor: '#000',
         }}
