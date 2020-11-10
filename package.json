@@ -1,7 +1,7 @@
 {
   "name": "react-digraph",
   "description": "directed graph react component",
-  "version": "7.0.0-alpha1",
+  "version": "7.0.0-alpha2",
   "keywords": [
     "uber-library",
     "babel",
