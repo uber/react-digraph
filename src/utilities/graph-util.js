@@ -108,7 +108,7 @@ class GraphUtils {
   }
 
   static findParent(element: any, selector: string, stopAtSelector?: string) {
-    if (!element || (stopAtSelector && element?.matches(stopAtSelector))) {
+    if (!element || (stopAtSelector && element?.matches?.(stopAtSelector))) {
       return null;
     }
 
