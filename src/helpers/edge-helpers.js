@@ -115,7 +115,17 @@ export function calculateOffset(
     return response;
   }
 
-  const href = trgNode.getAttribute('href');
+  let href = trgNode.getAttribute('href');
+
+  if (!href) {
+    href = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+
+    if (href) {
+      console.warn(
+        'react-digraph deprecation: Using the xlinkHref attribute is deprecated, please use href instead.'
+      );
+    }
+  }
 
   if (!href) {
     return response;
