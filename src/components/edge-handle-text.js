@@ -13,9 +13,10 @@ export function EdgeHandleText({
 }: EdgeHandleTextProps) {
   return (
     <text
-      className="edge-text"
+      className="edge-text edge-handle-text"
       textAnchor="middle"
       alignmentBaseline="central"
+      dominantBaseline="middle"
       transform={`${edgeHandleTranslation}`}
     >
       {handleText}

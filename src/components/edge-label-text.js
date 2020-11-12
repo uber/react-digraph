@@ -20,10 +20,9 @@ export function EdgeLabelText({
 
   return (
     <text
-      className="edge-text"
+      className="edge-text edge-label-text"
       textAnchor="middle"
       alignmentBaseline="central"
-      style={{ fontSize: '11px', stroke: 'none', fill: 'black' }}
       transform={`${edgeHandleTranslation} ${rotation} translate(0,-5)`}
     >
       {title}
