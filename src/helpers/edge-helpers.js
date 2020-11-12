@@ -119,12 +119,6 @@ export function calculateOffset(
 
   if (!href) {
     href = trgNode.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-
-    if (href) {
-      console.warn(
-        'react-digraph deprecation: Using the xlinkHref attribute is deprecated, please use href instead.'
-      );
-    }
   }
 
   if (!href) {
