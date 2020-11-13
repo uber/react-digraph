@@ -58,7 +58,7 @@ type INodeProps = {
   nodeSize?: number,
   nodeWidth?: number,
   nodeHeight?: number,
-  onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void,
+  onNodeMouseEnter: (event: any, data: any) => void,
   onNodeMouseLeave: (event: any, data: any) => void,
   onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
   onNodeSelected: (
@@ -118,11 +118,10 @@ function Node({
 
   const handleMouseOver = useCallback(
     (event: any) => {
-      // Detect if mouse is already down and do nothing.
       const isHovered = true;
 
       setHovered(isHovered);
-      onNodeMouseEnter(event, data, isHovered);
+      onNodeMouseEnter(event, data);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [onNodeMouseEnter, data]
