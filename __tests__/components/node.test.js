@@ -112,7 +112,7 @@ describe('Node component', () => {
         node.props().onMouseOver(event);
       });
 
-      expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData, true);
+      expect(onNodeMouseEnter).toHaveBeenCalledWith(event, nodeData);
     });
 
     it('calls handleMouseOut', () => {

@@ -873,7 +873,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
-    const { draggingEdge } = this.state;
+    const { draggingEdge, hoveredNode, edgeEndNode } = this.state;
 
     if (readOnly) {
       return;
@@ -881,13 +881,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey) {
+    if (shiftKey && hoveredNode && edgeEndNode) {
       this.createNewEdge();
     } else {
       if (draggingEdge) {
         this.removeCustomEdge();
         this.endDragEdge();
-        this.createNewEdge();
       }
 
       const nodeMap = this.getNodeById(nodeId);
@@ -917,11 +916,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   };
 
-  handleNodeMouseEnter = (event: any, data: any, hovered: boolean) => {
-    const { hoveredNode, draggingEdge } = this.state;
+  handleNodeMouseEnter = (event: any, data: any) => {
+    const { draggingEdge, hoveredNodeData } = this.state;
 
     // hovered is false when creating edges
-    if (hoveredNode && draggingEdge) {
+    if (hoveredNodeData && data !== hoveredNodeData && draggingEdge) {
       this.setState({
         edgeEndNode: data,
       });
@@ -934,25 +933,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   handleNodeMouseLeave = (event: any, data: any) => {
-    if (
-      !!GraphUtils.findParent(d3.event?.toElement, 'g.node', 'svg.graph') ||
-      !!GraphUtils.findParent(event?.relatedTarget, 'g.node', 'svg.graph') ||
-      !!GraphUtils.findParent(d3.event?.target, 'g.node', 'svg.graph') ||
-      !!GraphUtils.findParent(event?.target, 'g.node', 'svg.graph') ||
-      d3.event?.buttons === 1 ||
-      (event && event.buttons === 1)
-    ) {
-      // still within a node
-      return;
-    }
-
-    if (event?.relatedTarget) {
-      if (event.relatedTarget.matches('.edge-overlay-path')) {
-        return;
-      }
-
-      this.setState({ hoveredNode: false, edgeEndNode: null });
-    }
+    this.setState({
+      edgeEndNode: null,
+    });
   };
 
   handleNodeSelected = (
