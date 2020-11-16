@@ -95,8 +95,8 @@ class GraphUtils {
     }
   }
 
-  static removeElementFromDom(id: string) {
-    const container = document.getElementById(id);
+  static removeElementFromDom(id: string, searchElement?: any = document) {
+    const container = searchElement.querySelector(`#${id}`);
 
     if (container && container.parentNode) {
       container.parentNode.removeChild(container);
@@ -107,11 +107,19 @@ class GraphUtils {
     return false;
   }
 
-  static findParent(element: any, selector: string) {
-    if (element && element.matches && element.matches(selector)) {
+  static findParent(element: any, selector: string, stopAtSelector?: string) {
+    if (!element || (stopAtSelector && element?.matches?.(stopAtSelector))) {
+      return null;
+    }
+
+    if (element?.matches?.(selector)) {
       return element;
-    } else if (element && element.parentNode) {
-      return GraphUtils.findParent(element.parentNode, selector);
+    } else if (element?.parentNode) {
+      return GraphUtils.findParent(
+        element.parentNode,
+        selector,
+        stopAtSelector
+      );
     }
 
     return null;

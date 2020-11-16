@@ -214,7 +214,8 @@ All props are detailed below.
 | `onCreateEdge`             | `func`                     | `true`       | Called when an edge is created.                                                                                                                                                             |
 | `onSwapEdge`               | `func`                     | `true`       | Called when an edge `'target'` is swapped.                                                                                                                                                  |
 | `onDeleteEdge`             | `func`                     | `true`       | Called when an edge is deleted.                                                                                                                                                             |
-| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.                                                                                                                                                      |
+| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.  |                                                                                                                         
+| `onArrowClicked`        | `func`                     | `false`      | Called when the arrow head is clicked. |
 | `canDeleteNode`            | `func`                     | `false`      | Called before a node is deleted.                                                                                                                                                            |
 | `canCreateEdge`            | `func`                     | `false`      | Called before an edge is created.                                                                                                                                                           |
 | `canDeleteEdge`            | `func`                     | `false`      | Called before an edge is deleted.                                                                                                                                                           |
@@ -225,6 +226,7 @@ All props are detailed below.
 | `renderDefs`               | `func`                     | `false`      | Called to render SVG definitions.                                                                                                                                                           |
 | `renderBackground`         | `func`                     | `false`      | Called to render SVG background.                                                                                                                                                            |
 | `readOnly`                 | `bool`                     | `false`      | Disables all graph editing interactions.                                                                                                                                                    |
+| `disableBackspace`         | `bool`                     | `false`      | Disables using backspace to delete the selected node.                                                                                                                                            |
 | `maxTitleChars`            | `number`                   | `false`      | Truncates node title characters.                                                                                                                                                            |
 | `gridSize`                 | `number`                   | `false`      | Overall grid size.                                                                                                                                                                          |
 | `gridSpacing`              | `number`                   | `false`      | Grid spacing.                                                                                                                                                                               |
@@ -233,7 +235,7 @@ All props are detailed below.
 | `maxZoom`                  | `number`                   | `false`      | Maximum zoom percentage.                                                                                                                                                                    |
 | `nodeSize`                 | `number`                   | `false`      | Node bbox size.                                                                                                                                                                             |
 | `edgeHandleSize`           | `number`                   | `false`      | Edge handle size.                                                                                                                                                                           |
-| `edgeArrowSize`            | `number`                   | `false`      | Edge arrow size.                                                                                                                                                                            |
+| `edgeArrowSize`            | `number`                   | `false`      | Edge arrow size in pixels. Default 8. Set to 0 to hide arrow.                                                                                                                                                                           |
 | `zoomDelay`                | `number`                   | `false`      | Delay before zoom occurs.                                                                                                                                                                   |
 | `zoomDur`                  | `number`                   | `false`      | Duration of zoom transition.                                                                                                                                                                |
 | `showGraphControls`        | `boolean`                  | `false`      | Whether to show zoom controls.                                                                                                                                                              |
@@ -288,6 +290,7 @@ Prop Types:
   onUpdateNode: (node: INode) => void;
   onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
   onSelectEdge: (selectedEdge: IEdge) => void;
+  onArrowClicked?: (edge: IEdge) => void;
   canDeleteNode?: (selected: any) => boolean;
   canDeleteEdge?: (selected: any) => boolean;
   canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;

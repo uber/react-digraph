@@ -65,42 +65,45 @@ describe('GraphControls component', () => {
       });
       expect(modifyZoom).toHaveBeenCalledWith(0.8925000000000001);
     });
+
+    it('converts a zoomLevel value to a decimal-based slider position', () => {
+      output = shallow(
+        <GraphControls
+          zoomLevel={10}
+          zoomToFit={zoomToFit}
+          modifyZoom={modifyZoom}
+        />
+      );
+
+      const inputElem = output.find('input');
+
+      expect(inputElem.props().value).toEqual(729.6296296296296);
+    });
   });
 
   describe('zoom method', () => {
     it('calls modifyZoom callback with the new zoom delta', () => {
-      output.instance().zoom({
-        target: {
-          value: 55,
-        },
-      });
+      const inputElem = output.find('input');
+
+      inputElem.simulate('change', { target: { value: 55 } });
+
       expect(modifyZoom).toHaveBeenCalledWith(0.8925000000000001);
     });
 
     it('does not call modifyZoom callback when the zoom level is greater than max', () => {
-      output.instance().zoom({
-        target: {
-          value: 101,
-        },
-      });
+      const inputElem = output.find('input');
+
+      inputElem.simulate('change', { target: { value: 101 } });
+
       expect(modifyZoom).not.toHaveBeenCalled();
     });
 
     it('does not call modifyZoom callback when the zoom level is less than min', () => {
-      output.instance().zoom({
-        target: {
-          value: -1,
-        },
-      });
+      const inputElem = output.find('input');
+
+      inputElem.simulate('change', { target: { value: -1 } });
+
       expect(modifyZoom).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('zoomToSlider method', () => {
-    it('converts a value to a decimal-based slider position', () => {
-      const result = output.instance().zoomToSlider(10);
-
-      expect(result).toEqual(729.6296296296296);
     });
   });
 });

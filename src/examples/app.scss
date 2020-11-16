@@ -36,6 +36,7 @@ button {
 .app-header {
   border-bottom: 1px solid black;
   background: #f9f9f9;
+  height: 35px;
 
   > nav {
     height: 25px;
@@ -67,7 +68,6 @@ button {
 
 .graph-header {
   border-bottom: 1px solid black;
-  width: 100%;
   background-color: #fff;
   padding: 10px;
 

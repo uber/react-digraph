@@ -130,7 +130,7 @@ describe('GraphUtils class', () => {
         },
       };
 
-      jest.spyOn(document, 'getElementById').mockReturnValue(fakeElement);
+      jest.spyOn(document, 'querySelector').mockReturnValue(fakeElement);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
@@ -140,7 +140,7 @@ describe('GraphUtils class', () => {
     });
 
     it("does nothing when it can't find the element", () => {
-      jest.spyOn(document, 'getElementById').mockReturnValue(undefined);
+      jest.spyOn(document, 'querySelector').mockReturnValue(undefined);
       const result = GraphUtils.removeElementFromDom('fake');
 
       expect(result).toEqual(false);
@@ -148,9 +148,17 @@ describe('GraphUtils class', () => {
   });
 
   describe('findParent method', () => {
+    const isNotSVGGraphSelector = selector => {
+      if (selector === 'svg.graph') {
+        return false;
+      }
+
+      return true;
+    };
+
     it('returns the element if an element matches a selector', () => {
       const element = {
-        matches: jest.fn().mockReturnValue(true),
+        matches: isNotSVGGraphSelector,
       };
       const parent = GraphUtils.findParent(element, 'fake');
 
@@ -159,8 +167,9 @@ describe('GraphUtils class', () => {
 
     it('returns the parent if an element contains a parentNode property', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jest.fn().mockReturnValue(true),
+          matches: isNotSVGGraphSelector,
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');
@@ -170,8 +179,9 @@ describe('GraphUtils class', () => {
 
     it('returns null when there is no match', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jest.fn().mockReturnValue(false),
+          matches: selector => !isNotSVGGraphSelector(selector),
         },
       };
       const parent = GraphUtils.findParent(element, 'fake');
