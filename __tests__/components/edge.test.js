@@ -64,7 +64,7 @@ describe('Edge component', () => {
         .find('g')
         .first();
 
-      expect(g.props().className).toEqual('edge');
+      expect(g.props().className).toEqual('edge fake');
 
       const path = output.find('path').first();
 
