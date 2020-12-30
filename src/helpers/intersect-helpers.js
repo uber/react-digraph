@@ -105,8 +105,8 @@ export function getRotatedRectIntersect(
 
 export function getPathIntersect(
   defSvgPathElement: any,
-  src: any,
-  trg: any,
+  src?: any,
+  trg?: any,
   includesArrow?: boolean = true,
   viewWrapperElem: HTMLDivElement
 ) {
@@ -121,10 +121,10 @@ export function getPathIntersect(
     clientRect.width || defSvgPathElement.parentElement.getAttribute('width');
   const h =
     clientRect.height || defSvgPathElement.parentElement.getAttribute('height');
-  const trgX = trg.x || 0;
-  const trgY = trg.y || 0;
-  const srcX = src.x || 0;
-  const srcY = src.y || 0;
+  const trgX = trg?.x || 0;
+  const trgY = trg?.y || 0;
+  const srcX = src?.x || 0;
+  const srcY = src?.y || 0;
 
   // calculate the positions of each corner relative to the trg position
   const top = trgY - h / 2;
