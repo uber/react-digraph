@@ -236,9 +236,9 @@ export function getPathDescription(
   return getLine(linePoints);
 }
 
-export function getTheta(pt1?: ITargetPosition | null, pt2: ITargetPosition) {
-  const xComp = (pt2.x || 0) - (pt1?.x || 0);
-  const yComp = (pt2.y || 0) - (pt1?.y || 0);
+export function getTheta(pt1?: ITargetPosition | null, pt2?: ITargetPosition) {
+  const xComp = (pt2?.x || 0) - (pt1?.x || 0);
+  const yComp = (pt2?.y || 0) - (pt1?.y || 0);
   const theta = Math.atan2(yComp, xComp);
 
   return theta;
