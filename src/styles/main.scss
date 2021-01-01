@@ -161,6 +161,10 @@ $background-color: #f9f9f9;
       border-radius: 2px;
       cursor: pointer;
       margin: 0;
+      
+      > svg {    
+        vertical-align: sub; 
+      }
     }
   }
 
