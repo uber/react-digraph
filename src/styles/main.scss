@@ -19,6 +19,7 @@ $light-color: white;
 $dark-color: black;
 $light-grey: lightgrey;
 $background-color: #f9f9f9;
+$button-size: 31px;
 
 .view-wrapper {
   height: 100%;
@@ -125,15 +126,15 @@ $background-color: #f9f9f9;
     bottom: 30px;
     left: 15px;
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
     grid-gap: 15px;
     align-items: center;
     user-select: none;
 
     > .slider-wrapper {
-      background-color: white;
+      background-color: $light-color;
       color: $primary-color;
-      border: solid 1px lightgray;
+      border: solid 1px $light-grey;
       padding: 6.5px;
       border-radius: 2px;
 
@@ -151,13 +152,13 @@ $background-color: #f9f9f9;
       }
     }
 
-    > .slider-button {
-      background-color: white;
+    .slider-button {
+      background-color: $light-color;
       fill: $primary-color;
-      border: solid 1px lightgray;
+      border: solid 1px $light-grey;
       outline: none;
-      width: 31px;
-      height: 31px;
+      width: $button-size;
+      height: $button-size;
       border-radius: 2px;
       cursor: pointer;
       margin: 0;

@@ -77,6 +77,19 @@ button {
       margin-right: 5px;
     }
   }
+
+  .pan-list {
+    margin-left: 10px;
+  }
+
+  .allow-multiselect {
+    display: inline-block;
+    margin-left: 10px;
+
+    > label > input {
+      vertical-align: middle;
+    }
+  }
 }
 
 .sidebar {

@@ -407,17 +407,22 @@ describe('GraphView component', () => {
       expect(result.props.targetNode).toEqual(nodes[1]);
     });
 
-    it('handles missing nodes', () => {
+    it('returns null when sourceNode is not found', () => {
       const edge = {
-        source: 'a',
+        source: 'fake',
         target: 'b',
       };
       const result = instance.getEdgeComponent(edge);
+      expect(result).toEqual(null);
+    });
 
-      expect(result.type.prototype.constructor.name).toEqual('Edge');
-      expect(result.props.data).toEqual(edge);
-      expect(result.props.sourceNode).toEqual(null);
-      expect(result.props.targetNode).toEqual(undefined);
+    it('returns null when targetNode is not found and targetPosition is not defined', () => {
+      const edge = {
+        source: 'a',
+        target: 'fake',
+      };
+      const result = instance.getEdgeComponent(edge);
+      expect(result).toEqual(null);
     });
 
     it('handles a targetPosition', () => {

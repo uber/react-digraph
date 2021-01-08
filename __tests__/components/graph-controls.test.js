@@ -1,9 +1,7 @@
 // @flow
 
 import * as React from 'react';
-
 import { shallow } from 'enzyme';
-
 import GraphControls from '../../src/components/graph-controls';
 
 describe('GraphControls component', () => {

@@ -97,6 +97,7 @@ declare module 'react-digraph' {
   export const Edge: React.Component<IEdgeProps>;
 
   export type IGraphViewProps = {
+    allowMultiSelect?: boolean;
     backgroundFillId?: string;
     edges: any[];
     edgeArrowSize?: number;
