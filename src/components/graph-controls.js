@@ -25,8 +25,8 @@ import { DEFAULT_MAX_ZOOM, DEFAULT_MIN_ZOOM, SLIDER_STEPS } from '../constants';
 import { useZoomLevelToSliderValue } from '../hooks/useZoomLevelToSliderValue';
 import faExpand from '@fortawesome/fontawesome-free/svgs/solid/expand.svg';
 
-const parsedIcon = Parse(faExpand); //  parse SVG once
-const ExpandIcon = () => parsedIcon; // convert SVG to react component
+const parsedExpandIcon = Parse(faExpand); //  parse SVG once
+const ExpandIcon = () => parsedExpandIcon; // convert SVG to react component
 
 type IGraphControlProps = {
   maxZoom?: number,

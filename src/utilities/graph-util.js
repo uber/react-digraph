@@ -16,7 +16,7 @@
 */
 
 import { type IEdge } from '../components/edge';
-import { type INode } from '../components/node';
+import { type INode, type IPoint } from '../components/node';
 import fastDeepEqual from 'fast-deep-equal';
 
 export type INodeMapNode = {
@@ -174,6 +174,55 @@ class GraphUtils {
 
   static isEqual(prevNode: any, newNode: any) {
     return fastDeepEqual(prevNode, newNode);
+  }
+
+  static findNodesWithinArea(start: IPoint, end: IPoint, nodes: INode[]) {
+    const smallerX = Math.min(start.x, end.x);
+    const smallerY = Math.min(start.y, end.y);
+    const largerX = Math.max(end.x, start.x);
+    const largerY = Math.max(end.y, start.y);
+
+    const foundNodes = nodes.filter(node => {
+      return (
+        node.x >= smallerX &&
+        node.x <= largerX &&
+        node.y >= smallerY &&
+        node.y <= largerY
+      );
+    });
+
+    return foundNodes;
+  }
+
+  static findConnectedEdgesForNodes(
+    nodes: INode[],
+    edgesMap: any,
+    nodeKey: string
+  ) {
+    const foundEdges = [];
+
+    // using for loop to increase search speed
+    for (let i = 0; i < nodes.length; i++) {
+      const nodeA = nodes[i];
+
+      for (let j = i; j < nodes.length; j++) {
+        const nodeB = nodes[j];
+
+        // Find edges where A is connected to B or B is connected to A
+        const edgeAB = edgesMap[`${nodeA[nodeKey]}_${nodeB[nodeKey]}`];
+        const edgeBA = edgesMap[`${nodeB[nodeKey]}_${nodeA[nodeKey]}`];
+
+        if (edgeAB != null) {
+          foundEdges.push(edgeAB.edge);
+        }
+
+        if (edgeBA != null) {
+          foundEdges.push(edgeBA.edge);
+        }
+      }
+    }
+
+    return foundEdges;
   }
 }
 

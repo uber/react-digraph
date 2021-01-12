@@ -27,6 +27,7 @@ export type IBBox = {
 };
 
 export type IGraphViewProps = {
+  allowMultiselect?: boolean,
   backgroundFillId?: string,
   disableBackspace?: boolean,
   edges: any[],
@@ -50,6 +51,8 @@ export type IGraphViewProps = {
   nodeTypes: any,
   readOnly?: boolean,
   selected?: null | any,
+  selectedNodes?: null | INode[],
+  selectedEdges?: null | IEdge[],
   showGraphControls?: boolean,
   zoomDelay?: number,
   zoomDur?: number,
@@ -72,6 +75,7 @@ export type IGraphViewProps = {
     selectedNode: INode,
     xyCoords?: { x: number, y: number }
   ) => void,
+  onSelect?: ({ nodes: INode[] | null, edges: IEdge[] | null }) => void,
   onSelectEdge?: (selectedEdge: IEdge) => void,
   onSelectNode?: (node: INode | null, event: any) => void,
   onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
