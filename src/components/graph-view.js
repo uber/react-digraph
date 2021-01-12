@@ -194,13 +194,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   componentDidMount() {
     const { initialBBox, zoomDelay, minZoom, maxZoom } = this.props;
 
-    if (this.viewWrapper.current) {
-      document.addEventListener('keydown', this.handleWrapperKeydown);
-      this.viewWrapper.current.addEventListener(
-        'click',
-        this.handleDocumentClick
-      );
-    }
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('mousedown', this.handleDocumentClick, {
+      capture: true,
+      passive: true,
+    });
 
     this.zoom = d3
       .zoom()
@@ -243,11 +241,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleWrapperKeydown);
-    this.viewWrapper.current.removeEventListener(
-      'click',
-      this.handleDocumentClick
-    );
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('click', this.handleDocumentClick);
   }
 
   shouldComponentUpdate(
@@ -588,7 +583,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   };
 
-  handleWrapperKeydown: KeyboardEventListener = d => {
+  handleKeyDown: KeyboardEventListener = d => {
     const {
       selected,
       disableBackspace,
