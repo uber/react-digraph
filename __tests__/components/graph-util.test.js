@@ -1,48 +1,51 @@
 // @flow
 
-import GraphUtils from '../../src/components/graph-util';
-import { Edge } from '../../src';
+import GraphUtils from '../../src/utilities/graph-util';
 
 describe('GraphUtils class', () => {
   describe('getNodesMap method', () => {
     it('converts an array of nodes to a hash map', () => {
-      const nodes = [{
-        id: 'foo',
-        name: 'bar'
-      }];
+      const nodes = [
+        {
+          id: 'foo',
+          name: 'bar',
+        },
+      ];
       const nodesMap = GraphUtils.getNodesMap(nodes, 'id');
 
-      expect(JSON.stringify(nodesMap)).toEqual(JSON.stringify(
-        {
+      expect(JSON.stringify(nodesMap)).toEqual(
+        JSON.stringify({
           'key-foo': {
             children: [],
             incomingEdges: [],
             node: nodes[0],
             originalArrIndex: 0,
             outgoingEdges: [],
-            parents: []
-          }
-        }
-      ));
+            parents: [],
+          },
+        })
+      );
     });
   });
 
   describe('getEdgesMap method', () => {
     it('converts an array of edges to a hash map', () => {
-      const edges = [{
-        source: 'foo',
-        target: 'bar'
-      }];
+      const edges = [
+        {
+          source: 'foo',
+          target: 'bar',
+        },
+      ];
       const edgesMap = GraphUtils.getEdgesMap(edges);
 
-      expect(JSON.stringify(edgesMap)).toEqual(JSON.stringify(
-        {
+      expect(JSON.stringify(edgesMap)).toEqual(
+        JSON.stringify({
           foo_bar: {
             edge: edges[0],
-            originalArrIndex: 0
-          }
-        }
-      ));
+            originalArrIndex: 0,
+          },
+        })
+      );
     });
   });
 
@@ -57,7 +60,7 @@ describe('GraphUtils class', () => {
           node: { id: 'bar' },
           originalArrIndex: 0,
           outgoingEdges: [],
-          parents: []
+          parents: [],
         },
         'key-foo': {
           children: [],
@@ -65,16 +68,19 @@ describe('GraphUtils class', () => {
           node: { id: 'foo' },
           originalArrIndex: 0,
           outgoingEdges: [],
-          parents: []
-        }
+          parents: [],
+        },
       };
     });
 
     it('fills in various properties of a nodeMapNode', () => {
-      const edges = [{
-        source: 'foo',
-        target: 'bar'
-      }];
+      const edges = [
+        {
+          source: 'foo',
+          target: 'bar',
+        },
+      ];
+
       GraphUtils.linkNodesAndEdges(nodesMap, edges);
 
       expect(nodesMap['key-bar'].incomingEdges.length).toEqual(1);
@@ -88,10 +94,13 @@ describe('GraphUtils class', () => {
     });
 
     it('does not modify nodes if there is no matching target', () => {
-      const edges = [{
-        source: 'foo',
-        target: 'fake'
-      }];
+      const edges = [
+        {
+          source: 'foo',
+          target: 'fake',
+        },
+      ];
+
       GraphUtils.linkNodesAndEdges(nodesMap, edges);
 
       expect(nodesMap['key-foo'].outgoingEdges.length).toEqual(0);
@@ -99,10 +108,13 @@ describe('GraphUtils class', () => {
     });
 
     it('does not modify nodes if there is no matching source', () => {
-      const edges = [{
-        source: 'fake',
-        target: 'bar'
-      }];
+      const edges = [
+        {
+          source: 'fake',
+          target: 'bar',
+        },
+      ];
+
       GraphUtils.linkNodesAndEdges(nodesMap, edges);
 
       expect(nodesMap['key-bar'].incomingEdges.length).toEqual(0);
@@ -114,49 +126,66 @@ describe('GraphUtils class', () => {
     it('removes an element using an id', () => {
       const fakeElement = {
         parentNode: {
-          removeChild: jasmine.createSpy()
-        }
+          removeChild: jest.fn(),
+        },
       };
-      spyOn(document, 'getElementById').and.returnValue(fakeElement);
+
+      jest.spyOn(document, 'querySelector').mockReturnValue(fakeElement);
       const result = GraphUtils.removeElementFromDom('fake');
 
-      expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(fakeElement);
+      expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
+        fakeElement
+      );
       expect(result).toEqual(true);
     });
 
-    it('does nothing when it can\'t find the element', () => {
-      spyOn(document, 'getElementById').and.returnValue(undefined);
+    it("does nothing when it can't find the element", () => {
+      jest.spyOn(document, 'querySelector').mockReturnValue(undefined);
       const result = GraphUtils.removeElementFromDom('fake');
+
       expect(result).toEqual(false);
     });
   });
 
   describe('findParent method', () => {
+    const isNotSVGGraphSelector = selector => {
+      if (selector === 'svg.graph') {
+        return false;
+      }
+
+      return true;
+    };
+
     it('returns the element if an element matches a selector', () => {
       const element = {
-        matches: jasmine.createSpy().and.returnValue(true)
+        matches: isNotSVGGraphSelector,
       };
       const parent = GraphUtils.findParent(element, 'fake');
+
       expect(parent).toEqual(element);
     });
 
     it('returns the parent if an element contains a parentNode property', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jasmine.createSpy().and.returnValue(true)
-        }
+          matches: isNotSVGGraphSelector,
+        },
       };
       const parent = GraphUtils.findParent(element, 'fake');
+
       expect(parent).toEqual(element.parentNode);
     });
 
     it('returns null when there is no match', () => {
       const element = {
+        matches: jest.fn().mockReturnValue(false),
         parentNode: {
-          matches: jasmine.createSpy().and.returnValue(false)
-        }
+          matches: selector => !isNotSVGGraphSelector(selector),
+        },
       };
       const parent = GraphUtils.findParent(element, 'fake');
+
       expect(parent).toEqual(null);
     });
   });
@@ -164,25 +193,52 @@ describe('GraphUtils class', () => {
   describe('classNames static method', () => {
     it('handles multiple string-based arguments', () => {
       const result = GraphUtils.classNames('test', 'hello');
+
       expect(result).toEqual('test hello');
     });
 
     it('handles a string and an array', () => {
       const result = GraphUtils.classNames('test', ['hello', 'world']);
+
       expect(result).toEqual('test hello world');
     });
 
     it('handles a string and object', () => {
-      const result = GraphUtils.classNames('test', { hello: true, world: false });
+      const result = GraphUtils.classNames('test', {
+        hello: true,
+        world: false,
+      });
+
       expect(result).toEqual('test hello');
     });
   });
 
   describe('hasNodeShallowChanged', () => {
+    it('calls isEqual', () => {
+      jest.spyOn(GraphUtils, 'isEqual');
+      const node1 = { x: 0, y: 1 };
+      const node2 = { x: 0, y: 1 };
+
+      GraphUtils.hasNodeShallowChanged(node1, node2);
+
+      expect(GraphUtils.isEqual).toHaveBeenCalled();
+    });
+
+    it('does not find differences in 2 objects', () => {
+      const node1 = { x: 0, y: 1 };
+      const node2 = { x: 0, y: 1 };
+      const changed = GraphUtils.hasNodeShallowChanged(node1, node2);
+
+      expect(changed).toEqual(false);
+    });
+  });
+
+  describe('isEqual', () => {
     it('finds differences in 2 objects', () => {
       const node1 = { x: 0, y: 1 };
       const node2 = { x: 1, y: 2 };
       const changed = GraphUtils.hasNodeShallowChanged(node1, node2);
+
       expect(changed).toEqual(true);
     });
 
@@ -190,6 +246,7 @@ describe('GraphUtils class', () => {
       const node1 = { x: 0, y: 1 };
       const node2 = { x: 0, y: 1 };
       const changed = GraphUtils.hasNodeShallowChanged(node1, node2);
+
       expect(changed).toEqual(false);
     });
   });

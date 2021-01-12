@@ -32,10 +32,10 @@ export const SKINNY_TYPE = 'skinny';
 export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
+export const COMPLEX_CIRCLE_TYPE = 'complexCircle';
 
 export const nodeTypes = [EMPTY_TYPE, POLY_TYPE, SPECIAL_TYPE, SKINNY_TYPE];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
-
 
 const EmptyNodeShape = (
   <symbol viewBox="0 0 154 154" width="154" height="154" id="emptyNode">
@@ -57,7 +57,18 @@ const SpecialShape = (
 
 const PolyShape = (
   <symbol viewBox="0 0 88 72" id="poly" width="88" height="88">
-    <path d="M 0 36 18 0 70 0 88 36 70 72 18 72Z"></path>
+    <path d="M 0 36 18 0 70 0 88 36 70 72 18 72Z" />
+  </symbol>
+);
+
+const ComplexCircleShape = (
+  <symbol viewBox="0 0 100 100" id="complexCircle" width="100" height="100">
+    <circle cx="50" cy="50" r="50" fill="transparent" stroke="transparent" />
+    <circle cx="50" cy="50" r="34" />
+    <path
+      d="M50,0a50,50,0,1,0,50,50A50,50,0,0,0,50,0Zm0,90A40,40,0,1,1,90,50,40,40,0,0,1,50,90Z"
+      data-intersect-ignore="true"
+    />
   </symbol>
 );
 
@@ -69,7 +80,13 @@ const SkinnyShape = (
 
 const SpecialChildShape = (
   <symbol viewBox="0 0 154 154" id="specialChild">
-    <rect x="2.5" y="0" width="154" height="154" fill="rgba(30, 144, 255, 0.12)" />
+    <rect
+      x="2.5"
+      y="0"
+      width="154"
+      height="154"
+      fill="rgba(30, 144, 255, 0.12)"
+    />
   </symbol>
 );
 
@@ -81,7 +98,14 @@ const EmptyEdgeShape = (
 
 const SpecialEdgeShape = (
   <symbol viewBox="0 0 50 50" id="specialEdge">
-    <rect transform="rotate(45)" x="27.5" y="-7.5" width="15" height="15" fill="currentColor" />
+    <rect
+      transform="rotate(45)"
+      x="27.5"
+      y="-7.5"
+      width="15"
+      height="15"
+      fill="currentColor"
+    />
   </symbol>
 );
 
@@ -89,44 +113,49 @@ export default {
   EdgeTypes: {
     emptyEdge: {
       shape: EmptyEdgeShape,
-      shapeId: '#emptyEdge'
+      shapeId: '#emptyEdge',
     },
     specialEdge: {
       shape: SpecialEdgeShape,
-      shapeId: '#specialEdge'
-    }
+      shapeId: '#specialEdge',
+    },
   },
   NodeSubtypes: {
     specialChild: {
       shape: SpecialChildShape,
-      shapeId: '#specialChild'
-    }
+      shapeId: '#specialChild',
+    },
   },
   NodeTypes: {
     emptyNode: {
       shape: EmptyNodeShape,
       shapeId: '#emptyNode',
-      typeText: 'None'
+      typeText: 'None',
     },
     empty: {
       shape: CustomEmptyShape,
       shapeId: '#empty',
-      typeText: 'None'
+      typeText: 'None',
     },
     special: {
       shape: SpecialShape,
       shapeId: '#special',
-      typeText: 'Special'
+      typeText: 'Special',
     },
     skinny: {
       shape: SkinnyShape,
       shapeId: '#skinny',
-      typeText: 'Skinny'
+      typeText: 'Skinny',
     },
     poly: {
       shape: PolyShape,
-      shapeId: "#poly",
-      typeText: 'Poly'
-    }
-  }
+      shapeId: '#poly',
+      typeText: 'Poly',
+    },
+    complexCircle: {
+      shape: ComplexCircleShape,
+      shapeId: '#complexCircle',
+      typeText: '#complexCircle',
+    },
+  },
 };

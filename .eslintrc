@@ -6,16 +6,57 @@
     "codeFrame": false
   },
   "plugins": [
-    "flowtype"
+    "flowtype",
+    "jest"
   ],
   "env": {
-    "browser": true
+    "browser": true,
+    "jest/globals": true,
+    "node": true
   },
-  "extends": [],
-  "rules": {},
+  "extends": ["plugin:prettier/recommended", "eslint-config-fusion"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "bracketSpacing": true,
+        "singleQuote": true,
+        "trailingComma": "es5",
+        "jsxBracketSameLine": false
+      }
+    ],
+    "react/no-deprecated": ["warn"],
+    "flowtype/space-after-type-colon": ["off"],
+    "curly": ["error", "all"],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-use-before-define": "error",
+    "object-curly-spacing": ["error", "always"],
+    "space-before-blocks": "error",
+    "no-console": ["error", { "allow": ["warn", "error"]}],
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let", "var"],
+        "next": ["const", "let", "var"]
+      },
+      { "blankLine": "always", "prev": "directive", "next": "*" },
+      { "blankLine": "any", "prev": "directive", "next": "directive" },
+      { "blankLine": "always", "prev": "*", "next": "if" },
+      { "blankLine": "always", "prev": "if", "next": "*" },
+      { "blankLine": "always", "prev": "*", "next": "function" }
+    ],
+    "no-useless-constructor": "error"
+  },
   "settings": {
     "flowtype": {
       "onlyFilesWithFlowAnnotation": true
+    },
+    "react": {
+      "version": "detect"
     }
   }
 }

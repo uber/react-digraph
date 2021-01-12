@@ -27,7 +27,6 @@ button {
 #graph {
   height: 100%;
   width: 100%;
-  display: flex;
 }
 
 .total-nodes {
@@ -37,18 +36,31 @@ button {
 .app-header {
   border-bottom: 1px solid black;
   background: #f9f9f9;
+  height: 35px;
 
   > nav {
     height: 25px;
-    > a {
-      border-right: 1px solid black;
-      line-height: 25px;
-      min-width: 150px;
-      padding: 10px;
+    > ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding-left: 0;
 
-      &.active {
-        background: #333;
-        color: white;
+      > li {
+        border-right: 1px solid black;
+        height: 100%;
+        display: flex;
+        align-items: center;
+
+        >a {
+          
+          padding: 10px;
+
+          &.active {
+            background: #333;
+            color: white;
+          }
+        }
       }
     }
   }
@@ -56,12 +68,10 @@ button {
 
 .graph-header {
   border-bottom: 1px solid black;
-  position: fixed;
-  width: 100%;
   background-color: #fff;
   padding: 10px;
 
-  .layout-engine {
+  .layout-engine, .pan-list {
     display: inline-block;
     > span {
       margin-right: 5px;

@@ -16,296 +16,289 @@
 */
 
 import * as d3 from 'd3';
-import * as React from 'react';
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+} from 'react';
 // This works in Typescript but causes an import loop for Flowtype. We'll just use `any` below.
 // import { type LayoutEngine } from '../utilities/layout-engine/layout-engine-config';
-import Edge from './edge';
-import GraphUtils from './graph-util';
+import GraphUtils from '../utilities/graph-util';
 import NodeText from './node-text';
+import NodeShape from './node-shape';
+import {
+  DEFAULT_NODE_SIZE,
+  DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
+} from '../constants';
+import { calculateOffset } from '../helpers/edge-helpers';
+
+export type IPoint = {
+  x: number,
+  y: number,
+};
 
 export type INode = {
-  title: string;
-  x?: number | null;
-  y?: number | null;
-  type?: string;
-  subtype?: string | null;
-  [key: string]: any;
+  title: string,
+  x?: number | null,
+  y?: number | null,
+  type?: string | null,
+  subtype?: string | null,
+  [key: string]: any,
 };
 
 type INodeProps = {
-  data: INode;
-  id: string;
-  nodeTypes: any; // TODO: make a nodeTypes interface
-  nodeSubtypes: any; // TODO: make a nodeSubtypes interface
-  opacity?: number;
-  nodeKey: string;
-  nodeSize?: number;
-  onNodeMouseEnter: (event: any, data: any, hovered: boolean) => void;
-  onNodeMouseLeave: (event: any, data: any) => void;
-  onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void;
-  onNodeSelected: (data: any, id: string, shiftKey: boolean) => void;
-  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void;
+  data: INode,
+  id: string,
+  nodeTypes: any, // TODO: make a nodeTypes interface
+  nodeSubtypes: any, // TODO: make a nodeSubtypes interface
+  opacity?: number,
+  nodeKey: string,
+  nodeSize?: number,
+  nodeWidth?: number,
+  nodeHeight?: number,
+  onNodeMouseEnter: (event: any, data: any) => void,
+  onNodeMouseLeave: (event: any, data: any) => void,
+  onNodeMove: (point: IPoint, id: string, shiftKey: boolean) => void,
+  onNodeSelected: (
+    data: any,
+    id: string,
+    shiftKey: boolean,
+    event?: any
+  ) => void,
+  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void,
   renderNode?: (
     nodeRef: any,
     data: any,
     id: string,
     selected: boolean,
     hovered: boolean
-  ) => any;
-  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
-  isSelected: boolean;
-  layoutEngine?: any;
-  viewWrapperElem: HTMLDivElement;
+  ) => any,
+  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
+  isSelected: boolean,
+  layoutEngine?: any,
+  viewWrapperElem: HTMLDivElement,
+  centerNodeOnMove: boolean,
+  maxTitleChars: number,
 };
 
-type INodeState = {
-  hovered: boolean;
-  x: number;
-  y: number;
-  selected: boolean;
-  mouseDown: boolean;
-  drawingEdge: boolean;
-};
+function Node({
+  data,
+  id,
+  nodeKey,
+  opacity,
+  nodeTypes,
+  nodeSubtypes,
+  isSelected = false,
+  nodeSize,
+  nodeHeight,
+  nodeWidth,
+  maxTitleChars = DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
+  centerNodeOnMove = true,
+  layoutEngine,
+  viewWrapperElem,
+  renderNodeText,
+  renderNode,
+  onNodeMouseEnter = () => {},
+  onNodeMouseLeave = () => {},
+  onNodeMove = () => {},
+  onNodeSelected = () => {},
+  onNodeUpdate = () => {},
+}: INodeProps) {
+  const [hovered, setHovered] = useState(false);
+  const nodeRef = useRef();
+  const oldSibling = useRef();
+  const position = useRef();
 
-export type IPoint = {
-  x: number;
-  y: number;
-};
+  // We have to use a ref for x, y state because the handleDragEnd
+  // function doesn't know about the updated values
+  // when the mouse moves if we're using state.
+  position.current = { x: data.x || 0, y: data.y || 0, pointerOffset: null };
 
-class Node extends React.Component<INodeProps, INodeState> {
-  static defaultProps = {
-    isSelected: false,
-    nodeSize: 154,
-    onNodeMouseEnter: () => { return; },
-    onNodeMouseLeave: () => { return; },
-    onNodeMove: () => { return; },
-    onNodeSelected: () => { return; },
-    onNodeUpdate: () => { return; }
-  };
+  const handleMouseOver = useCallback(
+    (event: any) => {
+      const isHovered = true;
 
-  static getDerivedStateFromProps(nextProps: INodeProps, prevState: INodeState) {
-    return {
-      selected: nextProps.isSelected,
-      x: nextProps.data.x,
-      y: nextProps.data.y
-    };
-  }
+      setHovered(isHovered);
+      onNodeMouseEnter(event, data);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onNodeMouseEnter, data]
+  );
 
-  nodeRef: any;
-  oldSibling: any;
+  const handleMouseOut = useCallback(
+    (event: any) => {
+      if (
+        (event && !event.relatedTarget) ||
+        (event &&
+          !event.relatedTarget?.matches('.edge-overlay-path') &&
+          !GraphUtils.findParent(event.relatedTarget, 'g.node', 'svg.graph'))
+      ) {
+        setHovered(false);
+        onNodeMouseLeave(event, data);
+      }
+    },
+    [onNodeMouseLeave, data]
+  );
 
-  constructor(props: INodeProps) {
-    super(props);
+  const handleDragStart = useCallback(() => {
+    if (!nodeRef.current) {
+      return;
+    }
 
-    this.state = {
-      drawingEdge: false,
-      hovered: false,
-      mouseDown: false,
-      selected: false,
-      x: props.data.x || 0,
-      y: props.data.y || 0
-    };
+    if (!oldSibling.current) {
+      oldSibling.current = nodeRef.current.parentElement.nextSibling;
+    }
 
-    this.nodeRef = React.createRef();
-  }
+    // Moves child to the end of the element stack to re-arrange the z-index
+    nodeRef.current.parentElement.parentElement.appendChild(
+      nodeRef.current.parentElement
+    );
+  }, []);
 
-  componentDidMount() {
+  const handleDragEnd = useCallback(
+    (event: any) => {
+      if (!nodeRef.current) {
+        return;
+      }
+
+      const { sourceEvent } = event;
+
+      position.current.pointerOffset = null;
+
+      if (oldSibling.current?.parentElement) {
+        oldSibling.current.parentElement.insertBefore(
+          nodeRef.current.parentElement,
+          oldSibling.current
+        );
+      }
+
+      const shiftKey = sourceEvent.shiftKey;
+
+      onNodeUpdate(position.current, data[nodeKey], shiftKey);
+      onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
+    },
+    [onNodeUpdate, data, nodeKey, onNodeSelected]
+  );
+
+  const handleMouseMove = useCallback(
+    (event: any) => {
+      const shiftKey = event.sourceEvent.shiftKey;
+
+      const newState = {
+        x: event.x,
+        y: event.y,
+        pointerOffset: position.current.pointerOffset,
+      };
+
+      if (!centerNodeOnMove) {
+        newState.pointerOffset = newState.pointerOffset || {
+          x: event.x - (data.x || 0),
+          y: event.y - (data.y || 0),
+        };
+        newState.x -= newState.pointerOffset.x;
+        newState.y -= newState.pointerOffset.y;
+      }
+
+      if (shiftKey) {
+        // draw edge
+        // undo the target offset subtraction done by Edge
+        const off = calculateOffset(
+          nodeSize || DEFAULT_NODE_SIZE,
+          data,
+          newState,
+          nodeKey,
+          true,
+          viewWrapperElem
+        );
+
+        newState.x += off.xOff;
+        newState.y += off.yOff;
+        // now tell the graph that we're actually drawing an edge
+      } else if (layoutEngine) {
+        // move node using the layout engine
+        Object.assign(newState, layoutEngine.getPositionForNode(newState));
+      }
+
+      position.current = {
+        x: newState.x,
+        y: newState.y,
+        pointerOffset: newState.pointerOffset,
+      };
+
+      onNodeMove(newState, data[nodeKey], shiftKey);
+    },
+    [
+      centerNodeOnMove,
+      data,
+      layoutEngine,
+      nodeKey,
+      nodeSize,
+      onNodeMove,
+      viewWrapperElem,
+    ]
+  );
+
+  useEffect(() => {
     const dragFunction = d3
       .drag()
-      .on('drag', this.handleMouseMove)
-      .on('start', this.handleDragStart)
-      .on('end', this.handleDragEnd);
-    d3
-      .select(this.nodeRef.current)
-      .on('mouseout', this.handleMouseOut)
-      .call(dragFunction);
-  }
+      .on('drag', () => handleMouseMove(d3.event))
+      .on('start', handleDragStart)
+      .on('end', () => handleDragEnd(d3.event));
 
-  handleMouseMove = () => {
-    const mouseButtonDown = d3.event.sourceEvent.buttons === 1;
-    const shiftKey = d3.event.sourceEvent.shiftKey;
-    const { nodeSize, layoutEngine, nodeKey, viewWrapperElem } = this.props;
-    if (!mouseButtonDown) {
-      return;
-    }
+    d3.select(nodeRef.current).call(dragFunction);
+  }, [handleDragEnd, handleDragStart, handleMouseMove, handleMouseOver]);
 
-    // While the mouse is down, this function handles all mouse movement
-    const newState = {
-      x: d3.event.x,
-      y: d3.event.y
-    };
+  const className = useMemo(
+    () =>
+      GraphUtils.classNames('node', data.type, {
+        hovered,
+        isSelected,
+      }),
+    [data.type, hovered, isSelected]
+  );
 
-    if (shiftKey) {
-      this.setState({ drawingEdge: true });
-      // draw edge
-      // undo the target offset subtraction done by Edge
-      const off = Edge.calculateOffset(nodeSize, this.props.data, newState, nodeKey, true, viewWrapperElem);
-      newState.x += off.xOff;
-      newState.y += off.yOff;
-      // now tell the graph that we're actually drawing an edge
-    } else if(!this.state.drawingEdge && layoutEngine) {
-      // move node using the layout engine
-      Object.assign(newState, layoutEngine.getPositionForNode(newState));
-    }
-    this.setState(newState);
-    // Never use this.props.index because if the nodes array changes order
-    // then this function could move the wrong node.
-    this.props.onNodeMove(newState, this.props.data[nodeKey], shiftKey);
-  }
+  const { x, y } = position.current;
 
-  handleDragStart = () => {
-    if (!this.nodeRef.current) {
-      return;
-    }
-    if (!this.oldSibling) {
-      this.oldSibling = this.nodeRef.current.parentElement.nextSibling;
-    }
-    // Moves child to the end of the element stack to re-arrange the z-index
-    this.nodeRef.current.parentElement.parentElement.appendChild(this.nodeRef.current.parentElement);
-  }
-
-  handleDragEnd = () => {
-    if (!this.nodeRef.current) {
-      return;
-    }
-    const { x, y, drawingEdge } = this.state;
-    const { data, index, nodeKey } = this.props;
-    this.setState({ mouseDown: false, drawingEdge: false });
-
-    if (this.oldSibling && this.oldSibling.parentElement) {
-      this.oldSibling.parentElement.insertBefore(this.nodeRef.current.parentElement, this.oldSibling);
-    }
-
-    const shiftKey = d3.event.sourceEvent.shiftKey;
-    this.props.onNodeUpdate(
-      { x, y },
-      data[nodeKey],
-      shiftKey || drawingEdge
-    );
-
-    this.props.onNodeSelected(data, data[nodeKey], shiftKey || drawingEdge);
-  }
-
-  handleMouseOver = (event: any) => {
-    // Detect if mouse is already down and do nothing.
-    let hovered = false;
-    if ((d3.event && d3.event.buttons !== 1) || (event && event.buttons !== 1)) {
-      hovered = true;
-      this.setState({ hovered });
-    }
-
-    this.props.onNodeMouseEnter(event, this.props.data, hovered);
-  }
-
-  handleMouseOut = (event: any) => {
-    // Detect if mouse is already down and do nothing. Sometimes the system lags on
-    // drag and we don't want the mouseOut to fire while the user is moving the
-    // node around
-
-    this.setState({ hovered: false });
-    this.props.onNodeMouseLeave(event, this.props.data);
-  }
-
-  static getNodeTypeXlinkHref(data: INode, nodeTypes: any) {
-    if (data.type && nodeTypes[data.type]) {
-      return nodeTypes[data.type].shapeId;
-    } else if (nodeTypes.emptyNode) {
-      return nodeTypes.emptyNode.shapeId;
-    }
-    return null;
-  }
-
-  static getNodeSubtypeXlinkHref(data: INode, nodeSubtypes?: any) {
-    if (data.subtype && nodeSubtypes && nodeSubtypes[data.subtype]) {
-      return nodeSubtypes[data.subtype].shapeId;
-    } else if (nodeSubtypes && nodeSubtypes.emptyNode) {
-      return nodeSubtypes.emptyNode.shapeId;
-    }
-    return null;
-  }
-
-  renderShape() {
-    const { renderNode, data, index, nodeTypes, nodeSubtypes, nodeKey } = this.props;
-    const { hovered, selected } = this.state;
-    const props = {
-      height: this.props.nodeSize || 0,
-      width: this.props.nodeSize || 0
-    };
-    const nodeShapeContainerClassName = GraphUtils.classNames('shape');
-    const nodeClassName = GraphUtils.classNames('node', { selected, hovered });
-    const nodeSubtypeClassName = GraphUtils.classNames('subtype-shape', { selected: this.state.selected });
-    const nodeTypeXlinkHref = Node.getNodeTypeXlinkHref(data, nodeTypes) || '';
-    const nodeSubtypeXlinkHref = Node.getNodeSubtypeXlinkHref(data, nodeSubtypes) || '';
-
-    // get width and height defined on def element
-    const defSvgNodeElement: any = nodeTypeXlinkHref ? document.querySelector(`defs>${nodeTypeXlinkHref}`) : null;
-    const nodeWidthAttr = defSvgNodeElement ? defSvgNodeElement.getAttribute('width') : 0;
-    const nodeHeightAttr = defSvgNodeElement ? defSvgNodeElement.getAttribute('height') : 0;
-    props.width = nodeWidthAttr ? parseInt(nodeWidthAttr, 10) : props.width;
-    props.height = nodeHeightAttr ? parseInt(nodeHeightAttr, 10) : props.height;
-
-    if (renderNode) {
-      // Originally: graphView, domNode, datum, index, elements.
-      return renderNode(this.nodeRef, data, data[nodeKey], selected, hovered);
-    } else {
-      return (
-        <g className={nodeShapeContainerClassName} {...props}>
-          {!!data.subtype && (
-            <use
-              data-index={index}
-              className={nodeSubtypeClassName}
-              x={-props.width / 2}
-              y={-props.height / 2}
-              width={props.width}
-              height={props.height}
-              xlinkHref={nodeSubtypeXlinkHref}
-            />
-          )}
-          <use
-            data-index={index}
-            className={nodeClassName}
-            x={-props.width / 2}
-            y={-props.height / 2}
-            width={props.width}
-            height={props.height}
-            xlinkHref={nodeTypeXlinkHref}
-          />
-        </g>
-      );
-    }
-  }
-
-  renderText() {
-    const { data, index, id, nodeTypes, renderNodeText, isSelected } = this.props;
-    if (renderNodeText) {
-      return renderNodeText(data, id, isSelected);
-    }
-    return (<NodeText data={data} nodeTypes={nodeTypes} isSelected={this.state.selected} />);
-  }
-
-  render() {
-    const { x, y, hovered, selected } = this.state;
-    const { opacity, id, data } = this.props;
-    const className = GraphUtils.classNames('node', data.type, {
-      hovered,
-      selected
-    });
-    return (
-      <g
-        className={className}
-        onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}
-        id={id}
-        ref={this.nodeRef}
-        opacity={opacity}
-        transform={`translate(${x}, ${y})`}
-      >
-        {this.renderShape()}
-        {this.renderText()}
-
-      </g>
-    );
-  }
+  return (
+    <g
+      className={className}
+      onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
+      id={id}
+      ref={nodeRef}
+      opacity={opacity}
+      transform={`translate(${x}, ${y})`}
+      style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
+    >
+      {renderNode ? (
+        renderNode(nodeRef, data, data[nodeKey], isSelected, hovered)
+      ) : (
+        <NodeShape
+          data={data}
+          nodeKey={nodeKey}
+          nodeTypes={nodeTypes}
+          nodeSubtypes={nodeSubtypes}
+          nodeSize={nodeSize}
+          nodeHeight={nodeHeight}
+          nodeWidth={nodeWidth}
+          selected={isSelected}
+          hovered={hovered}
+        />
+      )}
+      {renderNodeText ? (
+        renderNodeText(data, id, isSelected)
+      ) : (
+        <NodeText
+          data={data}
+          nodeTypes={nodeTypes}
+          isSelected={isSelected}
+          maxTitleChars={maxTitleChars}
+        />
+      )}
+    </g>
+  );
 }
 
 export default Node;

@@ -16,20 +16,20 @@
 */
 
 export default {
-  ExampleSource: 'https://code.uberinternal.com/file/data/aioyv5yrrs3dadbmxlap/PHID-FILE-v36jeiyn4y3gphtdwjsm/1.json',
+  ExampleSource: 'https://fake.com/1.json',
   Name: 'Colombo_Intercity_Driver_dispatch',
-  Comment: 'Send SMS message to drivers accept dispatch for Colombo intercity trip',
+  Comment: 'Send SMS message to accept trip',
   Version: 1,
-  Domain: '//Autobots',
-  Id: '//Autobots/ColomboIntercityDriverDispatch',
+  Domain: '//Domain',
+  Id: '//Domain/Dispatch',
   StartAt: 'Init',
   AllowReentry: true,
   States: {
-    'Init': {
+    Init: {
       Type: 'Terminator',
-      Resource: 'kafka://hp_demand_job-assigned',
+      Resource: 'k://demand_job-assigned',
       ResultPath: '$.event',
-      Next: 'Check City and Vehicle View'
+      Next: 'Check City and Vehicle View',
     },
     'Check City and Vehicle View': {
       Type: 'Choice',
@@ -39,25 +39,25 @@ export default {
           And: [
             {
               Variable: '$.region.id',
-              NumberEquals: 478
+              NumberEquals: 478,
             },
             {
               Variable: '$.vehicleViewId',
-              NumberEquals: 20006733
-            }
+              NumberEquals: 99999999,
+            },
           ],
-          Next: 'SMS for Dispatch accepted'
+          Next: 'SMS for Dispatch accepted',
         },
         {
           And: [
             {
               Variable: '$.region.id',
-              NumberEquals: 999
-            }
+              NumberEquals: 999,
+            },
           ],
-          Next: 'SMS for Dispatch denied'
-        }
-      ]
+          Next: 'SMS for Dispatch denied',
+        },
+      ],
     },
     'Check Other City': {
       Type: 'Choice',
@@ -67,58 +67,60 @@ export default {
           And: [
             {
               Variable: '$.region.id',
-              NumberEquals: 478
-            }
+              NumberEquals: 478,
+            },
           ],
-          Next: 'Wait for six hours'
+          Next: 'Wait for six hours',
         },
         {
           And: [
             {
               Variable: '$.region.id',
-              NumberEquals: 999
-            }
+              NumberEquals: 999,
+            },
           ],
-          Next: 'Wait for twenty four hours'
-        }
-      ]
+          Next: 'Wait for twenty four hours',
+        },
+      ],
     },
     'SMS for Dispatch accepted': {
       Type: 'Pass',
       InputPath: '$.event',
       Result: {
         expirationMinutes: 60,
-        fromUserUUID: '71af5aea-9eaa-45a1-9825-2c124030b063',
+        fromUserUUID: '55555555-4444-3333-2222-111111111111',
         toUserUUID: 'Eval($.supplyUUID)',
         getSMSReply: false,
-        message: 'Hithawath Partner, Oba labegena athi mema trip eka UberGALLE trip ekaki, Karunakara rider wa amatha drop location eka confirm karaganna. Sthuthi',
+        message:
+          'Partner, Oba labegena athi mema trip eka Blah trip ekaki, rider wa amatha drop location eka confirm.',
         messageType: 'SEND_SMS',
         priority: 1,
-        actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6'
+        actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6',
       },
       ResultPath: '$.actionParam',
-      Next: 'Send SMS'
+      Next: 'Send SMS',
     },
     'SMS for Dispatch denied': {
       Type: 'Pass',
       InputPath: '$.event',
       Result: {
         expirationMinutes: 60,
-        fromUserUUID: '71af5aea-9eaa-45a1-9825-2c124030b063',
+        fromUserUUID: '55555555-4444-3333-2222-111111111111',
         toUserUUID: 'Eval($.supplyUUID)',
         getSMSReply: false,
-        message: 'Hithawath Partner, Oba labegena athi mema trip eka UberGALLE trip ekaki, Karunakara rider wa amatha drop location eka confirm karaganna. Sthuthi',
+        message:
+          'Partner, Oba labegena athi mema trip eka Blah trip ekaki, rider wa amatha drop location eka confirm.',
         messageType: 'SEND_SMS',
         priority: 1,
-        actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6'
+        actionUUID: 'd259c34d-457a-411e-8c93-6edd63a7ddc6',
       },
       ResultPath: '$.actionParam',
-      Next: 'Send SMS'
+      Next: 'Send SMS',
     },
     'Send SMS': {
       Type: 'Task',
       InputPath: '$.actionParam',
-      Resource: 'uns://sjc1/sjc1-prod01/us1/cleopatra/Cleopatra::sendSMS',
+      Resource: 'uns://dc/server/Thing::sendSMS',
       InputSchema: {
         '$.expirationMinutes': 'int',
         '$.toUserUUID': 'string',
@@ -127,26 +129,26 @@ export default {
         '$.message': 'string',
         '$.messageType': 'string',
         '$.priority': 'int',
-        '$.actionUUID': 'string'
+        '$.actionUUID': 'string',
       },
       OutputSchema: {
-        '$.fraudDriverUUIDs[*]': 'string'
+        '$.fraudDriverUUIDs[*]': 'string',
       },
-      Next: 'Check Other City'
+      Next: 'Check Other City',
     },
     'Wait for six hours': {
       Type: 'Wait',
       Seconds: 21600,
-      Next: 'Exit'
+      Next: 'Exit',
     },
     'Wait for twenty four hours': {
       Type: 'Wait',
       Seconds: 86400,
-      Next: 'Exit'
+      Next: 'Exit',
     },
-    'Exit': {
+    Exit: {
       Type: 'Terminator',
-      End: true
-    }
-  }
+      End: true,
+    },
+  },
 };

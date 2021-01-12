@@ -31,6 +31,7 @@ $background-color: #f9f9f9;
   opacity: 1;
   outline: none;
   user-select: none;
+  position: relative;
 
   > .graph {
     align-content: stretch;
@@ -87,6 +88,12 @@ $background-color: #f9f9f9;
 
       cursor: pointer;
       user-select: none;
+
+      &.edge-label-text {
+        font-size: 11px; 
+        stroke: none;
+        fill: black;
+      }
     }
 
     &.selected {
@@ -98,8 +105,6 @@ $background-color: #f9f9f9;
         stroke: $light-color;
       }
     }
-
-
   }
 
   .edge-mouse-handler {
@@ -119,7 +124,6 @@ $background-color: #f9f9f9;
     position: absolute;
     bottom: 30px;
     left: 15px;
-    z-index: 100;
     display: grid;
     grid-template-columns: auto auto;
     grid-gap: 15px;
@@ -136,7 +140,7 @@ $background-color: #f9f9f9;
       > span {
         display: inline-block;
         vertical-align: top;
-        margin-top: 2px;
+        margin-top: 4px;
       }
 
       > .slider {

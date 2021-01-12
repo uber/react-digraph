@@ -35,47 +35,66 @@ export const SPECIAL_CHILD_SUBTYPE = 'specialChild';
 export const EMPTY_EDGE_TYPE = 'emptyEdge';
 export const SPECIAL_EDGE_TYPE = 'specialEdge';
 
-export const nodeTypes = [EMPTY_TYPE, CHOICE_TYPE, TASK_TYPE, PASS_TYPE, WAIT_TYPE, TERMINATOR_TYPE];
+export const nodeTypes = [
+  EMPTY_TYPE,
+  CHOICE_TYPE,
+  TASK_TYPE,
+  PASS_TYPE,
+  WAIT_TYPE,
+  TERMINATOR_TYPE,
+];
 export const edgeTypes = [EMPTY_EDGE_TYPE, SPECIAL_EDGE_TYPE];
 
 const EmptyShape = (
-  <symbol viewBox="0 0 100 100" id="empty">
+  <symbol viewBox="0 0 100 100" id="empty" width="100" height="100">
     <circle cx="50" cy="50" r="45" />
   </symbol>
 );
 
 const ChoiceShape = (
-  <symbol viewBox="0 0 100 100" id="choice">
+  <symbol viewBox="0 0 100 100" id="choice" width="100" height="100">
     <rect transform="translate(50, 5) rotate(45)" width="65" height="65" />
   </symbol>
 );
 
 const TaskShape = (
-  <symbol viewBox="0 0 100 100" id="task">
-    <rect width="80" height="80" rx="15" ry="15" transform="translate(10, 10)" />
+  <symbol viewBox="0 0 100 100" id="task" width="100" height="100">
+    <rect
+      width="80"
+      height="80"
+      rx="15"
+      ry="15"
+      transform="translate(10, 10)"
+    />
   </symbol>
 );
 
 const PassShape = (
-  <symbol viewBox="0 0 100 100" id="pass">
+  <symbol viewBox="0 0 100 100" id="pass" width="100" height="100">
     <rect transform="translate(7.5, 10)" width="85" height="85" />
   </symbol>
 );
 
 const WaitShape = (
-  <symbol viewBox="0 0 100 100" id="wait">
+  <symbol viewBox="0 0 100 100" id="wait" width="100" height="100">
     <circle cx="50" cy="50" r="45" transform="translate(0, 2)" />
   </symbol>
 );
 
 const TerminatorShape = (
-  <symbol viewBox="0 0 100 100" id="terminator">
-    <rect width="80" height="80" rx="15" ry="15" transform="translate(10, 10)" />
+  <symbol viewBox="0 0 100 100" id="terminator" width="100" height="100">
+    <rect
+      width="80"
+      height="80"
+      rx="15"
+      ry="15"
+      transform="translate(10, 10)"
+    />
   </symbol>
 );
 
 const SpecialChildShape = (
-  <symbol viewBox="0 0 100 100" id="specialChild">
+  <symbol viewBox="0 0 100 100" id="specialChild" width="100" height="100">
     <rect x="2.5" y="0" width="95" height="97.5" />
   </symbol>
 );
@@ -88,7 +107,14 @@ const EmptyEdgeShape = (
 
 const SpecialEdgeShape = (
   <symbol viewBox="0 0 50 50" id="specialEdge">
-    <rect transform="rotate(45)" x="27.5" y="-7.5" width="15" height="15" fill="currentColor" />
+    <rect
+      transform="rotate(45)"
+      x="27.5"
+      y="-7.5"
+      width="15"
+      height="15"
+      fill="currentColor"
+    />
   </symbol>
 );
 
@@ -96,29 +122,29 @@ export default {
   EdgeTypes: {
     emptyEdge: {
       shape: EmptyEdgeShape,
-      shapeId: '#emptyEdge'
+      shapeId: '#emptyEdge',
     },
     specialEdge: {
       shape: SpecialEdgeShape,
-      shapeId: '#specialEdge'
-    }
+      shapeId: '#specialEdge',
+    },
   },
   NodeSubtypes: {
     specialChild: {
       shape: SpecialChildShape,
-      shapeId: '#specialChild'
-    }
+      shapeId: '#specialChild',
+    },
   },
   NodeTypes: {
     Choice: {
       shape: ChoiceShape,
       shapeId: '#choice',
-      typeText: 'Choice'
+      typeText: 'Choice',
     },
     emptyNode: {
       shape: EmptyShape,
       shapeId: '#empty',
-      typeText: 'None'
+      typeText: 'None',
     },
     Pass: {
       shape: PassShape,
@@ -128,7 +154,7 @@ export default {
     Task: {
       shape: TaskShape,
       shapeId: '#task',
-      typeText: 'Task'
+      typeText: 'Task',
     },
     Terminator: {
       shape: TerminatorShape,
@@ -138,7 +164,7 @@ export default {
     Wait: {
       shape: WaitShape,
       shapeId: '#wait',
-      typeText: 'Wait'
-    }
-  }
+      typeText: 'Wait',
+    },
+  },
 };

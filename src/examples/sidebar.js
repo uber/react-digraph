@@ -16,34 +16,37 @@
 */
 
 import * as React from 'react';
-import GraphUtils from '../components/graph-util';
+import GraphUtils from '../utilities/graph-util';
 
 type ISidebarProps = {
-  children: any;
-  direction: 'left' | 'right' | 'up' | 'down';
-  size: number | string;
+  children: any,
+  direction: 'left' | 'right' | 'up' | 'down',
+  size: number | string,
 };
 
 type ISidebarState = {
-  sidebarClass?: string | null;
+  sidebarClass?: string | null,
 };
 
 const sidebarClass = {
   CLOSED: 'closed',
-  OPEN: 'open'
+  OPEN: 'open',
 };
 
 const directionOpposites = {
   down: 'up',
   left: 'right',
   right: 'left',
-  up: 'down'
+  up: 'down',
 };
 
-export default class Sidebar extends React.Component<ISidebarProps, ISidebarState> {
+export default class Sidebar extends React.Component<
+  ISidebarProps,
+  ISidebarState
+> {
   static defaultProps = {
     direction: 'left',
-    size: '130px'
+    size: '130px',
   };
 
   constructor(props: ISidebarProps) {
@@ -56,51 +59,56 @@ export default class Sidebar extends React.Component<ISidebarProps, ISidebarStat
   toggleContainer = () => {
     const originalValue = this.state.sidebarClass;
     let newValue = sidebarClass.CLOSED;
+
     if (originalValue === newValue) {
       newValue = sidebarClass.OPEN;
     }
+
     this.setState({
       sidebarClass: newValue,
     });
-  }
+  };
 
   getContainerClasses(): string {
     const classes = ['sidebar-main-container'];
+
     classes.push(this.state.sidebarClass || '');
+
     return GraphUtils.classNames(classes);
   }
 
   getContainerStyle(size: number | string, direction: string) {
     if (direction === 'up' || direction === 'down') {
-      return {height: `${size}`, maxHeight: `${size}`};
+      return { height: `${size}`, maxHeight: `${size}` };
     }
-    return {width: `${size}`, maxWidth: `${size}`};
+
+    return { width: `${size}`, maxWidth: `${size}` };
   }
 
   getArrowIconClasses(direction: string): string {
     const classes = ['icon'];
+
     if (this.state.sidebarClass === sidebarClass.CLOSED) {
       classes.push(`icon_${directionOpposites[direction]}-arrow`);
     } else {
       classes.push(`icon_${direction}-arrow`);
     }
+
     return GraphUtils.classNames(classes);
   }
 
   renderToggleBar(direction: string) {
     return (
-      <div
-        className="sidebar-toggle-bar"
-        onClick={this.toggleContainer}
-      >
+      <div className="sidebar-toggle-bar" onClick={this.toggleContainer}>
         <i className={this.getArrowIconClasses(direction)} />
       </div>
     );
   }
 
   render() {
-    const {children, direction, size} = this.props;
+    const { children, direction, size } = this.props;
     const sidebarClassName = GraphUtils.classNames('sidebar', direction);
+
     return (
       <div className={sidebarClassName}>
         <div
@@ -109,10 +117,7 @@ export default class Sidebar extends React.Component<ISidebarProps, ISidebarStat
         >
           {children}
         </div>
-        <div
-          className="sidebar-toggle-bar"
-          onClick={this.toggleContainer}
-        >
+        <div className="sidebar-toggle-bar" onClick={this.toggleContainer}>
           <i className={this.getArrowIconClasses(direction)} />
         </div>
       </div>

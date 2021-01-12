@@ -25,20 +25,18 @@ import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 import BwdlTransformer from '../../utilities/transformers/bwdl-transformer';
 import Sidebar from '../sidebar';
-import GraphConfig, {
-  EMPTY_TYPE, NODE_KEY
-} from './bwdl-config'; // Configures node/edge types
+import GraphConfig, { EMPTY_TYPE, NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
 
 type IBwdlState = {
-  nodes: INode[];
-  edges: IEdge[];
-  selected: INode | IEdge | null;
-  layoutEngineType: LayoutEngineType;
-  bwdlText: string;
-  bwdlJson: any;
-  copiedNode: any;
-}
+  nodes: INode[],
+  edges: IEdge[],
+  selected: INode | IEdge | null,
+  layoutEngineType: LayoutEngineType,
+  bwdlText: string,
+  bwdlJson: any,
+  copiedNode: any,
+};
 
 class BwdlEditable extends React.Component<{}, IBwdlState> {
   GraphView: GraphView | null;
@@ -55,30 +53,34 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
       edges: transformed.edges,
       layoutEngineType: 'VerticalTree',
       nodes: transformed.nodes,
-      selected: null
+      selected: null,
     };
   }
 
   linkEdge(sourceNode: INode, targetNode: INode, edge?: IEdge) {
     const newBwdlJson = {
-      ...this.state.bwdlJson
+      ...this.state.bwdlJson,
     };
     const sourceNodeBwdl = newBwdlJson.States[sourceNode.title];
+
     if (sourceNodeBwdl.Type === 'Choice') {
       const newChoice = {
-        Next: targetNode.title
+        Next: targetNode.title,
       };
+
       if (sourceNodeBwdl.Choices) {
         // check if swapping edge
         let swapped = false;
+
         if (edge) {
-          sourceNodeBwdl.Choices.forEach((choice) => {
+          sourceNodeBwdl.Choices.forEach(choice => {
             if (edge && choice.Next === edge.target) {
               choice.Next = targetNode.title;
               swapped = true;
             }
           });
         }
+
         if (!swapped) {
           sourceNodeBwdl.Choices.push(newChoice);
         }
@@ -88,69 +90,75 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     } else {
       sourceNodeBwdl.Next = targetNode.title;
     }
+
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2)
+      bwdlText: JSON.stringify(newBwdlJson, null, 2),
     });
     this.updateBwdl();
   }
 
   onSelectNode = (node: INode | null) => {
     this.setState({
-      selected: node
+      selected: node,
     });
-  }
+  };
 
   onCreateNode = (x: number, y: number) => {
     const newBwdlJson = {
-      ...this.state.bwdlJson
+      ...this.state.bwdlJson,
     };
+
     newBwdlJson.States[`New Item ${Date.now()}`] = {
       Type: EMPTY_TYPE,
       x,
-      y
+      y,
     };
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2)
+      bwdlText: JSON.stringify(newBwdlJson, null, 2),
     });
     this.updateBwdl();
-  }
-  onUpdateNode = (node: INode) => { return; };
+  };
+  onUpdateNode = (node: INode) => {
+    return;
+  };
 
   onDeleteNode = (selected: INode, nodeId: string, nodes: any[]) => {
     const newBwdlJson = {
-      ...this.state.bwdlJson
+      ...this.state.bwdlJson,
     };
+
     delete newBwdlJson.States[selected.title];
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2)
+      bwdlText: JSON.stringify(newBwdlJson, null, 2),
     });
     this.updateBwdl();
-  }
+  };
 
   onSelectEdge = (edge: IEdge) => {
     this.setState({
-      selected: edge
+      selected: edge,
     });
-  }
+  };
 
   onCreateEdge = (sourceNode: INode, targetNode: INode) => {
     this.linkEdge(sourceNode, targetNode);
-  }
+  };
 
   onSwapEdge = (sourceNode: INode, targetNode: INode, edge: IEdge) => {
     this.linkEdge(sourceNode, targetNode, edge);
-  }
+  };
 
   onDeleteEdge = (selectedEdge: IEdge, edges: IEdge[]) => {
     const newBwdlJson = {
-      ...this.state.bwdlJson
+      ...this.state.bwdlJson,
     };
     const sourceNodeBwdl = newBwdlJson.States[selectedEdge.source];
+
     if (sourceNodeBwdl.Choices) {
-      sourceNodeBwdl.Choices = sourceNodeBwdl.Choices.filter((choice) => {
+      sourceNodeBwdl.Choices = sourceNodeBwdl.Choices.filter(choice => {
         return choice.Next !== selectedEdge.target;
       });
     } else {
@@ -159,10 +167,10 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2)
+      bwdlText: JSON.stringify(newBwdlJson, null, 2),
     });
     this.updateBwdl();
-  }
+  };
 
   onUndo() {
     alert('Undo is not supported yet.');
@@ -170,6 +178,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
   onCopySelected = () => {
     const { selected, bwdlJson } = this.state;
+
     if (!selected) {
       return;
     }
@@ -178,9 +187,9 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     const newItem = JSON.parse(JSON.stringify(original));
 
     this.setState({
-      copiedNode: newItem
+      copiedNode: newItem,
     });
-  }
+  };
 
   onPasteSelected = () => {
     const { copiedNode, bwdlJson } = this.state;
@@ -188,30 +197,31 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     bwdlJson.States[`New Item ${Date.now()}`] = copiedNode;
 
     const newBwdlJson = {
-      ...bwdlJson
+      ...bwdlJson,
     };
 
     this.setState({
       bwdlJson: newBwdlJson,
-      bwdlText: JSON.stringify(newBwdlJson, null, 2)
+      bwdlText: JSON.stringify(newBwdlJson, null, 2),
     });
     this.updateBwdl();
-  }
+  };
 
   updateBwdl = () => {
     const transformed = BwdlTransformer.transform(this.state.bwdlJson);
+
     this.setState({
       edges: transformed.edges,
-      nodes: transformed.nodes
+      nodes: transformed.nodes,
     });
-  }
+  };
 
   handleTextAreaChange = (value: string, event: any) => {
     let input = null;
     const bwdlText = value;
 
     this.setState({
-      bwdlText
+      bwdlText,
     });
 
     try {
@@ -221,11 +231,11 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     }
 
     this.setState({
-      bwdlJson: input
+      bwdlJson: input,
     });
 
     this.updateBwdl();
-  }
+  };
 
   renderSidebar() {
     return (
@@ -245,7 +255,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
             showGutter={true}
             setOptions={{
               showLineNumbers: true,
-              tabSize: 2
+              tabSize: 2,
             }}
             value={this.state.bwdlText}
           />
@@ -260,7 +270,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
 
     return (
       <GraphView
-        ref={(el) => (this.GraphView = el)}
+        ref={el => (this.GraphView = el)}
         nodeKey={NODE_KEY}
         nodes={nodes}
         edges={edges}
@@ -288,9 +298,7 @@ class BwdlEditable extends React.Component<{}, IBwdlState> {
     return (
       <div id="bwdl-editable-graph">
         {this.renderSidebar()}
-        <div className="graph-container">
-          {this.renderGraph()}
-        </div>
+        <div className="graph-container">{this.renderGraph()}</div>
       </div>
     );
   }

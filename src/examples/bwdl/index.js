@@ -25,21 +25,19 @@ import { type INode } from '../../components/node';
 import { type LayoutEngineType } from '../../utilities/layout-engine/layout-engine-types';
 import BwdlTransformer from '../../utilities/transformers/bwdl-transformer';
 import Sidebar from '../sidebar';
-import GraphConfig, {
-  NODE_KEY
-} from './bwdl-config'; // Configures node/edge types
+import GraphConfig, { NODE_KEY } from './bwdl-config'; // Configures node/edge types
 import bwdlExample from './bwdl-example-data';
 import BwdlNodeForm from './bwdl-node-form';
 
 type IBwdlState = {
-  nodes: INode[];
-  edges: IEdge[];
-  selected: INode | IEdge | null;
-  layoutEngineType: LayoutEngineType;
-  bwdlText: string;
-  bwdlJson: any;
-  copiedNode: any;
-  selectedBwdlNode: any;
+  nodes: INode[],
+  edges: IEdge[],
+  selected: INode | IEdge | null,
+  layoutEngineType: LayoutEngineType,
+  bwdlText: string,
+  bwdlJson: any,
+  copiedNode: any,
+  selectedBwdlNode: any,
 };
 
 class Bwdl extends React.Component<{}, IBwdlState> {
@@ -58,24 +56,25 @@ class Bwdl extends React.Component<{}, IBwdlState> {
       layoutEngineType: 'VerticalTree',
       nodes: transformed.nodes,
       selected: null,
-      selectedBwdlNode: null
+      selectedBwdlNode: null,
     };
   }
 
   updateBwdl = () => {
     const transformed = BwdlTransformer.transform(this.state.bwdlJson);
+
     this.setState({
       edges: transformed.edges,
-      nodes: transformed.nodes
+      nodes: transformed.nodes,
     });
-  }
+  };
 
   handleTextAreaChange = (value: string, event: any) => {
     let input = null;
     const bwdlText = value;
 
     this.setState({
-      bwdlText
+      bwdlText,
     });
 
     try {
@@ -85,26 +84,40 @@ class Bwdl extends React.Component<{}, IBwdlState> {
     }
 
     this.setState({
-      bwdlJson: input
+      bwdlJson: input,
     });
 
     this.updateBwdl();
-  }
+  };
 
   onSelectNode = (node: INode | null) => {
     this.setState({
       selected: node,
-      selectedBwdlNode: node ? this.state.bwdlJson.States[node.title] : null
+      selectedBwdlNode: node ? this.state.bwdlJson.States[node.title] : null,
     });
-  }
+  };
 
-  onCreateNode = () => { return; };
-  onUpdateNode = () => { return; };
-  onDeleteNode = () => { return; };
-  onSelectEdge = () => { return; };
-  onCreateEdge = () => { return; };
-  onSwapEdge = () => { return; };
-  onDeleteEdge = () => { return; };
+  onCreateNode = () => {
+    return;
+  };
+  onUpdateNode = () => {
+    return;
+  };
+  onDeleteNode = () => {
+    return;
+  };
+  onSelectEdge = () => {
+    return;
+  };
+  onCreateEdge = () => {
+    return;
+  };
+  onSwapEdge = () => {
+    return;
+  };
+  onDeleteEdge = () => {
+    return;
+  };
 
   renderLeftSidebar() {
     return (
@@ -124,7 +137,7 @@ class Bwdl extends React.Component<{}, IBwdlState> {
             showGutter={true}
             setOptions={{
               showLineNumbers: true,
-              tabSize: 2
+              tabSize: 2,
             }}
             value={this.state.bwdlText}
           />
@@ -137,6 +150,7 @@ class Bwdl extends React.Component<{}, IBwdlState> {
     if (!this.state.selected) {
       return null;
     }
+
     return (
       <Sidebar direction="right" size="100%">
         <div className="selected-node-container">
@@ -156,9 +170,9 @@ class Bwdl extends React.Component<{}, IBwdlState> {
 
     return (
       <GraphView
-        ref={(el) => (this.GraphView = el)}
+        ref={el => (this.GraphView = el)}
         nodeKey={NODE_KEY}
-        readOnly={true}
+        readOnly={false}
         nodes={nodes}
         edges={edges}
         selected={selected}
@@ -182,9 +196,7 @@ class Bwdl extends React.Component<{}, IBwdlState> {
     return (
       <div id="bwdl-graph">
         {this.renderLeftSidebar()}
-        <div className="graph-container">
-          {this.renderGraph()}
-        </div>
+        <div className="graph-container">{this.renderGraph()}</div>
         {this.state.selected && this.renderRightSidebar()}
       </div>
     );

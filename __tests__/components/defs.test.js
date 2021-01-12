@@ -18,31 +18,36 @@ describe('Circle component', () => {
   beforeEach(() => {
     nodeTypes = {
       testType: {
-        shape: (<circle id="nodeTypeCircle" />)
-      }
+        shape: <circle id="nodeTypeCircle" />,
+      },
     };
     nodeSubtypes = {
       testSubtype: {
-        shape: (<rect id="nodeSubtypeRect" />)
-      }
+        shape: <rect id="nodeSubtypeRect" />,
+      },
     };
     edgeTypes = {
       testEdgeType: {
-        shape: (<path id="edgePath" />)
-      }
+        shape: <path id="edgePath" />,
+      },
     };
 
-    output = shallow(<Defs nodeTypes={nodeTypes} nodeSubtypes={nodeSubtypes} edgeTypes={edgeTypes} />);
+    output = shallow(
+      <Defs
+        nodeTypes={nodeTypes}
+        nodeSubtypes={nodeSubtypes}
+        edgeTypes={edgeTypes}
+      />
+    );
   });
 
   describe('render method', () => {
     it('renders without optional props', () => {
-      expect(output.find('circle').length).toEqual(1);
-      expect(output.find('rect').length).toEqual(1);
-      expect(output.find('path').length).toEqual(1);
       expect(output.find(ArrowheadMarker).length).toEqual(1);
       expect(output.find(ArrowheadMarker).props().edgeArrowSize).toEqual(8);
       expect(output.find(BackgroundPattern).length).toEqual(1);
+      expect(output.find(BackgroundPattern).props().gridSpacing).toEqual(36);
+      expect(output.find(BackgroundPattern).props().gridDotSize).toEqual(2);
       expect(output.find(DropshadowFilter).length).toEqual(1);
     });
 
@@ -50,7 +55,7 @@ describe('Circle component', () => {
       output.setProps({
         edgeArrowSize: 4,
         gridDotSize: 3,
-        gridSpacing: 10
+        gridSpacing: 10,
       });
       expect(output.find(ArrowheadMarker).props().edgeArrowSize).toEqual(4);
       expect(output.find(BackgroundPattern).props().gridSpacing).toEqual(10);
@@ -59,9 +64,10 @@ describe('Circle component', () => {
 
     it('uses the renderDefs prop callback', () => {
       output.setProps({
+        // eslint-disable-next-line react/display-name
         renderDefs: () => {
-          return (<ellipse id="renderDefsEllipse" />);
-        }
+          return <ellipse id="renderDefsEllipse" />;
+        },
       });
 
       expect(output.find('ellipse').length).toEqual(1);

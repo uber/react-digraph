@@ -3,17 +3,15 @@
 import * as d3 from 'd3';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-
-jest.mock('react-dom', () => {
-  return { };
-});
-
 import { shallow } from 'enzyme';
-
 import Background from '../../src/components/background';
 import Defs from '../../src/components/defs';
-import GraphUtils from '../../src/components/graph-util';
+import GraphUtils from '../../src/utilities/graph-util';
 import GraphView from '../../src/components/graph-view';
+
+jest.mock('react-dom', () => {
+  return {};
+});
 
 describe('GraphView component', () => {
   let output = null;
@@ -33,6 +31,7 @@ describe('GraphView component', () => {
   let onSelectEdge;
   let instance;
   let nodeKey;
+
   beforeEach(() => {
     nodes = [];
     edges = [];
@@ -41,43 +40,21 @@ describe('GraphView component', () => {
     edgeTypes = {};
     selected = null;
     nodeKey = 'id';
-    onDeleteNode = jasmine.createSpy();
-    onSelectNode = jasmine.createSpy();
-    onCreateNode = jasmine.createSpy();
-    onCreateEdge = jasmine.createSpy();
-    onDeleteEdge = jasmine.createSpy();
-    onUpdateNode = jasmine.createSpy();
-    onSwapEdge = jasmine.createSpy();
-    onSelectEdge = jasmine.createSpy();
-    ReactDOM.render = jasmine.createSpy();
+    onDeleteNode = jest.fn();
+    onSelectNode = jest.fn();
+    onCreateNode = jest.fn();
+    onCreateEdge = jest.fn();
+    onDeleteEdge = jest.fn();
+    onUpdateNode = jest.fn();
+    onSwapEdge = jest.fn();
+    onSelectEdge = jest.fn();
+    ReactDOM.render = jest.fn();
 
-    spyOn(document, 'querySelector').and.returnValue({
-      getBoundingClientRect: jasmine.createSpy().and.returnValue({
+    jest.spyOn(document, 'querySelector').mockReturnValue({
+      getBoundingClientRect: jest.fn().mockReturnValue({
         width: 0,
-        height: 0
-      })
-    });
-
-    // this gets around d3 being readonly, we need to customize the event object
-    let globalEvent = {
-      sourceEvent: {}
-    };
-    Object.defineProperty(d3, 'event', {
-      get: () => {
-        return globalEvent;
-      },
-      set: (event) => {
-        globalEvent = event;
-      }
-    });
-    let globalMouse = {};
-    Object.defineProperty(d3, 'mouse', {
-      get: () => {
-        return globalMouse;
-      },
-      set: (mouse) => {
-        globalMouse = mouse;
-      }
+        height: 0,
+      }),
     });
 
     output = shallow(
@@ -99,7 +76,6 @@ describe('GraphView component', () => {
         onSwapEdge={onSwapEdge}
       />
     );
-
     instance = output.instance();
   });
 
@@ -110,23 +86,27 @@ describe('GraphView component', () => {
       expect(output.find('.graph-controls-wrapper').length).toEqual(1);
 
       const graph = output.find('.graph');
+
       expect(graph.length).toEqual(1);
 
       const defs = graph.find(Defs);
+
       expect(defs.length).toEqual(1);
       expect(defs.props().edgeArrowSize).toEqual(8);
       expect(defs.props().gridSpacing).toEqual(36);
-      expect(defs.props().gridDotSize).toEqual(2);
+      expect(defs.props().gridDotSize).toEqual(undefined);
       expect(defs.props().nodeTypes).toEqual(nodeTypes);
       expect(defs.props().nodeSubtypes).toEqual(nodeSubtypes);
       expect(defs.props().edgeTypes).toEqual(edgeTypes);
-      expect(defs.props().renderDefs).toBeDefined();
+      expect(defs.props().renderDefs).not.toBeDefined();
 
       const view = graph.find('.view');
       const entities = view.find('.entities');
+
       expect(entities.length).toEqual(1);
 
       const background = view.find(Background);
+
       expect(background.length).toEqual(1);
     });
   });
@@ -134,28 +114,46 @@ describe('GraphView component', () => {
   describe('renderGraphControls method', () => {
     beforeEach(() => {
       instance.viewWrapper = {
-        current: document.createElement('div')
-      }
+        current: document.createElement('div'),
+      };
       instance.viewWrapper.current.width = 500;
       instance.viewWrapper.current.height = 500;
       const graphControlsWrapper = document.createElement('g');
+
+      graphControlsWrapper.id = 'react-digraph-graph-controls-wrapper';
       graphControlsWrapper.classList.add('graph-controls-wrapper');
       instance.viewWrapper.current.appendChild(graphControlsWrapper);
+
+      jest
+        .spyOn(document, 'getElementById')
+        .mockReturnValue(graphControlsWrapper);
+      instance.graphControlsWrapper = graphControlsWrapper;
+    });
+
+    afterEach(() => {
+      document.getElementById.mockRestore();
     });
 
     it('does nothing when showGraphControls is false', () => {
       output.setProps({
-        showGraphControls: false
+        showGraphControls: false,
       });
       instance.renderGraphControls();
       expect(ReactDOM.render).not.toHaveBeenCalled();
+
+      output.setProps({
+        showGraphControls: true,
+      });
     });
 
     it('uses ReactDOM.render to async render the GraphControls', () => {
+      output.setProps({
+        showGraphControls: true,
+      });
       output.setState({
         viewTransform: {
-          k: 0.6
-        }
+          k: 0.6,
+        },
       });
       instance.renderGraphControls();
       expect(ReactDOM.render).toHaveBeenCalled();
@@ -164,7 +162,7 @@ describe('GraphView component', () => {
 
   describe('renderEdges method', () => {
     beforeEach(() => {
-      spyOn(instance, 'asyncRenderEdge');
+      jest.spyOn(instance, 'asyncRenderEdge');
     });
 
     it('does nothing when there are no entities', () => {
@@ -175,7 +173,7 @@ describe('GraphView component', () => {
 
     it('does nothing while dragging an edge', () => {
       output.setState({
-        draggingEdge: true
+        draggingEdge: true,
       });
       instance.entities = [];
       instance.renderEdges();
@@ -187,16 +185,16 @@ describe('GraphView component', () => {
         edges: [
           {
             source: 'b',
-            target: 'a'
+            target: 'a',
           },
           {
             source: 'c',
-            target: 'a'
-          }
-        ]
+            target: 'a',
+          },
+        ],
       });
       // modifying the edges will call renderEdges, we need to reset this count.
-      instance.asyncRenderEdge.calls.reset();
+      instance.asyncRenderEdge.mockReset();
       instance.entities = [];
       instance.renderEdges();
       expect(instance.asyncRenderEdge).toHaveBeenCalledTimes(2);
@@ -205,25 +203,67 @@ describe('GraphView component', () => {
 
   describe('syncRenderEdge method', () => {
     beforeEach(() => {
-      spyOn(instance, 'renderEdge');
-      spyOn(instance, 'getEdgeComponent').and.returnValue('blah');
+      jest.spyOn(instance, 'renderEdge');
+      jest.spyOn(instance, 'getEdgeComponent').mockReturnValue('blah');
     });
 
     it('sets up a renderEdge call synchronously', () => {
       const expectedEdge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
       instance.syncRenderEdge(expectedEdge);
-      expect(instance.renderEdge).toHaveBeenCalledWith('edge-a-b', 'blah', expectedEdge, false);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-a-b',
+        'blah',
+        expectedEdge,
+        false
+      );
     });
 
     it('uses a custom idVar', () => {
       const expectedEdge = {
-        source: 'a'
+        source: 'a',
       };
+
       instance.syncRenderEdge(expectedEdge);
-      expect(instance.renderEdge).toHaveBeenCalledWith('edge-custom', 'blah', expectedEdge, false);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-custom',
+        'blah',
+        expectedEdge,
+        false
+      );
+    });
+
+    it('sets up a renderEdge call synchronously when source key = 0', () => {
+      const expectedEdge = {
+        source: 0,
+        target: 'b',
+      };
+
+      instance.syncRenderEdge(expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-0-b',
+        'blah',
+        expectedEdge,
+        false
+      );
+    });
+
+    it('sets up a renderEdge call synchronously when target key = 0', () => {
+      const expectedEdge = {
+        source: 'a',
+        target: 0,
+      };
+
+      instance.syncRenderEdge(expectedEdge);
+      expect(instance.renderEdge).toHaveBeenCalledWith(
+        'edge-a-0',
+        'blah',
+        expectedEdge,
+        false
+      );
     });
   });
 
@@ -231,6 +271,7 @@ describe('GraphView component', () => {
     beforeEach(() => {
       jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
         cb();
+
         return true;
       });
     });
@@ -239,14 +280,43 @@ describe('GraphView component', () => {
     });
 
     it('renders asynchronously', () => {
-      spyOn(instance, 'syncRenderEdge');
+      jest.spyOn(instance, 'syncRenderEdge');
       const edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
       instance.asyncRenderEdge(edge);
 
       expect(instance.edgeTimeouts['edges-a-b']).toBeDefined();
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
+    });
+
+    it('renders asynchronously when source key = 0', () => {
+      jest.spyOn(instance, 'syncRenderEdge');
+      const edge = {
+        source: 0,
+        target: 'b',
+      };
+
+      instance.asyncRenderEdge(edge);
+
+      expect(instance.edgeTimeouts['edges-0-b']).toBeDefined();
+      expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
+    });
+
+    it('renders asynchronously when target key = 0', () => {
+      jest.spyOn(instance, 'syncRenderEdge');
+      const edge = {
+        source: 'a',
+        target: 0,
+      };
+
+      instance.asyncRenderEdge(edge);
+
+      expect(instance.edgeTimeouts['edges-a-0']).toBeDefined();
       expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
       expect(instance.syncRenderEdge).toHaveBeenCalledWith(edge, false);
     });
@@ -255,18 +325,33 @@ describe('GraphView component', () => {
   describe('renderEdge method', () => {
     beforeEach(() => {
       instance.entities = {
-        appendChild: jasmine.createSpy()
+        appendChild: jest.fn(),
       };
-      ReactDOM.render = jasmine.createSpy();
+      ReactDOM.render = jest.fn();
     });
 
     it('appends an edge element into the entities element', () => {
+      output.setProps({
+        edges: [],
+      });
       const element = document.createElement('g');
       const edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
-      instance.renderEdge('test', element, edge);
+
+      const querySelectorResponse = undefined;
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return querySelectorResponse;
+          }),
+        },
+      };
+
+      // using Date.getTime to make this a unique edge
+      instance.renderEdge(`test-${new Date().getTime()}`, element, edge);
 
       expect(instance.entities.appendChild).toHaveBeenCalled();
     });
@@ -274,12 +359,21 @@ describe('GraphView component', () => {
     it('replaces an edge in an existing container', () => {
       const element = document.createElement('g');
       const container = document.createElement('g');
+
       container.id = 'test-container';
-      spyOn(document, 'getElementById').and.returnValue(container);
       const edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return container;
+          }),
+        },
+      };
+
       instance.renderEdge('test', element, edge);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
@@ -289,22 +383,21 @@ describe('GraphView component', () => {
 
   describe('getEdgeComponent method', () => {
     beforeEach(() => {
-      nodes = [
-        { id: 'a' },
-        { id: 'b' }
-      ];
+      nodes = [{ id: 'a' }, { id: 'b' }];
     });
 
     it('returns an Edge component', () => {
       const edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
       output.setProps({
-        nodes
+        nodes,
       });
 
       const result = instance.getEdgeComponent(edge);
+
       expect(result.type.prototype.constructor.name).toEqual('Edge');
       expect(result.props.data).toEqual(edge);
       expect(result.props.sourceNode).toEqual(nodes[0]);
@@ -314,9 +407,10 @@ describe('GraphView component', () => {
     it('handles missing nodes', () => {
       const edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
       const result = instance.getEdgeComponent(edge);
+
       expect(result.type.prototype.constructor.name).toEqual('Edge');
       expect(result.props.data).toEqual(edge);
       expect(result.props.sourceNode).toEqual(null);
@@ -326,12 +420,14 @@ describe('GraphView component', () => {
     it('handles a targetPosition', () => {
       const edge = {
         source: 'a',
-        targetPosition: { x: 0, y: 10 }
+        targetPosition: { x: 0, y: 10 },
       };
+
       output.setProps({
-        nodes
+        nodes,
       });
       const result = instance.getEdgeComponent(edge);
+
       expect(result.type.prototype.constructor.name).toEqual('Edge');
       expect(result.props.data).toEqual(edge);
       expect(result.props.sourceNode).toEqual(nodes[0]);
@@ -341,26 +437,23 @@ describe('GraphView component', () => {
 
   describe('renderNodes method', () => {
     beforeEach(() => {
-      spyOn(instance, 'asyncRenderNode');
-      nodes = [
-        { id: 'a' },
-        { id: 'b' }
-      ];
+      jest.spyOn(instance, 'asyncRenderNode');
+      nodes = [{ id: 'a' }, { id: 'b' }];
       output.setProps({
-        nodes
+        nodes,
       });
     });
 
     it('returns early when there are no entities', () => {
       // asyncRenderNode gets called when new nodes are added. Reset the calls.
-      instance.asyncRenderNode.calls.reset();
+      instance.asyncRenderNode.mockReset();
 
       instance.renderNodes();
       expect(instance.asyncRenderNode).not.toHaveBeenCalled();
     });
 
     it('calls asynchronously renders each node', () => {
-      instance.asyncRenderNode.calls.reset();
+      instance.asyncRenderNode.mockReset();
       instance.entities = [];
       instance.renderNodes();
       expect(instance.asyncRenderNode).toHaveBeenCalledTimes(2);
@@ -369,10 +462,11 @@ describe('GraphView component', () => {
 
   describe('isEdgeSelected method', () => {
     let edge;
+
     beforeEach(() => {
       edge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
       edges.push(edge);
     });
@@ -381,24 +475,26 @@ describe('GraphView component', () => {
       selected = edge;
       output.setProps({
         edges,
-        selected
+        selected,
       });
 
       const result = instance.isEdgeSelected(edge);
+
       expect(result).toEqual(true);
     });
 
     it('returns false when the edge is not selected', () => {
       selected = {
         source: 'b',
-        target: 'c'
+        target: 'c',
       };
       output.setProps({
         edges,
-        selected
+        selected,
       });
 
       const result = instance.isEdgeSelected(edge);
+
       expect(result).toEqual(false);
     });
   });
@@ -407,16 +503,20 @@ describe('GraphView component', () => {
     it('renders a node and connected edges', () => {
       const node = { id: 'a' };
       const nodesProp = [node];
+
       output.setProps({
         nodeKey,
-        nodes: nodesProp
+        nodes: nodesProp,
       });
-      spyOn(instance, 'renderNode');
-      spyOn(instance, 'renderConnectedEdgesFromNode');
+      jest.spyOn(instance, 'renderNode');
+      jest.spyOn(instance, 'renderConnectedEdgesFromNode');
 
       instance.syncRenderNode(node, 0);
 
-      expect(instance.renderNode).toHaveBeenCalledWith('node-a', jasmine.any(Object));
+      expect(instance.renderNode).toHaveBeenCalledWith(
+        'node-a',
+        expect.any(Object)
+      );
       expect(instance.renderConnectedEdgesFromNode).toHaveBeenCalled();
     });
   });
@@ -425,6 +525,7 @@ describe('GraphView component', () => {
     beforeEach(() => {
       jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
         cb();
+
         return true;
       });
     });
@@ -433,8 +534,9 @@ describe('GraphView component', () => {
     });
 
     it('renders asynchronously', () => {
-      spyOn(instance, 'syncRenderNode');
+      jest.spyOn(instance, 'syncRenderNode');
       const node = { id: 'a' };
+
       instance.asyncRenderNode(node);
 
       expect(instance.nodeTimeouts['nodes-a']).toBeDefined();
@@ -445,22 +547,19 @@ describe('GraphView component', () => {
 
   describe('renderConnectedEdgesFromNode method', () => {
     let node;
+
     beforeEach(() => {
-      spyOn(instance, 'asyncRenderEdge');
+      jest.spyOn(instance, 'asyncRenderEdge');
       node = {
         id: 'a',
-        incomingEdges: [
-          { source: 'b', target: 'a' }
-        ],
-        outgoingEdges: [
-          { source: 'a', target: 'c' }
-        ]
+        incomingEdges: [{ source: 'b', target: 'a' }],
+        outgoingEdges: [{ source: 'a', target: 'c' }],
       };
     });
 
     it('does nothing while dragging an edge', () => {
       output.setState({
-        draggingEdge: true
+        draggingEdge: true,
       });
 
       instance.renderConnectedEdgesFromNode(node);
@@ -478,13 +577,24 @@ describe('GraphView component', () => {
   describe('renderNode method', () => {
     beforeEach(() => {
       instance.entities = {
-        appendChild: jasmine.createSpy()
+        appendChild: jest.fn(),
       };
-      ReactDOM.render = jasmine.createSpy();
+      ReactDOM.render = jest.fn();
     });
 
     it('appends a node element into the entities element', () => {
       const element = document.createElement('g');
+
+      const querySelectorResponse = undefined;
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return querySelectorResponse;
+          }),
+        },
+      };
+
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).toHaveBeenCalled();
@@ -493,8 +603,17 @@ describe('GraphView component', () => {
     it('replaces a node in an existing container', () => {
       const element = document.createElement('g');
       const container = document.createElement('g');
+
       container.id = 'test-container';
-      spyOn(document, 'getElementById').and.returnValue(container);
+
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return container;
+          }),
+        },
+      };
+
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
@@ -504,6 +623,7 @@ describe('GraphView component', () => {
 
   describe('getNodeComponent method', () => {
     let node;
+
     beforeEach(() => {
       node = { id: 'a' };
     });
@@ -520,32 +640,11 @@ describe('GraphView component', () => {
     it('returns a selected node', () => {
       output.setProps({
         nodes: [node],
-        selected: node
+        selected: node,
       });
       const result = instance.getNodeComponent('test', node, 0);
+
       expect(result.props.isSelected).toEqual(true);
-    });
-  });
-
-  describe('renderBackground method', () => {
-    it('uses the renderBackground callback', () => {
-      const renderBackground = jasmine.createSpy().and.returnValue('test');
-      output.setProps({
-        gridSize: 1000,
-        renderBackground
-      });
-
-      const result = instance.renderBackground();
-
-      expect(renderBackground).toHaveBeenCalledWith(1000);
-      expect(result).toEqual('test');
-    });
-
-    it('renders the background', () => {
-      const result = instance.renderBackground();
-      expect(result.type.prototype.constructor.name).toEqual('Background');
-      expect(result.props.gridSize).toEqual(40960);
-      expect(result.props.backgroundFillId).toEqual('#grid');
     });
   });
 
@@ -553,9 +652,9 @@ describe('GraphView component', () => {
     it('sets up the view and calls renderNodes asynchronously', () => {
       jest.useFakeTimers();
       jest.clearAllTimers();
-      spyOn(instance, 'renderNodes');
+      jest.spyOn(instance, 'renderNodes');
       output.setState({
-        viewTransform: 'test'
+        viewTransform: 'test',
       });
       instance.selectedView = d3.select(document.createElement('g'));
 
@@ -579,24 +678,29 @@ describe('GraphView component', () => {
 
   describe('modifyZoom', () => {
     beforeEach(() => {
-      spyOn(instance, 'setZoom');
+      jest.spyOn(instance, 'setZoom');
       instance.viewWrapper = {
-        current: document.createElement('div')
-      }
+        current: document.createElement('div'),
+      };
       instance.viewWrapper.current.width = 500;
       instance.viewWrapper.current.height = 500;
       instance.setState({
         viewTransform: {
           k: 0.4,
           x: 50,
-          y: 50
-        }
+          y: 50,
+        },
       });
     });
 
     it('modifies the zoom', () => {
       instance.modifyZoom(0.1, 5, 10, 100);
-      expect(instance.setZoom).toHaveBeenCalledWith(0.44000000000000006, 55, 60, 100);
+      expect(instance.setZoom).toHaveBeenCalledWith(
+        0.44000000000000006,
+        55,
+        60,
+        100
+      );
     });
 
     it('does nothing when targetZoom is too small', () => {
@@ -617,28 +721,30 @@ describe('GraphView component', () => {
 
   describe('handleZoomToFit method', () => {
     beforeEach(() => {
-      spyOn(instance, 'setZoom');
+      jest.spyOn(instance, 'setZoom');
       instance.viewWrapper = {
-        current: document.createElement('div')
-      }
+        current: document.createElement('div'),
+      };
       // this gets around instance.viewWrapper.client[Var] being readonly, we need to customize the object
       let globalWidth = 0;
+
       Object.defineProperty(instance.viewWrapper.current, 'clientWidth', {
         get: () => {
           return globalWidth;
         },
-        set: (clientWidth) => {
+        set: clientWidth => {
           globalWidth = clientWidth;
-        }
+        },
       });
       let globalHeight = 0;
+
       Object.defineProperty(instance.viewWrapper.current, 'clientHeight', {
         get: () => {
           return globalHeight;
         },
-        set: (clientHeight) => {
+        set: clientHeight => {
           globalHeight = clientHeight;
-        }
+        },
       });
       instance.viewWrapper.current.clientWidth = 500;
       instance.viewWrapper.current.clientHeight = 500;
@@ -646,11 +752,13 @@ describe('GraphView component', () => {
         viewTransform: {
           k: 0.4,
           x: 50,
-          y: 50
-        }
+          y: 50,
+        },
       });
       instance.entities = document.createElement('g');
-      instance.entities.getBBox = jasmine.createSpy().and.returnValue({ width: 400, height: 300, x: 5, y: 10 });
+      instance.entities.getBBox = jest
+        .fn()
+        .mockReturnValue({ width: 400, height: 300, x: 5, y: 10 });
     });
 
     it('modifies the zoom to fit the elements', () => {
@@ -663,43 +771,59 @@ describe('GraphView component', () => {
       output.setProps({
         maxZoom: null,
         minZoom: null,
-        zoomDur: 100
+        zoomDur: 100,
       });
       instance.handleZoomToFit();
       expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 100);
     });
 
     it('does not modify the zoom', () => {
-      instance.entities.getBBox.and.returnValue({ width: 0, height: 0, x: 5, y: 5 });
+      instance.entities.getBBox.mockReturnValue({
+        width: 0,
+        height: 0,
+        x: 5,
+        y: 5,
+      });
       instance.handleZoomToFit();
       expect(instance.setZoom).toHaveBeenCalledWith(0.825, 0, 0, 750);
     });
 
     it('uses the maxZoom when k is greater than max', () => {
-      instance.entities.getBBox.and.returnValue({ width: 5, height: 5, x: 5, y: 5 });
+      instance.entities.getBBox.mockReturnValue({
+        width: 5,
+        height: 5,
+        x: 5,
+        y: 5,
+      });
       instance.handleZoomToFit();
       expect(instance.setZoom).toHaveBeenCalledWith(1.5, 238.75, 238.75, 750);
     });
 
     it('uses the minZoom when k is less than min', () => {
-      instance.entities.getBBox.and.returnValue({ width: 10000, height: 10000, x: 5, y: 5 });
+      instance.entities.getBBox.mockReturnValue({
+        width: 10000,
+        height: 10000,
+        x: 5,
+        y: 5,
+      });
       instance.handleZoomToFit();
-      expect(instance.setZoom).toHaveBeenCalledWith(0.15, -500.75, -500.75, 750);
+      expect(instance.setZoom).toHaveBeenCalledWith(
+        0.15,
+        -500.75,
+        -500.75,
+        750
+      );
     });
   });
 
   describe('handleZoomEnd method', () => {
     beforeEach(() => {
-      spyOn(GraphUtils, 'removeElementFromDom');
-      spyOn(instance, 'canSwap').and.returnValue(false);
-      spyOn(instance, 'syncRenderEdge');
+      jest.spyOn(GraphUtils, 'removeElementFromDom');
+      jest.spyOn(instance, 'canSwap').mockReturnValue(false);
+      jest.spyOn(instance, 'syncRenderEdge');
       output.setProps({
         edges: [{ source: 'a', target: 'b' }],
-        nodes: [
-          { id: 'a' },
-          { id: 'b' },
-          { id: 'c' }
-        ]
+        nodes: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
       });
     });
 
@@ -710,22 +834,30 @@ describe('GraphView component', () => {
 
     it('does nothing when there is no dragged edge object', () => {
       output.setState({
-        draggingEdge: true
+        draggingEdge: true,
       });
       instance.handleZoomEnd();
       expect(GraphUtils.removeElementFromDom).not.toHaveBeenCalled();
     });
 
     it('drags an edge', () => {
-      instance.canSwap.and.returnValue(true);
+      instance.canSwap.mockReturnValue(true);
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
       const draggedEdge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
       output.setState({
         draggedEdge,
         draggingEdge: true,
-        edgeEndNode: { id: 'c' }
+        edgeEndNode: { id: 'c' },
       });
       instance.handleZoomEnd();
       expect(GraphUtils.removeElementFromDom).toHaveBeenCalled();
@@ -736,60 +868,94 @@ describe('GraphView component', () => {
     });
 
     it('handles swapping the edge to a different node', () => {
-      instance.canSwap.and.returnValue(true);
+      instance.canSwap.mockReturnValue(true);
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
       const draggedEdge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
+
       output.setState({
         draggedEdge,
         draggingEdge: true,
-        edgeEndNode: { id: 'c' }
+        edgeEndNode: { id: 'c' },
       });
       instance.handleZoomEnd();
-      expect(instance.syncRenderEdge).toHaveBeenCalledWith({ source: 'a', target: 'c' });
+      expect(instance.syncRenderEdge).toHaveBeenCalledWith({
+        source: 'a',
+        target: 'c',
+      });
     });
   });
 
   describe('handleZoom method', () => {
+    let event;
+
     beforeEach(() => {
-      spyOn(instance, 'dragEdge');
-      spyOn(instance, 'renderGraphControls');
-      d3.event = {
-        transform: 'test'
+      jest.spyOn(instance, 'dragEdge');
+      jest.spyOn(instance, 'renderGraphControls');
+      event = {
+        transform: 'test',
       };
       instance.view = document.createElement('g');
+      instance.viewWrapper = {
+        current: {
+          ownerDocument: document,
+        },
+      };
     });
 
     it('handles the zoom event when a node is not hovered nor an edge is being dragged', () => {
-      instance.handleZoom();
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
+
+      instance.handleZoom(event);
       expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
-    it('does nothing when the zoom level hasn\'t changed', () => {
+    it("does nothing when the zoom level hasn't changed", () => {
       output.setState({
-        viewTransform: 'test'
+        viewTransform: 'test',
       });
-      instance.handleZoom();
+      instance.handleZoom(event);
       expect(instance.renderGraphControls).not.toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('deals with dragging an edge', () => {
       output.setState({
-        draggingEdge: true
+        draggingEdge: true,
       });
-      instance.handleZoom();
+      instance.handleZoom(event);
       expect(instance.renderGraphControls).not.toHaveBeenCalled();
       expect(instance.dragEdge).toHaveBeenCalled();
     });
 
     it('zooms when a node is hovered', () => {
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
+
       output.setState({
-        hoveredNode: {}
+        hoveredNode: {},
       });
-      instance.handleZoom();
+      instance.handleZoom(event);
       expect(instance.renderGraphControls).toHaveBeenCalled();
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
@@ -797,104 +963,208 @@ describe('GraphView component', () => {
 
   describe('dragEdge method', () => {
     let draggedEdge;
+    let mouse;
+
     beforeEach(() => {
       draggedEdge = {
         source: 'a',
-        target: 'b'
+        target: 'b',
       };
-      spyOn(instance, 'syncRenderEdge');
+      jest.spyOn(instance, 'syncRenderEdge');
       instance.selectedView = d3.select(document.createElement('g'));
-      d3.mouse = jasmine.createSpy().and.returnValue([5, 15]);
+      mouse = jest.fn().mockReturnValue([5, 15]);
       output.setProps({
         nodes: [
           { id: 'a', x: 5, y: 10 },
-          { id: 'b', x: 10, y: 20 }
-        ]
+          { id: 'b', x: 10, y: 20 },
+        ],
       });
       output.setState({
-        draggedEdge
+        draggedEdge,
       });
     });
 
     it('does nothing when an edge is not dragged', () => {
       output.setState({
-        draggedEdge: null
+        draggedEdge: null,
       });
-      instance.dragEdge();
+      instance.dragEdge(undefined, mouse);
       expect(instance.syncRenderEdge).not.toHaveBeenCalled();
     });
 
     it('drags the edge', () => {
-      instance.dragEdge();
+      instance.dragEdge(undefined, mouse);
       expect(instance.syncRenderEdge).toHaveBeenCalledWith({
         source: draggedEdge.source,
-        targetPosition: { x: 5, y: 15 }
+        targetPosition: { x: 5, y: 15 },
       });
     });
   });
 
   describe('handleZoomStart method', () => {
     let edge;
+    let event;
+
     beforeEach(() => {
-      spyOn(instance, 'dragEdge');
-      spyOn(instance, 'isArrowClicked').and.returnValue(true);
-      spyOn(instance, 'removeEdgeElement');
+      instance.dragEdge = jest.fn();
+      jest.spyOn(instance, 'isArrowClicked').mockReturnValue(true);
+      jest.spyOn(instance, 'removeEdgeElement');
       edge = { source: 'a', target: 'b' };
       output.setProps({
-        edges: [edge]
+        edges: [edge],
       });
-      d3.event = {
+      event = {
         sourceEvent: {
           target: {
-            classList: {
-              contains: jasmine.createSpy().and.returnValue(true)
-            },
-            id: 'a_b'
+            matches: jest.fn().mockReturnValue(true),
+            id: 'a_b',
           },
-          buttons: 0
-        }
+          buttons: 0,
+        },
       };
     });
 
     it('does nothing when the graph is readOnly', () => {
       output.setProps({
-        readOnly: true
+        readOnly: true,
       });
-      instance.handleZoomStart();
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing when there is no sourceEvent', () => {
-      d3.event = {
-        sourceEvent: null
+      event = {
+        sourceEvent: null,
       };
-      instance.handleZoomStart();
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing when the sourceEvent is not an edge', () => {
-      d3.event.sourceEvent.target.classList.contains.and.returnValue(false);
-      instance.handleZoomStart();
+      event.sourceEvent.target.matches = jest.fn().mockReturnValue(false);
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
-    it('does nothing if the arrow wasn\'t clicked', () => {
-      instance.isArrowClicked.and.returnValue(false);
-      instance.handleZoomStart();
+    it("does nothing if the arrow wasn't clicked", () => {
+      instance.isArrowClicked.mockReturnValue(false);
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('does nothing if there is no edge', () => {
-      d3.event.sourceEvent.target.id = 'fake';
-      instance.handleZoomStart();
+      event.sourceEvent.target.id = 'fake';
+      instance.handleZoomStart(event);
       expect(instance.dragEdge).not.toHaveBeenCalled();
     });
 
     it('drags the edge', () => {
-      d3.event.sourceEvent.buttons = 2;
-      instance.handleZoomStart();
+      instance.viewWrapper = {
+        current: {
+          querySelector: jest.fn().mockImplementation(selector => {
+            return {};
+          }),
+        },
+      };
+      event.sourceEvent.buttons = 2;
+      instance.isArrowClicked = jest.fn().mockReturnValue(true);
+      instance.handleZoomStart(event);
       expect(output.state().draggedEdge).toEqual(edge);
       expect(instance.dragEdge).toHaveBeenCalled();
+    });
+  });
+
+  describe('panToEntity method', () => {
+    const entity = document.createElement('g');
+
+    entity.getBBox = jest
+      .fn()
+      .mockReturnValue({ width: 400, height: 300, x: 5, y: 10 });
+    beforeEach(() => {
+      jest.spyOn(instance, 'setZoom');
+      instance.viewWrapper = {
+        current: document.createElement('div'),
+      };
+      // this gets around instance.viewWrapper.client[Var] being readonly, we need to customize the object
+      let globalWidth = 0;
+
+      Object.defineProperty(instance.viewWrapper.current, 'clientWidth', {
+        get: () => {
+          return globalWidth;
+        },
+        set: clientWidth => {
+          globalWidth = clientWidth;
+        },
+      });
+      let globalHeight = 0;
+
+      Object.defineProperty(instance.viewWrapper.current, 'clientHeight', {
+        get: () => {
+          return globalHeight;
+        },
+        set: clientHeight => {
+          globalHeight = clientHeight;
+        },
+      });
+      instance.viewWrapper.current.clientWidth = 500;
+      instance.viewWrapper.current.clientHeight = 500;
+      instance.setState({
+        viewTransform: {
+          k: 0.4,
+          x: 50,
+          y: 50,
+        },
+      });
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('modifies the zoom to pan to the element', () => {
+      instance.panToEntity(entity, false);
+      expect(entity.getBBox).toHaveBeenCalled();
+      expect(instance.setZoom).toHaveBeenCalledWith(0.4, 168, 186, 750);
+    });
+
+    it('modifies the zoom to pan and zoom to the element', () => {
+      instance.panToEntity(entity, true);
+      expect(entity.getBBox).toHaveBeenCalled();
+      expect(instance.setZoom).toHaveBeenCalledWith(1.125, 19.375, 70, 750);
+    });
+  });
+
+  describe('panToNode method', () => {
+    const entity = document.createElement('g');
+
+    entity.id = 'node-a1-container';
+
+    beforeEach(() => {
+      instance.panToEntity = jest.fn();
+
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('calls panToEntity on the appropriate node', () => {
+      instance.panToNode('a1');
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
+    });
+  });
+
+  describe('panToEdge method', () => {
+    const entity = document.createElement('g');
+
+    entity.id = 'edge-a1-a2-container';
+
+    beforeEach(() => {
+      instance.panToEntity = jest.fn();
+
+      instance.entities = document.createElement('g');
+      instance.entities.appendChild(entity);
+    });
+
+    it('calls panToEntity on the appropriate edge', () => {
+      instance.panToEdge('a1', 'a2');
+      expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
     });
   });
 });
