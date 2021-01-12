@@ -29,6 +29,7 @@ describe('GraphView component', () => {
   let onUpdateNode;
   let onSwapEdge;
   let onSelectEdge;
+  let onUndo;
   let instance;
   let nodeKey;
 
@@ -48,6 +49,7 @@ describe('GraphView component', () => {
     onUpdateNode = jest.fn();
     onSwapEdge = jest.fn();
     onSelectEdge = jest.fn();
+    onUndo = jest.fn();
     ReactDOM.render = jest.fn();
 
     jest.spyOn(document, 'querySelector').mockReturnValue({
@@ -74,6 +76,7 @@ describe('GraphView component', () => {
         onCreateEdge={onCreateEdge}
         onUpdateNode={onUpdateNode}
         onSwapEdge={onSwapEdge}
+        onUndo={onUndo}
       />
     );
     instance = output.instance();
@@ -1165,6 +1168,55 @@ describe('GraphView component', () => {
     it('calls panToEntity on the appropriate edge', () => {
       instance.panToEdge('a1', 'a2');
       expect(instance.panToEntity).toHaveBeenCalledWith(entity, false);
+    });
+  });
+
+  describe('handleKeyDown', () => {
+    it('ignores keydown when not focused', () => {
+      output.setState({ focused: false });
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'z',
+          char: 'z',
+          keyCode: 90,
+          metaKey: true,
+        })
+      );
+      expect(onUndo).not.toHaveBeenCalled();
+    });
+
+    it('handles keydown when focused', () => {
+      output.setState({ focused: true });
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'z',
+          char: 'z',
+          keyCode: 90,
+          metaKey: true,
+        })
+      );
+      expect(onUndo).toHaveBeenCalled();
+    });
+  });
+
+  describe('handleDocumentClick', () => {
+    it('removes focus when clicking outside svg', () => {
+      output.setState({ focused: true });
+      document.documentElement.dispatchEvent(new MouseEvent('mousedown'));
+      expect(instance.state.focused).toBe(false);
+    });
+
+    it('keeps focus when clicking inside svg', () => {
+      output.setState({ focused: true });
+      instance.graphSvg = {
+        current: document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
+      };
+      const child = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      instance.graphSvg.current.appendChild(child);
+
+      child.dispatchEvent(new MouseEvent('mousedown'));
+      expect(instance.state.focused).toBe(true);
     });
   });
 });
