@@ -1,9 +1,9 @@
 import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import config from '../webpack.prod';
+import config from '../webpack.config';
 
 config.plugins.push(new BundleAnalyzerPlugin());
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
 
 const compiler = webpack(config);
 
