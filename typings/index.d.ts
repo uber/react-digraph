@@ -141,6 +141,7 @@ declare module 'react-digraph' {
       selectedNode: INode,
       xyCoords?: { x: number, y: number }
     ) => void,
+    onSelect?: (selected: { nodes: Set<INode>, edges: Set<IEdge> }) => void;
     onSelectEdge?: (selectedEdge: IEdge) => void;
     onSelectNode?: (node: INode | null, event: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;

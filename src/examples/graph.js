@@ -353,7 +353,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     this.setState({ selected: viewEdge });
   };
 
-  onSelect = ({ nodes, edges }: { nodes: INode[], edges: IEdge[] }) => {
+  onSelect = ({ nodes, edges }: { nodes: Set<INode>, edges: Set<IEdge> }) => {
     this.setState({
       selectedNodes: nodes,
       selectedEdges: edges,
