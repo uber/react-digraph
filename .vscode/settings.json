@@ -10,6 +10,9 @@
   },
   "prettier.eslintIntegration": true,
   "eslint.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   "workbench.colorCustomizations": {},
   "editor.tabSize": 2
 }

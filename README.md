@@ -203,8 +203,8 @@ All props are detailed below.
 | `edges`                    | `Array<IEdge>`             | `true`       | Array of graph edges.                                                                                                                                                                       |
 | `allowMultiselect`         | `boolean`                  | `false`      | Use Ctrl-Shift-LeftMouse to draw a multiple selection box |
 | `selected`                 | `object`                   | `true`       | The currently selected graph entity. |
-| `selectedNodes`                 | `Array<INode>`                   | `false`       | If allowMultiselect is true, this should be the currently selected array of nodes. |
-| `selectedEdges`                 | `Array<IEdge>`                   | `true`       | If allowMultiselect is true, this should be the currently selected array of edges. |
+| `selectedNodes`            | `Map<string, INode>`                   | `false`       | If allowMultiselect is true, this should be the currently selected array of nodes. |
+| `selectedEdges`            | `Map<string, IEdge>`                   | `false`       | If allowMultiselect is true, this should be the currently selected array of edges. |
 | `nodeTypes`                | `object`                   | `true`       | Config object of available node types.                                                                                                                                                      |
 | `nodeSubtypes`             | `object`                   | `true`       | Config object of available node subtypes.                                                                                                                                                   |
 | `edgeTypes`                | `object`                   | `true`       | Config object of available edge types.                                                                                                                                                      |
@@ -213,11 +213,11 @@ All props are detailed below.
 | `onCreateNode`             | `func`                     | `true`       | Called when a node is created.                                                                                                                                                              |
 | `onContextMenu`            | `func`                     | `true`       | Called when contextmenu event triggered.                                                                                                                                                              |
 | `onUpdateNode`             | `func`                     | `true`       | Called when a node is moved.                                                                                                                                                                |
-| `onDeleteNode`             | `func`                     | `true`       | Called when a node is deleted.                                                                                                                                                              |
+| `onDeleteNode`             | `func`                     | `true`       | Called when a node is deleted. This function should also delete connected edges. |
 | `onSelectEdge`             | `func`                     | `true`       | Called when an edge is selected. |
 | `onCreateEdge`             | `func`                     | `true`       | Called when an edge is created.                                                                                                                                                             |
 | `onSwapEdge`               | `func`                     | `true`       | Called when an edge `'target'` is swapped.                                                                                                                                                  |
-| `onDeleteEdge`             | `func`                     | `true`       | Called when an edge is deleted.                                                                                                                                                             |
+| `onDeleteEdge`             | `func`                     | `true`       | Called when an edge is deleted. This function is not called when multiple nodes and edges are selected using the allowMultiselect feature. Only when a single edge is selected.  |
 | `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.  |                                                                                                                         
 | `onArrowClicked`        | `func`                     | `false`      | Called when the arrow head is clicked. |
 | `onUndo`                | `func` | `false` | A function called when Ctrl-Z is activated. React-digraph does not keep track of actions, this must be implemented in the client website. |
@@ -265,74 +265,16 @@ You have access to `d3` mouse event in `onCreateNode` function.
 ```
 
 
-Prop Types:
-```
-  nodes: any[];
-  edges: any[];
-  minZoom?: number;
-  maxZoom?: number;
-  readOnly?: boolean;
-  maxTitleChars?: number;
-  nodeSize?: number;
-  edgeHandleSize?: number;
-  edgeArrowSize?: number;
-  zoomDelay?: number;
-  zoomDur?: number;
-  showGraphControls?: boolean;
-  nodeKey: string;
-  gridSize?: number;
-  gridSpacing?: number;
-  gridDotSize?: number;
-  backgroundFillId?: string;
-  nodeTypes: any;
-  nodeSubtypes: any;
-  edgeTypes: any;
-  selected: any;
-  selectedNodes: INode[];
-  selectedEdges: IEdge[];
-  onSelect?: ({ nodes: INode[], edges: IEdge[]) => void,
-  onBackgroundClick?: (x: number, y: number) => void;
-  onDeleteNode: (selected: any, nodeId: string, nodes: any[]) => void;
-  onSelectNode: (node: INode | null) => void;
-  onCreateNode: (x: number, y: number, event: object) => void;
-  onCreateEdge: (sourceNode: INode, targetNode: INode) => void;
-  onDeleteEdge: (selectedEdge: IEdge, edges: IEdge[]) => void;
-  onUpdateNode: (node: INode) => void;
-  onSwapEdge: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
-  onSelectEdge: (selectedEdge: IEdge) => void;
-  onArrowClicked?: (edge: IEdge) => void;
-  canDeleteNode?: (selected: any) => boolean;
-  canDeleteEdge?: (selected: any) => boolean;
-  canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
-  canSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => boolean;
-  afterRenderEdge?: (id: string, element: any, edge: IEdge, edgeContainer: any, isEdgeSelected: boolean) => void;
-  onUndo?: () => void;
-  onCopySelected?: () => void;
-  onPasteSelected?: () => void;
-  renderBackground?: (gridSize?: number) => any;
-  renderDefs?: () => any;
-  renderNode?: (
-    nodeRef: any,
-    data: any,
-    index: number,
-    selected: boolean,
-    hovered: boolean
-  ) => any;
-  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any;
-  layoutEngineType?: LayoutEngineType;
-  rotateEdgeHandle?: boolean;
-  centerNodeOnMove?: boolean;
-  initialBBox?: IBBox;
-  graphConfig?: object;
-  nodeSizeOverridesAllowed?: boolean;
-  nodeLocationOverrides?: {[string]: {x?: number, y?:number}}
-```
+## Prop Types:
+
+See prop types in the [typings folder](typings/index.d.ts).
 
 
 ### `INode`
 
 | Prop                   | Type                       | Required     | Notes                                             |
 | ---------------------- | :------------------------: | :----------: | :-----------------------------------------------: |
+| `anyIDKey`             | `string`                   | `true`       | An id or key for nodes, same as the nodeKey prop  |
 | `title`                | `string`                   | `true`       | Used in edges and to render the node text.        |
 | `x`                    | `number`                   | `false`      | X coordinate of the node.                         |
 | `y`                    | `number`                   | `false`      | Y coordinate of the node.                         |
