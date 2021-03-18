@@ -202,6 +202,7 @@ All props are detailed below.
 | `nodes`                    | `Array<INode>`             | `true`       | Array of graph nodes.                                                                                                                                                                       |
 | `edges`                    | `Array<IEdge>`             | `true`       | Array of graph edges.                                                                                                                                                                       |
 | `allowMultiselect`         | `boolean`                  | `false`      | Use Ctrl-Shift-LeftMouse to draw a multiple selection box |
+| `allowLoopbackEdge`         | `boolean`                  | `false`      | When set to `true` edges that have the same start and end node are allowed to be set by the user.|
 | `selected`                 | `object`                   | `true`       | The currently selected graph entity. |
 | `selectedNodes`                 | `Array<INode>`                   | `false`       | If allowMultiselect is true, this should be the currently selected array of nodes. |
 | `selectedEdges`                 | `Array<IEdge>`                   | `true`       | If allowMultiselect is true, this should be the currently selected array of edges. |
