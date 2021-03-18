@@ -661,6 +661,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onCopySelected={this.onCopySelected}
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={this.state.layoutEngineType}
+            allowLoopbackEdge={true}
           />
         </div>
       </>

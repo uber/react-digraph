@@ -89,6 +89,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
+    allowLoopbackEdge: false,
   };
 
   static getDerivedStateFromProps(
@@ -1009,14 +1010,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   createNewEdge() {
     const { canCreateEdge, nodeKey, onCreateEdge } = this.props;
-    const { edgesMap, hoveredNodeData } = this.state;
+    const { edgesMap, edgeEndNode, hoveredNodeData } = this.state;
 
     if (!hoveredNodeData) {
       return;
     }
-
-    // If no edgeEndNode is defined it will add the edge to itself.
-    const edgeEndNode = this.state.edgeEndNode || hoveredNodeData;
 
     this.removeCustomEdge();
 
@@ -1046,7 +1044,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
-    const { draggingEdge, hoveredNode } = this.state;
+    const { draggingEdge, hoveredNode, edgeEndNode } = this.state;
 
     if (readOnly) {
       return;
@@ -1054,7 +1052,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey && hoveredNode) {
+    if (shiftKey && hoveredNode && edgeEndNode) {
       this.createNewEdge();
     } else {
       if (draggingEdge) {
@@ -1091,9 +1089,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeMouseEnter = (event: any, data: any) => {
     const { draggingEdge, hoveredNodeData } = this.state;
+    const { allowLoopbackEdge } = this.props;
 
     // hovered is false when creating edges
-    if (hoveredNodeData && data !== hoveredNodeData && draggingEdge) {
+    if (
+      hoveredNodeData &&
+      (data !== hoveredNodeData || allowLoopbackEdge) &&
+      draggingEdge
+    ) {
       this.setState({
         edgeEndNode: data,
       });
