@@ -1009,11 +1009,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   createNewEdge() {
     const { canCreateEdge, nodeKey, onCreateEdge } = this.props;
-    const { edgesMap, edgeEndNode, hoveredNodeData } = this.state;
+    const { edgesMap, hoveredNodeData } = this.state;
 
     if (!hoveredNodeData) {
       return;
     }
+
+    // If no edgeEndNode is defined it will add the edge to itself.
+    const edgeEndNode = this.state.edgeEndNode || hoveredNodeData;
 
     this.removeCustomEdge();
 
@@ -1023,7 +1026,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       if (
         edgesMap &&
-        hoveredNodeData !== edgeEndNode &&
         canCreateEdge &&
         canCreateEdge(hoveredNodeData, edgeEndNode) &&
         !edgesMap[mapId1] &&
@@ -1044,7 +1046,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
     const { onUpdateNode, readOnly } = this.props;
-    const { draggingEdge, hoveredNode, edgeEndNode } = this.state;
+    const { draggingEdge, hoveredNode } = this.state;
 
     if (readOnly) {
       return;
@@ -1052,7 +1054,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
-    if (shiftKey && hoveredNode && edgeEndNode) {
+    if (shiftKey && hoveredNode) {
       this.createNewEdge();
     } else {
       if (draggingEdge) {
