@@ -176,8 +176,8 @@ function Node({
 
       const shiftKey = sourceEvent.shiftKey;
 
-      onNodeUpdate(position.current, data[nodeKey], shiftKey);
       onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
+      onNodeUpdate(position.current, data[nodeKey], shiftKey);
     },
     [onNodeUpdate, data, nodeKey, onNodeSelected]
   );

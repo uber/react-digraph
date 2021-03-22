@@ -81,9 +81,11 @@ class GraphUtils {
         continue;
       }
 
-      nodeMapSourceNode =
-        nodesMap[`key-${edge.source != null ? edge.source : ''}`];
-      nodeMapTargetNode = nodesMap[`key-${edge.target}`];
+      const sourceID = `key-${edge.source != null ? edge.source : ''}`;
+      const targetID = `key-${edge.target}`;
+
+      nodeMapSourceNode = nodesMap[sourceID];
+      nodeMapTargetNode = nodesMap[targetID];
 
       // avoid an orphaned edge
       if (nodeMapSourceNode && nodeMapTargetNode) {
@@ -91,6 +93,10 @@ class GraphUtils {
         nodeMapTargetNode.incomingEdges.push(edge);
         nodeMapSourceNode.children.push(nodeMapTargetNode);
         nodeMapTargetNode.parents.push(nodeMapSourceNode);
+      } else {
+        // This can get noisy because linkNodesAndEdges runs a lot.
+        // The consumer should have cleared out the edges before rendering react-digraph
+        console.warn('react-digraph: Found orphaned edges');
       }
     }
   }
@@ -176,53 +182,64 @@ class GraphUtils {
     return fastDeepEqual(prevNode, newNode);
   }
 
-  static findNodesWithinArea(start: IPoint, end: IPoint, nodes: INode[]) {
+  static findNodesWithinArea(
+    start: IPoint,
+    end: IPoint,
+    nodes: INode[],
+    nodeKey: string
+  ): Map<string, INode> {
     const smallerX = Math.min(start.x, end.x);
     const smallerY = Math.min(start.y, end.y);
     const largerX = Math.max(end.x, start.x);
     const largerY = Math.max(end.y, start.y);
 
-    const foundNodes = nodes.filter(node => {
-      return (
+    const foundNodesMap = new Map();
+
+    nodes.forEach(node => {
+      if (
         node.x >= smallerX &&
         node.x <= largerX &&
         node.y >= smallerY &&
         node.y <= largerY
-      );
+      ) {
+        foundNodesMap.set(node[nodeKey], node);
+      }
     });
 
-    return foundNodes;
+    return foundNodesMap;
   }
 
   static findConnectedEdgesForNodes(
-    nodes: INode[],
+    nodes: Map<string, INode>,
     edgesMap: any,
     nodeKey: string
-  ) {
-    const foundEdges = [];
+  ): Map<string, IEdge> {
+    const foundEdgesMap = new Map();
 
-    // using for loop to increase search speed
-    for (let i = 0; i < nodes.length; i++) {
-      const nodeA = nodes[i];
-
-      for (let j = i; j < nodes.length; j++) {
-        const nodeB = nodes[j];
-
+    for (const nodeA of nodes) {
+      for (const nodeB of nodes) {
+        // nodeA and nodeB are map arrays: ["key", node]
         // Find edges where A is connected to B or B is connected to A
-        const edgeAB = edgesMap[`${nodeA[nodeKey]}_${nodeB[nodeKey]}`];
-        const edgeBA = edgesMap[`${nodeB[nodeKey]}_${nodeA[nodeKey]}`];
+        const edgeAB = edgesMap[`${nodeA[1][nodeKey]}_${nodeB[1][nodeKey]}`];
+        const edgeBA = edgesMap[`${nodeB[1][nodeKey]}_${nodeA[1][nodeKey]}`];
 
         if (edgeAB != null) {
-          foundEdges.push(edgeAB.edge);
+          foundEdgesMap.set(
+            `${edgeAB.edge.source}_${edgeAB.edge.target}`,
+            edgeAB.edge
+          );
         }
 
         if (edgeBA != null) {
-          foundEdges.push(edgeBA.edge);
+          foundEdgesMap.set(
+            `${edgeBA.edge.source}_${edgeBA.edge.target}`,
+            edgeBA.edge
+          );
         }
       }
     }
 
-    return foundEdges;
+    return foundEdgesMap;
   }
 }
 

@@ -353,7 +353,13 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     this.setState({ selected: viewEdge });
   };
 
-  onSelect = ({ nodes, edges }: { nodes: Set<INode>, edges: Set<IEdge> }) => {
+  onSelect = ({
+    nodes,
+    edges,
+  }: {
+    nodes: Map<string, INode>,
+    edges: Map<string, IEdge>,
+  }) => {
     this.setState({
       selectedNodes: nodes,
       selectedEdges: edges,
@@ -389,8 +395,27 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     graph.nodes = nodeArr;
 
+    this.deleteEdgesForNode(nodeId);
+
     this.setState({ graph, selected: null });
   };
+
+  // Whenever a node is deleted the consumer must delete any connected edges.
+  // react-digraph won't call deleteEdge for multi-selected edges, only single edge selections.
+  deleteEdgesForNode(nodeID: string) {
+    const { graph } = this.state;
+    const edgesToDelete = graph.edges.filter(
+      edge => edge.source === nodeID || edge.target === nodeID
+    );
+
+    const newEdges = graph.edges.filter(
+      edge => edge.source !== nodeID && edge.target !== nodeID
+    );
+
+    edgesToDelete.forEach(edge => {
+      this.onDeleteEdge(edge, newEdges);
+    });
+  }
 
   // Creates a new node between two edges
   onCreateEdge = (sourceViewNode: INode, targetViewNode: INode) => {
@@ -473,8 +498,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     // selected elements in a similar manner to how your OS works.
     if (selectedNodes != null) {
       this.setState({
-        copiedNodes: [...selectedNodes],
-        copiedEdges: [...selectedEdges],
+        copiedNodes: selectedNodes,
+        copiedEdges: selectedEdges,
       });
     } else {
       this.setState({
@@ -510,9 +535,10 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       });
     } else if (copiedNodes !== null) {
       // Paste multiple nodes is used if allowMultiselect is true
-      let cornerX, cornerY;
+      let cornerX;
+      let cornerY;
 
-      copiedNodes.forEach(copiedNode => {
+      Array.from(copiedNodes.values()).forEach(copiedNode => {
         // find left-most node and record x position
         if (cornerX == null || copiedNode.x < cornerX) {
           cornerX = copiedNode.x;
@@ -529,31 +555,47 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       const newIDs = {};
 
       // Every node position is relative to the top and left-most corner
-      const newNodes = copiedNodes.map(copiedNode => {
-        const x = mouseX + (copiedNode.x - cornerX);
-        const y = mouseY + (copiedNode.y - cornerY);
-        const id = `${copiedNode.id}_${Date.now()}`;
+      const newNodes = new Map(
+        Array.from(copiedNodes.values()).map(copiedNode => {
+          const x = mouseX + (copiedNode.x - cornerX);
+          const y = mouseY + (copiedNode.y - cornerY);
+          const id = `${copiedNode.id}_${Date.now()}`;
 
-        newIDs[copiedNode.id] = id;
+          newIDs[copiedNode.id] = id;
 
-        return {
-          ...copiedNode,
-          id,
-          x,
-          y,
-        };
-      });
+          return [
+            id,
+            {
+              ...copiedNode,
+              id,
+              x,
+              y,
+            },
+          ];
+        })
+      );
 
-      const newEdges = copiedEdges.map(copiedEdge => {
-        return {
-          ...copiedEdge,
-          source: newIDs[copiedEdge.source],
-          target: newIDs[copiedEdge.target],
-        };
-      });
+      const newEdges =
+        copiedEdges != null
+          ? new Map(
+              Array.from(copiedEdges.values()).map(copiedEdge => {
+                const source = newIDs[copiedEdge.source];
+                const target = newIDs[copiedEdge.target];
 
-      graph.nodes = [...graph.nodes, ...newNodes];
-      graph.edges = [...graph.edges, ...newEdges];
+                return [
+                  `${source}_${target}`,
+                  {
+                    ...copiedEdge,
+                    source,
+                    target,
+                  },
+                ];
+              })
+            )
+          : new Map();
+
+      graph.nodes = [...graph.nodes, ...Array.from(newNodes.values())];
+      graph.edges = [...graph.edges, ...Array.from(newEdges.values())];
 
       // Select the new nodes and edges
       this.setState({
