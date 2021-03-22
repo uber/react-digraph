@@ -1,3 +1,22 @@
+**8.0.0-alpha** - March 22, 2021
+**Multiselect and Map conversion**
+Version 8.0.0-alpha is a refactor to use Maps instead of arrays for the input nodes and edges. Users will be required to refactor their code. See the commits below for examples from the examples website folder.
+The 8.0.0-alpha version should be considered unstable and may undergo changes.
+
+- PR #293 - commit 303b4917ec4b4971007c8fc442c266ff73022752 (origin/Issue_178_Select_Multiple_Nodes)
+Author: Allan Bogh <ajbogh@uber.com>
+Date:   Fri Jan 8 10:44:19 2021 -0800
+
+    - 178 - Added multiselect ability using the allowMultiSelect property
+    - Added more details to the README.
+    - If allowMultiSelect is enabled then always use the onSelectNodes instead of onSelectNode.
+
+- PR #297 - commit f208b7155a99be41de7640d21630e63a22b4a7fb (origin/Multiple_select_bugfixes)
+Author: Allan Bogh <ajbogh@uber.com>
+Date:   Wed Feb 3 10:31:31 2021 -0800
+
+    Fixed various bugs with the multi-select feature and changed to using Maps.
+
 **7.0.0** - August 5, 2020
 - PR #247 - Updated types, function definitions, and optional properties. (@ajbogh) - https://github.com/uber/react-digraph/pull/247
 - PR #246 - Fix #240 - cannot delete nodes with multiple graphs. (@ajbogh) - https://github.com/uber/react-digraph/pull/246
