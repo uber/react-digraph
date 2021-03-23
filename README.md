@@ -111,11 +111,11 @@ class Graph extends Component {
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
-                    onSelectNode={this.onSelectNode}
+                    allowMultiselect={true}
+                    onSelect={this.onSelect}
                     onCreateNode={this.onCreateNode}
                     onUpdateNode={this.onUpdateNode}
                     onDeleteNode={this.onDeleteNode}
-                    onSelectEdge={this.onSelectEdge}
                     onCreateEdge={this.onCreateEdge}
                     onSwapEdge={this.onSwapEdge}
                     onDeleteEdge={this.onDeleteEdge}/>
@@ -209,12 +209,12 @@ All props are detailed below.
 | `nodeSubtypes`             | `object`                   | `true`       | Config object of available node subtypes.                                                                                                                                                   |
 | `edgeTypes`                | `object`                   | `true`       | Config object of available edge types.                                                                                                                                                      |
 | `onSelect`             | `func`                     | `false`       | Called when nodes are selected when `allowMultiselect` is true. Is passed an object with nodes and edges included. |
-| `onSelectNode`             | `func`                     | `false`       | Called when a node is selected. |
+| `onSelectNode`             | `func`                     | `false`       | To be Deprecated: Called when a node is selected. |
 | `onCreateNode`             | `func`                     | `true`       | Called when a node is created.                                                                                                                                                              |
 | `onContextMenu`            | `func`                     | `true`       | Called when contextmenu event triggered.                                                                                                                                                              |
 | `onUpdateNode`             | `func`                     | `true`       | Called when a node is moved.                                                                                                                                                                |
 | `onDeleteNode`             | `func`                     | `true`       | Called when a node is deleted. This function should also delete connected edges. |
-| `onSelectEdge`             | `func`                     | `true`       | Called when an edge is selected. |
+| `onSelectEdge`             | `func`                     | `true`       | To be Deprecated: Called when an edge is selected. |
 | `onCreateEdge`             | `func`                     | `true`       | Called when an edge is created.                                                                                                                                                             |
 | `onSwapEdge`               | `func`                     | `true`       | Called when an edge `'target'` is swapped.                                                                                                                                                  |
 | `onDeleteEdge`             | `func`                     | `true`       | Called when an edge is deleted. This function is not called when multiple nodes and edges are selected using the allowMultiselect feature. Only when a single edge is selected.  |

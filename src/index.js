@@ -29,4 +29,5 @@ export type INodeType = INode;
 export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
 export { GV as GraphView };
 export type LayoutEngineType = LayoutEngineConfigTypes;
+export type { SelectionT } from './components/graph-view-props';
 export default GV;

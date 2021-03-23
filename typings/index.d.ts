@@ -94,6 +94,11 @@ declare module 'react-digraph' {
     viewWrapperElem: HTMLDivElement;
   };
 
+  export type SelectionT = { 
+    nodes: Map<string, INode> | null, 
+    edges: Map<string, INode> | null 
+  };
+
   export const Edge: React.Component<IEdgeProps>;
 
   export type IGraphViewProps = {
@@ -143,7 +148,7 @@ declare module 'react-digraph' {
       selectedNode: INode,
       xyCoords?: { x: number, y: number }
     ) => void,
-    onSelect?: (selected: { nodes: Map<string, INode> | null, edges: Map<string, IEdge> | null }) => void;
+    onSelect?: (selected: SelectionT) => void;
     onSelectEdge?: (selectedEdge: IEdge) => void;
     onSelectNode?: (node: INode | null, event: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
