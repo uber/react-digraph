@@ -26,6 +26,11 @@ export type IBBox = {
   height: number,
 };
 
+export type SelectionT = {
+  nodes: Map<string, INode> | null,
+  edges: Map<string, INode> | null,
+};
+
 export type IGraphViewProps = {
   allowMultiselect?: boolean,
   backgroundFillId?: string,
@@ -75,7 +80,7 @@ export type IGraphViewProps = {
     selectedNode: INode,
     xyCoords?: { x: number, y: number }
   ) => void,
-  onSelect?: ({ nodes: INode[] | null, edges: IEdge[] | null }) => void,
+  onSelect?: (selected: SelectionT) => void,
   onSelectEdge?: (selectedEdge: IEdge) => void,
   onSelectNode?: (node: INode | null, event: any) => void,
   onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
