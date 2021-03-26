@@ -1224,4 +1224,30 @@ describe('GraphView component', () => {
       expect(instance.state.focused).toBe(true);
     });
   });
+
+  describe('handleMultipleSelected method', () => {
+    beforeEach(() => {
+      output.setProps({
+        edges: [{ source: 'a', target: 'b' }, { source: 'b', target: 'c' }],
+        nodes: [{ id: 'a', x: 1, y: 1 }, { id: 'b', x: 2, y: 2 }, { id: 'c' }],
+        nodeKey: 'id',
+      });
+    });
+    
+    it('onSelect', () => {
+      const selectionStart = { x: 1, y: 1 };
+      const selectionEnd = { x: 100, y: 100 };
+      
+      let actual = null;
+      output.setProps({
+        onSelect: (selected) => {
+          actual = selected;
+        }
+      });
+      instance.handleMultipleSelected(selectionStart, selectionEnd);
+      expect(actual.nodes.size).toEqual(2);
+      expect(actual.edges.size).toEqual(1);
+    });
+  });
+
 });
