@@ -89,6 +89,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     zoomDur: 750,
     rotateEdgeHandle: true,
     centerNodeOnMove: true,
+    allowLoopbackEdge: false,
   };
 
   static getDerivedStateFromProps(
@@ -1006,7 +1007,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
       if (
         edgesMap &&
-        hoveredNodeData !== edgeEndNode &&
         canCreateEdge &&
         canCreateEdge(hoveredNodeData, edgeEndNode) &&
         !edgesMap[mapId1] &&
@@ -1082,9 +1082,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeMouseEnter = (event: any, data: any) => {
     const { draggingEdge, hoveredNodeData } = this.state;
+    const { allowLoopbackEdge } = this.props;
 
     // hovered is false when creating edges
-    if (hoveredNodeData && data !== hoveredNodeData && draggingEdge) {
+    if (
+      hoveredNodeData &&
+      (data !== hoveredNodeData || allowLoopbackEdge) &&
+      draggingEdge
+    ) {
       this.setState({
         edgeEndNode: data,
       });

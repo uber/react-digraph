@@ -433,14 +433,11 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       type,
     };
 
-    // Only add the edge when the source node is not the same as the target
-    if (viewEdge.source !== viewEdge.target) {
-      graph.edges = [...graph.edges, viewEdge];
-      this.setState({
-        graph,
-        selected: viewEdge,
-      });
-    }
+    graph.edges = [...graph.edges, viewEdge];
+    this.setState({
+      graph,
+      selected: viewEdge,
+    });
   };
 
   // Called when an edge is reattached to a different target.
@@ -706,6 +703,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onCopySelected={this.onCopySelected}
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={this.state.layoutEngineType}
+            allowLoopbackEdge={true}
           />
         </div>
       </>

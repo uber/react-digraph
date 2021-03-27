@@ -222,6 +222,35 @@ export function getPathDescription(
     viewWrapperElem
   );
 
+  if (sourceNode === targetNode) {
+    const arrowOffset = nodeSize * 0.8;
+
+    const returningLinePoints = [
+      {
+        x: srcX - srcOff.xOff + nodeSize / 2,
+        y: srcY - srcOff.yOff,
+      },
+      {
+        x: srcX - srcOff.xOff + arrowOffset,
+        y: srcY - srcOff.yOff,
+      },
+      {
+        x: srcX - srcOff.xOff + arrowOffset,
+        y: srcY - srcOff.yOff - arrowOffset,
+      },
+      {
+        x: srcX - srcOff.xOff,
+        y: srcY - srcOff.yOff - arrowOffset,
+      },
+      {
+        x: srcX - trgOff.xOff,
+        y: srcY - trgOff.yOff - nodeSize / 2,
+      },
+    ];
+
+    return getLine(returningLinePoints);
+  }
+
   const linePoints = [
     {
       x: srcX - srcOff.xOff,
