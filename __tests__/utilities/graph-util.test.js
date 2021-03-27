@@ -1,6 +1,10 @@
 // @flow
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import GraphView from '../../src/components/graph-view';
 
 import GraphUtils from '../../src/utilities/graph-util';
+import { start } from 'live-server';
 
 describe('GraphUtils class', () => {
   describe('getNodesMap method', () => {
@@ -210,6 +214,20 @@ describe('GraphUtils class', () => {
       });
 
       expect(result).toEqual('test hello');
+    });
+  });
+
+  describe('findNodesWithinArea', () => {
+    it('findNodes', () => {
+      const startPoint = { x: 0, y: 0 };
+      const endPoint = { x: 100, y: 100 };
+      const edges = [{ source: 'a', target: 'b' }];
+      const nodes = [{ id: 'a', x: 1, y: 1 }, { id: 'b', x: 2, y: 2 }, { id: 'c' }];
+      const nodeKey = 'id';
+
+      const actual = GraphUtils.findNodesWithinArea(startPoint, endPoint, nodes, nodeKey);
+
+      expect(actual.size).toEqual(2);
     });
   });
 
