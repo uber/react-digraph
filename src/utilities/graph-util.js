@@ -16,7 +16,8 @@
 */
 
 import { type IEdge } from '../components/edge';
-import { type INode, type IPoint } from '../components/node';
+import { type INode } from '../components/node';
+import { type IPoint } from '../components/graph-view-props';
 import fastDeepEqual from 'fast-deep-equal';
 
 export type INodeMapNode = {
