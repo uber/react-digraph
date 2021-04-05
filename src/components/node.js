@@ -33,11 +33,7 @@ import {
   DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
 } from '../constants';
 import { calculateOffset } from '../helpers/edge-helpers';
-
-export type IPoint = {
-  x: number,
-  y: number,
-};
+import { type IPoint } from './graph-view-props';
 
 export type INode = {
   title: string,
@@ -79,8 +75,8 @@ type INodeProps = {
   isSelected: boolean,
   layoutEngine?: any,
   viewWrapperElem: HTMLDivElement,
-  centerNodeOnMove: boolean,
-  maxTitleChars: number,
+  centerNodeOnMove?: boolean,
+  maxTitleChars?: number,
 };
 
 function Node({

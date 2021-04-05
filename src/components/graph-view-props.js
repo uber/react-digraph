@@ -19,6 +19,11 @@ import { type LayoutEngineType } from '../utilities/layout-engine/layout-engine-
 import { type IEdge } from './edge';
 import { type INode } from './node';
 
+export type IPoint = {
+  x: number,
+  y: number,
+};
+
 export type IBBox = {
   x: number,
   y: number,
@@ -28,7 +33,7 @@ export type IBBox = {
 
 export type SelectionT = {
   nodes: Map<string, INode> | null,
-  edges: Map<string, INode> | null,
+  edges: Map<string, IEdge> | null,
 };
 
 export type IGraphViewProps = {
@@ -55,15 +60,12 @@ export type IGraphViewProps = {
   nodeSubtypes: any,
   nodeTypes: any,
   readOnly?: boolean,
-  selected?: null | any,
-  selectedNodes?: null | INode[],
-  selectedEdges?: null | IEdge[],
+  selected?: null | SelectionT,
   showGraphControls?: boolean,
   zoomDelay?: number,
   zoomDur?: number,
   canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean,
-  canDeleteEdge?: (selected: any) => boolean,
-  canDeleteNode?: (selected: any) => boolean,
+  canDeleteSelected?: (selected: SelectionT) => boolean,
   canSwapEdge?: (
     sourceNode: INode,
     hoveredNode: INode | null,
@@ -74,18 +76,15 @@ export type IGraphViewProps = {
   onCreateEdge?: (sourceNode: INode, targetNode: INode) => void,
   onCreateNode?: (x: number, y: number, event: any) => void,
   onContextMenu?: (x: number, y: number, event: any) => void,
-  onDeleteEdge?: (selectedEdge: IEdge, edges: IEdge[]) => void,
-  onDeleteNode?: (selected: any, nodeId: string, nodes: any[]) => void,
-  onPasteSelected?: (
-    selectedNode: INode,
-    xyCoords?: { x: number, y: number }
-  ) => void,
-  onSelect?: (selected: SelectionT) => void,
-  onSelectEdge?: (selectedEdge: IEdge) => void,
-  onSelectNode?: (node: INode | null, event: any) => void,
+  onDeleteSelected?: (selected: SelectionT) => void,
+  onPasteSelected?: (selected?: SelectionT | null, xyCoords?: IPoint) => void,
+  onSelect?: (selected: SelectionT, event?: any) => void,
   onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void,
   onUndo?: () => void,
-  onUpdateNode?: (node: INode) => void,
+  onUpdateNode?: (
+    node: INode,
+    updatedNodes?: Map<string, INode> | null
+  ) => void,
   onArrowClicked?: (selectedEdge: IEdge) => void,
   renderBackground?: (gridSize?: number) => any,
   renderDefs?: () => any,

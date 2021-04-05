@@ -102,7 +102,7 @@ declare module 'react-digraph' {
   export const Edge: React.Component<IEdgeProps>;
 
   export type IGraphViewProps = {
-    allowMultiSelect?: boolean;
+    allowMultiselect?: boolean;
     backgroundFillId?: string;
     edges: any[];
     edgeArrowSize?: number;
@@ -124,15 +124,12 @@ declare module 'react-digraph' {
     nodeSubtypes: any;
     nodeTypes: any;
     readOnly?: boolean;
-    selected?: null | any;
-    selectedNodes?: null | Map<string, INode>;
-    selectedEdges?: null | Map<string, IEdge>;
+    selected?: null | SelectionT;
     showGraphControls?: boolean;
     zoomDelay?: number;
     zoomDur?: number;
     canCreateEdge?: (startNode?: INode, endNode?: INode) => boolean;
-    canDeleteEdge?: (selected: any) => boolean;
-    canDeleteNode?: (selected: any) => boolean;
+    canDeleteSelected?: (selected: SelectionT) => boolean;
     canSwapEdge?: (
       sourceNode: INode,
       hoveredNode: INode | null,
@@ -142,18 +139,15 @@ declare module 'react-digraph' {
     onCopySelected?: () => void;
     onCreateEdge?: (sourceNode: INode, targetNode: INode) => void;
     onCreateNode?: (x: number, y: number, event: any) => void;
-    onDeleteEdge?: (selectedEdge: IEdge, edges: IEdge[]) => void;
-    onDeleteNode?: (selected: any, nodeId: string, nodes: any[]) => void;
+    onDeleteSelected?: (selected: SelectionT) => void;
     onPasteSelected?: (
-      selectedNode: INode,
-      xyCoords?: { x: number, y: number }
+      selected?: SelectionT | null,
+      xyCoords?: IPoint
     ) => void,
-    onSelect?: (selected: SelectionT) => void;
-    onSelectEdge?: (selectedEdge: IEdge) => void;
-    onSelectNode?: (node: INode | null, event: any) => void;
+    onSelect?: (selected: SelectionT, event?: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
-    onUpdateNode?: (node: INode) => void;
+    onUpdateNode?: (node: INode, updatedNodes?: Map<string, INode> | null) => void;
     renderBackground?: (gridSize?: number) => any;
     renderDefs?: () => any;
     renderNode?: (

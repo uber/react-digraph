@@ -413,6 +413,7 @@ describe('GraphView component', () => {
         target: 'b',
       };
       const result = instance.getEdgeComponent(edge);
+
       expect(result).toEqual(null);
     });
 
@@ -422,6 +423,7 @@ describe('GraphView component', () => {
         target: 'fake',
       };
       const result = instance.getEdgeComponent(edge);
+
       expect(result).toEqual(null);
     });
 
@@ -480,7 +482,7 @@ describe('GraphView component', () => {
     });
 
     it('returns true when the edge is selected', () => {
-      selected = edge;
+      selected = { edges: new Map([[`${edge.source}_${edge.target}`, edge]]) };
       output.setProps({
         edges,
         selected,
@@ -492,10 +494,12 @@ describe('GraphView component', () => {
     });
 
     it('returns false when the edge is not selected', () => {
-      selected = {
+      const edge = {
         source: 'b',
         target: 'c',
       };
+
+      selected = { edges: null }; // no edges selected
       output.setProps({
         edges,
         selected,
@@ -648,7 +652,7 @@ describe('GraphView component', () => {
     it('returns a selected node', () => {
       output.setProps({
         nodes: [node],
-        selected: node,
+        selected: { nodes: new Map([[node.id, node]]) },
       });
       const result = instance.getNodeComponent('test', node, 0);
 
@@ -1228,26 +1232,29 @@ describe('GraphView component', () => {
   describe('handleMultipleSelected method', () => {
     beforeEach(() => {
       output.setProps({
-        edges: [{ source: 'a', target: 'b' }, { source: 'b', target: 'c' }],
+        edges: [
+          { source: 'a', target: 'b' },
+          { source: 'b', target: 'c' },
+        ],
         nodes: [{ id: 'a', x: 1, y: 1 }, { id: 'b', x: 2, y: 2 }, { id: 'c' }],
         nodeKey: 'id',
       });
     });
-    
+
     it('onSelect', () => {
       const selectionStart = { x: 1, y: 1 };
       const selectionEnd = { x: 100, y: 100 };
-      
+
       let actual = null;
+
       output.setProps({
-        onSelect: (selected) => {
+        onSelect: selected => {
           actual = selected;
-        }
+        },
       });
       instance.handleMultipleSelected(selectionStart, selectionEnd);
       expect(actual.nodes.size).toEqual(2);
       expect(actual.edges.size).toEqual(1);
     });
   });
-
 });

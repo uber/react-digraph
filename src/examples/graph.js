@@ -26,6 +26,8 @@ import {
   type IEdgeType as IEdge,
   type INodeType as INode,
   type LayoutEngineType,
+  type SelectionT,
+  type IPoint,
 } from '../';
 import GraphConfig, {
   edgeTypes,
@@ -221,8 +223,7 @@ type IGraphProps = {};
 type IGraphState = {
   graph: any,
   selected: any,
-  selectedNodes: null | INode[],
-  selectedEdges: null | IEdge[],
+  selected: SelectionT | null,
   totalNodes: number,
   copiedNode: null | INode,
   copiedNodes: null | INode[],
@@ -232,7 +233,7 @@ type IGraphState = {
 };
 
 class Graph extends React.Component<IGraphProps, IGraphState> {
-  GraphView;
+  GraphView: any;
 
   constructor(props: IGraphProps) {
     super(props);
@@ -342,27 +343,9 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     this.setState({ graph });
   };
 
-  // Node 'mouseUp' handler
-  onSelectNode = (viewNode: INode | null) => {
-    // Deselect events will send Null viewNode
-    this.setState({ selected: viewNode });
-  };
-
-  // Edge 'mouseUp' handler
-  onSelectEdge = (viewEdge: IEdge) => {
-    this.setState({ selected: viewEdge });
-  };
-
-  onSelect = ({
-    nodes,
-    edges,
-  }: {
-    nodes: Map<string, INode>,
-    edges: Map<string, IEdge>,
-  }) => {
+  onSelect = (selected: SelectionT) => {
     this.setState({
-      selectedNodes: nodes,
-      selectedEdges: edges,
+      selected,
     });
   };
 
@@ -438,7 +421,10 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       graph.edges = [...graph.edges, viewEdge];
       this.setState({
         graph,
-        selected: viewEdge,
+        selected: {
+          nodes: null,
+          edges: new Map([[`${viewEdge.source}_${viewEdge.target}`, viewEdge]]),
+        },
       });
     }
   };
@@ -486,134 +472,98 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   onCopySelected = () => {
-    const { selected, selectedNodes, selectedEdges } = this.state;
+    // This is a no-op. Maybe log something if you want.
+    // Pasting uses the state.selected property within the onPasteSelected function.
+  };
 
-    if (selected?.source) {
-      console.warn('Cannot copy selected edges, try selecting a node instead.');
+  // Pastes the selection to mouse position
+  onPasteSelected = (selection?: SelectionT | null, mousePosition?: IPoint) => {
+    const { graph, selected } = this.state;
+    const { x: mouseX, y: mouseY } = mousePosition || { x: 0, y: 0 };
 
+    if (!selected?.nodes?.size) {
+      // do nothing if there are no nodes selected
       return;
     }
 
-    // Track the copied elements separately from other
-    // selected elements in a similar manner to how your OS works.
-    if (selectedNodes != null) {
-      this.setState({
-        copiedNodes: selectedNodes,
-        copiedEdges: selectedEdges,
-      });
-    } else {
-      this.setState({
-        copiedNode: { ...selected },
-      });
-    }
-  };
+    let cornerX;
+    let cornerY;
 
-  // Pastes the selected node to mouse position
-  onPasteSelected = (
-    // node parameter should be deprecated
-    // https://github.com/uber/react-digraph/issues/292
-    node: INode | null,
-    mousePosition?: [number, number]
-  ) => {
-    const { graph, copiedNode, copiedNodes, copiedEdges } = this.state;
-    const [mouseX, mouseY] = mousePosition || [copiedNode.x, copiedNode.y];
+    selected?.nodes?.forEach((copiedNode: INode) => {
+      // find left-most node and record x position
+      if (cornerX == null || (copiedNode.x || 0) < cornerX) {
+        cornerX = copiedNode.x || 0;
+      }
 
-    if (copiedNodes == null && copiedNode !== null) {
-      // Paste a single node is only run if allowMultiselect is false
-      const newNode = {
-        ...node,
-        id: Date.now(),
-        x: mousePosition ? mousePosition[0] : node.x,
-        y: mousePosition ? mousePosition[1] : node.y,
-      };
+      // find top-most node and record y position
+      if (cornerY == null || (copiedNode.y || 0) < cornerY) {
+        cornerY = copiedNode.y || 0;
+      }
+    });
 
-      graph.nodes = [...graph.nodes, newNode];
+    // Keep track of the mapping of old IDs to new IDs
+    // so we can recreate the edges
+    const newIDs = {};
 
-      // Select the new node
-      this.setState({
-        selected: newNode,
-      });
-    } else if (copiedNodes !== null) {
-      // Paste multiple nodes is used if allowMultiselect is true
-      let cornerX;
-      let cornerY;
+    // Every node position is relative to the top and left-most corner
+    const newNodes = new Map(
+      [...(selected?.nodes?.values() || [])].map((copiedNode: INode) => {
+        const x = mouseX + ((copiedNode.x || 0) - cornerX);
+        const y = mouseY + ((copiedNode.y || 0) - cornerY);
 
-      Array.from(copiedNodes.values()).forEach(copiedNode => {
-        // find left-most node and record x position
-        if (cornerX == null || copiedNode.x < cornerX) {
-          cornerX = copiedNode.x;
-        }
+        // Here you would usually create a new node using an API
+        // We don't have an API, so we'll mock out the node ID
+        // and create a copied node.
+        const id = `${copiedNode.id}_${Date.now()}`;
 
-        // find top-most node and record y position
-        if (cornerY == null || copiedNode.y < cornerY) {
-          cornerY = copiedNode.y;
-        }
-      });
+        newIDs[copiedNode.id] = id;
 
-      // Keep track of the mapping of old IDs to new IDs
-      // so we can recreate the edges
-      const newIDs = {};
-
-      // Every node position is relative to the top and left-most corner
-      const newNodes = new Map(
-        Array.from(copiedNodes.values()).map(copiedNode => {
-          const x = mouseX + (copiedNode.x - cornerX);
-          const y = mouseY + (copiedNode.y - cornerY);
-          const id = `${copiedNode.id}_${Date.now()}`;
-
-          newIDs[copiedNode.id] = id;
-
-          return [
+        return [
+          id,
+          {
+            ...copiedNode,
             id,
-            {
-              ...copiedNode,
-              id,
-              x,
-              y,
-            },
-          ];
-        })
-      );
+            x,
+            y,
+          },
+        ];
+      })
+    );
 
-      const newEdges =
-        copiedEdges != null
-          ? new Map(
-              Array.from(copiedEdges.values()).map(copiedEdge => {
-                const source = newIDs[copiedEdge.source];
-                const target = newIDs[copiedEdge.target];
+    const newEdges = new Map(
+      [...(selected?.edges?.values() || [])].map(copiedEdge => {
+        const source = newIDs[copiedEdge.source];
+        const target = newIDs[copiedEdge.target];
 
-                return [
-                  `${source}_${target}`,
-                  {
-                    ...copiedEdge,
-                    source,
-                    target,
-                  },
-                ];
-              })
-            )
-          : new Map();
+        return [
+          `${source}_${target}`,
+          {
+            ...copiedEdge,
+            source,
+            target,
+          },
+        ];
+      })
+    );
 
-      graph.nodes = [...graph.nodes, ...Array.from(newNodes.values())];
-      graph.edges = [...graph.edges, ...Array.from(newEdges.values())];
+    graph.nodes = [...graph.nodes, ...Array.from(newNodes.values())];
+    graph.edges = [...graph.edges, ...Array.from(newEdges.values())];
 
-      // Select the new nodes and edges
-      this.setState({
-        selectedNodes: newNodes,
-        selectedEdges: newEdges,
-      });
-    }
-  };
-
-  handleChangeLayoutEngineType = (event: any) => {
+    // Select the new nodes and edges
     this.setState({
-      layoutEngineType: (event.target.value: LayoutEngineType | 'None'),
+      selected: {
+        nodes: newNodes,
+        edges: newEdges,
+      },
     });
   };
 
-  handleMultiselectChange = (event: any) => {
+  handleChangeLayoutEngineType = (event: any) => {
+    const value: any = event.target.value;
+    const layoutEngineType: LayoutEngineType = value;
+
     this.setState({
-      allowMultiselect: event.target.checked,
+      layoutEngineType,
     });
   };
 
@@ -629,12 +579,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   render() {
     const { nodes, edges } = this.state.graph;
-    const {
-      selected,
-      selectedNodes,
-      selectedEdges,
-      allowMultiselect,
-    } = this.state;
+    const { selected, allowMultiselect, layoutEngineType } = this.state;
     const { NodeTypes, NodeSubtypes, EdgeTypes } = GraphConfig;
 
     return (
@@ -669,16 +614,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               ))}
             </select>
           </div>
-          <div className="allow-multiselect">
-            <label>
-              Multiselect:
-              <input
-                type="checkbox"
-                onChange={this.handleMultiselectChange}
-                checked={allowMultiselect}
-              />
-            </label>
-          </div>
         </div>
         <div id="graph" style={{ height: 'calc(100% - 87px)' }}>
           <GraphView
@@ -688,24 +623,20 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             nodes={nodes}
             edges={edges}
             selected={selected}
-            selectedNodes={selectedNodes}
-            selectedEdges={selectedEdges}
             nodeTypes={NodeTypes}
             nodeSubtypes={NodeSubtypes}
             edgeTypes={EdgeTypes}
             onSelect={this.onSelect}
-            onSelectNode={this.onSelectNode}
             onCreateNode={this.onCreateNode}
             onUpdateNode={this.onUpdateNode}
             onDeleteNode={this.onDeleteNode}
-            onSelectEdge={this.onSelectEdge}
             onCreateEdge={this.onCreateEdge}
             onSwapEdge={this.onSwapEdge}
             onDeleteEdge={this.onDeleteEdge}
             onUndo={this.onUndo}
             onCopySelected={this.onCopySelected}
             onPasteSelected={this.onPasteSelected}
-            layoutEngineType={this.state.layoutEngineType}
+            layoutEngineType={layoutEngineType}
           />
         </div>
       </>
