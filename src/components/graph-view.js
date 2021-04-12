@@ -310,6 +310,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   }
 
+  // returns true if Ctrl or Cmd is pressed
+  isControlKeyPressed(event: any) {
+    return event.metaKey || event.ctrlKey;
+  }
+
   hasLayoutEngine() {
     const { layoutEngineType } = this.props;
 
@@ -602,19 +607,19 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         break;
       case 'z':
-        if ((d.metaKey || d.ctrlKey) && onUndo) {
+        if (this.isControlKeyPressed(d) && onUndo) {
           onUndo();
         }
 
         break;
       case 'c':
-        if ((d.metaKey || d.ctrlKey) && selected?.nodes?.size) {
+        if (this.isControlKeyPressed(d) && selected?.nodes?.size) {
           onCopySelected && onCopySelected();
         }
 
         break;
       case 'v':
-        if ((d.metaKey || d.ctrlKey) && selected) {
+        if (this.isControlKeyPressed(d) && selected) {
           const { x, y } = mousePosition || { x: 0, y: 0 };
 
           onPasteSelected && onPasteSelected(selected, { x, y });
@@ -709,7 +714,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     // Check if selecting multiple nodes
-    if (event.shiftKey && event.ctrlKey && selectionStart && selectionEnd) {
+    if (
+      event.shiftKey &&
+      this.isControlKeyPressed(event) &&
+      selectionStart &&
+      selectionEnd
+    ) {
       this.handleMultipleSelected(selectionStart, selectionEnd);
 
       this.setState({
@@ -745,7 +755,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     if (
       onPasteSelected &&
       !readOnly &&
-      d3.event.ctrlKey &&
+      this.isControlKeyPressed(d3.event) &&
       selected?.nodes?.size
     ) {
       const xycoords = d3.mouse(d3.event.target);
@@ -807,7 +817,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const { event } = d3;
 
     // Check if selecting multiple nodes
-    if (allowMultiselect && event.shiftKey && event.ctrlKey) {
+    if (allowMultiselect && event.shiftKey && this.isControlKeyPressed(event)) {
       const [x, y] = d3.mouse(this.highlightAreaRef.current || event.target);
 
       if (!selectionStart) {
@@ -830,7 +840,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     // Check if selecting multiple nodes
     if (allowMultiselect) {
-      if (event.shiftKey && event.ctrlKey) {
+      if (event.shiftKey && this.isControlKeyPressed(event)) {
         newState = {
           ...newState,
           selectionEnd: { x, y },
@@ -1146,7 +1156,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   zoomFilter() {
-    if (d3.event.button || d3.event.ctrlKey) {
+    if (d3.event.button || this.isControlKeyPressed(d3.event)) {
       return false;
     }
 
@@ -1155,7 +1165,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   // Keeps 'zoom' contained
   containZoom() {
-    const stop = d3.event.button || d3.event.ctrlKey;
+    const stop = d3.event.button || this.isControlKeyPressed(d3.event);
 
     if (stop) {
       d3.event.stopImmediatePropagation(); // stop zoom
