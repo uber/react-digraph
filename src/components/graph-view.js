@@ -195,7 +195,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.zoom = d3
       .zoom()
-      .filter(this.zoomFilter)
+      .filter(this.zoomFilter.bind(this))
       .scaleExtent([minZoom || 0, maxZoom || 0])
       .on('start', () => {
         this.handleZoomStart(d3.event);
