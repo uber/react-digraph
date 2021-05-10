@@ -178,7 +178,7 @@ function Node({
         shiftKey
       );
 
-      if (nodeUpdate.then) {
+      if (nodeUpdate && nodeUpdate.then) {
         nodeUpdate
           .then(() => {
             onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
