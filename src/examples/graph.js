@@ -335,7 +335,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   // Called by 'drag' handler, etc..
   // to sync updates from D3 with the graph
-  onUpdateNode = (viewNode: INode) => {
+  onUpdateNode = (viewNode: INode, selectedNodes: Map<string, INode>) => {
     const graph = this.state.graph;
     const i = this.getNodeIndex(viewNode);
 

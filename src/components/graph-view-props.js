@@ -84,7 +84,7 @@ export type IGraphViewProps = {
   onUpdateNode?: (
     node: INode,
     updatedNodes?: Map<string, INode> | null
-  ) => void,
+  ) => void | Promise<any>,
   onArrowClicked?: (selectedEdge: IEdge) => void,
   renderBackground?: (gridSize?: number) => any,
   renderDefs?: () => any,

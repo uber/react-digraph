@@ -63,7 +63,7 @@ type INodeProps = {
     shiftKey: boolean,
     event?: any
   ) => void,
-  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => void,
+  onNodeUpdate: (point: IPoint, id: string, shiftKey: boolean) => Promise<any>,
   renderNode?: (
     nodeRef: any,
     data: any,
@@ -172,8 +172,21 @@ function Node({
 
       const shiftKey = sourceEvent.shiftKey;
 
-      onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
-      onNodeUpdate(position.current, data[nodeKey], shiftKey);
+      const nodeUpdate = onNodeUpdate(
+        position.current,
+        data[nodeKey],
+        shiftKey
+      );
+
+      if (nodeUpdate.then) {
+        nodeUpdate
+          .then(() => {
+            onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
+          })
+          .catch(() => {
+            onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
+          });
+      }
     },
     [onNodeUpdate, data, nodeKey, onNodeSelected]
   );

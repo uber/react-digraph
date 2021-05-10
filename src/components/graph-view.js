@@ -863,7 +863,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
     const { canCreateEdge, readOnly, selected, nodeKey, onSelect } = this.props;
-    const { draggingEdge } = this.state;
+    const { draggingEdge, nodesMap } = this.state;
     const nodeMapNode: INodeMapNode | null = this.getNodeById(nodeId);
 
     if (!nodeMapNode || readOnly) {
@@ -891,38 +891,44 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
             selectedNodeObj: null,
           });
           onSelect && onSelect({ nodes: null, edges: null });
+        } else {
+          // Position of moved node is at mouse location,
+          // all other nodes are relative to the moved node.
+          selected?.nodes?.forEach((current, key) => {
+            const selectedNodeID = key;
 
-          return;
+            // skip the moved node
+            if (selectedNodeID === node[nodeKey]) {
+              return;
+            }
+
+            const selectedNodeMapNode = this.getNodeById(selectedNodeID);
+
+            if (!selectedNodeMapNode) {
+              // this should never happen
+              return;
+            }
+
+            const selectedNode = selectedNodeMapNode.node;
+
+            const newX = position.x + ((selectedNode.x || 0) - originalX);
+            const newY = position.y + ((selectedNode.y || 0) - originalY);
+
+            selectedNode.x = newX;
+            selectedNode.y = newY;
+
+            this.asyncRenderNode(selectedNode);
+          });
         }
-
-        // Position of moved node is at mouse location,
-        // all other nodes are relative to the moved node.
-        selected?.nodes?.forEach((current, key) => {
-          const selectedNodeID = key;
-
-          // skip the moved node
-          if (selectedNodeID === node[nodeKey]) {
-            return;
-          }
-
-          const selectedNodeMapNode = this.getNodeById(selectedNodeID);
-
-          if (!selectedNodeMapNode) {
-            // this should never happen
-            return;
-          }
-
-          const selectedNode = selectedNodeMapNode.node;
-
-          const newX = position.x + ((selectedNode.x || 0) - originalX);
-          const newY = position.y + ((selectedNode.y || 0) - originalY);
-
-          selectedNode.x = newX;
-          selectedNode.y = newY;
-
-          this.asyncRenderNode(selectedNode);
-        });
       }
+
+      // force the state to update with the new node information
+      this.setState({
+        nodesMap: {
+          ...nodesMap,
+        },
+        componentUpToDate: false,
+      });
     } else if ((canCreateEdge && canCreateEdge(node)) || draggingEdge) {
       // render new edge
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
@@ -1027,7 +1033,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
             updatedNodes = selected?.nodes || new Map();
           }
 
-          onUpdateNode(nodeMap.node, updatedNodes);
+          return onUpdateNode(nodeMap.node, updatedNodes);
         }
       }
     }
