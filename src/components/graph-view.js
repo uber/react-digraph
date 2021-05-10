@@ -990,16 +990,22 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
   }
 
-  handleNodeUpdate = (position: any, nodeId: string, shiftKey: boolean) => {
+  handleNodeUpdate = (
+    position: any,
+    nodeId: string,
+    shiftKey: boolean
+  ): Promise<any> => {
     const { onUpdateNode, readOnly, selected, nodeKey } = this.props;
     const { draggingEdge, hoveredNode, edgeEndNode } = this.state;
 
     if (readOnly) {
-      return;
+      return Promise.resolve();
     }
 
     // Detect if edge is being drawn and link to hovered node
     // This will handle a new edge
+    let onUpdateNodePromise = Promise.resolve();
+
     if (shiftKey && hoveredNode && edgeEndNode) {
       this.createNewEdge();
     } else {
@@ -1033,7 +1039,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
             updatedNodes = selected?.nodes || new Map();
           }
 
-          return onUpdateNode(nodeMap.node, updatedNodes);
+          onUpdateNodePromise =
+            onUpdateNode(nodeMap.node, updatedNodes) || Promise.resolve();
         }
       }
     }
@@ -1047,6 +1054,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       hoveredNode: false,
       svgClicked: true,
     });
+
+    return onUpdateNodePromise;
   };
 
   handleNodeMouseEnter = (event: any, data: any) => {

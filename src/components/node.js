@@ -100,7 +100,7 @@ function Node({
   onNodeMouseLeave = () => {},
   onNodeMove = () => {},
   onNodeSelected = () => {},
-  onNodeUpdate = () => {},
+  onNodeUpdate = () => Promise.resolve(),
 }: INodeProps) {
   const [hovered, setHovered] = useState(false);
   const nodeRef = useRef();
@@ -178,15 +178,10 @@ function Node({
         shiftKey
       );
 
-      if (nodeUpdate && nodeUpdate.then) {
-        nodeUpdate
-          .then(() => {
-            onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
-          })
-          .catch(() => {
-            onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
-          });
-      }
+      const onFinally = () =>
+        onNodeSelected(data, data[nodeKey], shiftKey, sourceEvent);
+
+      nodeUpdate.then(onFinally).catch(onFinally);
     },
     [onNodeUpdate, data, nodeKey, onNodeSelected]
   );
