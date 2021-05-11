@@ -83,7 +83,9 @@ class HorizontalTree extends SnapToGrid {
 
     if (nodeLocationOverrides) {
       for (const gNodeId in nodeLocationOverrides) {
-        if (nodeLocationOverrides.hasOwnProperty(gNodeId)) {
+        if (
+          Object.prototype.hasOwnProperty.call(nodeLocationOverrides, gNodeId)
+        ) {
           const nodeKeyId = `key-${gNodeId}`;
           const gNode = g.node(nodeKeyId);
           const locationOverride = nodeLocationOverrides[gNodeId];
