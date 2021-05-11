@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-declare module "react-digraph" {
+declare module 'react-digraph' {
   export type INode = {
     title: string;
     x?: number | null;
@@ -30,10 +30,10 @@ declare module "react-digraph" {
   };
 
   export type IBBox = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x: number,
+    y: number,
+    width: number,
+    height: number,
   };
 
   export type INodeProps = {
@@ -94,9 +94,9 @@ declare module "react-digraph" {
     viewWrapperElem: HTMLDivElement;
   };
 
-  export type SelectionT = {
-    nodes: Map<string, INode> | null;
-    edges: Map<string, IEdge> | null;
+  export type SelectionT = { 
+    nodes: Map<string, INode> | null, 
+    edges: Map<string, IEdge> | null 
   };
 
   export const Edge: React.Component<IEdgeProps>;
@@ -118,9 +118,9 @@ declare module "react-digraph" {
     nodeKey: string;
     nodes: any[];
     nodeSize?: number;
-    nodeHeight?: number;
-    nodeWidth?: number;
-    nodeSpacingMultiplier?: number;
+    nodeHeight?: number,
+    nodeWidth?: number,
+    nodeSpacingMultiplier?: number,
     nodeSubtypes: any;
     nodeTypes: any;
     readOnly?: boolean;
@@ -134,20 +134,20 @@ declare module "react-digraph" {
       sourceNode: INode,
       hoveredNode: INode | null,
       swapEdge: IEdge
-    ) => boolean;
-    onBackgroundClick?: (x: number, y: number, event: any) => void;
+    ) => boolean,
+    onBackgroundClick?: (x: number, y: number, event: any) => void,
     onCopySelected?: () => void;
     onCreateEdge?: (sourceNode: INode, targetNode: INode) => void;
     onCreateNode?: (x: number, y: number, event: any) => void;
     onDeleteSelected?: (selected: SelectionT) => void;
-    onPasteSelected?: (selected?: SelectionT | null, xyCoords?: IPoint) => void;
+    onPasteSelected?: (
+      selected?: SelectionT | null,
+      xyCoords?: IPoint
+    ) => void,
     onSelect?: (selected: SelectionT, event?: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
-    onUpdateNode?: (
-      node: INode,
-      updatedNodes?: Map<string, INode> | null
-    ) => void;
+    onUpdateNode?: (node: INode, updatedNodes?: Map<string, INode> | null) => void;
     renderBackground?: (gridSize?: number) => any;
     renderDefs?: () => any;
     renderNode?: (
@@ -197,11 +197,7 @@ declare module "react-digraph" {
     static revert(graphInput: IGraphInput): any;
   }
 
-  export type LayoutEngineType =
-    | "None"
-    | "SnapToGrid"
-    | "VerticalTree"
-    | "HorizontalTree";
+  export type LayoutEngineType = 'None' | 'SnapToGrid' | 'VerticalTree' | 'HorizontalTree';
 
   export const GraphView: React.ComponentClass<IGraphViewProps>;
   export type INodeMapNode = {
@@ -235,11 +231,7 @@ declare module "react-digraph" {
 
     static removeElementFromDom(id: string): boolean;
 
-    static findParent(
-      element: Element,
-      selector: string,
-      stopAtSelector?: string
-    ): Element | null;
+    static findParent(element: Element, selector: string, stopAtSelector?: string): Element | null;
 
     static classNames(...args: any[]): string;
 
