@@ -104,6 +104,7 @@ declare module 'react-digraph' {
   export type IGraphViewProps = {
     allowMultiselect?: boolean;
     backgroundFillId?: string;
+    disableBackspace?: boolean;
     edges: any[];
     edgeArrowSize?: number;
     edgeHandleSize?: number;
