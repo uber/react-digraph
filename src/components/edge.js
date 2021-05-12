@@ -110,7 +110,7 @@ function Edge({
   }
 
   const id = `${data.source != null ? data.source : ''}_${data.target}`;
-  const className = GraphUtils.classNames('edge', {
+  const className = GraphUtils.classNames('edge', data.type, {
     selected: isSelected,
   });
   const isBeingDraggedStyle = {
