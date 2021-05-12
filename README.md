@@ -302,7 +302,7 @@ See prop types in the [typings folder](typings/index.d.ts).
 
 #### `title`
 
-The `title` attribute is used for the IDs in the SVG nodes in the graph. Because `Element.querySelector()` is used to locate graph entities, please ensure that all titles are properly escaped (for example, with `CSS.escape()`).
+The `title` attribute is used for the IDs in the SVG nodes in the graph.
 
 ### `IEdge`
 
