@@ -96,7 +96,7 @@ declare module 'react-digraph' {
 
   export type SelectionT = { 
     nodes: Map<string, INode> | null, 
-    edges: Map<string, INode> | null 
+    edges: Map<string, IEdge> | null 
   };
 
   export const Edge: React.Component<IEdgeProps>;
@@ -104,6 +104,7 @@ declare module 'react-digraph' {
   export type IGraphViewProps = {
     allowMultiselect?: boolean;
     backgroundFillId?: string;
+    disableBackspace?: boolean;
     edges: any[];
     edgeArrowSize?: number;
     edgeHandleSize?: number;
