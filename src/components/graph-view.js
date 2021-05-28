@@ -929,7 +929,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         },
         componentUpToDate: false,
       });
-    } else if ((canCreateEdge && canCreateEdge(node)) || draggingEdge) {
+    } else if ((canCreateEdge && canCreateEdge(node)) || shiftKey) {
       // render new edge
       this.syncRenderEdge({ source: nodeId, targetPosition: position });
       this.setState({ draggingEdge: true });
