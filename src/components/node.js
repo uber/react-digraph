@@ -102,6 +102,7 @@ function Node({
   onNodeSelected = () => {},
   onNodeUpdate = () => Promise.resolve(),
 }: INodeProps) {
+  const draggingEdge = useRef(false);
   const [hovered, setHovered] = useState(false);
   const nodeRef = useRef();
   const oldSibling = useRef();
@@ -161,6 +162,9 @@ function Node({
 
       const { sourceEvent } = event;
 
+      const shiftKey = sourceEvent.shiftKey || draggingEdge.current;
+
+      draggingEdge.current = false;
       position.current.pointerOffset = null;
 
       if (oldSibling.current?.parentElement) {
@@ -169,8 +173,6 @@ function Node({
           oldSibling.current
         );
       }
-
-      const shiftKey = sourceEvent.shiftKey;
 
       const nodeUpdate = onNodeUpdate(
         position.current,
@@ -206,6 +208,7 @@ function Node({
       }
 
       if (shiftKey) {
+        draggingEdge.current = true;
         // draw edge
         // undo the target offset subtraction done by Edge
         const off = calculateOffset(
@@ -220,7 +223,7 @@ function Node({
         newState.x += off.xOff;
         newState.y += off.yOff;
         // now tell the graph that we're actually drawing an edge
-      } else if (layoutEngine) {
+      } else if (!draggingEdge.current && layoutEngine) {
         // move node using the layout engine
         Object.assign(newState, layoutEngine.getPositionForNode(newState));
       }
@@ -231,7 +234,7 @@ function Node({
         pointerOffset: newState.pointerOffset,
       };
 
-      onNodeMove(newState, data[nodeKey], shiftKey);
+      onNodeMove(newState, data[nodeKey], shiftKey || draggingEdge.current);
     },
     [
       centerNodeOnMove,
