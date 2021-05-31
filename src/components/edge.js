@@ -158,17 +158,23 @@ function Edge({
       </g>
       <g className="edge-mouse-handler">
         <title>{data.handleTooltipText}</title>
-        <path
-          className="edge-overlay-path"
-          ref={edgeOverlayRef}
-          id={id}
-          data-source={data.source}
-          data-target={data.target}
-          d={pathDescription || undefined}
-          style={{
-            ...isBeingDraggedStyle,
-          }}
-        />
+        <g id={id} className="edge-overlay-path" ref={edgeOverlayRef}>
+          <path
+            data-source={data.source}
+            data-target={data.target}
+            d={pathDescription || undefined}
+          />
+          <use
+            href={getShapeId(edgeTypes, data)}
+            width={edgeHandleSize}
+            height={edgeHandleSize}
+            transform={edgeHandleTransformation}
+            style={{
+              transform: edgeHandleTransformation,
+              ...isBeingDraggedStyle,
+            }}
+          />
+        </g>
       </g>
     </g>
   );
