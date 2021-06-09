@@ -1,5 +1,6 @@
 // @flow
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { shallow } from 'enzyme';
 import GraphView from '../../src/components/graph-view';
 
@@ -128,6 +129,7 @@ describe('GraphUtils class', () => {
 
   describe('removeElementFromDom method', () => {
     it('removes an element using an id', () => {
+      ReactDOM.unmountComponentAtNode = jest.fn();
       const fakeElement = {
         parentNode: {
           removeChild: jest.fn(),
@@ -137,6 +139,7 @@ describe('GraphUtils class', () => {
       jest.spyOn(document, 'querySelector').mockReturnValue(fakeElement);
       const result = GraphUtils.removeElementFromDom('fake');
 
+      expect(ReactDOM.unmountComponentAtNode).toHaveBeenCalledWith(fakeElement);
       expect(fakeElement.parentNode.removeChild).toHaveBeenCalledWith(
         fakeElement
       );
