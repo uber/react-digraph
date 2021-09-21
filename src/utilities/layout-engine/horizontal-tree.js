@@ -36,6 +36,8 @@ class HorizontalTree extends SnapToGrid {
     const g = new dagre.graphlib.Graph();
     const height = nodeHeight ? nodeHeight * spacing : size;
     const width = nodeWidth ? nodeWidth * spacing : size;
+    const renderOrphanEnabled =
+      (graphConfig && graphConfig.renderOrphanEnabled) || false;
 
     g.setGraph(
       Object.assign(
@@ -62,6 +64,7 @@ class HorizontalTree extends SnapToGrid {
 
       // prevent disconnected nodes from being part of the graph
       if (
+        !renderOrphanEnabled &&
         nodesMapNode.incomingEdges.length === 0 &&
         nodesMapNode.outgoingEdges.length === 0
       ) {

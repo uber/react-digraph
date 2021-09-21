@@ -106,4 +106,5 @@ export type IGraphViewProps = {
   rotateEdgeHandle?: boolean,
   centerNodeOnMove?: boolean,
   initialBBox?: IBBox,
+  nodeLocationOverrides?: Object,
 };
