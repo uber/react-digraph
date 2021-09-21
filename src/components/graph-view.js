@@ -1019,6 +1019,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       if (nodeMap) {
         if (this.hasLayoutEngine()) {
           this.layoutEngineAdjustNodes();
+          Object.assign(nodeMap.node, position);
         } else {
           Object.assign(nodeMap.node, position);
           this.renderConnectedEdgesFromNode(nodeMap, true);
