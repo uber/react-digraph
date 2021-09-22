@@ -230,6 +230,7 @@ type IGraphState = {
   copiedEdges: null | IEdge[],
   layoutEngineType?: LayoutEngineType,
   allowMultiselect: boolean,
+  locationOverrides?: Object,
 };
 
 class Graph extends React.Component<IGraphProps, IGraphState> {
@@ -249,6 +250,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       selectedEdges: null,
       totalNodes: sample.nodes.length,
       allowMultiselect: true,
+      locationOverrides: {},
     };
 
     this.GraphView = React.createRef();
@@ -335,12 +337,20 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
   // Called by 'drag' handler, etc..
   // to sync updates from D3 with the graph
-  onUpdateNode = (viewNode: INode, selectedNodes: Map<string, INode>) => {
+  onUpdateNode = (
+    viewNode: INode,
+    selectedNodes: Map<string, INode>,
+    position?: Object
+  ) => {
     const graph = this.state.graph;
     const i = this.getNodeIndex(viewNode);
+    const overrides = {
+      ...this.state.locationOverrides,
+      [viewNode.id]: position,
+    };
 
     graph.nodes[i] = viewNode;
-    this.setState({ graph });
+    this.setState({ graph, locationOverrides: overrides });
   };
 
   onSelect = (selected: SelectionT) => {
@@ -602,6 +612,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={undefined}>None</option>
               <option value={'SnapToGrid'}>Snap to Grid</option>
               <option value={'VerticalTree'}>Vertical Tree</option>
+              <option value={'HorizontalTree'}>Horizontal Tree</option>
             </select>
           </div>
           <div className="pan-list">
@@ -637,6 +648,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onCopySelected={this.onCopySelected}
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={layoutEngineType}
+            nodeLocationOverrides={this.state.locationOverrides}
           />
         </div>
       </>
