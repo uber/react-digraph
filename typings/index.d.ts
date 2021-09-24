@@ -148,7 +148,7 @@ declare module 'react-digraph' {
     onSelect?: (selected: SelectionT, event?: any) => void;
     onSwapEdge?: (sourceNode: INode, targetNode: INode, edge: IEdge) => void;
     onUndo?: () => void;
-    onUpdateNode?: (node: INode, updatedNodes?: Map<string, INode> | null) => void | Promise<any>;
+    onUpdateNode?: (node: INode, updatedNodes?: Map<string, INode> | null, updatedNodePosition?: IPoint) => void | Promise<any>;
     renderBackground?: (gridSize?: number) => any;
     renderDefs?: () => any;
     renderNode?: (

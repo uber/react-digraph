@@ -991,7 +991,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   handleNodeUpdate = (
-    position: any,
+    position: IPoint,
     nodeId: string,
     shiftKey: boolean
   ): Promise<any> => {
