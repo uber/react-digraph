@@ -126,11 +126,25 @@ function Node({
 
   const handleMouseOut = useCallback(
     (event: any) => {
+      const mouseEvent: MouseEvent = event.nativeEvent;
+      const exitedElement: Element = mouseEvent.target;
+      const enteredElement: Element = mouseEvent.relatedTarget;
+      const exitedGNode = GraphUtils.findParent(
+        exitedElement,
+        'g.node',
+        'svg.graph'
+      );
+      const enteredGNode = GraphUtils.findParent(
+        enteredElement,
+        'g.node',
+        'svg.graph'
+      );
+      const isHovered: boolean = !!enteredGNode; // if we find a G element, user is hovered over a node
+
       if (
         (event && !event.relatedTarget) ||
-        (event &&
-          !event.relatedTarget?.matches('.edge-overlay-path') &&
-          !GraphUtils.findParent(event.relatedTarget, 'g.node', 'svg.graph'))
+        /* if user is not currently hovered, or was just hovering an adjacent node */
+        (event && (!isHovered || exitedGNode !== enteredGNode))
       ) {
         setHovered(false);
         onNodeMouseLeave(event, data);
