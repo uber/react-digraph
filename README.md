@@ -245,6 +245,7 @@ All props are detailed below.
 | `canDeleteSelected` | `func` | `false` | takes the place of `canDeleteNode` and `canDeleteEdge`. It accepts a `SelectionT` type as a parameter. It is called before a node or edge is deleted. The function should return a boolean.
 | `canCreateEdge`            | `func`                     | `false`      | Called before an edge is created.|
 | `canSwapEdge`              | `func`                     | `false`      | Called before an edge 'target' is swapped.
+| `canMoveNode`              | `func`                     | `false`      | Called before a node is moved (e.g. by being dragged). |
 | `afterRenderEdge`          | `func`                     | `false`      | Called after an edge is rendered.                                                                                                                                                           |
 | `renderNode`               | `func`                     | `false`      | Called to render node geometry.                                                                                                                                                             |
 | `renderNodeText`           | `func`                     | `false`      | Called to render the node text                                                                                                                                                              |
