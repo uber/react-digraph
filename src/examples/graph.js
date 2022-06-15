@@ -28,7 +28,7 @@ import {
   type LayoutEngineType,
   type SelectionT,
   type IPoint,
-} from '../';
+} from '..';
 import GraphConfig, {
   edgeTypes,
   EMPTY_EDGE_TYPE,
@@ -48,13 +48,22 @@ type IGraph = {
   edges: IEdge[],
 };
 
+let node_number = 0;
+let node_type = EMPTY_TYPE;
+const node_types = {
+  empty: EMPTY_TYPE,
+  poly: POLY_TYPE,
+  special: SPECIAL_TYPE,
+  skinny: SKINNY_TYPE,
+};
+
 // NOTE: Edges must have 'source' & 'target' attributes
 // In a more realistic use case, the graph would probably originate
 // elsewhere in the App or be generated from some other state upstream of this component.
 const sample: IGraph = {
   edges: [
     {
-      handleText: '5',
+      handleText: 'edge',
       handleTooltipText: '5',
       source: 'start1',
       target: 'a1',
@@ -311,15 +320,19 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     });
   };
   deleteStartNode = () => {
-    const graph = this.state.graph;
+    this.GraphView.deleteNode(this.state.graph.nodes[0]);
+    this.onDeleteNode(this.state.graph.nodes[0]);
 
-    graph.nodes.splice(0, 1);
-    // using a new array like this creates a new memory reference
-    // this will force a re-render
-    graph.nodes = [...this.state.graph.nodes];
-    this.setState({
-      graph,
-    });
+    // const graph = this.state.graph;
+
+    // graph.nodes.shift();
+    // // using a new array like this creates a new memory reference
+    // // this will force a re-render
+    // graph.nodes = [...this.state.graph.nodes];
+    // this.setState({
+    //   graph,
+    //   selected: null,
+    // });
   };
 
   handleChange = (event: any) => {
@@ -367,11 +380,11 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     // could be used here to determine node type
     // There is also support for subtypes. (see 'sample' above)
     // The subtype geometry will underlay the 'type' geometry for a node
-    const type = Math.random() < 0.25 ? SPECIAL_TYPE : EMPTY_TYPE;
+    const type = node_type; //Math.random() < 0.25 ? SPECIAL_TYPE : EMPTY_TYPE;
 
     const viewNode = {
       id: Date.now(),
-      title: '',
+      title: 'Node ' + node_number,
       type,
       x,
       y,
@@ -379,18 +392,22 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     graph.nodes = [...graph.nodes, viewNode];
     this.setState({ graph });
+    node_number++;
   };
 
   // Deletes a node from the graph
-  onDeleteNode = (viewNode: INode, nodeId: string, nodeArr: INode[]) => {
+  onDeleteNode = (viewNode: INode) => {
+    //}, nodeId: string, nodeArr: INode[]) => {
     // Note: onDeleteEdge is also called from react-digraph for connected nodes
     const graph = this.state.graph;
 
-    graph.nodes = nodeArr;
+    graph.nodes.splice(this.getNodeIndex(viewNode), 1);
 
-    this.deleteEdgesForNode(nodeId);
+    graph.nodes = [...this.state.graph.nodes];
 
-    this.setState({ graph, selected: null });
+    this.deleteEdgesForNode(viewNode.id);
+
+    // this.setState({ graph, selected: null });
   };
 
   // Whenever a node is deleted the consumer must delete any connected edges.
@@ -401,12 +418,13 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       edge => edge.source === nodeID || edge.target === nodeID
     );
 
-    const newEdges = graph.edges.filter(
-      edge => edge.source !== nodeID && edge.target !== nodeID
-    );
+    // const newEdges = graph.edges.filter(
+    //   edge => edge.source !== nodeID && edge.target !== nodeID
+    // );
 
     edgesToDelete.forEach(edge => {
-      this.onDeleteEdge(edge, newEdges);
+      this.GraphView.deleteEdge(edge);
+      this.onDeleteEdge(edge);
     });
   }
 
@@ -462,10 +480,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   // Called when an edge is deleted
-  onDeleteEdge = (viewEdge: IEdge, edges: IEdge[]) => {
+  onDeleteEdge = (viewEdge: IEdge) => {
     const graph = this.state.graph;
 
-    graph.edges = edges;
+    graph.edges.splice(this.getEdgeIndex(viewEdge), 1);
+
+    graph.edges = [...this.state.graph.edges];
     this.setState({
       graph,
       selected: null,
@@ -583,6 +603,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     }
   };
 
+  handleChangeNodeType = (event: any) => {
+    const value: any = event.target.value;
+
+    node_type = node_types[value];
+  };
+
   /*
    * Render
    */
@@ -595,7 +621,15 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     return (
       <>
         <div className="graph-header">
-          <button onClick={this.addStartNode}>Add Node</button>
+          <div className="layout-engine">
+            <span>Node type to add:</span>
+            <select name="node-type" onChange={this.handleChangeNodeType}>
+              <option value={'empty'}>Empty</option>
+              <option value={'poly'}>Poly</option>
+              <option value={'special'}>Special</option>
+              <option value={'skinny'}>Skinny</option>
+            </select>
+          </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>
           <input
             className="total-nodes"

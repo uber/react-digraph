@@ -33,7 +33,7 @@ type IGraphState = {
   sample2: any,
 };
 
-class Graph extends React.Component<IGraphProps, IGraphState> {
+class MultipleGraphs extends React.Component<IGraphProps, IGraphState> {
   GraphViewRef;
 
   constructor(props: IGraphProps) {
@@ -143,4 +143,4 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   }
 }
 
-export default Graph;
+export default MultipleGraphs;

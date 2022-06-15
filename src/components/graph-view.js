@@ -85,7 +85,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     layoutEngineType: 'None',
     maxZoom: 1.5,
     minZoom: 0.15,
-    nodeSize: 154,
+    nodeSize: 1254,
     nodeWidth: 154,
     nodeHeight: 154,
     readOnly: false,
@@ -553,8 +553,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const {
       canDeleteSelected,
       readOnly,
-      onDeleteSelected,
+      onDeleteNode,
       onSelect,
+      onDeleteEdge,
     } = this.props;
 
     if (readOnly || (!selected?.nodes?.size && !selected?.edges?.size)) {
@@ -565,13 +566,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       selected.nodes?.forEach(node => {
         // node
         this.deleteNode(node);
+        onDeleteNode(node);
       });
       selected.edges?.forEach(edge => {
         // edge
         this.deleteEdge(edge);
+        onDeleteEdge(edge);
       });
 
-      onDeleteSelected && onDeleteSelected(selected);
+      //onDeleteSelected && onDeleteSelected(selected);
       onSelect && onSelect({ nodes: null, edges: null });
     }
   };
