@@ -50,12 +50,6 @@ type IGraph = {
 
 let node_number = 0;
 let node_type = EMPTY_TYPE;
-const node_types = {
-  empty: EMPTY_TYPE,
-  poly: POLY_TYPE,
-  special: SPECIAL_TYPE,
-  skinny: SKINNY_TYPE,
-};
 
 // NOTE: Edges must have 'source' & 'target' attributes
 // In a more realistic use case, the graph would probably originate
@@ -604,9 +598,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   handleChangeNodeType = (event: any) => {
-    const value: any = event.target.value;
-
-    node_type = node_types[value];
+    node_type = event.target.value;
   };
 
   /*
@@ -624,10 +616,12 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
           <div className="layout-engine">
             <span>Node type to add:</span>
             <select name="node-type" onChange={this.handleChangeNodeType}>
-              <option value={'empty'}>Empty</option>
-              <option value={'poly'}>Poly</option>
-              <option value={'special'}>Special</option>
-              <option value={'skinny'}>Skinny</option>
+              <option value={EMPTY_TYPE}>Empty</option>
+              <option value={POLY_TYPE}>Poly</option>
+              <option value={SPECIAL_TYPE}>Special</option>
+              <option value={SPECIAL_CHILD_SUBTYPE}>Special Child</option>
+              <option value={SKINNY_TYPE}>Skinny</option>
+              <option value={COMPLEX_CIRCLE_TYPE}>Complex Circle</option>
             </select>
           </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>
