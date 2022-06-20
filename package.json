@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "main": "src/index.js",
-  "type": "module",
+  "type": "commonjs",
   "types": "./typings/index.d.ts",
   "peerDependencies": {
     "d3": "^5.16.0",
