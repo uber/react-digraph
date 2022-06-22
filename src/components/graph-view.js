@@ -548,15 +548,15 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     }
 
     if (canDeleteSelected && canDeleteSelected(selected)) {
-      selected.nodes?.forEach(node => {
-        // node
-        this.deleteNode(node);
-        onDeleteNode(node);
-      });
       selected.edges?.forEach(edge => {
         // edge
         this.deleteEdge(edge);
         onDeleteEdge(edge);
+      });
+      selected.nodes?.forEach(node => {
+        // node
+        this.deleteNode(node);
+        onDeleteNode(node);
       });
 
       //onDeleteSelected && onDeleteSelected(selected);
