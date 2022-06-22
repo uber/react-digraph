@@ -93,5 +93,4 @@ export type IGraphViewProps = {
   centerNodeOnMove?: boolean,
   initialBBox?: IBBox,
   nodeLocationOverrides?: Object,
-  update?: () => void,
 };
