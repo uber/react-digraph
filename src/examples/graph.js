@@ -370,7 +370,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     };
 
     graph.nodes = [...graph.nodes, viewNode];
-    this.setState({ graph });
+    this.setState({ graph, selected: null });
     node_number++;
   };
 
@@ -378,15 +378,9 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
   onDeleteNode = (viewNode: INode) => {
     //}, nodeId: string, nodeArr: INode[]) => {
     // Note: onDeleteEdge is also called from react-digraph for connected nodes
-    const graph = this.state.graph;
-
-    graph.nodes.splice(this.getNodeIndex(viewNode), 1);
-
-    graph.nodes = [...this.state.graph.nodes];
-
     this.deleteEdgesForNode(viewNode.id);
 
-    // this.setState({ graph, selected: null });
+    this.state.graph.nodes.splice(this.getNodeIndex(viewNode), 1);
   };
 
   // Whenever a node is deleted the consumer must delete any connected edges.
@@ -451,24 +445,11 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     graph.edges[i] = edge;
     // reassign the array reference if you want the graph to re-render a swapped edge
     graph.edges = [...graph.edges];
-
-    this.setState({
-      graph,
-      selected: edge,
-    });
   };
 
   // Called when an edge is deleted
   onDeleteEdge = (viewEdge: IEdge) => {
-    const graph = this.state.graph;
-
-    graph.edges.splice(this.getEdgeIndex(viewEdge), 1);
-
-    graph.edges = [...this.state.graph.edges];
-    this.setState({
-      graph,
-      selected: null,
-    });
+    this.state.graph.edges.splice(this.getEdgeIndex(viewEdge), 1);
   };
 
   onUndo = () => {
