@@ -36,7 +36,7 @@
     "kld-affine": "2.0.4",
     "kld-intersections": "^0.4.3",
     "line-intersect": "^2.1.1",
-    "react": "^16.12.0",
+    "react": "^16.14.0",
     "sass": "^1.52.3",
     "svg-intersections": "^0.4.0"
   },

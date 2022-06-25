@@ -26,6 +26,8 @@ import GraphConfig, {
   SPECIAL_EDGE_TYPE,
   SPECIAL_TYPE,
   SKINNY_TYPE,
+  COMPUTER_TYPE,
+  FILE_TYPE,
 } from './graph-config'; // Configures node/edge types
 
 type IGraph = {
@@ -33,7 +35,7 @@ type IGraph = {
   edges: IEdge[],
 };
 
-let node_number = 0;
+// let node_number = 0;
 let node_type = EMPTY_TYPE;
 
 // NOTE: Edges must have 'source' & 'target' attributes
@@ -363,7 +365,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     const viewNode = {
       id: Date.now(),
-      title: 'Node ' + node_number,
+      // title: 'Node ' + node_number,
       type,
       x,
       y,
@@ -371,7 +373,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     graph.nodes = [...graph.nodes, viewNode];
     this.setState({ graph, selected: null });
-    node_number++;
+    // node_number++;
   };
 
   // Deletes a node from the graph
@@ -422,10 +424,10 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       graph.edges = [...graph.edges, viewEdge];
       this.setState({
         graph,
-        selected: {
-          nodes: null,
-          edges: new Map([[`${viewEdge.source}_${viewEdge.target}`, viewEdge]]),
-        },
+        // selected: {
+        //   nodes: null,
+        //   edges: new Map([[`${viewEdge.source}_${viewEdge.target}`, viewEdge]]),
+        // },
       });
     }
   };
@@ -588,6 +590,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={SPECIAL_CHILD_SUBTYPE}>Special Child</option>
               <option value={SKINNY_TYPE}>Skinny</option>
               <option value={COMPLEX_CIRCLE_TYPE}>Complex Circle</option>
+              <option value={COMPUTER_TYPE}>Computer</option>
+              <option value={FILE_TYPE}>File</option>
             </select>
           </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>

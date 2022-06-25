@@ -141,14 +141,14 @@ export function getPathIntersect(
     return;
   }
 
-  d = d.replace(/^M /, '');
+  d = d.replace(/^M ?/, '');
   let dArr = d.split(/[ ,]+/);
 
   dArr = dArr.map((val, index) => {
     let isEnd = false;
 
-    if (/Z$/.test(val)) {
-      val = val.replace(/Z$/, '');
+    if (/[zZ]$/.test(val)) {
+      val = val.replace(/[zZ]$/, '');
       isEnd = true;
     }
 
@@ -159,6 +159,9 @@ export function getPathIntersect(
 
     return parseFloat(val) + top + (isEnd ? 'Z' : '');
   });
+  while (dArr.includes('NaN')) {
+    dArr.splice(dArr.indexOf('NaN'), 1);
+  }
 
   const pathIntersect = intersect(
     shape('path', { d: 'M ' + dArr.join(' ') }),

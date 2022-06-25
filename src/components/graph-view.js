@@ -68,7 +68,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
-    maxZoom: 1.5,
+    maxZoom: 3,
     minZoom: 0.15,
     nodeSize: 1254,
     nodeWidth: 154,
