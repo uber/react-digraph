@@ -114,7 +114,7 @@ function Node({
       if (
         (event && !event.relatedTarget) ||
         (event &&
-          !event.relatedTarget?.matches('.edge-overlay-path') &&
+          // !event.relatedTarget?.matches('.edge-overlay-path') &&
           !GraphUtils.findParent(event.relatedTarget, 'g.node', 'svg.graph'))
       ) {
         setHovered(false);

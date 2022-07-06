@@ -52,10 +52,10 @@ $button-size: 31px;
       fill: $dark-color;
       cursor: pointer;
       user-select: none;
-      &.selected {
-        fill: $light-color;
-        stroke: $light-color;
-      }
+      // &.selected {
+      //   fill: $light-color;
+      //   stroke: $light-color;
+      // }
     }
   }
 

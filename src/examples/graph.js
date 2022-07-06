@@ -28,6 +28,9 @@ import GraphConfig, {
   SKINNY_TYPE,
   COMPUTER_TYPE,
   FILE_TYPE,
+  USER_TYPE,
+  DATABASE_TYPE,
+  HASH_TYPE,
 } from './graph-config'; // Configures node/edge types
 
 type IGraph = {
@@ -35,7 +38,7 @@ type IGraph = {
   edges: IEdge[],
 };
 
-// let node_number = 0;
+let node_number = 0;
 let node_type = EMPTY_TYPE;
 
 // NOTE: Edges must have 'source' & 'target' attributes
@@ -365,7 +368,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     const viewNode = {
       id: Date.now(),
-      // title: 'Node ' + node_number,
+      title: 'Node ' + node_number,
       type,
       x,
       y,
@@ -373,7 +376,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
 
     graph.nodes = [...graph.nodes, viewNode];
     this.setState({ graph, selected: null });
-    // node_number++;
+    node_number++;
   };
 
   // Deletes a node from the graph
@@ -592,6 +595,9 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={COMPLEX_CIRCLE_TYPE}>Complex Circle</option>
               <option value={COMPUTER_TYPE}>Computer</option>
               <option value={FILE_TYPE}>File</option>
+              <option value={USER_TYPE}>User</option>
+              <option value={DATABASE_TYPE}>Database</option>
+              <option value={HASH_TYPE}>Hash</option>
             </select>
           </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>

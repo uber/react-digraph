@@ -56,13 +56,14 @@ function GraphControls({
       <div className="slider-wrapper">
         <span>-</span>
         <input
+          // disabled="true"
           type="range"
           className="slider"
           min={min}
           max={max}
           value={value}
           onChange={zoom}
-          step="1"
+          step="0.001"
         />
         <span>+</span>
       </div>
