@@ -4,7 +4,7 @@ export const DEFAULT_GRID_SPACING = 36;
 export const DEFAULT_EDGE_ARROW_SIZE = 8;
 export const DEFAULT_EDGE_HANDLE_SIZE = 50;
 export const DEFAULT_NODE_SIZE = 154;
-export const DEFAULT_NODE_TEXT_MAX_TITLE_CHARS = 12;
+export const DEFAULT_NODE_TEXT_MAX_TITLE_CHARS = 100;
 export const DEFAULT_NODE_TEXT_LINE_OFFSET = 105; // previously 18
 export const DEFAULT_MAX_ZOOM = 1.5;
 export const DEFAULT_MIN_ZOOM = 0.15;
@@ -17,8 +17,16 @@ export const NODE_TEXT_LINE_OFFSET = {
   complexCircle: 80,
   skinny: 57,
   computer: 82,
-  file: 78,
+  file: 75,
   user: 75,
   database: 75,
   hash: 70,
+  action: 75,
+  process: 75,
+  server: 75,
+  folder: 78,
+  userGroup: 75,
+  firewall: 68,
+  network: 75,
+  malware: 75,
 };

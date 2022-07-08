@@ -31,6 +31,14 @@ import GraphConfig, {
   USER_TYPE,
   DATABASE_TYPE,
   HASH_TYPE,
+  ACTION_TYPE,
+  PROCESS_TYPE,
+  SERVER_TYPE,
+  FOLDER_TYPE,
+  USER_GROUP_TYPE,
+  FIREWALL_TYPE,
+  NETWORK_TYPE,
+  MALWARE_TYPE,
 } from './graph-config'; // Configures node/edge types
 
 type IGraph = {
@@ -598,6 +606,14 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={USER_TYPE}>User</option>
               <option value={DATABASE_TYPE}>Database</option>
               <option value={HASH_TYPE}>Hash</option>
+              <option value={ACTION_TYPE}>Action</option>
+              <option value={PROCESS_TYPE}>Process</option>
+              <option value={SERVER_TYPE}>Server</option>
+              <option value={FOLDER_TYPE}>Folder</option>
+              <option value={USER_GROUP_TYPE}>User Group</option>
+              <option value={FIREWALL_TYPE}>Firewall</option>
+              <option value={NETWORK_TYPE}>Network</option>
+              <option value={MALWARE_TYPE}>Malware</option>
             </select>
           </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>
