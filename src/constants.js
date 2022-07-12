@@ -31,4 +31,5 @@ export const NODE_TEXT_LINE_OFFSET = {
   malware: 54,
   internet: 60,
   email: 60,
+  threatActor: 82,
 };
