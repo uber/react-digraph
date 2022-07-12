@@ -39,6 +39,8 @@ import GraphConfig, {
   FIREWALL_TYPE,
   NETWORK_TYPE,
   MALWARE_TYPE,
+  INTERNET_TYPE,
+  EMAIL_TYPE,
 } from './graph-config'; // Configures node/edge types
 
 type IGraph = {
@@ -614,6 +616,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
               <option value={FIREWALL_TYPE}>Firewall</option>
               <option value={NETWORK_TYPE}>Network</option>
               <option value={MALWARE_TYPE}>Malware</option>
+              <option value={INTERNET_TYPE}>Internet</option>
+              <option value={EMAIL_TYPE}>Email</option>
             </select>
           </div>
           <button onClick={this.deleteStartNode}>Delete Node</button>
