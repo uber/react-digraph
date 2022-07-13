@@ -172,13 +172,16 @@ const sample: IGraph = {
     },
     {
       id: 'a8',
-      title: 'Node G (8)',
+      title: 'Tests',
       type: COMPLEX_CIRCLE_TYPE,
       x: -200,
       y: 400,
     },
   ],
 };
+
+const typeFilters = ['special'];
+const searchFilter = 'Test';
 
 function generateSample(totalNodes) {
   const generatedSample: IGraph = {
@@ -675,6 +678,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={layoutEngineType}
             nodeLocationOverrides={this.state.locationOverrides}
+            typeFilters={typeFilters}
+            searchFilter={searchFilter}
           />
         </div>
       </>

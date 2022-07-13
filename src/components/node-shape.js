@@ -37,14 +37,15 @@ export default function NodeShape({
   nodeHeight,
   selected = false,
   hovered = false,
+  filtered = false,
 }: NodeShapePropsT) {
   let height = nodeSize || nodeHeight || DEFAULT_NODE_SIZE;
   let width = nodeSize || nodeWidth || DEFAULT_NODE_SIZE;
 
   const nodeShapeContainerClassName = GraphUtils.classNames('shape');
   const nodeClassName = useMemo(
-    () => GraphUtils.classNames('node', { selected, hovered }),
-    [selected, hovered]
+    () => GraphUtils.classNames('node', { selected, hovered, filtered }),
+    [selected, hovered, filtered]
   );
   const nodeSubtypeClassName = useMemo(
     () =>

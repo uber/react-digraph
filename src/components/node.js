@@ -72,6 +72,7 @@ function Node({
   nodeTypes,
   nodeSubtypes,
   isSelected = false,
+  isFiltered = false,
   nodeSize,
   nodeHeight,
   nodeWidth,
@@ -247,8 +248,9 @@ function Node({
       GraphUtils.classNames('node', data.type, {
         hovered,
         isSelected,
+        isFiltered,
       }),
-    [data.type, hovered, isSelected]
+    [data.type, hovered, isSelected, isFiltered]
   );
 
   const { x, y } = position.current;
@@ -265,7 +267,14 @@ function Node({
       style={{ transform: `matrix(1, 0, 0, 1, ${x}, ${y})` }}
     >
       {renderNode ? (
-        renderNode(nodeRef, data, data[nodeKey], isSelected, hovered)
+        renderNode(
+          nodeRef,
+          data,
+          data[nodeKey],
+          isSelected,
+          hovered,
+          isFiltered
+        )
       ) : (
         <NodeShape
           data={data}
@@ -277,6 +286,7 @@ function Node({
           nodeWidth={nodeWidth}
           selected={isSelected}
           hovered={hovered}
+          filtered={isFiltered}
         />
       )}
       {renderNodeText ? (
