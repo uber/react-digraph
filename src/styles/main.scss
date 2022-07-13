@@ -45,6 +45,9 @@ $button-size: 31px;
           stroke-width: 1px;
           fill: $primary-color;
         }
+        &.filtered {
+          opacity: 0.5;
+        }
       }
     }
 

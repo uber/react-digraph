@@ -240,6 +240,8 @@ const sample: IGraph = {
   ],
 };
 
+const typeFilters = ['special'];
+const searchFilter = 'Test';
 // const sample: IGraph = {
 //   edges: [
 //     {
@@ -860,6 +862,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={layoutEngineType}
             nodeLocationOverrides={this.state.locationOverrides}
+            typeFilters={typeFilters}
+            searchFilter={searchFilter}
           />
         </div>
       </>

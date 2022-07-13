@@ -1462,6 +1462,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     return !!selected?.nodes?.has(node[nodeKey]);
   };
 
+  isNodeFiltered = (node: INode) => {
+    const { typeFilters, searchFilter } = this.props;
+
+    if (node.title.includes(searchFilter)) {
+      return true;
+    }
+
+    if (typeFilters.includes(node.type)) {
+      return true;
+    }
+
+    return false;
+  };
+
   isEdgeSelected = (edge: IEdge) => {
     const { selected } = this.props;
     const edgeID = `${edge.source}_${edge.target}`;
@@ -1502,6 +1516,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         renderNode={renderNode}
         renderNodeText={renderNodeText}
         isSelected={this.isNodeSelected(node)}
+        isFiltered={this.isNodeFiltered(node)}
         layoutEngine={this.layoutEngine}
         viewWrapperElem={this.viewWrapper.current}
         centerNodeOnMove={centerNodeOnMove}
