@@ -220,7 +220,6 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         this.handleZoomToFit();
       }
     }, zoomDelay);
-    console.log(this.props.typeFilters);
   }
 
   componentWillUnmount() {
