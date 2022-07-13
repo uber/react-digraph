@@ -616,12 +616,12 @@ const InternetShape = (
 );
 
 const EmailShape = (
-  <symbol viewBox="0 0 96 69" id="email" width="96" height="69">
+  <symbol viewBox="0 0 57.6 41.4 " id="email" width="57.6" height="41.4">
     <rect
       x="0"
       y="0"
-      width="96"
-      height="69"
+      width="57.6"
+      height="41.4"
       fill="transparent"
       stroke="transparent"
     />
@@ -629,7 +629,7 @@ const EmailShape = (
       d="M9.068 22.669h90.675V86.14H9.068Z"
       stroke="#000000"
       strokeWidth="4"
-      transform="matrix(1 0 0 1.0022 -6.37628 -20.0259)"
+      transform="scale(0.6 0.6) matrix(1 0 0 1.0022 -6.37628 -20.0259)"
       data-intersect-ignore="true"
     />
     <path
@@ -637,7 +637,7 @@ const EmailShape = (
       fill="transparent"
       stroke="#000000"
       strokeWidth="4"
-      transform="matrix(1 0 0 1.0022 -6.37628 -20.0259)"
+      transform="scale(0.6 0.6) matrix(1 0 0 1.0022 -6.37628 -20.0259)"
       data-intersect-ignore="true"
     />
   </symbol>
