@@ -2,6 +2,7 @@ $primary-color: dodgerblue;
 $light-color: white;
 $dark-color: black;
 $light-grey: lightgrey;
+$dark-grey: darkgrey;
 $background-color: #f9f9f9;
 $button-size: 31px;
 
@@ -39,14 +40,18 @@ $button-size: 31px;
         &.hovered {
           stroke: $primary-color;
         }
+        &.filtered {
+          color: $light-color;
+          stroke: $light-grey;
+          stroke-width: 1px;
+          fill: $light-grey;
+          opacity: 0.1;
+        }
         &.selected {
           color: $light-color;
           stroke: $primary-color;
           stroke-width: 1px;
           fill: $primary-color;
-        }
-        &.filtered {
-          opacity: 0.5;
         }
       }
     }
@@ -55,10 +60,11 @@ $button-size: 31px;
       fill: $dark-color;
       cursor: pointer;
       user-select: none;
-      // &.selected {
-      //   fill: $light-color;
-      //   stroke: $light-color;
-      // }
+      &.filtered {
+        fill: $light-grey;
+        stroke: $light-grey;
+        opacity: 0.85;
+      }
     }
   }
 
@@ -93,6 +99,18 @@ $button-size: 31px;
         stroke: $light-color;
       }
     }
+
+    &.filtered {
+      // color: $light-grey;
+      stroke: $dark-grey;
+      marker-end: url(#end-arrow-filtered);
+      opacity: 0.3;
+
+      .edge-text {
+        fill: $light-color;
+        stroke: $light-color;
+      }
+    }
   }
 
   .edge-mouse-handler {
@@ -106,6 +124,10 @@ $button-size: 31px;
 
   .arrow {
     fill: $primary-color;
+  }
+
+  .arrow-filtered {
+    fill: $dark-grey;
   }
 
   .graph-controls {

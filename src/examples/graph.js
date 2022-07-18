@@ -17,7 +17,7 @@ import {
 import GraphConfig, {
   edgeTypes,
   EMPTY_EDGE_TYPE,
-  EMPTY_TYPE,
+  OTHER_TYPE,
   NODE_KEY,
   nodeTypes,
   COMPLEX_CIRCLE_TYPE,
@@ -50,7 +50,7 @@ type IGraph = {
 };
 
 let node_number = 0;
-let node_type = EMPTY_TYPE;
+let node_type = OTHER_TYPE;
 
 // NOTE: Edges must have 'source' & 'target' attributes
 // In a more realistic use case, the graph would probably originate
@@ -240,8 +240,8 @@ const sample: IGraph = {
   ],
 };
 
-const typeFilters = ['special'];
-const searchFilter = 'Test';
+const typeFilters = ['firewall'];
+const searchFilter = '.0.0';
 // const sample: IGraph = {
 //   edges: [
 //     {
@@ -785,7 +785,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
           <div className="layout-engine">
             <span>Node type to add:</span>
             <select name="node-type" onChange={this.handleChangeNodeType}>
-              <option value={EMPTY_TYPE}>Empty</option>
+              <option value={OTHER_TYPE}>Other</option>
               <option value={POLY_TYPE}>Poly</option>
               <option value={SPECIAL_TYPE}>Special</option>
               <option value={SPECIAL_CHILD_SUBTYPE}>Special Child</option>
@@ -863,7 +863,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             layoutEngineType={layoutEngineType}
             nodeLocationOverrides={this.state.locationOverrides}
             typeFilters={typeFilters}
-            searchFilter={searchFilter}
+            searchFilter={searchFilter.trim()}
           />
         </div>
       </>

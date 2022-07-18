@@ -66,6 +66,8 @@ function Defs({
 
       <ArrowheadMarker edgeArrowSize={edgeArrowSize} />
 
+      <ArrowheadMarker edgeArrowSize={edgeArrowSize} filtered />
+
       <BackgroundPattern gridSpacing={gridSpacing} gridDotSize={gridDotSize} />
 
       <DropshadowFilter />

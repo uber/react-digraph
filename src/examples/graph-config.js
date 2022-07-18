@@ -10,7 +10,7 @@ export const NODE_KEY = 'id'; // Key used to identify nodes
 // These keys are arbitrary (but must match the config)
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
-export const EMPTY_TYPE = 'customEmpty'; // Empty node type
+export const OTHER_TYPE = 'other'; // Empty node type
 export const POLY_TYPE = 'poly';
 export const SPECIAL_TYPE = 'special';
 export const SKINNY_TYPE = 'skinny';
@@ -36,7 +36,7 @@ export const EMAIL_TYPE = 'email';
 export const THREAT_ACTOR_TYPE = 'threatActor';
 
 export const nodeTypes = [
-  EMPTY_TYPE,
+  OTHER_TYPE,
   POLY_TYPE,
   SPECIAL_TYPE,
   SKINNY_TYPE,
@@ -65,9 +65,16 @@ const EmptyNodeShape = (
   </symbol>
 );
 
-const CustomEmptyShape = (
-  <symbol viewBox="0 0 100 100" id="customEmpty">
-    <circle cx="50" cy="50" r="45" />
+const OtherShape = (
+  <symbol viewBox="0 0 98 98" width="98" height="98" id="other">
+    <circle cx="49" cy="49" r="48" stroke="transparent" />
+    <path
+      d="M49 97.02C22.52 97.02.98 75.48.98 49 .98 22.52 22.52.98 49 .98 75.47.98 97.02 22.52 97.02 49c0 26.48-21.54 48.02-48.02 48.02Z
+    m0-92.002C24.745 5.018 5.018 24.745 5.018 49S24.745 92.982 49.01 92.982c24.255 0 43.982-19.727 43.982-43.982C92.982 24.745 73.255 5.018 49 5.018Z"
+      fill="#000000"
+      stroke="transparent"
+      data-intersect-ignore="true"
+    />
   </symbol>
 );
 
@@ -727,9 +734,9 @@ export default {
       shapeId: '#emptyNode',
       typeText: 'None',
     },
-    empty: {
-      shape: CustomEmptyShape,
-      shapeId: '#empty',
+    other: {
+      shape: OtherShape,
+      shapeId: '#other',
       typeText: 'None',
     },
     special: {

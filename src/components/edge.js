@@ -40,6 +40,7 @@ type IEdgeProps = {
   sourceNode: ITargetPosition | null,
   targetNode: ITargetPosition,
   isSelected: boolean,
+  isFiltered: boolean,
   nodeKey: string,
   viewWrapperElem: HTMLDivElement,
   rotateEdgeHandle?: boolean,
@@ -52,6 +53,7 @@ function Edge({
   viewWrapperElem,
   edgeHandleSize = DEFAULT_EDGE_HANDLE_SIZE,
   isSelected = false,
+  isFiltered = false,
   rotateEdgeHandle = true,
   nodeSize = 0,
   sourceNode,
@@ -97,6 +99,7 @@ function Edge({
   const id = `${data.source != null ? data.source : ''}_${data.target}`;
   const className = GraphUtils.classNames('edge', data.type, {
     selected: isSelected,
+    filtered: isFiltered,
   });
   const isBeingDraggedStyle = {
     pointerEvents: isBeingDragged ? 'none' : 'auto',

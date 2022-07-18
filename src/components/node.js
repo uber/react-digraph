@@ -56,8 +56,14 @@ type INodeProps = {
     selected: boolean,
     hovered: boolean
   ) => any,
-  renderNodeText?: (data: any, id: string | number, isSelected: boolean) => any,
+  renderNodeText?: (
+    data: any,
+    id: string | number,
+    isSelected: boolean,
+    isFiltered: boolean
+  ) => any,
   isSelected: boolean,
+  isFiltered: boolean,
   layoutEngine?: any,
   viewWrapperElem: HTMLDivElement,
   centerNodeOnMove?: boolean,
@@ -296,6 +302,7 @@ function Node({
           data={data}
           nodeTypes={nodeTypes}
           isSelected={isSelected}
+          isFiltered={isFiltered}
           maxTitleChars={maxTitleChars}
         />
       )}

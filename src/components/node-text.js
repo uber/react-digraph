@@ -14,6 +14,7 @@ type INodeTextProps = {
   data: INode,
   nodeTypes: any, // TODO: create a nodeTypes interface
   isSelected: boolean,
+  isFiltered: boolean,
   maxTitleChars?: number,
   lineOffset?: number,
 };
@@ -32,6 +33,7 @@ function NodeText({
   data,
   nodeTypes,
   isSelected,
+  isFiltered,
   maxTitleChars = DEFAULT_NODE_TEXT_MAX_TITLE_CHARS,
   lineOffset = DEFAULT_NODE_TEXT_LINE_OFFSET,
 }: INodeTextProps) {
@@ -42,8 +44,9 @@ function NodeText({
     () =>
       GraphUtils.classNames('node-text', {
         selected: isSelected,
+        filtered: isFiltered,
       }),
-    [isSelected]
+    [isSelected, isFiltered]
   );
 
   // prevents the SVG click event from firing when the node text is selected

@@ -65,12 +65,12 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canSwapEdge: () => true,
     canDeleteSelected: () => true,
     allowMultiselect: true,
-    edgeArrowSize: 8,
+    edgeArrowSize: 0.00001, // effectively removing the arrows. size has to be positive for intersection calculation uses.
     gridSpacing: 36,
     layoutEngineType: 'None',
     maxZoom: 3,
     minZoom: 0.15,
-    nodeSize: 1254,
+    nodeSize: 154,
     nodeWidth: 154,
     nodeHeight: 154,
     readOnly: false,
@@ -1465,15 +1465,46 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   isNodeFiltered = (node: INode) => {
     const { typeFilters, searchFilter } = this.props;
 
-    if (node.title.includes(searchFilter)) {
-      return true;
-    }
-
     if (typeFilters.includes(node.type)) {
       return true;
     }
 
-    return false;
+    const mapNode = this.getNodeById(node.id);
+    let filtered = true;
+
+    // search all outgoing edges
+    mapNode.outgoingEdges.forEach(edge => {
+      const targetNode = this.getNodeById(edge.target).node;
+
+      if (
+        !typeFilters.includes(targetNode.type) &&
+        targetNode.title.includes(searchFilter)
+      ) {
+        filtered = false;
+
+        return;
+      }
+    });
+
+    if (!filtered) {
+      return false;
+    }
+
+    // search all incoming edges
+    mapNode.incomingEdges.forEach(edge => {
+      const sourceNode = this.getNodeById(edge.source).node;
+
+      if (
+        !typeFilters.includes(sourceNode.type) &&
+        sourceNode.title.includes(searchFilter)
+      ) {
+        filtered = false;
+
+        return;
+      }
+    });
+
+    return filtered && !node.title.includes(searchFilter);
   };
 
   isEdgeSelected = (edge: IEdge) => {
@@ -1481,6 +1512,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const edgeID = `${edge.source}_${edge.target}`;
 
     return !!selected?.edges?.has(edgeID);
+  };
+
+  isEdgeFiltered = (edge: IEdge) => {
+    return edge.source && edge.target
+      ? this.isNodeFiltered(this.getNodeById(edge.source).node) ||
+          this.isNodeFiltered(this.getNodeById(edge.target).node)
+      : false;
   };
 
   getNodeComponent = (id: string, node: INode) => {
@@ -1628,6 +1666,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         nodeKey={nodeKey}
         viewWrapperElem={this.viewWrapper.current}
         isSelected={this.isEdgeSelected(edge)}
+        isFiltered={this.isEdgeFiltered(edge)}
         rotateEdgeHandle={rotateEdgeHandle}
         isBeingDragged={!!targetPosition}
       />

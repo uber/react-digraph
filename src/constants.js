@@ -11,7 +11,7 @@ export const DEFAULT_MIN_ZOOM = 0.15;
 export const SLIDER_STEPS = 200;
 export const NODE_TEXT_LINE_OFFSET = {
   emptyNode: 105,
-  customEmpty: 105,
+  other: 75,
   special: 105,
   poly: 67,
   complexCircle: 80,
