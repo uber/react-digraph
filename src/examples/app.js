@@ -35,7 +35,9 @@ class App extends React.Component {
   render() {
     return (
       <Router>
-        <div style={{ height: '100%' }}>
+        <div
+          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+        >
           <header className="app-header">
             <nav>
               <ul>
