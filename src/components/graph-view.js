@@ -238,12 +238,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       readOnly,
       layoutEngineType,
       allowMultiselect,
+      typeFilters,
+      searchFilter,
     } = this.props;
     const { selectionEnd } = this.state;
 
     return (
       nextProps.nodes !== nodes ||
       nextProps.edges !== edges ||
+      nextProps.typeFilters !== typeFilters ||
+      nextProps.searchFilter !== searchFilter ||
       !nextState.componentUpToDate ||
       nextProps.selected !== selected ||
       nextProps.readOnly !== readOnly ||

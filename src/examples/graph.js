@@ -240,8 +240,6 @@ const sample: IGraph = {
   ],
 };
 
-const typeFilters = ['firewall'];
-const searchFilter = '.0.0';
 // const sample: IGraph = {
 //   edges: [
 //     {
@@ -442,6 +440,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
       totalNodes: sample.nodes.length,
       allowMultiselect: true,
       locationOverrides: {},
+      typeFilters: [],
+      searchFilter: '',
     };
 
     this.GraphView = React.createRef();
@@ -770,6 +770,13 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     node_type = event.target.value;
   };
 
+  testUpdateNode = () => {
+    this.setState({
+      typeFilters: ['firewall'],
+      searchFilter: '10.190.0.0',
+    });
+  };
+
   /*
    * Render
    */
@@ -817,6 +824,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             placeholder={this.state.totalNodes.toString()}
           />
           <div className="layout-engine">
+            <button onClick={() => this.testUpdateNode()}>Test</button>
             <span>Layout Engine:</span>
             <select
               name="layout-engine-type"
@@ -862,8 +870,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             onPasteSelected={this.onPasteSelected}
             layoutEngineType={layoutEngineType}
             nodeLocationOverrides={this.state.locationOverrides}
-            typeFilters={typeFilters}
-            searchFilter={searchFilter.trim()}
+            typeFilters={this.state.typeFilters}
+            searchFilter={this.state.searchFilter.trim()}
           />
         </div>
       </>
