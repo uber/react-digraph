@@ -111,6 +111,16 @@ npm run package # this runs the linter, tests, and builds a production distribut
 
 Now you may stop your project's server and restart it to see the changes in your project.
 
+##### Linking to the Uber web-code Monorepo
+
+In order for Uber contributors to use a local version of react-digraph with a package in the monorepo, first clone the repository in your development environment outside of the `web-code` directory as described above. Once done, you can modify the `package.json` of your package to modify the entry for react-digraph to the following format:
+
+```
+    "react-digraph": "file:/relative/path/to/react-digraph",
+```
+
+Once done, run `yarn build:prod` in react-digraph and `jz install` in the package in the monorepo, repeating these commands for every change made in react-digraph.
+
 #### Creating tests
 
 Please make sure to test all of your code. We would prefer 100% code coverage. All tests are located in the `__tests__` folder, and all mocks in the `__mocks__` folder.
