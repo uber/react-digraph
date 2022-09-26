@@ -37,6 +37,7 @@ export type SelectionT = {
 };
 
 export type IGraphViewProps = {
+  allowCopyEdges?: boolean,
   allowMultiselect?: boolean,
   backgroundFillId?: string,
   disableBackspace?: boolean,

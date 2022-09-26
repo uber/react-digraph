@@ -9,10 +9,10 @@ Version 8.0.0 introduces multi-select nodes and edges using Ctrl-Shift-Mouse eve
 
 To disable multi-select you can set `allowMultiselect` to `false`, which disables the Ctrl-Shift-mouse event, but we will still use the `onSelect` function. Both `onSelectNode` and `onSelectEdge` are deprecated.
 
-Breaking changes: 
+Breaking changes:
 
 - `onPasteSelected` now accepts a `SelectionT` object for the first parameter
-- `onPasteSelected` now accepts an `IPoint` instead 
+- `onPasteSelected` now accepts an `IPoint` instead
 of a `XYCoords` array for the second parameter.
 - `onDeleteSelected` is added which takes a `SelectionT` parameter.
 - `onSelect` is added, which accepts `SelectionT` and `Event` parameters.
@@ -226,7 +226,8 @@ All props are detailed below.
 | `nodeKey`                  | `string`                   | `true`       | Key for D3 to update nodes(typ. UUID).                                                                                                                                                      |
 | `nodes`                    | `Array<INode>`             | `true`       | Array of graph nodes.                                                                                                                                                                       |
 | `edges`                    | `Array<IEdge>`             | `true`       | Array of graph edges.                                                                                                                                                                       |
-| `allowMultiselect`         | `boolean`    | `false`      | (default true) Use Ctrl-Shift-LeftMouse to draw a multiple selection box. |
+| `allowCopyEdges`           | `boolean`                  | `false`      | (default false) Allow `onCopySelected` to be called when an edge is selected without any nodes. |
+| `allowMultiselect`         | `boolean`                  | `false`      | (default true) Use Ctrl-Shift-LeftMouse to draw a multiple selection box. |
 | `selected`                 | `object`                   | `true`       | The currently selected graph entity. |
 | `nodeTypes`                | `object`                   | `true`       | Config object of available node types.                                                                                                                                                      |
 | `nodeSubtypes`             | `object`                   | `true`       | Config object of available node subtypes.                                                                                                                                                   |
@@ -237,7 +238,7 @@ All props are detailed below.
 | `onUpdateNode`             | `func`                     | `true`       | Called when a node is moved.|
 | `onCreateEdge`             | `func`                     | `true`       | Called when an edge is created.|
 | `onSwapEdge`               | `func`                     | `true`       | Called when an edge `'target'` is swapped.|
-| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.  |                                                                                                                         
+| `onBackgroundClick`        | `func`                     | `false`      | Called when the background is clicked.  |
 | `onArrowClicked`        | `func`                     | `false`      | Called when the arrow head is clicked. |
 | `onUndo`                | `func` | `false` | A function called when Ctrl-Z is activated. React-digraph does not keep track of actions, this must be implemented in the client website. |
 | `onCopySelected` | `func` | `false` | A function called when Ctrl-C is activated. React-digraph does not keep track of copied nodes or edges, the this must be implemented in the client website. |

@@ -80,6 +80,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     canSwapEdge: () => true,
     canDeleteSelected: () => true,
     allowMultiselect: true,
+    allowCopyEdges: false,
     edgeArrowSize: 8,
     gridSpacing: 36,
     layoutEngineType: 'None',
@@ -580,6 +581,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     const {
       selected,
       disableBackspace,
+      allowCopyEdges,
       onUndo,
       onCopySelected,
       onPasteSelected,
@@ -610,7 +612,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
         break;
       case 'c':
-        if (this.isControlKeyPressed(d) && selected?.nodes?.size) {
+        if (
+          this.isControlKeyPressed(d) &&
+          (selected?.nodes?.size || (allowCopyEdges && selected?.edges?.size))
+        ) {
           onCopySelected && onCopySelected();
         }
 
