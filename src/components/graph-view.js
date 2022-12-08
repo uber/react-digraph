@@ -1113,16 +1113,16 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         foundSelectedNode = selected?.nodes?.has(node[nodeKey]);
       }
 
-      if (!foundSelectedNode) {
-        onSelect &&
-          onSelect(
-            {
-              nodes: new Map([[node[nodeKey], node]]),
-              edges: null,
-            },
-            event
-          );
-      }
+      onSelect &&
+        onSelect(
+          {
+            nodes: foundSelectedNode
+              ? selected?.nodes
+              : new Map([[node[nodeKey], node]]),
+            edges: foundSelectedNode ? selected?.edges : null,
+          },
+          event
+        );
     }
   };
 
