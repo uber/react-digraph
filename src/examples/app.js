@@ -15,7 +15,7 @@
 */
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   BrowserRouter as Router,
   NavLink,
@@ -74,6 +74,6 @@ class App extends React.Component {
 
 if (typeof window !== 'undefined') {
   window.onload = () => {
-    ReactDOM.render(<App />, document.getElementById('content'));
+    createRoot(document.getElementById('content')).render(<App />);
   };
 }
