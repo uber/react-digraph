@@ -17,7 +17,7 @@
 
 import * as d3 from 'd3';
 import * as React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import '../styles/main.scss';
 import { LayoutEngines } from '../utilities/layout-engine/layout-engine-config';
 import {
@@ -75,6 +75,7 @@ type IGraphViewState = {
 };
 
 class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
+  // $FlowFixMe[signature-verification-failure]
   static defaultProps = {
     canCreateEdge: (startNode?: INode, endNode?: INode) => true,
     canSwapEdge: () => true,
@@ -149,6 +150,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   selectedView: any;
   view: any;
   layoutEngine: any;
+  roots: any;
 
   constructor(props: IGraphViewProps) {
     super(props);
@@ -160,6 +162,8 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.viewWrapper = React.createRef();
     this.graphSvg = React.createRef();
     this.highlightAreaRef = React.createRef();
+    // create a root map to avoid warning: You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before.
+    this.roots = {};
 
     if (props.layoutEngineType) {
       this.layoutEngine = new LayoutEngines[props.layoutEngineType](props);
@@ -466,7 +470,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
   }
-
+  // $FlowFixMe[signature-verification-failure]
   removeOldEdges = (prevEdges: IEdge[], edgesMap: any) => {
     // remove old edges
     let edge = null;
@@ -549,7 +553,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       );
     }
   }
-
+  // $FlowFixMe[signature-verification-failure]
   handleDelete = (selected: SelectionT) => {
     const {
       canDeleteSelected,
@@ -632,7 +636,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         break;
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleEdgeSelected = (e: any) => {
     const { source, target } = e.target.dataset;
     const { onSelect } = this.props;
@@ -672,7 +676,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.setState(newState);
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleMultipleSelected = (selectionStart: IPoint, selectionEnd: IPoint) => {
     const { nodes, nodeKey, onSelect } = this.props;
     const { edgesMap } = this.state;
@@ -696,7 +700,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         edges: selectedEdgesMap,
       });
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleSvgClicked = (d: any, i: any) => {
     const {
       onBackgroundClick,
@@ -784,7 +788,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     onSelect && onSelect({ nodes: null, edges: null });
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleContextmenu = () => {
     const { onContextMenu } = this.props;
 
@@ -794,7 +798,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       onContextMenu(xycoords[0], xycoords[1], d3.event);
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleDocumentClick = (event: any) => {
     // Ignore document click if it's in the SVGElement
     if (
@@ -812,7 +816,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       svgClicked: false,
     });
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleDocumentMouseDown = () => {
     const { selectionStart } = this.state;
     const { allowMultiselect } = this.props;
@@ -831,7 +835,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleDocumentMouseMove = () => {
     const { allowMultiselect } = this.props;
     const { event } = d3;
@@ -861,11 +865,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.setState(newState);
   };
-
+  // $FlowFixMe[signature-verification-failure]
   isPartOfEdge(element: any) {
     return !!GraphUtils.findParent(element, '.edge-container', 'svg.graph');
   }
-
+  // $FlowFixMe[signature-verification-failure]
   handleNodeMove = (position: IPoint, nodeId: string, shiftKey: boolean) => {
     const { canCreateEdge, readOnly, selected, nodeKey, onSelect } = this.props;
     const { draggingEdge, nodesMap } = this.state;
@@ -940,14 +944,14 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.setState({ draggingEdge: true });
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   removeCustomEdge = () => {
     GraphUtils.removeElementFromDom(
       'edge-custom-container',
       this.viewWrapper.current
     );
   };
-
+  // $FlowFixMe[signature-verification-failure]
   endDragEdge = (extraState: any = {}, callback: () => void = () => {}) => {
     this.setState(
       {
@@ -994,7 +998,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       }
     }
   }
-
+  // $FlowFixMe[signature-verification-failure]
   handleNodeUpdate = (
     position: IPoint,
     nodeId: string,
@@ -1063,7 +1067,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     return onUpdateNodePromise;
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleNodeMouseEnter = (event: any, data: any) => {
     const { draggingEdge, hoveredNodeData } = this.state;
 
@@ -1079,13 +1083,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       });
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleNodeMouseLeave = (event: any, data: any) => {
     this.setState({
       edgeEndNode: null,
     });
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleNodeSelected = (
     node: INode,
     nodeId: string,
@@ -1129,6 +1133,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   // One can't attach handlers to 'markers' or obtain them from the event.target
   // If the click occurs within a certain radius of edge target, assume the click
   // occurred on the arrow
+  // $FlowFixMe[signature-verification-failure]
   isArrowClicked(edge: IEdge | null) {
     const { edgeArrowSize, onArrowClicked } = this.props;
     const eventTarget = d3.event.sourceEvent.target;
@@ -1172,7 +1177,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       source.y > edgeCoords.target.y - arrowSize
     );
   }
-
+  // $FlowFixMe[signature-verification-failure]
   zoomFilter() {
     if (d3.event.button || this.isControlKeyPressed(d3.event)) {
       return false;
@@ -1189,7 +1194,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       d3.event.stopImmediatePropagation(); // stop zoom
     }
   }
-
+  // $FlowFixMe[signature-verification-failure]
   handleZoomStart = (event: any) => {
     // Zoom start events also handle edge clicks. We need to determine if an edge
     // was clicked and deal with that scenario.
@@ -1229,7 +1234,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     this.setState({ draggingEdge: true, draggedEdge: edge });
     this.dragEdge(edge, d3.mouse);
   };
-
+  // $FlowFixMe[signature-verification-failure]
   getMouseCoordinates(mouse: typeof d3.mouse) {
     let mouseCoordinates = [0, 0];
 
@@ -1272,6 +1277,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   }
 
   // View 'zoom' handler
+  // $FlowFixMe[signature-verification-failure]
   handleZoom = (event: any) => {
     const { draggingEdge } = this.state;
     const transform: IViewTransform = event.transform;
@@ -1299,7 +1305,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return false;
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleZoomEnd = () => {
     const { draggingEdge, draggedEdge, edgeEndNode } = this.state;
 
@@ -1352,6 +1358,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   // Zooms to contents of this.refs.entities
+  // $FlowFixMe[signature-verification-failure]
   handleZoomToFit = () => {
     const entities = d3.select(this.entities).node();
 
@@ -1367,7 +1374,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.handleZoomToFitImpl(viewBBox, this.props.zoomDur);
   };
-
+  // $FlowFixMe[signature-verification-failure]
   handleZoomToFitImpl = (viewBBox: IBBox, zoomDur: number = 0) => {
     if (!this.viewWrapper.current) {
       return;
@@ -1408,6 +1415,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
   };
 
   // Updates current viewTransform with some delta
+  // $FlowFixMe[signature-verification-failure]
   modifyZoom = (
     modK: number = 0,
     modX: number = 0,
@@ -1472,20 +1480,20 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     clearTimeout(this.renderNodesTimeout);
     this.renderNodesTimeout = setTimeout(this.renderNodes);
   }
-
+  // $FlowFixMe[signature-verification-failure]
   isNodeSelected = (node: INode) => {
     const { nodeKey, selected } = this.props;
 
     return !!selected?.nodes?.has(node[nodeKey]);
   };
-
+  // $FlowFixMe[signature-verification-failure]
   isEdgeSelected = (edge: IEdge) => {
     const { selected } = this.props;
     const edgeID = `${edge.source}_${edge.target}`;
 
     return !!selected?.edges?.has(edgeID);
   };
-
+  // $FlowFixMe[signature-verification-failure]
   getNodeComponent = (id: string, node: INode) => {
     const {
       nodeTypes,
@@ -1526,7 +1534,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       />
     );
   };
-
+  // $FlowFixMe[signature-verification-failure]
   renderNodes = () => {
     if (!this.entities) {
       return;
@@ -1559,7 +1567,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.renderConnectedEdgesFromNode(nodesMapNode);
     }
   }
-
+  // $FlowFixMe[signature-verification-failure]
   renderNode(id: string, element: Element) {
     if (!this.entities) {
       return null;
@@ -1581,11 +1589,18 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       this.entities.appendChild(nodeContainer);
     }
 
-    // ReactDOM.render replaces the insides of an element This renders the element
-    // into the nodeContainer
     const anyElement: any = element;
 
-    ReactDOM.render(anyElement, nodeContainer);
+    let root = this.roots[containerId];
+
+    if (!root) {
+      root = createRoot(nodeContainer, {
+        identifierPrefix: containerId,
+      });
+      this.roots[containerId] = root;
+    }
+
+    root.render(anyElement);
   }
 
   renderConnectedEdgesFromNode(
@@ -1604,6 +1619,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     });
   }
 
+  // $FlowFixMe[signature-verification-failure]
   getEdgeComponent = (edge: IEdge | any) => {
     const { rotateEdgeHandle } = this.props;
     const sourceNodeMapNode = this.getNodeById(edge.source);
@@ -1636,6 +1652,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
   };
 
+  // $FlowFixMe[signature-verification-failure]
   renderEdge = (
     id: string,
     element: any,
@@ -1683,10 +1700,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       edgeContainer = newSvgEdgeContainer;
     }
 
-    // ReactDOM.render replaces the insides of an element This renders the element
-    // into the edgeContainer
     if (edgeContainer) {
-      ReactDOM.render(element, edgeContainer);
+      let root = this.roots[containerId];
+
+      if (!root) {
+        root = createRoot(edgeContainer, {
+          identifierPrefix: containerId,
+        });
+        this.roots[containerId] = root;
+      }
+
+      root.render(element);
 
       if (afterRenderEdge) {
         return afterRenderEdge(
@@ -1699,7 +1723,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       }
     }
   };
-
+  // $FlowFixMe[signature-verification-failure]
   asyncRenderEdge = (edge: IEdge, nodeMoving: boolean = false) => {
     if (edge.source == null || edge.target == null) {
       return;
@@ -1726,7 +1750,7 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
 
     this.renderEdge(id, element, edge, nodeMoving);
   }
-
+  // $FlowFixMe[signature-verification-failure]
   renderEdges = () => {
     const { edges, draggingEdge } = this.state;
 
@@ -1758,7 +1782,17 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    ReactDOM.render(
+    const containerId = 'graph-control';
+    let root = this.roots[containerId];
+
+    if (!root) {
+      root = createRoot(this.graphControlsWrapper, {
+        identifierPrefix: containerId,
+      });
+      this.roots[containerId] = root;
+    }
+
+    root.render(
       <GraphControls
         minZoom={minZoom}
         maxZoom={maxZoom}
@@ -1766,11 +1800,10 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
         zoomToFit={this.handleZoomToFit}
         modifyZoom={this.modifyZoom}
         allowMultiselect={allowMultiselect}
-      />,
-      this.graphControlsWrapper
+      />
     );
   }
-
+  // $FlowFixMe[signature-verification-failure]
   render() {
     const {
       edgeArrowSize,

@@ -27,8 +27,8 @@
   "types": "./typings/index.d.ts",
   "peerDependencies": {
     "d3": "^5.16.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "dagre": "^0.8.2",
@@ -98,9 +98,9 @@
     "opn-cli": "3.1.0",
     "prettier": "^1.19.1",
     "prop-types": "^15.6.0",
-    "react": "^16.14.0",
+    "react": "^18.2.0",
     "react-ace": "^6.1.4",
-    "react-dom": "^16.12.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^5.0.0",
     "rimraf": "^2.7.1",
     "sass-loader": "^10.0.2",
@@ -117,7 +117,7 @@
     "build:prod": "webpack --config webpack.prod.js",
     "clean": "rimraf ./dist",
     "clear-react": "npm uninstall react",
-    "reinstall-react": "npm install -D react@^16.12.0",
+    "reinstall-react": "npm install -D react@^18.2.0",
     "watch": "webpack --watch",
     "build-css": "node-sass --include-path scss src/styles/main.scss dist/styles/main.css && node-sass --include-path scss src/examples/app.scss dist/examples/app.css",
     "cover": "npm run test",

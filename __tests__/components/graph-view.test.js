@@ -2,16 +2,17 @@
 
 import * as d3 from 'd3';
 import * as React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { shallow } from 'enzyme';
 import Background from '../../src/components/background';
 import Defs from '../../src/components/defs';
 import GraphUtils from '../../src/utilities/graph-util';
 import GraphView from '../../src/components/graph-view';
 
-jest.mock('react-dom', () => {
-  return {};
-});
+jest.mock('react-dom/client', () => ({
+  ...jest.requireActual('react-dom/client'),
+  createRoot: jest.fn(),
+}));
 
 describe('GraphView component', () => {
   let output = null;
@@ -32,6 +33,7 @@ describe('GraphView component', () => {
   let onUndo;
   let instance;
   let nodeKey;
+  let render;
 
   beforeEach(() => {
     nodes = [];
@@ -50,7 +52,9 @@ describe('GraphView component', () => {
     onSwapEdge = jest.fn();
     onSelectEdge = jest.fn();
     onUndo = jest.fn();
-    ReactDOM.render = jest.fn();
+    render = jest.fn();
+    // $FlowFixMe[prop-missing]
+    createRoot.mockImplementation(() => ({ render: render }));
 
     jest.spyOn(document, 'querySelector').mockReturnValue({
       getBoundingClientRect: jest.fn().mockReturnValue({
@@ -142,14 +146,14 @@ describe('GraphView component', () => {
         showGraphControls: false,
       });
       instance.renderGraphControls();
-      expect(ReactDOM.render).not.toHaveBeenCalled();
+      expect(render).not.toHaveBeenCalled();
 
       output.setProps({
         showGraphControls: true,
       });
     });
 
-    it('uses ReactDOM.render to async render the GraphControls', () => {
+    it('uses createRoot to async render the GraphControls', () => {
       output.setProps({
         showGraphControls: true,
       });
@@ -159,7 +163,7 @@ describe('GraphView component', () => {
         },
       });
       instance.renderGraphControls();
-      expect(ReactDOM.render).toHaveBeenCalled();
+      expect(render).toHaveBeenCalled();
     });
   });
 
@@ -330,7 +334,9 @@ describe('GraphView component', () => {
       instance.entities = {
         appendChild: jest.fn(),
       };
-      ReactDOM.render = jest.fn();
+      render = jest.fn();
+      // $FlowFixMe[prop-missing]
+      createRoot.mockImplementation(() => ({ render: render }));
     });
 
     it('appends an edge element into the entities element', () => {
@@ -380,7 +386,7 @@ describe('GraphView component', () => {
       instance.renderEdge('test', element, edge);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
-      expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
+      expect(render).toHaveBeenCalledWith(element);
     });
   });
 
@@ -591,7 +597,9 @@ describe('GraphView component', () => {
       instance.entities = {
         appendChild: jest.fn(),
       };
-      ReactDOM.render = jest.fn();
+      render = jest.fn();
+      // $FlowFixMe[prop-missing]
+      createRoot.mockImplementation(() => ({ render: render }));
     });
 
     it('appends a node element into the entities element', () => {
@@ -629,7 +637,7 @@ describe('GraphView component', () => {
       instance.renderNode('test', element);
 
       expect(instance.entities.appendChild).not.toHaveBeenCalled();
-      expect(ReactDOM.render).toHaveBeenCalledWith(element, container);
+      expect(render).toHaveBeenCalledWith(element);
     });
   });
 
