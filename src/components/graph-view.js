@@ -298,13 +298,13 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
     );
 
     // add new edges
-    this.addNewEdges(
-      this.state.edges,
-      prevState.edgesMap,
-      selected,
-      prevProps.selected,
-      forceReRender
-    );
+    // this.addNewEdges(
+    //   this.state.edges,
+    //   prevState.edgesMap,
+    //   selected,
+    //   prevProps.selected,
+    //   forceReRender
+    // );
 
     if (prevProps.allowMultiselect !== allowMultiselect) {
       this.renderGraphControls();
@@ -1758,9 +1758,11 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    for (let i = 0; i < edges.length; i++) {
-      this.asyncRenderEdge(edges[i]);
-    }
+    // for (let i = 0; i < edges.length; i++) {
+    //   this.syncRenderEdge(edges[i]);
+    // }
+
+    return <>{edges.map(edge => this.getEdgeComponent(edge))}</>;
   };
 
   /*
@@ -1844,7 +1846,9 @@ class GraphView extends React.Component<IGraphViewProps, IGraphViewState> {
               renderBackground={renderBackground}
             />
 
-            <g className="entities" ref={el => (this.entities = el)} />
+            <g className="entities" ref={el => (this.entities = el)}>
+              {this.renderEdges()}
+            </g>
             {selectionStart && (
               <HighlightArea
                 ref={this.highlightAreaRef}
