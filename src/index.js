@@ -28,6 +28,7 @@ export type INodeType = INode;
 // eslint-disable-next-line prettier/prettier
 export { default as BwdlTransformer } from './utilities/transformers/bwdl-transformer';
 export { GV as GraphView };
+export { default as GraphViewV2 } from './components/graph-view-v2';
 export type LayoutEngineType = LayoutEngineConfigTypes;
 export type { SelectionT, IPoint } from './components/graph-view-props';
 export default GV;
