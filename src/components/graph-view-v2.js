@@ -370,6 +370,7 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
     let prevNode = null;
     let selectedNode = null;
     let prevSelectedNode = null;
+    const hasSelectionChanged = selected !== prevSelected;
 
     GraphUtils.yieldingLoop(nodes.length, 50, i => {
       const node = nodes[i];
@@ -388,10 +389,10 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
           (prevSelectedNode && node[nodeKey] === prevSelectedNode[nodeKey]))
       ) {
         // Updated node
-        this.asyncRenderNode(node);
+        this.asyncRenderNode(node, false, hasSelectionChanged);
       } else if (forceRender || !prevNode) {
         // New node
-        this.asyncRenderNode(node);
+        this.asyncRenderNode(node, false, hasSelectionChanged);
       }
     });
   }
@@ -448,6 +449,7 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
       let prevEdge = null;
       const selectedEdge = null;
       const prevSelectedEdge = null;
+      const hasSelectionChanged = selected !== prevSelected;
 
       GraphUtils.yieldingLoop(edges.length, 50, i => {
         const edge = edges[i];
@@ -467,7 +469,8 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
           (prevSelectedEdge && edge === prevSelectedEdge)
         ) {
           // new edge
-          this.asyncRenderEdge(edge);
+          // force re-render when selection changes
+          this.asyncRenderEdge(edge, false, hasSelectionChanged);
         }
       });
     }
@@ -1718,7 +1721,7 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
       }
 
       if (forceUpdate) {
-        // forceUpdate when dragging edge or moving nodes
+        // forceUpdate when dragging edge or moving nodes or selection changes
         this.forceUpdate();
       }
 
