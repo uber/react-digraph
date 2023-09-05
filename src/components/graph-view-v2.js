@@ -1943,9 +1943,13 @@ class GraphViewV2 extends React.Component<IGraphViewProps, IGraphViewState> {
       return;
     }
 
-    const edge = this.entities.querySelector(
-      `[id='edge-${source}-${target}-container']`
-    );
+    const edge =
+      [
+        ...this.entities?.querySelectorAll(
+          `[id='edge-${source}-${target}-container']`
+        ),
+      ]?.find(element => !!element.innerHTML) ||
+      this.entities.querySelector(`[id='edge-${source}-${target}-container']`);
 
     this.panToEntity(edge, zoom);
   }
