@@ -626,7 +626,7 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
             </select>
           </div>
         </div>
-        <div id="graph" style={{ height: 'calc(100% - 87px)' }}>
+        <div id="graph">
           <GraphView
             ref={el => (this.GraphView = el)}
             allowMultiselect={allowMultiselect}
