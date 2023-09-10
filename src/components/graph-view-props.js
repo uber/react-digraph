@@ -72,6 +72,7 @@ export type IGraphViewProps = {
     hoveredNode: INode | null,
     swapEdge: IEdge
   ) => boolean,
+  canMoveNode?: (node: INode) => boolean,
   onBackgroundClick?: (x: number, y: number, event: any) => void,
   onCopySelected?: () => void,
   onCreateEdge?: (sourceNode: INode, targetNode: INode) => void,
