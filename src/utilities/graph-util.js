@@ -19,6 +19,7 @@ import { type IEdge } from '../components/edge';
 import { type INode } from '../components/node';
 import { type IPoint } from '../components/graph-view-props';
 import fastDeepEqual from 'fast-deep-equal';
+import ReactDOM from 'react-dom';
 
 export type INodeMapNode = {
   node: INode,
@@ -106,6 +107,7 @@ class GraphUtils {
     const container = searchElement.querySelector(`[id='${id}']`);
 
     if (container && container.parentNode) {
+      ReactDOM.unmountComponentAtNode(container);
       container.parentNode.removeChild(container);
 
       return true;
